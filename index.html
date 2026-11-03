@@ -606,7 +606,7 @@ const homeLL=()=>home?home.ll:DATA.pois.features.find(f=>f.properties.kind==='ho
 /* ============ shared database (Supabase) ============ */
 const Cloud={on:!!(SUPA.url&&SUPA.key),sess:LS.get('sess',null),member:LS.get('member',null),outbox:LS.get('outbox',[]),remote:LS.get('remote',{sightings:[],reports:[]}),lastSync:LS.get('lastSync',0),owners:LS.get('owners',0),err:null,busy:false};
 const saveCloud=()=>{LS.set('sess',Cloud.sess);LS.set('member',Cloud.member);LS.set('outbox',Cloud.outbox);LS.set('remote',Cloud.remote);LS.set('lastSync',Cloud.lastSync);LS.set('owners',Cloud.owners)};
-function setSess(j){Cloud.sess={access_token:j.access_token,refresh_token:j.refresh_token,expires_at:j.expires_at||Math.floor(Date.now()/1000)+(j.expires_in||3600),uid:j.user&&j.user.id};saveCloud()}
+function setSess(j){Cloud.sess={access_token:j.access_token,refresh_token:j.refresh_token,expires_at:j.expires_at||Math.floor(Date.now()/1000)+(j.expires_in||3600),uid:j.user&&j.user.id};saveCloud();try{rtToken()}catch(e){}}
 async function authCall(path,body){const r=await fetch(SUPA.url+'/auth/v1/'+path,{method:'POST',headers:{apikey:SUPA.key,'Content-Type':'application/json'},body:JSON.stringify(body)});const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.msg||j.error_description||j.message||('auth '+r.status));return j}
 async function ensureSession(){
   if(Cloud.sess&&Date.now()/1000<Cloud.sess.expires_at-90)return;
@@ -631,21 +631,24 @@ async function joinReserve(name,code){
   sights.filter(s=>!(s.what==='Rhino'&&!shareRhino)&&Date.now()-s.t<SIGHT_TTL).forEach(s=>Cloud.outbox.push({op:'add',t:'sightings',row:sightRow(s)}));
   reports.filter(r=>Date.now()-r.t<REPORT_TTL).forEach(r=>Cloud.outbox.push({op:'add',t:'reports',row:reportRow(r)}));
   tracks.forEach(t=>{if(!t.cid)t.cid=cidNew();Cloud.outbox.push({op:'add',t:'drives',row:driveRow(t)})});LS.set('tracks',tracks);
-  saveCloud();sync();armExpiry();return true;
+  saveCloud();sync();armExpiry();setTimeout(rtConnect,500);return true;
 }
 const iso=t=>new Date(t).toISOString();
 const sightRow=s=>({client_id:s.cid,what:s.what,note:s.note||null,lat:s.ll[1],lng:s.ll[0],created_at:iso(s.t),expires_at:iso(s.t+SIGHT_TTL)});
 const reportRow=r=>({client_id:r.cid,kind:r.kind,note:r.note||null,road:r.road||null,lat:r.ll[1],lng:r.ll[0],created_at:iso(r.t),expires_at:iso(r.t+REPORT_TTL)});
 const driveRow=t=>({client_id:t.cid,title:t.name,len_m:Math.round(t.len),pts:t.pts,created_at:iso(t.t)});
 async function sync(){
-  if(!Cloud.on||!Cloud.member||Cloud.busy||!navigator.onLine)return;
-  Cloud.busy=true;
+  if(!Cloud.on||!Cloud.member||!navigator.onLine)return;
+  if(Cloud.busy){Cloud.again=true;return}
+  Cloud.busy=true;Cloud.again=false;
   try{
+    const pushed=Cloud.outbox.length>0;
     while(Cloud.outbox.length){const o=Cloud.outbox[0];
       if(o.op==='add')await api('/rest/v1/'+o.t+'?on_conflict=client_id',{method:'POST',headers:{Prefer:'resolution=ignore-duplicates,return=minimal'},body:JSON.stringify(o.row)});
       else if(o.op==='del')await api('/rest/v1/'+o.t+'?client_id=eq.'+encodeURIComponent(o.id),{method:'DELETE',headers:{Prefer:'return=minimal'}});
       else if(o.op==='resolve')await api('/rest/v1/reports?client_id=eq.'+encodeURIComponent(o.id),{method:'PATCH',headers:{Prefer:'return=minimal'},body:'{"resolved":true}'});
       Cloud.outbox.shift();saveCloud()}
+    if(pushed)rtPing();
     if(await checkStatus())return;
     const now=encodeURIComponent(new Date().toISOString());
     const [s,r,m,md]=await Promise.all([
@@ -658,10 +661,31 @@ async function sync(){
     if(md&&md[0]&&md[0].version>MAP_VERSION&&LS.get('mapVer',0)<md[0].version){const full=await api('/rest/v1/map_data?select=version,data');if(full&&full[0]){try{localStorage.setItem('kn_mapdata',JSON.stringify(full[0].data));LS.set('mapVer',full[0].version);toast('Map update downloaded. It shows next time you open the app.',4500)}catch(e){}}}
     refreshOverlays();
   }catch(e){Cloud.err=String(e.message||e);if(/not signed|JWT|401/.test(Cloud.err)){}}
-  finally{Cloud.busy=false}
+  finally{Cloud.busy=false;if(Cloud.again){Cloud.again=false;setTimeout(sync,200)}}
 }
 window.addEventListener('online',()=>sync());
-setInterval(()=>sync(),60000);setInterval(()=>{if(mapReady)refreshOverlays()},60000);
+setInterval(()=>{if(!RT.ok||Date.now()-(Cloud.lastSync||0)>55000)sync()},20000);
+/* ============ live updates: a realtime channel nudges every phone the moment anyone adds or changes something ============ */
+const RT={ws:null,ok:false,ref:0,hb:0,back:1000,topic:'realtime:kn-map'};
+function rtSend(event,payload,topic){if(RT.ws&&RT.ws.readyState===1)RT.ws.send(JSON.stringify({topic:topic||RT.topic,event,payload,ref:String(++RT.ref),join_ref:'1'}))}
+async function rtConnect(){if(!Cloud.on||!Cloud.member||!navigator.onLine||RT.ws||RT.busy||typeof WebSocket==='undefined')return;
+  RT.busy=true;try{await ensureSession()}catch(e){RT.busy=false;return}RT.busy=false;if(RT.ws||!Cloud.member)return;
+  let ws;try{ws=new WebSocket(SUPA.url.replace(/^http/,'ws')+'/realtime/v1/websocket?apikey='+encodeURIComponent(SUPA.key)+'&vsn=1.0.0')}catch(e){return}
+  RT.ws=ws;
+  ws.onopen=()=>{rtSend('phx_join',{config:{broadcast:{self:false,ack:false},presence:{key:''},postgres_changes:[],private:false},access_token:Cloud.sess.access_token});
+    clearInterval(RT.hb);RT.hb=setInterval(()=>rtSend('heartbeat',{},'phoenix'),25000)};
+  ws.onmessage=e=>{let m;try{m=JSON.parse(e.data)}catch(x){return}
+    if(m.event==='phx_reply'&&m.topic===RT.topic&&m.payload&&m.payload.status==='ok'&&!RT.ok){RT.ok=true;RT.back=1000;sync()}
+    else if(m.event==='broadcast'&&m.payload&&m.payload.event==='changed'){clearTimeout(RT.d);RT.d=setTimeout(()=>sync(),400)}
+    else if(m.event==='phx_error'||m.event==='phx_close')try{ws.close()}catch(x){}};
+  ws.onclose=()=>{clearInterval(RT.hb);RT.ws=null;RT.ok=false;if(Cloud.member&&navigator.onLine){setTimeout(rtConnect,RT.back);RT.back=Math.min(RT.back*2,60000)}};
+  ws.onerror=()=>{try{ws.close()}catch(x){}}}
+function rtPing(){rtSend('broadcast',{type:'broadcast',event:'changed',payload:{t:Date.now()}})}
+function rtToken(){if(RT.ok&&Cloud.sess)rtSend('access_token',{access_token:Cloud.sess.access_token})}
+function rtStop(){const w=RT.ws;RT.ws=null;RT.ok=false;clearInterval(RT.hb);if(w)try{w.onclose=null;w.close()}catch(e){}}
+window.addEventListener('online',()=>rtConnect());window.addEventListener('offline',()=>rtStop());
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){if(!RT.ws)rtConnect()}});
+setTimeout(rtConnect,1500);setInterval(()=>{if(mapReady)refreshOverlays()},60000);
 /* guest access: server says if your code is still valid; the end date is also kept on the phone so it logs out with no signal */
 async function checkStatus(){
   let st;try{st=await api('/rest/v1/rpc/my_status',{method:'POST',body:'{}'})}catch(e){if(/404|PGRST202|Could not find/.test(String(e.message||e)))return false;throw e}
@@ -735,7 +759,7 @@ function nextPing(){const x=pingQ.shift(),el=$('ping');if(!x){pingOn=false;el.cl
 let expT=0;
 function armExpiry(){clearTimeout(expT);const m=Cloud.member;if(!m||!m.exp)return;const d=m.exp-Date.now();
   if(d<=0){logOut('expired');return}expT=setTimeout(()=>logOut('expired'),Math.min(d,2147e6))}
-function logOut(why){if(!Cloud.member)return;clearTimeout(expT);
+function logOut(why){if(!Cloud.member)return;clearTimeout(expT);rtStop();
   Cloud.member=null;Cloud.outbox=[];Cloud.remote={sightings:[],reports:[]};saveCloud();
   try{if(nav)endNav()}catch(e){}try{closeSheet()}catch(e){}refreshOverlays();
   const o=$('gOut');o.innerHTML='You have been logged out<small>'+(why==='expired'?'Your guest code has expired. Ask an owner for a new one.':why==='revoked'?'An owner ended your guest code.':'Your access to the map was removed.')+'</small>';o.classList.remove('hide');
@@ -1141,7 +1165,7 @@ for(const l of['sights','reports','poi','road','road-check'])map.on('mouseenter'
 /* ============ menu ============ */
 const MI=(id,icon,t,s)=>`<button class="mi" id="${id}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${icon}</svg><span>${t}${s?`<small>${s}</small>`:''}</span></button>`;
 const fmtExp=t=>new Date(t).toLocaleString([],{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
-function cloudStatus(){if(!Cloud.on)return 'Not set up yet';if(!Cloud.member)return 'Tap to join with the invite code';if(Cloud.member.role==='guest'&&Cloud.member.exp)return 'Guest until '+fmtExp(Cloud.member.exp);const p=Cloud.outbox.length?' · '+Cloud.outbox.length+' waiting for signal':'';return Cloud.owners+' owners · '+(Cloud.lastSync?'synced '+ago(Cloud.lastSync):'not synced yet')+p}
+function cloudStatus(){if(!Cloud.on)return 'Not set up yet';if(!Cloud.member)return 'Tap to join with the invite code';if(Cloud.member.role==='guest'&&Cloud.member.exp)return 'Guest until '+fmtExp(Cloud.member.exp);const p=Cloud.outbox.length?' · '+Cloud.outbox.length+' waiting for signal':'';return Cloud.owners+' owners · '+(RT.ok?'live':Cloud.lastSync?'synced '+ago(Cloud.lastSync):'not synced yet')+p}
 $('menuBtn').onclick=()=>{
   const ns=allSights().length,nr=allReports().length;
   openSheet(`<div class="menu">${MI('mOff','<path d="M12 3v12M7 10l5 5 5-5M5 21h14"/>','Offline map',offlineStatus())}
@@ -1233,7 +1257,7 @@ function cloudSheet(){
     if($('cNotif'))$('cNotif').onclick=async()=>{try{const r=await Notification.requestPermission();toast(r==='granted'?'Notifications on':'Notifications are blocked. Allow them in Settings.',3500)}catch(e){toast('This phone needs the app added to the Home Screen first',3500)}cloudSheet()};
     $('cRhino').onclick=()=>{shareRhino=!shareRhino;LS.set('shareRhino',shareRhino);cloudSheet()};
     $('cSync').onclick=async()=>{if(!navigator.onLine){toast('No signal right now. It syncs by itself when signal comes back.');return}$('cSync').textContent='Syncing...';await sync();cloudSheet();toast(Cloud.err?'Sync failed, will retry':'Up to date')};
-    $('cLeave').onclick=()=>{Cloud.member=null;Cloud.outbox=[];Cloud.remote={sightings:[],reports:[]};saveCloud();refreshOverlays();closeSheet();$('gOut').classList.add('hide');showGate()};
+    $('cLeave').onclick=()=>{rtStop();Cloud.member=null;Cloud.outbox=[];Cloud.remote={sightings:[],reports:[]};saveCloud();refreshOverlays();closeSheet();$('gOut').classList.add('hide');showGate()};
   });
 }
 function toggleRec(){
