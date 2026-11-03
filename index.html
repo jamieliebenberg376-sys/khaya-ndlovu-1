@@ -463,7 +463,8 @@ function style(){return{version:8,glyphs:'local://{fontstack}/{range}',
   {id:'bg',type:'background',paint:{'background-color':'#eeebe5'}},
   {id:'sat',type:'raster',source:'sat',layout:{visibility:'none'},paint:{'raster-fade-duration':150}},
   {id:'res-fill',type:'fill',source:'boundary',paint:{'fill-color':'#fdfcfa'}},
-  {id:'farm-tint',type:'fill',source:'farms',filter:['==',['get','kind'],'farm'],paint:{'fill-color':['match',['get','name'],'Khaya Ndlovu','#f0b45c','Bloubank','#5c9fdc','#b07cc6'],'fill-opacity':.3}},
+  {id:'farm-tint',type:'fill',source:'farms',filter:['all',['==',['get','kind'],'farm'],['!=',['get','name'],'Leadwood (restricted)']],paint:{'fill-color':['match',['get','name'],'Khaya Ndlovu','#f0b45c','Bloubank','#5c9fdc','#b07cc6'],'fill-opacity':.3}},
+  {id:'lw-hatch',type:'fill',source:'farms',filter:['==',['get','name'],'Leadwood (restricted)'],paint:{'fill-pattern':'hatch-red','fill-opacity':['interpolate',['linear'],['zoom'],11,.55,16,.4]}},
   {id:'hill',type:'hillshade',source:'dem',paint:{'hillshade-exaggeration':.45,'hillshade-shadow-color':'#5a4a3a','hillshade-highlight-color':'#ffffff','hillshade-accent-color':'#8a7a6a','hillshade-illumination-direction':315}},
   {id:'outside-dim',type:'fill',source:'outside',layout:{visibility:'none'},paint:{'fill-color':'#000','fill-opacity':.28}},
   {id:'river',type:'line',source:'river',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#a9d6f5','line-width':['interpolate',['exponential',2],['zoom'],10,['*',['get','w'],0.01436],20,['*',['get','w'],14.7]]}},
@@ -477,8 +478,11 @@ function style(){return{version:8,glyphs:'local://{fontstack}/{range}',
   {id:'road-check',type:'line',source:'roads',filter:['get','check'],layout:{'line-join':'round'},paint:{'line-color':'#e8702a','line-width':['interpolate',['linear'],['zoom'],12,1,14,2,17,6],'line-dasharray':[2,1.4]}},
   {id:'trail',type:'line',source:'trail',layout:{'line-cap':'round','line-join':'round'},paint:{'line-width':['interpolate',['linear'],['zoom'],12,1.5,17,4],'line-gradient':['interpolate',['linear'],['line-progress'],0,'rgba(66,133,244,0)',1,'rgba(66,133,244,.55)']}},
   {id:'zone-line',type:'line',source:'farms',filter:['==',['get','kind'],'zone'],layout:{visibility:'none'},paint:{'line-color':'#8e24aa','line-width':1,'line-opacity':.45,'line-dasharray':[1,2.5]}},
-  {id:'farm-line',type:'line',source:'farms',filter:['==',['get','kind'],'farm'],layout:{visibility:'none'},paint:{'line-color':'#7b1fa2','line-width':['interpolate',['linear'],['zoom'],11,1.2,16,2.2],'line-dasharray':[3,2],'line-opacity':.75}},
-  {id:'farm-lbl',type:'symbol',source:'farms',filter:['==',['get','kind'],'farm'],layout:{visibility:'none','symbol-placement':'line','text-field':['upcase',['get','name']],'text-font':['Sans Bold'],'text-size':11,'text-letter-spacing':.25,'symbol-spacing':400,'text-offset':[0,-1],'text-max-angle':50},paint:{'text-color':'#6a1b9a','text-halo-color':'#fff','text-halo-width':2}},
+  {id:'lw-line',type:'line',source:'farms',filter:['==',['get','name'],'Leadwood (restricted)'],layout:{'line-join':'round'},paint:{'line-color':'#d93025','line-width':['interpolate',['linear'],['zoom'],11,2.5,16,4.5],'line-opacity':.95}},
+  {id:'lw-lbl',type:'symbol',source:'farms',filter:['==',['get','name'],'Leadwood (restricted)'],layout:{'symbol-placement':'line','text-field':'LEADWOOD · RESTRICTED RESERVE','text-font':['Sans Bold'],'text-size':['interpolate',['linear'],['zoom'],11,11,16,14],'text-letter-spacing':.18,'symbol-spacing':320,'text-offset':[0,1.1],'text-max-angle':40,'text-keep-upright':true},paint:{'text-color':'#c5221f','text-halo-color':'#fff','text-halo-width':2.2}},
+  {id:'lw-center',type:'symbol',source:'farms',filter:['==',['get','name'],'Leadwood (restricted)'],maxzoom:15,layout:{'text-field':'LEADWOOD\nRESTRICTED RESERVE','text-font':['Sans Bold'],'text-size':['interpolate',['linear'],['zoom'],11,13,15,18],'text-letter-spacing':.12,'text-line-height':1.15},paint:{'text-color':'#c5221f','text-halo-color':'#fff','text-halo-width':2.4}},
+  {id:'farm-line',type:'line',source:'farms',filter:['all',['==',['get','kind'],'farm'],['!=',['get','name'],'Leadwood (restricted)']],layout:{visibility:'none'},paint:{'line-color':'#7b1fa2','line-width':['interpolate',['linear'],['zoom'],11,1.2,16,2.2],'line-dasharray':[3,2],'line-opacity':.75}},
+  {id:'farm-lbl',type:'symbol',source:'farms',filter:['all',['==',['get','kind'],'farm'],['!=',['get','name'],'Leadwood (restricted)']],layout:{visibility:'none','symbol-placement':'line','text-field':['upcase',['get','name']],'text-font':['Sans Bold'],'text-size':11,'text-letter-spacing':.25,'symbol-spacing':400,'text-offset':[0,-1],'text-max-angle':50},paint:{'text-color':'#6a1b9a','text-halo-color':'#fff','text-halo-width':2}},
   {id:'zone-lbl',type:'symbol',source:'farms',filter:['==',['get','kind'],'zone'],maxzoom:14.5,layout:{visibility:'none','text-field':['get','name'],'text-font':['Sans Regular'],'text-size':10.5,'text-allow-overlap':false,'text-optional':true},paint:{'text-color':'#7b1fa2','text-halo-color':'rgba(255,255,255,.85)','text-halo-width':1.4,'text-opacity':.6}},
   {id:'tracks',type:'line',source:'tracks',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#8e24aa','line-width':['interpolate',['linear'],['zoom'],12,1.5,17,5],'line-dasharray':[1.5,1]}},
   {id:'route-halo',type:'line',source:'route',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#ffffff','line-width':['interpolate',['linear'],['zoom'],12,9,17,25,19,36]}},
@@ -525,6 +529,7 @@ function hatch(col,bg){const S=16,c=document.createElement('canvas');c.width=c.h
   for(const o of[-S,0,S]){x.beginPath();x.moveTo(o,S);x.lineTo(o+S,0);x.stroke()}return x.getImageData(0,0,S,S)}
 map.on('styleimagemissing',e=>{if(COLORS[e.id])map.addImage(e.id,drawIcon(e.id),{pixelRatio:2});
   else if(e.id==='sarrow'){const c=document.createElement('canvas');c.width=c.height=32;const x=c.getContext('2d');x.fillStyle='#f57c00';x.strokeStyle='#fff';x.lineWidth=3;x.lineJoin='round';x.beginPath();x.moveTo(25,16);x.lineTo(8,6);x.lineTo(12,16);x.lineTo(8,26);x.closePath();x.stroke();x.fill();map.addImage('sarrow',x.getImageData(0,0,32,32),{pixelRatio:2})}
+  else if(e.id==='hatch-red')map.addImage('hatch-red',hatch('rgba(217,48,37,.55)','rgba(217,48,37,.08)'),{pixelRatio:2});
   else if(e.id==='hatch')map.addImage('hatch',hatch('#4a90e2','rgba(178,214,245,.55)'),{pixelRatio:2});
   else if(e.id==='hatch-n')map.addImage('hatch-n',hatch('#4f8fd6','rgba(28,58,85,.75)'),{pixelRatio:2});
   else if(e.id==='pill'){const W=48,H=40,c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');x.shadowColor='rgba(0,0,0,.3)';x.shadowBlur=5;x.shadowOffsetY=1.5;x.fillStyle='#ffffff';const r=14;x.beginPath();x.roundRect(4,4,W-8,H-10,r);x.fill();
@@ -556,6 +561,7 @@ function applyMode(){
   map.setPaintProperty('res-edge','line-opacity',sat?0:.35);
   for(const id of['road-lbl-1','road-lbl-2','road-lbl-3']){map.setPaintProperty(id,'text-color',sat||n?'#f1ece4':'#4a4036');map.setPaintProperty(id,'text-halo-color',sat?'rgba(0,0,0,.85)':n?'#121416':'#ffffff')}
   for(const id of['poi','sights','reports','home','water-lbl','cross-lbl','farm-lbl','zone-lbl']){map.setPaintProperty(id,'text-halo-color',sat||n?'rgba(0,0,0,.85)':'#fff')}
+  for(const id of['lw-lbl','lw-center']){map.setPaintProperty(id,'text-color',sat||n?'#ff6b5e':'#c5221f');map.setPaintProperty(id,'text-halo-color',sat||n?'rgba(0,0,0,.85)':'#fff')}
   map.setPaintProperty('poi','text-color',sat||n?'#fff':['match',['get','kind'],'picnic','#137333','gate','#202124','view','#6a1b9a','home','#c5221f','#3c4043']);
   applyDrive();calloutState='';try{updatePill()}catch(e){}
   map.setPaintProperty('water-lbl','text-color',sat||n?'#bfe3ff':'#1967d2');
