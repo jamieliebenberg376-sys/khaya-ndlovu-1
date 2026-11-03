@@ -669,10 +669,10 @@ async function sync(){
     const [s,r,m,md]=await Promise.all([
       api('/rest/v1/sightings?select=client_id,user_id,name,what,note,lat,lng,created_at&expires_at=gt.'+now+'&order=created_at.desc&limit=400'),
       api('/rest/v1/reports?select=client_id,user_id,name,kind,note,road,lat,lng,created_at&resolved=is.false&expires_at=gt.'+now+'&order=created_at.desc&limit=400'),
-      api('/rest/v1/members?select=user_id'),
+      api('/rest/v1/members?select=user_id,role,expires_at').catch(()=>api('/rest/v1/members?select=user_id')),
       api('/rest/v1/map_data?select=version')]);
     alertNew(s||[]);mergeLog(s||[]);if(!Cloud.noMiss)api('/rest/v1/animal_misses?select=client_id,user_id,name,what,lat,lng,created_at&created_at=gt.'+encodeURIComponent(new Date(Date.now()-864e5).toISOString())).then(x=>{Cloud.misses=x||[];refreshOverlays()}).catch(e=>{if(/404|PGRST20|does not exist|Could not find/.test(String(e.message||e)))Cloud.noMiss=true});if(Date.now()-LS.get('histT',0)>6*36e5){api('/rest/v1/sightings?select=client_id,what,lat,lng,created_at&created_at=gt.'+encodeURIComponent(new Date(Date.now()-365*864e5).toISOString())+'&order=created_at.desc&limit=5000').then(h=>{mergeLog(h||[]);LS.set('histT',Date.now());refreshOverlays()}).catch(()=>{})}
-    Cloud.remote={sightings:s||[],reports:r||[]};Cloud.owners=(m||[]).length;Cloud.lastSync=Date.now();Cloud.err=null;saveCloud();
+    Cloud.remote={sightings:s||[],reports:r||[]};{const now_=Date.now(),M=m||[];Cloud.owners=M.filter(x=>!x.role||x.role!=='guest').length;Cloud.guests=M.filter(x=>x.role==='guest'&&x.expires_at&&Date.parse(x.expires_at)>now_).length}Cloud.lastSync=Date.now();Cloud.err=null;saveCloud();
     if(md&&md[0]&&md[0].version>MAP_VERSION&&LS.get('mapVer',0)<md[0].version){const full=await api('/rest/v1/map_data?select=version,data');if(full&&full[0]){try{localStorage.setItem('kn_mapdata',JSON.stringify(full[0].data));LS.set('mapVer',full[0].version);toast('Map update downloaded. It shows next time you open the app.',4500)}catch(e){}}}
     refreshOverlays();
   }catch(e){Cloud.err=String(e.message||e);if(/not signed|JWT|401/.test(Cloud.err)){}}
@@ -1307,12 +1307,12 @@ for(const l of['sights','reports','poi','road','road-check'])map.on('mouseenter'
 /* ============ menu ============ */
 const MI=(id,icon,t,s)=>`<button class="mi" id="${id}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${icon}</svg><span>${t}${s?`<small>${s}</small>`:''}</span></button>`;
 const fmtExp=t=>new Date(t).toLocaleString([],{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
-function cloudStatus(){if(!Cloud.on)return 'Not set up yet';if(!Cloud.member)return 'Tap to join with the invite code';if(Cloud.member.role==='guest'&&Cloud.member.exp)return 'Guest until '+fmtExp(Cloud.member.exp);const p=Cloud.outbox.length?' · '+Cloud.outbox.length+' waiting for signal':'';return Cloud.owners+' owners · '+(RT.ok?'live':Cloud.lastSync?'synced '+ago(Cloud.lastSync):'not synced yet')+p}
+function cloudStatus(){if(!Cloud.on)return 'Not set up yet';if(!Cloud.member)return 'Tap to join with the invite code';if(Cloud.member.role==='guest'&&Cloud.member.exp)return 'Guest until '+fmtExp(Cloud.member.exp);const p=Cloud.outbox.length?' · '+Cloud.outbox.length+' waiting for signal':'';return Cloud.owners+' owner'+(Cloud.owners==1?'':'s')+(Cloud.guests?' · '+Cloud.guests+' guest'+(Cloud.guests==1?'':'s'):'')+' · '+(RT.ok?'live':Cloud.lastSync?'synced '+ago(Cloud.lastSync):'not synced yet')+p}
 $('menuBtn').onclick=()=>{
   const ns=allSights().length,nr=allReports().length;
   openSheet(`<div class="menu">${MI('mOff','<path d="M12 3v12M7 10l5 5 5-5M5 21h14"/>','Offline map',offlineStatus())}
-  ${MI('mCloud','<path d="M7 18a4.5 4.5 0 0 1-.5-9 6 6 0 0 1 11.5 1.5A3.75 3.75 0 0 1 17.5 18z"/>','Shared map',cloudStatus())}
-  ${Cloud.member&&Cloud.member.role!=='guest'?MI('mGuest','<path d="M15 7a3 3 0 1 1-6 0 3 3 0 0 1 6 0zM5 20a7 7 0 0 1 14 0"/><path d="M19 8v6M16 11h6"/>','Guest codes','Let visitors use the map until a date you choose'):''}
+  ${Cloud.member&&Cloud.member.role!=='guest'?'':MI('mCloud','<path d="M7 18a4.5 4.5 0 0 1-.5-9 6 6 0 0 1 11.5 1.5A3.75 3.75 0 0 1 17.5 18z"/>','Shared map',cloudStatus())}
+  ${Cloud.member&&Cloud.member.role!=='guest'?MI('mGuest','<path d="M15 7a3 3 0 1 1-6 0 3 3 0 0 1 6 0zM5 20a7 7 0 0 1 14 0"/><path d="M19 8v6M16 11h6"/>','Guest codes',cloudStatus()):''}
   ${MI('mHome','<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/>','My home point',home?'Set. Tap to change or remove it':'Not set yet. Tap to set your own home')}
   ${MI('mLive','<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="7.5"/>','Share live location',shareLoc?'On · '+liveWhy().short:'Off · tap to see how it works')}
   ${MI('mRec',recTrack?'<rect x="6" y="6" width="12" height="12" rx="2"/>':'<circle cx="12" cy="12" r="7"/>',recTrack?'Stop recording':'Record a drive','Saves your route so new roads can be added')}
@@ -1322,7 +1322,7 @@ $('menuBtn').onclick=()=>{
   ${MI('mDemo','<path d="M6 4l14 8-14 8z"/>','Demo drive','Test the navigation at home')}
   ${MI('mHelp','<circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .8-1 1.5V14M12 17.5v.01"/>','Install & offline use','')}</div>`,()=>{
     $('mOff').onclick=()=>offlineSheet(false);
-    $('mCloud').onclick=()=>Cloud.member?cloudSheet():joinSheet();
+    if($('mCloud'))$('mCloud').onclick=()=>Cloud.member?cloudSheet():joinSheet();
     if($('mGuest'))$('mGuest').onclick=()=>guestSheet();
     $('mHome').onclick=()=>homeSheet();
     $('mLive').onclick=()=>liveSheet();
@@ -1351,26 +1351,47 @@ const endOfDay=d=>{const x=new Date(Date.now()+d*864e5);x.setHours(23,59,0,0);re
 const dtLocal=d=>{const z=n=>String(n).padStart(2,'0');return d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate())+'T'+z(d.getHours())+':'+z(d.getMinutes())};
 async function guestSheet(){
   if(!navigator.onLine){toast('You need signal to manage guest codes');return}
-  openSheet(`<h2>Guest codes</h2><div class="sub" style="line-height:1.45">Give a visitor a code. When the end date comes, everyone using that code is logged out.</div>
+  const admin=Cloud.member.role==='admin';let kind='guest';
+  openSheet(`<h2>Guest codes</h2><div class="sub" style="line-height:1.45" id="gIntro">Give a visitor a code. When the end date comes, everyone using that code is logged out.</div>
+  ${admin?`<div class="seg" style="margin-top:12px" id="gKind"><button data-k="guest" class="sel">Guest</button><button data-k="owner">Owner</button><button data-k="admin">Admin</button></div>`:''}
   <input class="inp" id="gLabel" placeholder="Who is it for? e.g. Smith family" maxlength="40">
-  <div class="gpres">${[['Today',0],['3 days',2],['1 week',6],['1 month',29]].map(([l,d],i)=>`<button class="chip${i==1?' sel':''}" data-d="${d}">${l}</button>`).join('')}</div>
-  <div class="sub" style="margin-top:12px">Ends</div><input class="inp" id="gExp" type="datetime-local" style="margin-top:4px">
+  <div id="gWhen"><div class="gpres">${[['Today',0],['3 days',2],['1 week',6],['1 month',29]].map(([l,d],i)=>`<button class="chip${i==1?' sel':''}" data-d="${d}">${l}</button>`).join('')}</div>
+  <div class="sub" style="margin-top:12px">Ends</div><input class="inp" id="gExp" type="datetime-local" style="margin-top:4px"></div>
   <button class="btn pri" id="gMake" style="width:100%;margin-top:12px">Create guest code</button>
-  <div id="gNew"></div><div class="sub" style="margin-top:16px"><b>All guest codes</b> · every owner's codes and who is on them</div><div id="gList"><div class="it"><small>Loading...</small></div></div>`,()=>{
+  <div id="gNew"></div>
+  <div class="sub" style="margin-top:18px"><b>Codes</b> · every code and who used it</div><div id="gList"><div class="it"><small>Loading...</small></div></div>
+  <div id="gPeople"><div class="it"><small>Loading owners and guests...</small></div></div>
+  <button class="btn" id="gSet" style="width:100%;margin-top:16px">Shared map settings</button>`,()=>{
     const ex=$('gExp');ex.value=dtLocal(endOfDay(2));ex.min=dtLocal(new Date());
     document.querySelectorAll('.gpres .chip').forEach(b=>b.onclick=()=>{document.querySelectorAll('.gpres .chip').forEach(x=>x.classList.remove('sel'));b.classList.add('sel');ex.value=dtLocal(endOfDay(+b.dataset.d))});
     ex.oninput=()=>document.querySelectorAll('.gpres .chip').forEach(x=>x.classList.remove('sel'));
-    $('gMake').onclick=async()=>{const t=new Date(ex.value);if(!ex.value||isNaN(t)||t<=new Date()){toast('Pick an end date in the future');return}
-      $('gMake').textContent='Creating...';$('gMake').disabled=true;
-      try{const code=await rpc('create_guest_code',{p_label:$('gLabel').value.trim(),p_expires:t.toISOString()});
-        const G={code,label:$('gLabel').value.trim(),exp:t.getTime()};
-        $('gNew').innerHTML=`<button class="gcode" id="gCodeBtn" style="width:100%;background:none;border:0">${esc(code)}<small style="display:block;font:600 12px system-ui;letter-spacing:0;color:var(--sub);margin-top:6px">Tap the code to send it</small></button><div class="sub" style="text-align:center">Works until ${esc(fmtExp(t))}</div><button class="btn pri" id="gShare" style="width:100%;margin-top:10px">Send to guest</button>`;
+    document.querySelectorAll('#gKind [data-k]').forEach(b=>b.onclick=()=>{kind=b.dataset.k;document.querySelectorAll('#gKind [data-k]').forEach(x=>x.classList.toggle('sel',x===b));
+      $('gWhen').style.display=kind==='guest'?'':'none';$('gMake').textContent='Create '+kind+(kind==='guest'?' code':' invite');
+      $('gLabel').placeholder=kind==='guest'?'Who is it for? e.g. Smith family':'Their name, e.g. Michael';
+      $('gIntro').textContent=kind==='guest'?'Give a visitor a code. When the end date comes, everyone using that code is logged out.':'A one-time invite for a new '+kind+'. Their access never expires unless an admin removes them. The invite itself works for 14 days.'});
+    $('gSet').onclick=()=>cloudSheet();
+    $('gMake').onclick=async()=>{const t=new Date(ex.value);if(kind==='guest'&&(!ex.value||isNaN(t)||t<=new Date())){toast('Pick an end date in the future');return}
+      const btxt=$('gMake').textContent;$('gMake').textContent='Creating...';$('gMake').disabled=true;
+      try{const lbl=$('gLabel').value.trim(),exp=kind==='guest'?t:new Date(Date.now()+14*864e5);let code;
+        try{code=await rpc('create_code',{p_label:lbl,p_expires:exp.toISOString(),p_kind:kind})}catch(e){if(kind==='guest'&&/404|PGRST202|Could not find/.test(e.message))code=await rpc('create_guest_code',{p_label:lbl,p_expires:exp.toISOString()});else throw e}
+        const G={code,label:lbl,exp:exp.getTime(),kind};
+        $('gNew').innerHTML=`<button class="gcode" id="gCodeBtn" style="width:100%;background:none;border:0">${esc(code)}<small style="display:block;font:600 12px system-ui;letter-spacing:0;color:var(--sub);margin-top:6px">Tap the code to send it</small></button><div class="sub" style="text-align:center">${kind==='guest'?'Works until '+esc(fmtExp(exp)):'One-time '+kind+' invite · never expires once used'}</div><button class="btn pri" id="gShare" style="width:100%;margin-top:10px">Send it</button>`;
         $('gCodeBtn').onclick=$('gShare').onclick=()=>sendGuest(G);
         $('gLabel').value='';loadGuests()}
-      catch(e){toast(/owners only/.test(e.message)?'Only owners can make guest codes':'Could not create the code: '+String(e.message||e).slice(0,70),4000)}
-      $('gMake').textContent='Create guest code';$('gMake').disabled=false};
-    loadGuests()});
+      catch(e){toast(/admins only/.test(e.message)?'Only admins can make owner or admin invites':/owners only/.test(e.message)?'Only owners can make guest codes':'Could not create the code: '+String(e.message||e).slice(0,70),4000)}
+      $('gMake').textContent=btxt;$('gMake').disabled=false};
+    loadGuests();loadPeople()});
 }
+async function loadPeople(){const el=$('gPeople');if(!el)return;let L;
+  try{L=await rpc('list_members')}catch(e){el.innerHTML=/404|PGRST202|Could not find/.test(e.message)?'<div class="sub" style="margin-top:14px">The owners list needs the admin_members.sql update in Supabase.</div>':'';return}
+  const admin=Cloud.member.role==='admin',now=Date.now();
+  const O=L.filter(x=>x.role!=='guest'),G=L.filter(x=>x.role==='guest');
+  const seen=t=>!t?'':now-Date.parse(t)<5*6e4?' · on the map now':' · last opened '+ago(Date.parse(t));
+  const row=x=>`<div class="gg" style="align-items:center"><span class="gav" style="background:${x.role==='guest'?'#b06000':x.role==='admin'?'#c5221f':'#188038'}">${esc((x.name||'?').trim()[0]||'?').toUpperCase()}</span><div style="flex:1;min-width:0"><b>${esc(x.name||'No name')}</b>${x.me?' <span class="tag x">You</span>':''}${x.role==='admin'?' <span class="tag">Admin</span>':''}<small>${x.role==='guest'?'Invited by '+esc(x.added_by||'an owner')+(x.code_label?' · '+esc(x.code_label):'')+'<br>Until '+esc(fmtExp(Date.parse(x.expires_at)))+' · '+esc(left(Date.parse(x.expires_at)))+' left':(x.added_by&&!/code$/.test(x.added_by)?'Invited by '+esc(x.added_by)+' · ':'')+'Joined '+esc(new Date(x.joined_at).toLocaleDateString([],{day:'numeric',month:'short',year:'numeric'}))+' · never expires'}${esc(seen(x.last_seen))}</small></div>${admin&&!x.me?`<button class="sm red" data-rm="${x.user_id}" data-n="${esc(x.name||'')}">Remove</button>`:''}</div>`;
+  el.innerHTML=`<div class="sub" style="margin-top:18px"><b>Owners</b> · ${O.length}</div><div class="gw">${O.map(row).join('')||'<div class="gg"><small>No owners</small></div>'}</div>
+   <div class="sub" style="margin-top:14px"><b>Guests</b> · ${G.length}</div><div class="gw">${G.map(row).join('')||'<div class="gg"><small>No guests on the map right now. Guests disappear from here when their code ends.</small></div>'}</div>`;
+  el.querySelectorAll('[data-rm]').forEach(b=>b.onclick=async()=>{if(b.dataset.sure!=='1'){b.dataset.sure='1';b.textContent='Sure?';return}
+    b.textContent='...';try{await rpc('remove_member',{p_user:b.dataset.rm});toast((b.dataset.n||'They')+' was removed and will be logged out',3500)}catch(e){toast('Could not remove: '+String(e.message||e).slice(0,60))}loadPeople()})}
 const fmtDay=t=>new Date(t).toLocaleString([],{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
 function left(t){const m=Math.max(0,(t-Date.now())/6e4);if(m<60)return Math.ceil(m)+' min';const h=m/60;if(h<24)return Math.round(h)+(Math.round(h)==1?' hour':' hours');return Math.round(h/24)+' days'}
 function span(a,b){const d=Math.round((b-a)/864e5);return d<1?'under a day':d+(d==1?' day':' days')+' total'}
@@ -1378,11 +1399,11 @@ function span(a,b){const d=Math.round((b-a)/864e5);return d<1?'under a day':d+(d
 function guestMsg(G,wa){const b=wa?s=>'*'+s+'*':s=>s,link=location.origin+'/?guest='+encodeURIComponent(G.code);
   const end=new Date(G.exp).toLocaleString([],{weekday:'long',day:'numeric',month:'long',hour:'2-digit',minute:'2-digit'});
   return [ '🐘 '+b('Khaya Ndlovu Game Drive Map'),'',
-    (G.label?'Hi '+G.label+'! ':'Hi! ')+"You've been invited to use the reserve map.",'',
-    '🔑 Guest code: '+b(G.code),'📅 Valid until: '+end,'',
+    (G.label?'Hi '+G.label+'! ':'Hi! ')+(G.kind&&G.kind!=='guest'?"You've been invited to join the reserve map as an "+G.kind+'.':"You've been invited to use the reserve map."),'',
+    ...(G.kind&&G.kind!=='guest'?['🔑 '+(G.kind==='admin'?'Admin':'Owner')+' invite code: '+b(G.code),'✅ One-time code. Your access never expires.','⏳ Use it before '+end]:['🔑 Guest code: '+b(G.code),'📅 Valid until: '+end]),'',
     '👉 Open the map:',link,'',
     b('How to start'),'1. Tap the link above','2. Type your name (the code fills in by itself)','3. Tap Share, then Add to Home Screen','4. Open it once with signal so it works offline','',
-    'You will be logged out automatically when the code ends.'].join('\n')}
+    G.kind&&G.kind!=='guest'?'Please keep this code to yourself.':'You will be logged out automatically when the code ends.'].join('\n')}
 function sendGuest(G,fromList){const wa=guestMsg(G,true),sms=guestMsg(G,false),back=fromList?()=>guestSheet():null;
   openSheet(`<h2>Send guest code</h2><div class="gcode" style="padding:10px 0 4px">${esc(G.code)}</div><div class="sub" style="text-align:center">${G.label?esc(G.label)+' · ':''}until ${esc(fmtExp(G.exp))}</div>
   <div class="list" style="margin-top:12px">
@@ -1402,25 +1423,43 @@ function fallbackCopy(t,m){const a=document.createElement('textarea');a.value=t;
 async function loadGuests(){const el=$('gList');if(!el)return;let L;
   try{L=await rpc('list_guest_codes')}catch(e){el.innerHTML=`<div class="it"><small>${/404|PGRST202|Could not find/.test(e.message)?'Guest codes need a quick database update first (guest_codes.sql).':'Could not load codes'}</small></div>`;return}
   el.innerHTML=(L||[]).map(g=>{const ex=Date.parse(g.expires_at),live=!g.revoked&&ex>Date.now(),gs=g.guests||[];
-    const tag=g.revoked?'<span class="tag x">Ended</span>':!live?'<span class="tag x">Expired</span>':ex-Date.now()<864e5?'<span class="tag w">Ends soon</span>':'<span class="tag">Active</span>';
+    const inv=g.kind==='owner'||g.kind==='admin';
+    const tag=inv?(g.uses>0?'<span class="tag x">'+(g.kind==='admin'?'Admin':'Owner')+' invite · used</span>':g.revoked||!live?'<span class="tag x">'+(g.kind==='admin'?'Admin':'Owner')+' invite · expired</span>':'<span class="tag w">'+(g.kind==='admin'?'Admin':'Owner')+' invite</span>'):g.revoked?'<span class="tag x">Ended</span>':!live?'<span class="tag x">Expired</span>':ex-Date.now()<864e5?'<span class="tag w">Ends soon</span>':'<span class="tag">Active</span>';
     const who=g.mine?'you':esc(g.created_by_name||'an owner');
-    const guests=gs.length?gs.map(m=>`<div class="gg"><span class="gav">${esc((m.name||'?').trim()[0]||'?').toUpperCase()}</span><div><b>${esc(m.name||'Guest')}</b><small>Added by ${who} · joined ${esc(fmtDay(Date.parse(m.joined_at)))}<br>${live?'On the map for '+esc(left(ex))+' more':'Logged out '+esc(fmtDay(ex))}${live?' · stay '+esc(span(Date.parse(m.joined_at),ex)):''}</small></div></div>`).join(''):'<div class="gg"><small style="padding-left:2px">Nobody has used this code yet</small></div>';
-    return `<div class="gc"><div class="gh"><div><b class="mono">${esc(g.code)}</b>${tag}<br><small>${g.label?esc(g.label)+' · ':''}made by ${who}</small><br><small>${live?'Ends '+esc(fmtExp(ex))+' · '+esc(left(ex))+' left':'Ended '+esc(fmtExp(ex))}</small></div><div class="gb">${live?`<button class="sm" data-share="${esc(g.code)}">Share</button><button class="sm red" data-end="${esc(g.code)}">End</button>`:`<button class="sm" data-ext="${esc(g.code)}">Renew</button>`}</div></div>
+    const guests=gs.length?gs.map(m=>`<div class="gg"><span class="gav">${esc((m.name||'?').trim()[0]||'?').toUpperCase()}</span><div><b>${esc(m.name||'Guest')}</b><small>Added by ${who} · joined ${esc(fmtDay(Date.parse(m.joined_at)))}<br>${inv?(g.kind==='admin'?'Admin':'Owner')+' · never expires':live?'On the map for '+esc(left(ex))+' more':'Logged out '+esc(fmtDay(ex))}${live&&!inv?' · stay '+esc(span(Date.parse(m.joined_at),ex)):''}</small></div></div>`).join(''):'<div class="gg"><small style="padding-left:2px">Nobody has used this code yet</small></div>';
+    return `<div class="gc"><div class="gh"><div><b class="mono">${esc(g.code)}</b>${tag}<br><small>${g.label?esc(g.label)+' · ':''}made by ${who}</small><br><small>${inv?(g.uses>0?'One-time invite, used':live?'One-time invite · use before '+esc(fmtExp(ex)):'Invite expired unused'):live?'Ends '+esc(fmtExp(ex))+' · '+esc(left(ex))+' left':'Ended '+esc(fmtExp(ex))}</small></div><div class="gb">${inv&&g.uses>0?'':live?`<button class="sm" data-share="${esc(g.code)}">Share</button><button class="sm red" data-end="${esc(g.code)}">End</button>`:`<button class="sm" data-ext="${esc(g.code)}">Renew</button>`}</div></div>
       <div class="gw">${gs.length?`<small class="gl">${gs.length} ${gs.length==1?'guest':'guests'}</small>`:''}${guests}</div></div>`}).join('')||'<div class="it"><small>No guest codes yet</small></div>';
   el.querySelectorAll('[data-end]').forEach(b=>b.onclick=async()=>{if(b.dataset.sure!=='1'){b.dataset.sure='1';b.textContent='Sure?';return}
     b.textContent='...';try{await rpc('revoke_guest_code',{p_code:b.dataset.end});toast('Code ended. Guests on it are logged out.',3500)}catch(e){toast('Could not end the code')}loadGuests()});
-  el.querySelectorAll('[data-share]').forEach(b=>b.onclick=()=>{const g=L.find(x=>x.code===b.dataset.share);sendGuest({code:g.code,label:g.label,exp:Date.parse(g.expires_at)},true)});
-  el.querySelectorAll('.gh .mono').forEach(c=>{c.style.cursor='pointer';c.onclick=()=>{const g=L.find(x=>x.code===c.textContent);if(g)sendGuest({code:g.code,label:g.label,exp:Date.parse(g.expires_at)},true)}});
+  el.querySelectorAll('[data-share]').forEach(b=>b.onclick=()=>{const g=L.find(x=>x.code===b.dataset.share);sendGuest({code:g.code,label:g.label,exp:Date.parse(g.expires_at),kind:g.kind||'guest'},true)});
+  el.querySelectorAll('.gh .mono').forEach(c=>{c.style.cursor='pointer';c.onclick=()=>{const g=L.find(x=>x.code===c.textContent);if(g)sendGuest({code:g.code,label:g.label,exp:Date.parse(g.expires_at),kind:g.kind||'guest'},true)}});
   el.querySelectorAll('[data-ext]').forEach(b=>b.onclick=async()=>{const t=new Date($('gExp').value);if(isNaN(t)||t<=new Date()){toast('Set the Ends date above first');return}
     try{await rpc('extend_guest_code',{p_code:b.dataset.ext,p_expires:t.toISOString()});toast('Renewed until '+fmtExp(t))}catch(e){toast('Could not renew')}loadGuests()});
 }
+/* ============ owners & guests list (admins can remove people) ============ */
+async function membersSheet(){
+  if(!navigator.onLine){toast('You need signal to see the list');return}
+  openSheet('<h2>Owners & guests</h2><div class="list"><div class="it"><small>Loading...</small></div></div>');
+  let L;try{L=await rpc('list_members')}catch(e){openSheet(`<h2>Owners & guests</h2><div class="sub" style="line-height:1.45">${/404|PGRST202|Could not find/.test(e.message)?'This needs the admin_members.sql update in Supabase first.':/owners only/.test(e.message)?'Only owners can see this list.':'Could not load the list. Try again with better signal.'}</div>`);return}
+  const admin=Cloud.member.role==='admin',now=Date.now();
+  const O=L.filter(x=>x.role!=='guest'),G=L.filter(x=>x.role==='guest');
+  const seen=t=>!t?'not opened since the update':now-Date.parse(t)<5*6e4?'on the map now':'last opened '+ago(Date.parse(t));
+  const row=x=>`<div class="gg" style="align-items:center"><span class="gav" style="background:${x.role==='guest'?'#b06000':x.role==='admin'?'#c5221f':'#188038'}">${esc((x.name||'?').trim()[0]||'?').toUpperCase()}</span><div style="flex:1;min-width:0"><b>${esc(x.name||'No name')}</b>${x.me?' <span class="tag x">You</span>':''}${x.role==='admin'?' <span class="tag">Admin</span>':''}<small>${x.role==='guest'?'Until '+esc(fmtExp(Date.parse(x.expires_at)))+' · '+esc(left(Date.parse(x.expires_at)))+' left'+(x.added_by?' · added by '+esc(x.added_by):'')+(x.code_label?' · '+esc(x.code_label):''):'Joined '+esc(new Date(x.joined_at).toLocaleDateString([],{day:'numeric',month:'short',year:'numeric'}))} · ${esc(seen(x.last_seen))}</small></div>${admin&&!x.me?`<button class="sm red" data-rm="${x.user_id}" data-n="${esc(x.name||'')}">Remove</button>`:''}</div>`;
+  openSheet(`<h2>Owners & guests</h2><div class="sub">${O.length} owner${O.length==1?'':'s'} · ${G.length} guest${G.length==1?'':'s'}${admin?' · as admin you can remove people':''}</div>
+   <div class="sub" style="margin-top:14px"><b>Owners</b></div><div class="gw">${O.map(row).join('')||'<div class="gg"><small>No owners</small></div>'}</div>
+   <div class="sub" style="margin-top:14px"><b>Guests</b></div><div class="gw">${G.map(row).join('')||'<div class="gg"><small>No guests on the map right now. Expired guests are removed automatically.</small></div>'}</div>
+   <button class="btn" id="mBack" style="width:100%;margin-top:14px">Back</button>`,()=>{
+    $('mBack').onclick=()=>cloudSheet();
+    document.querySelectorAll('[data-rm]').forEach(b=>b.onclick=async()=>{if(b.dataset.sure!=='1'){b.dataset.sure='1';b.textContent='Sure?';return}
+      b.textContent='...';try{await rpc('remove_member',{p_user:b.dataset.rm});toast((b.dataset.n||'They')+' was removed and will be logged out',3500)}catch(e){toast('Could not remove: '+String(e.message||e).slice(0,60))}membersSheet()})})}
 function cloudSheet(){
-  openSheet(`<h2>Shared map</h2><div class="sub">Signed in as <b>${esc(Cloud.member.name)}</b><br>${esc(cloudStatus())}${Cloud.err?'<br><span style="color:#c5221f">Last sync problem: '+esc(Cloud.err.slice(0,90))+'</span>':''}</div>
-  <div class="list" style="margin-top:8px"><div class="it"><div><b>New sighting alerts</b><br><small>Pops up when someone else marks a sighting</small></div><button class="sm ${alertOn?'':'red'}" id="cAlert">${alertOn?'On':'Off'}</button></div>
+  openSheet(`<h2>Shared map</h2><div class="sub">Signed in as <b>${esc(Cloud.member.name)}</b>${Cloud.member.role==='admin'?' <span class="tag">Admin</span>':Cloud.member.role==='guest'?' <span class="tag w">Guest</span>':''}<br>${esc(cloudStatus())}${Cloud.err?'<br><span style="color:#c5221f">Last sync problem: '+esc(Cloud.err.slice(0,90))+'</span>':''}</div>
+  <div class="list" style="margin-top:8px">${Cloud.member.role!=='guest'?`<button class="it" id="cPeople" style="width:100%;text-align:left;background:none;border:0;color:inherit;font:inherit"><div style="font-size:22px;width:30px">👥</div><div style="flex:1"><b>Owners & guests</b><br><small>${esc(Cloud.owners+' owner'+(Cloud.owners==1?'':'s')+(Cloud.guests?' · '+Cloud.guests+' guest'+(Cloud.guests==1?'':'s'):''))}${Cloud.member.role==='admin'?' · you can remove people':''}</small></div><small>›</small></button>`:''}<div class="it"><div><b>New sighting alerts</b><br><small>Pops up when someone else marks a sighting</small></div><button class="sm ${alertOn?'':'red'}" id="cAlert">${alertOn?'On':'Off'}</button></div>
   <div class="it"><div><b>Alert sound</b><br><small>Plays a bing with each alert</small></div><button class="sm ${alertSound?'':'red'}" id="cSound">${alertSound?'On':'Off'}</button></div>
   ${'Notification' in window&&Notification.permission!=='granted'?`<div class="it"><div><b>Phone notifications</b><br><small>Also alert you while the app is in the background</small></div><button class="sm" id="cNotif">Turn on</button></div>`:''}
   <div class="it"><div><b>Share rhino sightings</b><br><small>Off keeps rhino locations on this phone only</small></div><button class="sm ${shareRhino?'':'red'}" id="cRhino">${shareRhino?'On':'Off'}</button></div></div>
   <div class="row"><button class="btn pri" id="cSync">Sync now</button><button class="btn red" id="cLeave">Leave</button></div>`,()=>{
+    if($('cPeople'))$('cPeople').onclick=()=>guestSheet();
     $('cAlert').onclick=()=>{alertOn=!alertOn;LS.set('alertOn',alertOn);cloudSheet()};
     $('cSound').onclick=()=>{alertSound=!alertSound;LS.set('alertSound',alertSound);if(alertSound)bing();cloudSheet()};
     if($('cNotif'))$('cNotif').onclick=async()=>{try{const r=await Notification.requestPermission();toast(r==='granted'?'Notifications on':'Notifications are blocked. Allow them in Settings.',3500)}catch(e){toast('This phone needs the app added to the Home Screen first',3500)}cloudSheet()};
@@ -1562,7 +1601,7 @@ function showGate(){const g=$('gate');g.classList.remove('hide');
     $('gGo').textContent='Checking...';$('gGo').disabled=true;
     let ok=false;try{ok=await joinReserve(n,c)}catch(x){err.textContent='Could not check the code, try again with better signal';bad();$('gGo').textContent='Open map';$('gGo').disabled=false;return}
     $('gGo').textContent='Open map';$('gGo').disabled=false;
-    if(ok!==true){err.textContent=ok==='expired'?'That guest code has expired':ok==='revoked'?'That guest code was cancelled':'Oops, that code is wrong';$('gCode').classList.add('bad');$('gCode').select();bad();return}
+    if(ok!==true){err.textContent=ok==='expired'?'That guest code has expired':ok==='revoked'?'That guest code was cancelled':ok==='full'?'The admin code is already used by 4 people':ok==='used'?'That invite has already been used':'Oops, that code is wrong';$('gCode').classList.add('bad');$('gCode').select();bad();return}
     err.classList.remove('on');$('gOut').classList.add('hide');g.classList.add('ok');toast('Welcome, '+n+'!',2500);
     setTimeout(()=>{g.classList.remove('ok');if(!Cloud.member)return;g.classList.add('hide');afterGate()},500)};
   function bad(){const er=$('gErr');er.classList.add('on');g.classList.remove('shake');void g.offsetWidth;g.classList.add('shake');try{navigator.vibrate&&navigator.vibrate([60,40,60])}catch(e){}}
