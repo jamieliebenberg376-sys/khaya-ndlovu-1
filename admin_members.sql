@@ -2,7 +2,8 @@
 -- Run AFTER guest_codes.sql. Paste into Supabase > SQL Editor > New query and press Run. Safe to run more than once.
 --
 -- ADMIN CODE = the word ADMIN in front of your owner code. Owner code KHAYA2026 -> admin code ADMINKHAYA2026.
--- The admin code works for 4 people at most. Admins can make more owners or admins with one-time invite codes.
+-- The shared admin code works for 4 people at most. After that, admins can make as many admins as they like:
+-- tap Make admin on an owner, or send a one-time Admin invite.
 -- Owners and admins never expire. Only an admin can remove them.
 
 alter table public.members add column if not exists last_seen timestamptz;
@@ -174,6 +175,18 @@ begin
   delete from public.members where user_id = p_user;
 end $$;
 grant execute on function public.remove_member(uuid) to authenticated;
+
+-- admins: make an owner an admin (no limit), or an admin back into an owner
+create or replace function public.set_member_role(p_user uuid, p_role text)
+returns void language plpgsql security definer set search_path = public as $$
+begin
+  if not public.is_admin() then raise exception 'admins only'; end if;
+  if p_role not in ('owner', 'admin') then raise exception 'bad role'; end if;
+  if p_user = auth.uid() then raise exception 'you cannot change yourself'; end if;
+  update public.members set role = p_role, expires_at = null
+   where user_id = p_user and role in ('owner', 'admin');
+end $$;
+grant execute on function public.set_member_role(uuid, text) to authenticated;
 
 -- your codes:
 select upper(invite_code) as "OWNER CODE", 'ADMIN' || upper(replace(invite_code, ' ', '')) as "ADMIN CODE (max 4 people)" from private.config;
