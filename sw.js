@@ -1,7 +1,7 @@
-const V='kn-v8';
+const V='kn-v9';
 const CORE=['./','./index.html'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(V).then(c=>c.addAll(CORE)).then(()=>self.skipWaiting()))});
-self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==V&&k!=='kn-tiles').map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
+self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==V&&k!=='kn-tiles'&&k!=='kn-app-manual').map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
 self.addEventListener('fetch',e=>{
   const u=new URL(e.request.url);
   if(e.request.method!=='GET')return;
@@ -11,6 +11,9 @@ self.addEventListener('fetch',e=>{
   }
   if(u.origin===location.origin){
     // network first for the app page so updates arrive, cache fallback offline
-    e.respondWith(fetch(e.request).then(r=>{if(r.ok){const cl=r.clone();caches.open(V).then(c=>c.put(e.request,cl))}return r}).catch(()=>caches.match(e.request).then(h=>h||caches.match('./index.html'))));
+    const cached=()=>caches.match(e.request,{ignoreSearch:true}).then(h=>h||caches.match('./index.html')).then(h=>h||caches.match('./'));
+    e.respondWith(new Promise(res=>{let done=false;const t=setTimeout(()=>{cached().then(h=>{if(h&&!done){done=true;res(h)}})},3500);
+      fetch(e.request).then(r=>{if(r.ok){const cl=r.clone();caches.open(V).then(c=>c.put(e.request,cl))}if(!done){done=true;clearTimeout(t);res(r)}})
+      .catch(()=>cached().then(h=>{if(!done){done=true;clearTimeout(t);res(h||new Response('Offline',{status:503}))}}))}));
   }
 });

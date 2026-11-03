@@ -133,6 +133,7 @@ body.drivecam #roadCard{display:none!important}body.drivecam #junc{top:calc(var(
 .me.stale .d{background:#9aa0a6}
 .me .chev{position:absolute;left:-14px;top:-16px;width:52px;height:56px;display:none;filter:drop-shadow(0 2px 3px rgba(0,0,0,.45))}
 .me.nav .chev{display:block}.me.nav .d,.me.nav .cone{display:none}
+#offPill{position:fixed;left:50%;transform:translateX(-50%);top:calc(var(--safe-t) + 66px);z-index:9;background:#3c4043;color:#fff;font-size:12.5px;font-weight:700;padding:5px 12px;border-radius:12px;opacity:.9}
 #recenter{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(var(--safe-b) + 34px);z-index:11;background:#fff;color:#1a73e8;font-weight:700;font-size:15px;padding:12px 20px;border-radius:24px;box-shadow:0 2px 10px rgba(0,0,0,.25);display:flex;align-items:center;gap:8px}
 body.night #recenter{background:#1f2226;color:#8ab4f8}
 #navBottom:not(.hide)~#recenter{bottom:calc(var(--safe-b) + 104px)}
@@ -143,7 +144,7 @@ body.night{background:#111}
 body.night #search,body.night #roadCard,body.night #results,body.night .fab,body.night #speed,body.night #sheet,body.night #navBottom,body.night #junc,body.night #calBar{background:#1f2226;color:#e8eaed;box-shadow:0 2px 10px rgba(0,0,0,.6)}
 body.night #search input{color:#e8eaed}body.night .sub,body.night .rs,body.night small,body.night #speed small{color:#c4c7c5!important}
 body.night .res{border-color:#2c3035}body.night .chip,body.night .seg{background:#2c3035;color:#e8eaed}body.night .seg button.sel{background:#3c4043;color:#fff}
-body.night .ib:active{background:#2c3035}body.night #speed{border-color:#2c3035}body.night .fab svg,body.night .ib svg{color:#e8eaed}
+body.night .ib:active{background:#2c3035}body.night .btn:not(.pri){background:#2c3035;color:#8ab4f8}body.night #speed{border-color:#2c3035}body.night .fab svg,body.night .ib svg{color:#e8eaed}
 body.night .list .it,body.night .menu .mi{border-color:#2c3035}body.night .inp{background:#2c3035;border-color:#3c4043;color:#fff}
 #junc{position:fixed;left:10px;top:calc(var(--safe-t) + 128px);z-index:10;background:#fff;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.18);padding:8px 12px;font-size:13.5px;max-width:78vw;transition:opacity .25s,transform .25s}
 #junc.hide{display:block!important;opacity:0;transform:translateY(-6px);pointer-events:none}
@@ -191,6 +192,7 @@ body.drive #nav .dist{font-size:34px}body.drive #nav .ins{font-size:19px}body.dr
   <button class="rb" id="voiceBtn" aria-label="Voice"></button>
 </div>
 <div id="roadPill" class="hide"></div>
+<div id="offPill" class="hide">Offline · map saved on phone</div>
 
 <button id="recenter" class="hide"><svg width="18" height="18" viewBox="0 0 24 24"><path d="M12 2l7 19-7-4-7 4z" fill="currentColor"/></svg>Re-centre</button>
 <div id="speed"><b id="spd">0</b><small>km/h</small></div>
@@ -919,7 +921,8 @@ const MI=(id,icon,t,s)=>`<button class="mi" id="${id}"><svg viewBox="0 0 24 24" 
 function cloudStatus(){if(!Cloud.on)return 'Not set up yet';if(!Cloud.member)return 'Tap to join with the invite code';const p=Cloud.outbox.length?' · '+Cloud.outbox.length+' waiting for signal':'';return Cloud.owners+' owners · '+(Cloud.lastSync?'synced '+ago(Cloud.lastSync):'not synced yet')+p}
 $('menuBtn').onclick=()=>{
   const ns=allSights().length,nr=allReports().length;
-  openSheet(`<div class="menu">${MI('mCloud','<path d="M7 18a4.5 4.5 0 0 1-.5-9 6 6 0 0 1 11.5 1.5A3.75 3.75 0 0 1 17.5 18z"/>','Shared map',cloudStatus())}
+  openSheet(`<div class="menu">${MI('mOff','<path d="M12 3v12M7 10l5 5 5-5M5 21h14"/>','Offline map',offlineStatus())}
+  ${MI('mCloud','<path d="M7 18a4.5 4.5 0 0 1-.5-9 6 6 0 0 1 11.5 1.5A3.75 3.75 0 0 1 17.5 18z"/>','Shared map',cloudStatus())}
   ${MI('mHome','<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/>','Set home here',home?'Home is saved. Tap to move it to where you are now':'Saves your current spot as Home')}
   ${MI('mRec',recTrack?'<rect x="6" y="6" width="12" height="12" rx="2"/>':'<circle cx="12" cy="12" r="7"/>',recTrack?'Stop recording':'Record a drive','Saves your route so new roads can be added')}
   ${MI('mTracks','<path d="M4 19l5-14 6 10 5-6"/>','My drives',tracks.length+' saved')}
@@ -927,6 +930,7 @@ $('menuBtn').onclick=()=>{
   ${MI('mCal','<circle cx="12" cy="12" r="8"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/>','Calibrate GPS',calib[0]||calib[1]?'Correction active':'If your dot sits next to the road')}
   ${MI('mDemo','<path d="M6 4l14 8-14 8z"/>','Demo drive','Test the navigation at home')}
   ${MI('mHelp','<circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .8-1 1.5V14M12 17.5v.01"/>','Install & offline use','')}</div>`,()=>{
+    $('mOff').onclick=()=>offlineSheet(false);
     $('mCloud').onclick=()=>Cloud.member?cloudSheet():joinSheet();
     $('mHome').onclick=()=>{if(!me){toast('Need a GPS fix first');return}home={ll:me.ll,t:Date.now()};LS.set('home',home);refreshOverlays();closeSheet();toast('Home saved. Tap the house button to get back here.')};
     $('mRec').onclick=()=>{closeSheet();toggleRec()};
@@ -1019,13 +1023,53 @@ function precacheTerrain(){if(LS.get('demCached',0)>=2||!navigator.onLine)return
   for(let z=10;z<=14;z++){const t=(lng,lat)=>{const n=2**z,x=Math.floor((lng+180)/360*n),s=Math.sin(lat*Math.PI/180),y=Math.floor((0.5-Math.log((1+s)/(1-s))/(4*Math.PI))*n);return[x,y]};
     const a=t(minX-.02,maxY+.02),b=t(maxX+.02,minY-.02);for(let x=a[0];x<=b[0];x++)for(let y=a[1];y<=b[1];y++)urls.push(`https://s3.amazonaws.com/elevation-tiles-prod/terrarium/${z}/${x}/${y}.png`)}
   let i=0,ok=0;const next=()=>{if(i>=urls.length){if(ok>urls.length*.9)LS.set('demCached',2);return}fetch(urls[i++],{mode:'cors'}).then(r=>{if(r.ok)ok++}).catch(()=>{}).finally(()=>setTimeout(next,40))};next()}
+/* ============ offline download ============ */
+const isStandalone=()=>window.matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
+function tileList(){const urls=[];const tx=(lng,lat,z)=>{const n=2**z,s=Math.sin(lat*Math.PI/180);return[Math.floor((lng+180)/360*n),Math.floor((0.5-Math.log((1+s)/(1-s))/(4*Math.PI))*n)]};
+  const R=B;for(let z=11;z<=17;z++){const a=tx(minX-.005,maxY+.005,z),b=tx(maxX+.005,minY-.005,z);const n=2**z;
+    for(let x=a[0];x<=b[0];x++)for(let y=a[1];y<=b[1];y++){
+      if(z>=15){const lng=(x+.5)/n*360-180,lat=Math.atan(Math.sinh(Math.PI*(1-2*(y+.5)/n)))*180/Math.PI;const half=360/n*.75;
+        if(!pip(R,[lng,lat])&&!pip(R,[lng+half,lat])&&!pip(R,[lng-half,lat])&&!pip(R,[lng,lat+half*.9])&&!pip(R,[lng,lat-half*.9]))continue}
+      urls.push(`https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${z}/${y}/${x}`)}}
+  for(let z=10;z<=14;z++){const a=tx(minX-.02,maxY+.02,z),b=tx(maxX+.02,minY-.02,z);for(let x=a[0];x<=b[0];x++)for(let y=a[1];y<=b[1];y++)urls.push(`https://s3.amazonaws.com/elevation-tiles-prod/terrarium/${z}/${x}/${y}.png`)}
+  return urls}
+let dl=null;
+async function downloadOffline(onp){if(dl)return dl;dl=(async()=>{
+  try{if(navigator.storage&&navigator.storage.persist)await navigator.storage.persist()}catch(e){}
+  try{const c=await caches.open('kn-app-manual');await c.addAll(['./','./index.html','./sw.js'])}catch(e){}
+  const urls=tileList();let done=0,ok=0,bytes=0,i=0;const N=urls.length;
+  const worker=async()=>{while(i<N){const u=urls[i++];try{const r=await fetch(u,{mode:'cors'});if(r.ok){ok++;const b=await r.clone().blob();bytes+=b.size}}catch(e){}done++;if(onp)onp(done,N,bytes)}};
+  await Promise.all(Array.from({length:6},worker));
+  const res={t:Date.now(),n:ok,total:N,mb:Math.max(1,Math.round(bytes/1048576))};if(ok>N*.95){LS.set('offline',res);LS.set('demCached',2)}dl=null;return res})();return dl}
+function offlineStatus(){const o=LS.get('offline',null);return o?'Downloaded '+new Date(o.t).toLocaleDateString([], {day:'numeric',month:'short'})+' · '+o.mb+' MB':'Not downloaded yet'}
+function offlineSheet(first){
+  const o=LS.get('offline',null);const inst=!isStandalone();const ios=/iPhone|iPad/.test(navigator.userAgent);
+  openSheet(`<h2>${first?'Welcome to the Khaya Ndlovu map':'Offline map'}</h2>
+  <div class="sub" style="line-height:1.5;margin-top:6px">${first?'Do these once, while you have signal, so the map works everywhere on the reserve.':'Everything you need for no signal.'}</div>
+  <div class="list" style="margin-top:6px">
+   <div class="it"><div><b>1. Add to Home Screen</b><br><small>${inst?(ios?'In Safari tap Share, then Add to Home Screen. Always open the map from that icon.':'In Chrome tap the ⋮ menu, then Add to Home screen or Install app.'):'Done, you are using the installed app.'}</small></div>${inst?'':'<span style="color:#188038;font-weight:800">✓</span>'}</div>
+   <div class="it"><div><b>2. Download the map</b><br><small id="dlTxt">${o?offlineStatus():'Satellite photos, terrain and the app for the whole reserve (about 30 to 60 MB). Use Wi-Fi if you can.'}</small>
+     <div class="bar" id="dlBar" style="width:100%;margin-top:8px;display:none"><i id="dlFill"></i></div></div>${o?'<span style="color:#188038;font-weight:800">✓</span>':''}</div>
+   <div class="it"><div><b>3. Good to know</b><br><small>The first time, open the map with signal. Once it's downloaded it opens and works with no signal at all, and GPS never needs signal. Open it with signal now and then to get map updates and other owners' sightings.</small></div></div>
+  </div>
+  <div class="row"><button class="btn" id="obLater">${first?'Later':'Close'}</button><button class="btn pri" id="obDl">${o?'Download again':'Download map'}</button></div>`,()=>{
+    $('obLater').onclick=()=>{LS.set('onboarded',true);closeSheet();if(first&&Cloud.on&&!Cloud.member&&!LS.get('joinSkip',false))setTimeout(joinSheet,500)};
+    $('obDl').onclick=async()=>{if(!navigator.onLine){toast('No signal right now. Try again with Wi-Fi or signal.');return}
+      const b=$('obDl');b.disabled=true;b.textContent='Downloading...';$('dlBar').style.display='block';
+      const r=await downloadOffline((d,n,by)=>{const f=$('dlFill');if(f)f.style.width=Math.round(d/n*100)+'%';const t=$('dlTxt');if(t)t.textContent=Math.round(d/n*100)+'% · '+(by/1048576).toFixed(1)+' MB'});
+      if(r.n>r.total*.95){LS.set('onboarded',true);const t=$('dlTxt');if(t)t.textContent='Done · '+r.mb+' MB saved. The map now works with no signal.';b.textContent='Done';toast('Map downloaded for offline use',3500);
+        setTimeout(()=>{if(first&&$('sheet').classList.contains('open')){closeSheet();if(Cloud.on&&!Cloud.member&&!LS.get('joinSkip',false))setTimeout(joinSheet,500)}},1800)}
+      else{b.disabled=false;b.textContent='Try again';const t=$('dlTxt');if(t)t.textContent='Only '+r.n+' of '+r.total+' parts downloaded. The signal may have dropped, tap Try again.'}}});
+}
+window.addEventListener('online',()=>$('offPill')&&$('offPill').classList.add('hide'));
+window.addEventListener('offline',()=>$('offPill')&&$('offPill').classList.remove('hide'));
 /* ============ boot ============ */
 let mapReady=false,prog=0;
 function setProg(p,t){prog=Math.max(prog,p);$('barFill').style.width=prog+'%';if(t)$('gpsTxt').textContent=t}
 setProg(15,'Loading map...');
 map.on('load',()=>{mapReady=true;setTimeout(()=>document.querySelectorAll('.maplibregl-compact-show').forEach(e=>e.classList.remove('maplibregl-compact-show')),50);checkNight();applyMode();if(trail.length>1)map.getSource('trail').setData({type:'Feature',geometry:{type:'LineString',coordinates:trail},properties:{}});setInterval(checkNight,60000);setTimeout(precacheTerrain,8000);refreshOverlays();setProg(55,'Finding satellites...');
   const r=LS.get('rec',null);if(r){recTrack=r;$('rec').classList.remove('hide');$('recInfo').textContent=fmtD(r.len)}
-  startGPS();bootWait();try{$('sunTxt').textContent=sunLine()}catch(e){}});
+  startGPS();bootWait();if(!navigator.onLine)$('offPill').classList.remove('hide');try{$('sunTxt').textContent=sunLine()}catch(e){}});
 function bootWait(){
   const t0=Date.now();const maxWait=LS.get('booted',false)?3500:6000;
   const iv=setInterval(()=>{const el=Date.now()-t0;
@@ -1038,7 +1082,9 @@ function finishBoot(fix){
   // fly-in: start high over the reserve, slightly rotated, then sweep down
   map.jumpTo({center:map.getCenter(),zoom:Math.max(11,map.getZoom()-1.2),bearing:-28});
   $('splash').classList.add('out');
-  if(Cloud.member)sync();else if(Cloud.on&&!LS.get('joinSkip',false))setTimeout(joinSheet,1200);setTimeout(()=>{const sp=$('splash');if(sp)sp.remove()},1400);
+  if(!LS.get('onboarded',false)||(!LS.get('offline',null)&&!LS.get('obNag',0)))setTimeout(()=>{LS.set('obNag',1);offlineSheet(!LS.get('onboarded',false))},2900);
+  else if(Cloud.on&&!Cloud.member&&!LS.get('joinSkip',false))setTimeout(joinSheet,1200);
+  if(Cloud.member)sync();setTimeout(()=>{const sp=$('splash');if(sp)sp.remove()},1400);
   if(fix&&inReserve(me.ll)){map.flyTo({center:me.ll,zoom:16,bearing:0,duration:2600,curve:1.6,essential:true});setTimeout(()=>setFollow(1),2700)}
   else{setFollow(0);map.fitBounds(RES_BOUNDS,{padding:40,bearing:0,duration:2200});if(fix)toast("You're outside the reserve, showing the whole map",3500)}
   // when first fix comes later, jump to it if inside
