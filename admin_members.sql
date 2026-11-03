@@ -8,6 +8,7 @@
 
 alter table public.members add column if not exists last_seen timestamptz;
 alter table public.members add column if not exists invited_by text;
+alter table public.members add column if not exists last_login timestamptz;
 
 alter table public.guest_codes add column if not exists kind text not null default 'guest';
 alter table public.guest_codes add column if not exists uses int not null default 0;
@@ -23,7 +24,7 @@ $$;
 grant execute on function public.is_admin() to authenticated;
 
 -- join with: ADMIN code, owner code, an owner/admin invite, or a guest code
-create or replace function public.join_reserve2(code text, display_name text)
+create or replace function public.join_core(code text, display_name text)
 returns json language plpgsql security definer set search_path = public, private as $$
 declare
   c text := upper(replace(trim(code), ' ', ''));
@@ -83,6 +84,17 @@ begin
   return json_build_object('ok', true, 'role', (select role from public.members where user_id = auth.uid()),
                            'expires_at', (select expires_at from public.members where user_id = auth.uid()));
 end $$;
+revoke all on function public.join_core(text, text) from public, anon, authenticated;
+
+-- the app calls this one: joins, then records the sign-in time
+create or replace function public.join_reserve2(code text, display_name text)
+returns json language plpgsql security definer set search_path = public as $$
+declare r json;
+begin
+  r := public.join_core(code, display_name);
+  if (r->>'ok')::boolean then update public.members set last_login = now(), last_seen = now() where user_id = auth.uid(); end if;
+  return r;
+end $$;
 grant execute on function public.join_reserve2(text, text) to authenticated;
 
 -- status check; also records when each person last opened the map. Owners/admins never expire.
@@ -130,7 +142,7 @@ create or replace function public.create_guest_code(p_label text, p_expires time
 returns text language sql security definer set search_path = public as $$ select public.create_code(p_label, p_expires, 'guest') $$;
 grant execute on function public.create_guest_code(text, timestamptz) to authenticated;
 
--- every code with who made it and who used it (owner/admin invites only shown to admins)
+-- live codes only: expired, deleted and used-up codes are hidden (owner/admin invites only shown to admins)
 create or replace function public.list_guest_codes()
 returns json language plpgsql stable security definer set search_path = public as $$
 begin
@@ -143,8 +155,8 @@ begin
       coalesce((select json_agg(json_build_object('name', m.name, 'joined_at', m.joined_at) order by m.joined_at)
                 from public.members m where m.code = g.code), '[]'::json) as guests
     from public.guest_codes g
-    where g.created_at > now() - interval '120 days'
-      and (g.kind = 'guest' or public.is_admin())) x), '[]'::json);
+    where not g.revoked and g.expires_at > now()
+      and (g.kind = 'guest' or (public.is_admin() and g.uses = 0))) x), '[]'::json);
 end $$;
 grant execute on function public.list_guest_codes() to authenticated;
 
@@ -154,7 +166,9 @@ returns json language plpgsql stable security definer set search_path = public a
 begin
   if not public.is_owner() then raise exception 'owners only'; end if;
   return coalesce((select json_agg(row_to_json(x) order by x.role_order, x.name) from (
-    select m.user_id, m.name, m.role, m.joined_at, m.last_seen,
+    select m.user_id, m.name, m.role, m.joined_at,
+           case when public.is_admin() or m.user_id = auth.uid() then m.last_seen end as last_seen,
+           case when public.is_admin() or m.user_id = auth.uid() then m.last_login end as last_login,
            case when m.role = 'guest' then m.expires_at end as expires_at, m.code,
            m.user_id = auth.uid() as me,
            g.label as code_label,
