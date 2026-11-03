@@ -1,4 +1,4 @@
-const V='kn-v3';
+const V='kn-v4';
 const CORE=['./','./index.html'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(V).then(c=>c.addAll(CORE)).then(()=>self.skipWaiting()))});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==V&&k!=='kn-tiles').map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
