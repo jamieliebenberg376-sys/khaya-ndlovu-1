@@ -805,14 +805,14 @@ function annSheet(){const admin=Cloud.member&&Cloud.member.role==='admin';const 
       try{await api('/rest/v1/announcements?client_id=eq.'+encodeURIComponent(b.dataset.arm),{method:'PATCH',headers:{Prefer:'return=minimal'},body:'{"removed":true}'});rtPing();await loadAnn();toast('Removed')}catch(e){toast('Could not remove')}annSheet()})})}
 setTimeout(()=>{annPop()},6000);
 /* ============ live member dots ============ */
-let shareLoc=LS.get('shareLoc',false),LIVE={},liveMk={},LS_={on:false,lastSend:0,anchor:null,stillT:0,status:'',missing:false};
+let shareLoc=LS.get('shareLoc',true),LIVE={},liveMk={},LS_={on:false,lastSend:0,anchor:null,stillT:0,status:'',missing:false};
 const MATE_COLS=['#e8710a','#9334e6','#d01884','#188038','#e37400','#c5221f','#007b83','#795548','#b06000','#f4511e','#00897b'];
 function mateCol(uid){let h=0;for(const ch of String(uid))h=(h*31+ch.charCodeAt(0))>>>0;return MATE_COLS[h%MATE_COLS.length]}
 function liveWhy(){const on=myLiveState();if(on){const t=liveTxt({status:on.st,speed:me.speed});return {on:true,short:'showing',long:'Others can see you right now: '+t+'.'}}
   const r=!Cloud.member?['not on the shared map','Join the shared map first.']:!me?['waiting for GPS','Waiting for GPS.']:Date.now()-me.t>45000?['no GPS','No GPS fix right now.']:!inReserve(me.ll)?['hidden, outside the reserve','Hidden: you are outside the reserve.']:home&&dist(home.ll,me.ll)<200?['hidden, at home','Hidden: you are at your home point.']:['hidden, stopped','Hidden: stopped for over 3 minutes and not at a sighting.'];
   return {on:false,short:r[0],long:r[1]}}
 function liveSheet(){const w=shareLoc?liveWhy():null;
-  openSheet(`<h2>Share live location</h2><div class="sub" style="line-height:1.45;margin-top:4px">Lets other members see a coloured dot for you on their map, so you can find each other and see who is at a sighting.</div>
+  openSheet(`<h2>Share live location</h2><div class="sub" style="line-height:1.45;margin-top:4px">On by default. Other members see a coloured dot for you on their map, so you can find each other and see who is at a sighting. It stays on until you turn it off.</div>
   <div class="prof" style="margin-top:12px">${[['🟢','Only on the reserve','Nothing is shared once you leave the reserve border'],['🏠','Never at home',home?'Hidden within 200 m of your home point':'Set your home point first so it stays hidden there'],['⏸️','Hidden when you stop','After 3 minutes stopped your dot disappears'],['👀','Except at a sighting','Stopped at a sighting, others see you are viewing it'],['📶','Live while the app is open','Updates every few seconds with signal. Only members can see it']].map(([i,a,b])=>`<div class="pr"><span>${i}</span><div>${a}<small>${b}</small></div></div>`).join('')}</div>
   ${shareLoc?`<div class="sub" style="margin-top:12px"><b>${w.on?'🟢 ':'⚪ '}${esc(w.long)}</b></div>`:''}
   ${!home?'<button class="btn" id="lHome" style="width:100%;margin-top:12px">Set my home point</button>':''}
@@ -1454,7 +1454,7 @@ $('menuBtn').onclick=()=>{
   ${Cloud.member&&Cloud.member.role!=='guest'?'':MI('mCloud','<path d="M7 18a4.5 4.5 0 0 1-.5-9 6 6 0 0 1 11.5 1.5A3.75 3.75 0 0 1 17.5 18z"/>','Shared map',cloudStatus())}
   ${Cloud.member&&Cloud.member.role!=='guest'?MI('mGuest','<path d="M15 7a3 3 0 1 1-6 0 3 3 0 0 1 6 0zM5 20a7 7 0 0 1 14 0"/><path d="M19 8v6M16 11h6"/>','Guest codes',cloudStatus()):''}
   ${MI('mHome','<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/>','My home point',home?'Set. Tap to change or remove it':'Not set yet. Tap to set your own home')}
-  ${MI('mLive','<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="7.5"/>','Share live location',shareLoc?'On · '+liveWhy().short:'Off · tap to see how it works')}
+  ${MI('mLive','<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="7.5"/>','Share live location',shareLoc?'On · '+liveWhy().short:'Off · tap to turn it back on')}
   ${MI('mRec',recTrack?'<rect x="6" y="6" width="12" height="12" rx="2"/>':'<circle cx="12" cy="12" r="7"/>',recTrack?'Stop recording':'Record a drive','Saves your route so new roads can be added')}
   ${MI('mTracks','<path d="M4 19l5-14 6 10 5-6"/>','My drives',tracks.length+' saved')}
   ${MI('mSights','<circle cx="12" cy="12" r="3"/><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/>','Sightings & road reports',ns+' sightings · '+nr+' reports')}
@@ -1775,7 +1775,7 @@ function showGate(){const g=$('gate');g.classList.remove('hide');
 /* ============ "your role" popup: shown once whenever you get a role (or it changes) ============ */
 function roleSheet(then){const m=Cloud.member;if(!m){then&&then();return}const r=m.role||'owner';
   const can={
-    guest:[['🗺️','Use the full map','Roads, satellite, offline download and turn-by-turn navigation'],['🦁','See and add sightings','Share what you spot and get alerts when others do'],['🚧','Road reports','Warn others about washed-out or blocked roads'],['📍','Live location (optional)','Let others see your dot while you drive']],
+    guest:[['🗺️','Use the full map','Roads, satellite, offline download and turn-by-turn navigation'],['🦁','See and add sightings','Share what you spot and get alerts when others do'],['🚧','Road reports','Warn others about washed-out or blocked roads'],['📍','Live location is on','Others see your dot while you drive on the reserve. Turn it off any time in the menu']],
     owner:[['🎟️','Make guest codes','Give visitors access until a date you choose, and end it any time'],['👥','See everyone on the map','All owners and guests, who invited who, and when guest codes end'],['🦁','Sightings, reports and alerts','Everything guests can do, shared with all members'],['♾️','Never expires','Your owner access stays until an admin removes it']],
     admin:[['🛡️','Manage people','Remove anyone, and make owners into admins (or back)'],['✉️','Owner and admin invites','One-time codes for new owners or admins'],['🕒','See activity','When each person last signed in and was last active'],['🎟️','Everything owners can do','Guest codes, the people list, sightings and alerts']]}[r]||[];
   const nm={guest:'Guest',owner:'Owner',admin:'Admin'}[r]||'Member';
