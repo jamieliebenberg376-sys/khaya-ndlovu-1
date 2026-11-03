@@ -1,0 +1,16 @@
+const V='kn-v1';
+const CORE=['./','./index.html'];
+self.addEventListener('install',e=>{e.waitUntil(caches.open(V).then(c=>c.addAll(CORE)).then(()=>self.skipWaiting()))});
+self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==V&&k!=='kn-tiles').map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
+self.addEventListener('fetch',e=>{
+  const u=new URL(e.request.url);
+  if(e.request.method!=='GET')return;
+  if(u.hostname.includes('arcgisonline.com')){
+    e.respondWith(caches.open('kn-tiles').then(async c=>{const hit=await c.match(e.request);if(hit)return hit;try{const r=await fetch(e.request);if(r.ok)c.put(e.request,r.clone());return r}catch(err){return new Response('',{status:504})}}));
+    return;
+  }
+  if(u.origin===location.origin){
+    // network first for the app page so updates arrive, cache fallback offline
+    e.respondWith(fetch(e.request).then(r=>{if(r.ok){const cl=r.clone();caches.open(V).then(c=>c.put(e.request,cl))}return r}).catch(()=>caches.match(e.request).then(h=>h||caches.match('./index.html'))));
+  }
+});
