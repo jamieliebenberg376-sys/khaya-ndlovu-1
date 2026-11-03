@@ -747,9 +747,20 @@ const fmtLeft=ms=>{const m=Math.round(ms/6e4);return m<60?m+' min':Math.floor(m/
 $('wxBtn').onclick=()=>wxSheet();
 setInterval(()=>loadWx(),15*6e4);window.addEventListener('online',()=>loadWx());document.addEventListener('visibilitychange',()=>{if(!document.hidden)loadWx()});
 /* ============ live member dots ============ */
-let shareLoc=LS.get('shareLoc',true),LIVE={},liveMk={},LS_={on:false,lastSend:0,anchor:null,stillT:0,status:'',missing:false};
+let shareLoc=LS.get('shareLoc',false),LIVE={},liveMk={},LS_={on:false,lastSend:0,anchor:null,stillT:0,status:'',missing:false};
 const MATE_COLS=['#e8710a','#9334e6','#d01884','#188038','#e37400','#c5221f','#007b83','#795548','#b06000','#f4511e','#00897b'];
 function mateCol(uid){let h=0;for(const ch of String(uid))h=(h*31+ch.charCodeAt(0))>>>0;return MATE_COLS[h%MATE_COLS.length]}
+function liveWhy(){const on=myLiveState();if(on){const t=liveTxt({status:on.st,speed:me.speed});return {on:true,short:'showing',long:'Others can see you right now: '+t+'.'}}
+  const r=!Cloud.member?['not on the shared map','Join the shared map first.']:!me?['waiting for GPS','Waiting for GPS.']:Date.now()-me.t>45000?['no GPS','No GPS fix right now.']:!inReserve(me.ll)?['hidden, outside the reserve','Hidden: you are outside the reserve.']:home&&dist(home.ll,me.ll)<200?['hidden, at home','Hidden: you are at your home point.']:['hidden, stopped','Hidden: stopped for over 3 minutes and not at a sighting.'];
+  return {on:false,short:r[0],long:r[1]}}
+function liveSheet(){const w=shareLoc?liveWhy():null;
+  openSheet(`<h2>Share live location</h2><div class="sub" style="line-height:1.45;margin-top:4px">Lets other members see a coloured dot for you on their map, so you can find each other and see who is at a sighting.</div>
+  <div class="prof" style="margin-top:12px">${[['🟢','Only on the reserve','Nothing is shared once you leave the reserve border'],['🏠','Never at home',home?'Hidden within 200 m of your home point':'Set your home point first so it stays hidden there'],['⏸️','Hidden when you stop','After 3 minutes stopped your dot disappears'],['👀','Except at a sighting','Stopped at a sighting, others see you are viewing it'],['📶','Live while the app is open','Updates every few seconds with signal. Only members can see it']].map(([i,a,b])=>`<div class="pr"><span>${i}</span><div>${a}<small>${b}</small></div></div>`).join('')}</div>
+  ${shareLoc?`<div class="sub" style="margin-top:12px"><b>${w.on?'🟢 ':'⚪ '}${esc(w.long)}</b></div>`:''}
+  ${!home?'<button class="btn" id="lHome" style="width:100%;margin-top:12px">Set my home point</button>':''}
+  <button class="btn ${shareLoc?'red':'pri'}" id="lTog" style="width:100%;margin-top:10px">${shareLoc?'Stop sharing':'Share my live location'}</button>`,()=>{
+    if($('lHome'))$('lHome').onclick=()=>homeSheet();
+    $('lTog').onclick=()=>{if(!Cloud.member){toast('Join the shared map first');return}shareLoc=!shareLoc;LS.set('shareLoc',shareLoc);liveTick();toast(shareLoc?'Sharing your live location':'Stopped sharing');liveSheet()}})}
 /* what my phone shares: only on the reserve, not at home, and only while moving or stopped at a sighting */
 function myLiveState(){
   if(!shareLoc||!Cloud.on||!Cloud.member||!me||sim||calMode)return null;
@@ -1071,7 +1082,7 @@ function layerSheet(){setTimeout(()=>{document.querySelectorAll('[data-mode]').f
 /* ============ search ============ */
 const ICON_DOT={road:['#6d5a45','≡'],home:['#d93025','⌂'],lodge:['#8d5524','⌂'],gate:['#3c4043','‖'],water:['#1a73e8','≈'],picnic:['#188038','▲'],view:['#7b1fa2','◉'],hide:['#00796b','▲'],sight:['#e37400','●'],report:['#c5221f','!']};
 function searchItems(){
-  const items=[{kind:'home',name:'Home',sub:home?'Your saved home':'House No. 2 (tap Set Home in the menu to change)',ll:homeLL()}];
+  const items=home?[{kind:'home',name:'Home',sub:'Your home point',ll:home.ll}]:[];
   const farmOf=n=>{const f=ROADS.find(r=>r.properties.name===n);return f&&f.properties.farm==='BB'?'Bloubank':'Khaya Ndlovu'};
   roadNames.forEach(n=>items.push({kind:'road',name:n,sub:farmOf(n)+' road · '+fmtD(roadLen(n))+' long',road:n}));
   DATA.pois.features.forEach(f=>items.push({kind:f.properties.kind,name:f.properties.name,sub:{gate:'Gate',water:'Dam / waterhole',picnic:'Picnic spot',view:'Viewpoint',hide:'Bird hide',lodge:'Lodge',home:'House'}[f.properties.kind]||'',ll:f.geometry.coordinates}));
@@ -1095,7 +1106,28 @@ $('q').addEventListener('input',renderResults);$('q').addEventListener('focus',r
 $('q').addEventListener('blur',()=>setTimeout(()=>{if(document.activeElement!==$('q'))$('results').classList.add('hide')},200));
 $('q').addEventListener('keydown',e=>{if(e.key==='Enter'){const b=$('results').querySelector('[data-i]');if(b)b.click()}});
 $('clearQ').onclick=()=>{$('q').value='';renderResults();$('q').focus()};
-$('homeBtn').onclick=()=>{startNav({kind:'home',name:'Home',ll:homeLL()})};
+$('homeBtn').onclick=()=>homeSheet();
+/* ============ my home point: each person sets their own ============ */
+function homeSheet(){
+  const d=home&&me?fmtD(dist(me.ll,home.ll)):'';
+  openSheet(home?`<h2>Home</h2><div class="sub">Your own home point, saved on this phone${d?' · '+d+' from you':''}</div>
+    <button class="btn pri" id="hGo" style="width:100%;margin-top:12px"><svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M12 2l8 20-8-5-8 5z"/></svg>Take me home</button>
+    <div class="sub" style="margin-top:16px"><b>Change home</b></div>
+    <div class="row"><button class="btn" id="hHere">Use where I am</button><button class="btn" id="hPick">Pick on map</button></div>
+    <button class="sm red" id="hDel" style="margin-top:12px">Remove home</button>`
+   :`<h2>Set your home</h2><div class="sub" style="line-height:1.45">Everyone sets their own house. The house button then takes you straight home, and your live location is never shown while you're there.</div>
+    <div class="row" style="margin-top:14px"><button class="btn pri" id="hHere">Use where I am</button><button class="btn" id="hPick">Pick on map</button></div>`,()=>{
+    if($('hGo'))$('hGo').onclick=()=>{closeSheet();startNav({kind:'home',name:'Home',ll:home.ll})};
+    $('hHere').onclick=()=>{if(!me){toast(gpsErr||'Waiting for GPS. Try Pick on map instead.');return}setHome(me.ll)};
+    $('hPick').onclick=()=>{closeSheet();pickHome()};
+    if($('hDel'))$('hDel').onclick=()=>{if($('hDel').dataset.sure!=='1'){$('hDel').dataset.sure='1';$('hDel').textContent='Tap again to remove';return}home=null;LS.set('home',null);refreshOverlays();closeSheet();toast('Home removed')}})}
+function setHome(ll){home={ll:[+ll[0].toFixed(6),+ll[1].toFixed(6)],t:Date.now()};LS.set('home',home);refreshOverlays();closeSheet();endCal();
+  const e=nearestEdge(home.ll,150);toast('Home saved'+(e?' near '+ROADS[e.e.road].properties.name:'')+'. Tap the house button to get back here.',3500)}
+function pickHome(){setFollow(0);
+  map.easeTo({center:home?home.ll:me?me.ll:map.getCenter(),zoom:Math.max(map.getZoom(),16.5),bearing:0,pitch:0,duration:600});
+  $('cross').classList.remove('hide');$('calBar').classList.remove('hide');$('fabs').classList.add('hide');
+  $('calTxt').innerHTML='<b>Drag the map</b> until the red crosshair is on your house, then tap Save.';
+  $('calCancel').onclick=endCal;$('calSave').onclick=()=>setHome(map.getCenter().toArray())}
 
 function showPlace(x){
   const ll=itemLL(x);
@@ -1232,7 +1264,8 @@ $('menuBtn').onclick=()=>{
   openSheet(`<div class="menu">${MI('mOff','<path d="M12 3v12M7 10l5 5 5-5M5 21h14"/>','Offline map',offlineStatus())}
   ${MI('mCloud','<path d="M7 18a4.5 4.5 0 0 1-.5-9 6 6 0 0 1 11.5 1.5A3.75 3.75 0 0 1 17.5 18z"/>','Shared map',cloudStatus())}
   ${Cloud.member&&Cloud.member.role!=='guest'?MI('mGuest','<path d="M15 7a3 3 0 1 1-6 0 3 3 0 0 1 6 0zM5 20a7 7 0 0 1 14 0"/><path d="M19 8v6M16 11h6"/>','Guest codes','Let visitors use the map until a date you choose'):''}
-  ${MI('mHome','<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/>','Set home here',home?'Home is saved. Tap to move it to where you are now':'Saves your current spot as Home')}
+  ${MI('mHome','<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/>','My home point',home?'Set. Tap to change or remove it':'Not set yet. Tap to set your own home')}
+  ${MI('mLive','<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="7.5"/>','Share live location',shareLoc?'On · '+liveWhy().short:'Off · tap to see how it works')}
   ${MI('mRec',recTrack?'<rect x="6" y="6" width="12" height="12" rx="2"/>':'<circle cx="12" cy="12" r="7"/>',recTrack?'Stop recording':'Record a drive','Saves your route so new roads can be added')}
   ${MI('mTracks','<path d="M4 19l5-14 6 10 5-6"/>','My drives',tracks.length+' saved')}
   ${MI('mSights','<circle cx="12" cy="12" r="3"/><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/>','Sightings & road reports',ns+' sightings · '+nr+' reports')}
@@ -1242,7 +1275,8 @@ $('menuBtn').onclick=()=>{
     $('mOff').onclick=()=>offlineSheet(false);
     $('mCloud').onclick=()=>Cloud.member?cloudSheet():joinSheet();
     if($('mGuest'))$('mGuest').onclick=()=>guestSheet();
-    $('mHome').onclick=()=>{if(!me){toast('Need a GPS fix first');return}home={ll:me.ll,t:Date.now()};LS.set('home',home);refreshOverlays();closeSheet();toast('Home saved. Tap the house button to get back here.')};
+    $('mHome').onclick=()=>homeSheet();
+    $('mLive').onclick=()=>liveSheet();
     $('mRec').onclick=()=>{closeSheet();toggleRec()};
     $('mTracks').onclick=()=>openSheet(tracksSheet(),bindTracks);
     $('mSights').onclick=()=>openSheet(sightsSheet(),bindSights);
@@ -1311,10 +1345,8 @@ function cloudSheet(){
   <div class="list" style="margin-top:8px"><div class="it"><div><b>New sighting alerts</b><br><small>Pops up when someone else marks a sighting</small></div><button class="sm ${alertOn?'':'red'}" id="cAlert">${alertOn?'On':'Off'}</button></div>
   <div class="it"><div><b>Alert sound</b><br><small>Plays a bing with each alert</small></div><button class="sm ${alertSound?'':'red'}" id="cSound">${alertSound?'On':'Off'}</button></div>
   ${'Notification' in window&&Notification.permission!=='granted'?`<div class="it"><div><b>Phone notifications</b><br><small>Also alert you while the app is in the background</small></div><button class="sm" id="cNotif">Turn on</button></div>`:''}
-  <div class="it"><div><b>Show me to other members</b><br><small>Only on the reserve, never at home, and hidden after 3 min stopped (unless at a sighting)</small></div><button class="sm ${shareLoc?'':'red'}" id="cLoc">${shareLoc?'On':'Off'}</button></div>
   <div class="it"><div><b>Share rhino sightings</b><br><small>Off keeps rhino locations on this phone only</small></div><button class="sm ${shareRhino?'':'red'}" id="cRhino">${shareRhino?'On':'Off'}</button></div></div>
   <div class="row"><button class="btn pri" id="cSync">Sync now</button><button class="btn red" id="cLeave">Leave</button></div>`,()=>{
-    $('cLoc').onclick=()=>{shareLoc=!shareLoc;LS.set('shareLoc',shareLoc);if(!shareLoc)liveTick();cloudSheet()};
     $('cAlert').onclick=()=>{alertOn=!alertOn;LS.set('alertOn',alertOn);cloudSheet()};
     $('cSound').onclick=()=>{alertSound=!alertSound;LS.set('alertSound',alertSound);if(alertSound)bing();cloudSheet()};
     if($('cNotif'))$('cNotif').onclick=async()=>{try{const r=await Notification.requestPermission();toast(r==='granted'?'Notifications on':'Notifications are blocked. Allow them in Settings.',3500)}catch(e){toast('This phone needs the app added to the Home Screen first',3500)}cloudSheet()};
