@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2" xmlns:kml="http://www.opengis.net/kml/2.2" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:ex="http://earth.google.com/kml/ext">
+<Document id="1qYLPPDAEOl00Br7_WPoiYTSq77J6jmFT">
+	<ex:extension>base64;Co4BCoEBCn8KAggBEnkKdwokCiAKAwjQDxoHCNLtZRD_ASEAAAAAAADwPykAAAAAAAAAABgAEg8KCAitgO8HEP8BEKAfGAAaGgoHCP___wcQQBIICK2A7wcQ_wEYoB8gACgAIgkIARIFCP___wcqFwgBEggI____BxD_ARkAAAAAAADwPyAAEgQIARAAGgIIAA</ex:extension>
+	<name>Rietspruit Game Reserve Boundary.kmz</name>
+	<StyleMap id="__managed_style_00E462EE0442D6FD89EE">
+		<Pair>
+			<key>normal</key>
+			<styleUrl>#__managed_style_00E462EE0442D6FD89EE_normal</styleUrl>
+		</Pair>
+		<Pair>
+			<key>highlight</key>
+			<styleUrl>#__managed_style_00E462EE0442D6FD89EE_highlight</styleUrl>
+		</Pair>
+	</StyleMap>
+	<gx:CascadingStyle kml:id="__managed_style_0CD8927C7D42D6FD89E8_highlight">
+		<ex:extension>base64;EgIYAQ</ex:extension>
+		<Style>
+			<IconStyle>
+				<scale>1.32</scale>
+				<Icon>
+					<href>https://earth.google.com/earth/document/icon?id=168&amp;scale=4</href>
+				</Icon>
+			</IconStyle>
+			<LabelStyle>
+			</LabelStyle>
+			<LineStyle>
+				<color>ff06ff21</color>
+				<width>3.45</width>
+			</LineStyle>
+			<PolyStyle>
+				<color>40ffffff</color>
+			</PolyStyle>
+			<BalloonStyle>
+			</BalloonStyle>
+		</Style>
+	</gx:CascadingStyle>
+	<gx:CascadingStyle kml:id="__managed_style_00E462EE0442D6FD89EE_highlight">
+		<ex:extension>base64;EgIYAQ</ex:extension>
+		<Style>
+			<IconStyle>
+				<scale>1.2</scale>
+				<Icon>
+					<href>https://earth.google.com/earth/document/icon?color=1976d2&amp;id=2000&amp;scale=4</href>
+				</Icon>
+				<hotSpot x="64" y="128" xunits="pixels" yunits="insetPixels"/>
+			</IconStyle>
+			<LabelStyle>
+			</LabelStyle>
+			<LineStyle>
+				<color>ff2dc0fb</color>
+				<width>6</width>
+			</LineStyle>
+			<PolyStyle>
+				<color>40ffffff</color>
+			</PolyStyle>
+			<BalloonStyle>
+			</BalloonStyle>
+		</Style>
+	</gx:CascadingStyle>
+	<gx:CascadingStyle kml:id="__managed_style_0CD8927C7D42D6FD89E8_normal">
+		<ex:extension>base64;EgIYAQ</ex:extension>
+		<Style>
+			<IconStyle>
+				<scale>1.1</scale>
+				<Icon>
+					<href>https://earth.google.com/earth/document/icon?id=168&amp;scale=4</href>
+				</Icon>
+			</IconStyle>
+			<LabelStyle>
+			</LabelStyle>
+			<LineStyle>
+				<color>ff06ff21</color>
+				<width>2.3</width>
+			</LineStyle>
+			<PolyStyle>
+				<color>40ffffff</color>
+			</PolyStyle>
+			<BalloonStyle>
+			</BalloonStyle>
+		</Style>
+	</gx:CascadingStyle>
+	<gx:CascadingStyle kml:id="__managed_style_00E462EE0442D6FD89EE_normal">
+		<ex:extension>base64;EgIYAQ</ex:extension>
+		<Style>
+			<IconStyle>
+				<Icon>
+					<href>https://earth.google.com/earth/document/icon?color=1976d2&amp;id=2000&amp;scale=4</href>
+				</Icon>
+				<hotSpot x="64" y="128" xunits="pixels" yunits="insetPixels"/>
+			</IconStyle>
+			<LabelStyle>
+			</LabelStyle>
+			<LineStyle>
+				<color>ff2dc0fb</color>
+				<width>4</width>
+			</LineStyle>
+			<PolyStyle>
+				<color>40ffffff</color>
+			</PolyStyle>
+			<BalloonStyle>
+			</BalloonStyle>
+		</Style>
+	</gx:CascadingStyle>
+	<StyleMap id="__managed_style_0CD8927C7D42D6FD89E8">
+		<Pair>
+			<key>normal</key>
+			<styleUrl>#__managed_style_0CD8927C7D42D6FD89E8_normal</styleUrl>
+		</Pair>
+		<Pair>
+			<key>highlight</key>
+			<styleUrl>#__managed_style_0CD8927C7D42D6FD89E8_highlight</styleUrl>
+		</Pair>
+	</StyleMap>
+	<Placemark id="5F446F9BB9000001">
+		<name>Rietspruit Game Reserve Boundary</name>
+		<description>5,444 ha perimeter 46.8 km
+Leadwood 949 ha
+Bloubank 3118.636 ha
+Khaya Ndlovu Manor House 6 ha
+Welverdiend/Khaya Ndlovu  1370.532 ha
+Corridor 3.5 ha, 227 m on KN boundary and 300 m on Bloubank boundary. Narrowest width 180 m</description>
+		<styleUrl>#__managed_style_0CD8927C7D42D6FD89E8</styleUrl>
+		<Polygon>
+			<outerBoundaryIs>
+				<LinearRing>
+					<coordinates>
+						30.95658362259923,-24.35913004058358,0 30.95447998948828,-24.36780488149213,0 30.95363996610108,-24.371332705141,0 30.95364908613082,-24.37215989381153,0 30.95371286160571,-24.37318959755438,0 30.95343574207337,-24.3733856093483,0 30.95302167162755,-24.37396566685562,0 30.95127830776778,-24.38141760148879,0 30.94856445358035,-24.39281564608611,0 30.94408900925473,-24.4116527897757,0 30.94393735614802,-24.41191781019313,0 30.93155604403182,-24.41565158845886,0 30.92413551158045,-24.4178249059056,0 30.92756391721574,-24.40712659338952,0 30.93198485614842,-24.39321688612412,0 30.91025504747314,-24.38887557663465,0 30.9026044063942,-24.38736443178,0 30.90231815089096,-24.39079599441048,0 30.90162744949592,-24.39804300107247,0 30.90238672342291,-24.39913839360408,0 30.90232808153261,-24.40008046932323,0 30.90231889495689,-24.40041043563959,0 30.90228356713272,-24.4014004949426,0 30.90217169750966,-24.40183167989969,0 30.90212644189566,-24.4032274198652,0 30.9010588035865,-24.40408808723054,0 30.89899791666284,-24.42527230374413,0 30.90075933394454,-24.44260087926827,0 30.90424426401995,-24.47521381862771,0 30.94251638440451,-24.46995462718353,0 30.96009484659333,-24.46749359913965,0 30.9598167936744,-24.46653255933091,0 30.95936194549851,-24.46572470714426,0 30.95904306169327,-24.46466482423584,0 30.95872387826245,-24.46361141379038,0 30.95840863199797,-24.46240356641554,0 30.95829522488635,-24.46204933003665,0 30.95824804116022,-24.46181820769418,0 30.9583715446813,-24.46145807403706,0 30.95823425455741,-24.46096884328209,0 30.95471645859044,-24.44866034472301,0 30.94775444272402,-24.42474826049212,0 30.94478531208368,-24.41455374074991,0 30.9456722841046,-24.41259632375451,0 30.94620146632324,-24.41130944725971,0 30.95239390441632,-24.4094998833011,0 30.95504699582744,-24.40869892458582,0 30.96365670119457,-24.4062127611311,0 30.9701227679726,-24.40431196277076,0 30.9794848595559,-24.40154373074198,0 30.98439172866839,-24.40010475614391,0 30.98912283085341,-24.39865784518996,0 30.98671647542647,-24.39568506566715,0 30.98424831810798,-24.39215554672776,0 30.98037814307083,-24.38657170156471,0 30.97585348603952,-24.37998303626298,0 30.97279421611027,-24.37538744993799,0 30.96956807158394,-24.37350538415984,0 30.96722343045397,-24.37217529325006,0 30.96726814801411,-24.37013217911354,0 30.96698655263353,-24.37009170457258,0 30.9668460201834,-24.36928031972282,0 30.96706588540443,-24.36881609019203,0 30.96652657061186,-24.36536275844589,0 30.96608605013379,-24.36324036062073,0 30.96529732681353,-24.36196763001711,0 30.96425114328896,-24.36072219471346,0 30.96365548600053,-24.36121969175953,0 30.96150847306759,-24.35862534125446,0 30.96044157887817,-24.35907346704645,0 30.96013602504927,-24.35880720430752,0 30.95676400363909,-24.35821018628117,0 30.95658362259923,-24.35913004058358,0 
+					</coordinates>
+				</LinearRing>
+			</outerBoundaryIs>
+		</Polygon>
+	</Placemark>
+	<Placemark id="0F11D75FB14266C09B3E">
+		<name>Untitled placemark</name>
+		<LookAt>
+			<longitude>30.94252467447895</longitude>
+			<latitude>-24.44739188570475</latitude>
+			<altitude>599.1422871269413</altitude>
+			<heading>359.9968480082669</heading>
+			<tilt>0</tilt>
+			<gx:fovy>35</gx:fovy>
+			<range>44318.35573790129</range>
+			<altitudeMode>absolute</altitudeMode>
+		</LookAt>
+		<styleUrl>#__managed_style_00E462EE0442D6FD89EE</styleUrl>
+		<Point>
+			<coordinates>30.94252467447895,-24.44739188570475,599.1422871269413</coordinates>
+		</Point>
+	</Placemark>
+</Document>
+</kml>

@@ -1,0 +1,1681 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2" xmlns:kml="http://www.opengis.net/kml/2.2" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:ex="http://earth.google.com/kml/ext">
+<Document id="1hjRJsBLXbm-cPd_assMOQA1yvKkDXeIZ">
+	<ex:extension>base64;Co4BCoEBCn8KAggBEnkKdwokCiAKAwjQDxoHCNLtZRD_ASEAAAAAAADwPykAAAAAAAAAABgAEg8KCAitgO8HEP8BEKAfGAAaGgoHCP___wcQQBIICK2A7wcQ_wEYoB8gACgAIgkIARIFCP___wcqFwgBEggI____BxD_ARkAAAAAAADwPyAAEgQIARAAGgIIAA</ex:extension>
+	<name>Welverdiend Roads.kmz</name>
+	<gx:CascadingStyle kml:id="__managed_style_0EE7A9EC6942D6FC5D6E_highlight">
+		<ex:extension>base64;EgIYAQ</ex:extension>
+		<Style>
+			<IconStyle>
+				<scale>1.32</scale>
+				<Icon>
+					<href>https://earth.google.com/earth/document/icon?id=168&amp;scale=4</href>
+				</Icon>
+			</IconStyle>
+			<LabelStyle>
+			</LabelStyle>
+			<LineStyle>
+				<color>ff0701fc</color>
+				<width>4.5</width>
+			</LineStyle>
+			<PolyStyle>
+				<color>40ffffff</color>
+			</PolyStyle>
+			<BalloonStyle>
+			</BalloonStyle>
+		</Style>
+	</gx:CascadingStyle>
+	<StyleMap id="__managed_style_0EE7A9EC6942D6FC5D6E">
+		<Pair>
+			<key>normal</key>
+			<styleUrl>#__managed_style_0EE7A9EC6942D6FC5D6E_normal</styleUrl>
+		</Pair>
+		<Pair>
+			<key>highlight</key>
+			<styleUrl>#__managed_style_0EE7A9EC6942D6FC5D6E_highlight</styleUrl>
+		</Pair>
+	</StyleMap>
+	<gx:CascadingStyle kml:id="__managed_style_08AA8E91A042D6FC5D61_highlight">
+		<ex:extension>base64;EgIYAQ</ex:extension>
+		<Style>
+			<IconStyle>
+				<scale>1.32</scale>
+				<Icon>
+					<href>https://earth.google.com/earth/document/icon?id=168&amp;scale=4</href>
+				</Icon>
+			</IconStyle>
+			<LabelStyle>
+			</LabelStyle>
+			<LineStyle>
+				<color>ff00ffff</color>
+				<width>4.5</width>
+			</LineStyle>
+			<PolyStyle>
+				<color>40ffffff</color>
+			</PolyStyle>
+			<BalloonStyle>
+			</BalloonStyle>
+		</Style>
+	</gx:CascadingStyle>
+	<StyleMap id="__managed_style_01E00C4A1542D6FC5D68">
+		<Pair>
+			<key>normal</key>
+			<styleUrl>#__managed_style_01E00C4A1542D6FC5D68_normal</styleUrl>
+		</Pair>
+		<Pair>
+			<key>highlight</key>
+			<styleUrl>#__managed_style_01E00C4A1542D6FC5D68_highlight</styleUrl>
+		</Pair>
+	</StyleMap>
+	<gx:CascadingStyle kml:id="__managed_style_08AA8E91A042D6FC5D61_normal">
+		<ex:extension>base64;EgIYAQ</ex:extension>
+		<Style>
+			<IconStyle>
+				<scale>1.1</scale>
+				<Icon>
+					<href>https://earth.google.com/earth/document/icon?id=168&amp;scale=4</href>
+				</Icon>
+			</IconStyle>
+			<LabelStyle>
+			</LabelStyle>
+			<LineStyle>
+				<color>ff00ffff</color>
+				<width>3</width>
+			</LineStyle>
+			<PolyStyle>
+				<color>40ffffff</color>
+			</PolyStyle>
+			<BalloonStyle>
+			</BalloonStyle>
+		</Style>
+	</gx:CascadingStyle>
+	<gx:CascadingStyle kml:id="__managed_style_03E45A446742D6FC5D6C_highlight">
+		<ex:extension>base64;EgIYAQ</ex:extension>
+		<Style>
+			<IconStyle>
+				<scale>1.2</scale>
+				<Icon>
+					<href>https://earth.google.com/earth/document/icon?color=1976d2&amp;id=2000&amp;scale=4</href>
+				</Icon>
+				<hotSpot x="64" y="128" xunits="pixels" yunits="insetPixels"/>
+			</IconStyle>
+			<LabelStyle>
+			</LabelStyle>
+			<LineStyle>
+				<color>ff2dc0fb</color>
+				<width>6</width>
+			</LineStyle>
+			<PolyStyle>
+				<color>40ffffff</color>
+			</PolyStyle>
+			<BalloonStyle>
+			</BalloonStyle>
+		</Style>
+	</gx:CascadingStyle>
+	<StyleMap id="__managed_style_08AA8E91A042D6FC5D61">
+		<Pair>
+			<key>normal</key>
+			<styleUrl>#__managed_style_08AA8E91A042D6FC5D61_normal</styleUrl>
+		</Pair>
+		<Pair>
+			<key>highlight</key>
+			<styleUrl>#__managed_style_08AA8E91A042D6FC5D61_highlight</styleUrl>
+		</Pair>
+	</StyleMap>
+	<gx:CascadingStyle kml:id="__managed_style_01E00C4A1542D6FC5D68_highlight">
+		<ex:extension>base64;EgIYAQ</ex:extension>
+		<Style>
+			<IconStyle>
+				<scale>0.48</scale>
+				<Icon>
+					<href>https://earth.google.com/earth/document/icon?id=471&amp;scale=4</href>
+				</Icon>
+				<hotSpot x="64" y="128" xunits="pixels" yunits="insetPixels"/>
+			</IconStyle>
+			<LabelStyle>
+				<scale>0.8</scale>
+			</LabelStyle>
+			<LineStyle>
+				<color>ff2dc0fb</color>
+				<width>6</width>
+			</LineStyle>
+			<PolyStyle>
+				<color>40ffffff</color>
+			</PolyStyle>
+			<BalloonStyle>
+			</BalloonStyle>
+		</Style>
+	</gx:CascadingStyle>
+	<gx:CascadingStyle kml:id="__managed_style_01E00C4A1542D6FC5D68_normal">
+		<ex:extension>base64;EgIYAQ</ex:extension>
+		<Style>
+			<IconStyle>
+				<scale>0.4</scale>
+				<Icon>
+					<href>https://earth.google.com/earth/document/icon?id=471&amp;scale=4</href>
+				</Icon>
+				<hotSpot x="64" y="128" xunits="pixels" yunits="insetPixels"/>
+			</IconStyle>
+			<LabelStyle>
+				<scale>0.8</scale>
+			</LabelStyle>
+			<LineStyle>
+				<color>ff2dc0fb</color>
+				<width>4</width>
+			</LineStyle>
+			<PolyStyle>
+				<color>40ffffff</color>
+			</PolyStyle>
+			<BalloonStyle>
+			</BalloonStyle>
+		</Style>
+	</gx:CascadingStyle>
+	<gx:CascadingStyle kml:id="__managed_style_0EE7A9EC6942D6FC5D6E_normal">
+		<ex:extension>base64;EgIYAQ</ex:extension>
+		<Style>
+			<IconStyle>
+				<scale>1.1</scale>
+				<Icon>
+					<href>https://earth.google.com/earth/document/icon?id=168&amp;scale=4</href>
+				</Icon>
+			</IconStyle>
+			<LabelStyle>
+			</LabelStyle>
+			<LineStyle>
+				<color>ff0701fc</color>
+				<width>3</width>
+			</LineStyle>
+			<PolyStyle>
+				<color>40ffffff</color>
+			</PolyStyle>
+			<BalloonStyle>
+			</BalloonStyle>
+		</Style>
+	</gx:CascadingStyle>
+	<gx:CascadingStyle kml:id="__managed_style_03E45A446742D6FC5D6C_normal">
+		<ex:extension>base64;EgIYAQ</ex:extension>
+		<Style>
+			<IconStyle>
+				<Icon>
+					<href>https://earth.google.com/earth/document/icon?color=1976d2&amp;id=2000&amp;scale=4</href>
+				</Icon>
+				<hotSpot x="64" y="128" xunits="pixels" yunits="insetPixels"/>
+			</IconStyle>
+			<LabelStyle>
+			</LabelStyle>
+			<LineStyle>
+				<color>ff2dc0fb</color>
+				<width>4</width>
+			</LineStyle>
+			<PolyStyle>
+				<color>40ffffff</color>
+			</PolyStyle>
+			<BalloonStyle>
+			</BalloonStyle>
+		</Style>
+	</gx:CascadingStyle>
+	<StyleMap id="__managed_style_03E45A446742D6FC5D6C">
+		<Pair>
+			<key>normal</key>
+			<styleUrl>#__managed_style_03E45A446742D6FC5D6C_normal</styleUrl>
+		</Pair>
+		<Pair>
+			<key>highlight</key>
+			<styleUrl>#__managed_style_03E45A446742D6FC5D6C_highlight</styleUrl>
+		</Pair>
+	</StyleMap>
+	<Folder id="5EED34DD6E000001">
+		<ex:extension>base64;GgA</ex:extension>
+		<name>Welverdiend Roads</name>
+		<styleUrl>#__managed_style_03E45A446742D6FC5D6C</styleUrl>
+		<Folder id="5EED34DD6E000002">
+			<ex:extension>base64;GgA</ex:extension>
+			<name>KN Road Names</name>
+			<open>1</open>
+			<styleUrl>#__managed_style_03E45A446742D6FC5D6C</styleUrl>
+			<Placemark id="5EED34DD6E000003">
+				<name>Antbear</name>
+				<LookAt>
+					<longitude>30.96034461289875</longitude>
+					<latitude>-24.40170961067516</latitude>
+					<altitude>0</altitude>
+					<heading>-9.56362795140115e-05</heading>
+					<tilt>0</tilt>
+					<gx:fovy>35</gx:fovy>
+					<range>4452.827509764446</range>
+					<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode>
+				</LookAt>
+				<styleUrl>#__managed_style_01E00C4A1542D6FC5D68</styleUrl>
+				<Point>
+					<coordinates>30.94944686755116,-24.40795476979645,0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark id="5EED34DD6E000004">
+				<name>Baboon</name>
+				<LookAt>
+					<longitude>30.96276914243824</longitude>
+					<latitude>-24.36662418206526</latitude>
+					<altitude>0</altitude>
+					<heading>-0.01765433870541996</heading>
+					<tilt>0</tilt>
+					<gx:fovy>35</gx:fovy>
+					<range>3398.728645588817</range>
+					<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode>
+				</LookAt>
+				<styleUrl>#__managed_style_01E00C4A1542D6FC5D68</styleUrl>
+				<Point>
+					<coordinates>30.95778270049672,-24.3647031268675,0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark id="5EED34DD6E000005">
+				<name>Caracal Crossing</name>
+				<LookAt>
+					<longitude>30.96791725141077</longitude>
+					<latitude>-24.39068786183193</latitude>
+					<altitude>0</altitude>
+					<heading>-0.02321157053105585</heading>
+					<tilt>0</tilt>
+					<gx:fovy>35</gx:fovy>
+					<range>5242.234967184568</range>
+					<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode>
+				</LookAt>
+				<styleUrl>#__managed_style_01E00C4A1542D6FC5D68</styleUrl>
+				<Point>
+					<coordinates>30.97024707555109,-24.39058782872582,0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark id="5EED34DD6E000006">
+				<name>Civet</name>
+				<LookAt>
+					<longitude>30.95934223423923</longitude>
+					<latitude>-24.3902834766288</latitude>
+					<altitude>0</altitude>
+					<heading>0.000321596857825192</heading>
+					<tilt>0</tilt>
+					<gx:fovy>35</gx:fovy>
+					<range>3166.690910371767</range>
+					<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode>
+				</LookAt>
+				<styleUrl>#__managed_style_01E00C4A1542D6FC5D68</styleUrl>
+				<Point>
+					<coordinates>30.95014111446873,-24.39375025467174,0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark id="5EED34DD6E000007">
+				<name>Contractor&apos;s Road</name>
+				<LookAt>
+					<longitude>30.96425237643469</longitude>
+					<latitude>-24.38035385087807</latitude>
+					<altitude>0</altitude>
+					<heading>-0.001707698827804579</heading>
+					<tilt>0</tilt>
+					<gx:fovy>35</gx:fovy>
+					<range>4500.392277947166</range>
+					<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode>
+				</LookAt>
+				<styleUrl>#__managed_style_01E00C4A1542D6FC5D68</styleUrl>
+				<Point>
+					<coordinates>30.96433524817845,-24.37633276387684,0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark id="5EED34DD6F000008">
+				<name>Cross Hippo Track</name>
+				<LookAt>
+					<longitude>30.95693304114976</longitude>
+					<latitude>-24.4059453217157</latitude>
+					<altitude>0</altitude>
+					<heading>0.003981795766247288</heading>
+					<tilt>0</tilt>
+					<gx:fovy>35</gx:fovy>
+					<range>1841.929229996176</range>
+					<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode>
+				</LookAt>
+				<styleUrl>#__managed_style_01E00C4A1542D6FC5D68</styleUrl>
+				<Point>
+					<coordinates>30.95988571736249,-24.40320573252902,0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark id="5EED34DD6F000009">
+				<name>Cross Track</name>
+				<LookAt>
+					<longitude>30.97039981658365</longitude>
+					<latitude>-24.40056075227297</latitude>
+					<altitude>0</altitude>
+					<heading>-0.001581934840658165</heading>
+					<tilt>0</tilt>
+					<gx:fovy>35</gx:fovy>
+					<range>1844.679320432008</range>
+					<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode>
+				</LookAt>
+				<styleUrl>#__managed_style_01E00C4A1542D6FC5D68</styleUrl>
+				<Point>
+					<coordinates>30.97152638604697,-24.40034985238571,0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark id="5EED34DD6F00000A">
+				<name>Cross Track</name>
+				<LookAt>
+					<longitude>30.97039981658365</longitude>
+					<latitude>-24.40056075227297</latitude>
+					<altitude>0</altitude>
+					<heading>-0.001581934840658165</heading>
+					<tilt>0</tilt>
+					<gx:fovy>35</gx:fovy>
+					<range>1844.679320432008</range>
+					<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode>
+				</LookAt>
+				<styleUrl>#__managed_style_01E00C4A1542D6FC5D68</styleUrl>
+				<Point>
+					<coordinates>30.96534924598224,-24.40107753513627,0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark id="5EED34DD6F00000B">
+				<name>Cross Track</name>
+				<LookAt>
+					<longitude>30.97039981658365</longitude>
+					<latitude>-24.40056075227297</latitude>
+					<altitude>0</altitude>
+					<heading>-0.001581934840658165</heading>
+					<tilt>0</tilt>
+					<gx:fovy>35</gx:fovy>
+					<range>1844.679320432008</range>
+					<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode>
+				</LookAt>
+				<styleUrl>#__managed_style_01E00C4A1542D6FC5D68</styleUrl>
+				<Point>
+					<coordinates>30.96266868168358,-24.39876376668499,0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark id="5EED34DD6F00000C">
+				<name>Eastern Road</name>
+				<LookAt>
+					<longitude>30.96895622294969</longitude>
+					<latitude>-24.39423713927522</latitude>
+					<altitude>0</altitude>
+					<heading>-0.003651041556802181</heading>
+					<tilt>0</tilt>
+					<gx:fovy>35</gx:fovy>
+					<range>4492.899748807647</range>
+					<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode>
+				</LookAt>
+				<styleUrl>#__managed_style_01E00C4A1542D6FC5D68</styleUrl>
+				<Point>
+					<coordinates>30.98402505426487,-24.39196584535993,0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark id="5EED34DD6F00000D">
+				<name>Eland</name>
+				<LookAt>
+					<longitude>30.97263818248111</longitude>
+					<latitude>-24.39709123499717</latitude>
+					<altitude>0</altitude>
+					<heading>-0.005171991323011443</heading>
+					<tilt>0</tilt>
+					<gx:fovy>35</gx:fovy>
+					<range>3166.690910375823</range>
+					<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode>
+				</LookAt>
+				<styleUrl>#__managed_style_01E00C4A1542D6FC5D68</styleUrl>
+				<Point>
+					<coordinates>30.96997014351793,-24.40093554772846,0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark id="5EED34DD6F00000E">
+				<name>Eland</name>
+				<LookAt>
+					<longitude>30.9706442227011</longitude>
+					<latitude>-24.39650743746705</latitude>
+					<altitude>0</altitude>
+					<heading>0.001980921763012188</heading>
+					<tilt>0</tilt>
+					<gx:fovy>35</gx:fovy>
+					<range>991.7065441212602</range>
+					<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode>
+				</LookAt>
+				<styleUrl>#__managed_style_01E00C4A1542D6FC5D68</styleUrl>
+				<Point>
+					<coordinates>30.96763793048155,-24.39665832297661,0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark id="5EED34DD6F00000F">
+				<name>Giraffe Link</name>
+				<LookAt>
+					<longitude>30.96831421645973</longitude>
+					<latitude>-24.39549817901125</latitude>
+					<altitude>0</altitude>
+					<heading>-0.01967497390575057</heading>
+					<tilt>0</tilt>
+					<gx:fovy>35</gx:fovy>
+					<range>4694.329429660682</range>
+					<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode>
+				</LookAt>
+				<styleUrl>#__managed_style_01E00C4A1542D6FC5D68</styleUrl>
+				<Point>
+					<coordinates>30.97301932335681,-24.39408364547516,0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark id="5EED34DD6F000010">
+				<name>Giraffe N</name>
+				<LookAt>
+					<longitude>30.96595249842202</longitude>
+					<latitude>-24.38864629242513</latitude>
+					<altitude>0</altitude>
+					<heading>-0.002411631525583715</heading>
+					<tilt>0</tilt>
+					<gx:fovy>35</gx:fovy>
+					<range>3380.983670247398</range>
+					<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode>
+				</LookAt>
+				<styleUrl>#__managed_style_01E00C4A1542D6FC5D68</styleUrl>
+				<Point>
+					<coordinates>30.97739664651345,-24.3877395581714,0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark id="5EED34DD6F000011">
+				<name>Giraffe S</name>
+				<LookAt>
+					<longitude>30.96595249842202</longitude>
+					<latitude>-24.38864629242513</latitude>
+					<altitude>0</altitude>
+					<heading>-0.002411631525583715</heading>
+					<tilt>0</tilt>
+					<gx:fovy>35</gx:fovy>
+					<range>3380.983670247398</range>
+					<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode>
+				</LookAt>
+				<styleUrl>#__managed_style_01E00C4A1542D6FC5D68</styleUrl>
+				<Point>
+					<coordinates>30.98282657739552,-24.39668610965619,0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark id="5EED34DD6F000012">
+				<name>Hippo</name>
+				<LookAt>
+					<longitude>30.95872106907605</longitude>
+					<latitude>-24.39994092493178</latitude>
+					<altitude>0</altitude>
+					<heading>0.0005774095420860572</heading>
+					<tilt>0</tilt>
+					<gx:fovy>35</gx:fovy>
+					<range>3166.690910373452</range>
+					<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode>
+				</LookAt>
+				<styleUrl>#__managed_style_01E00C4A1542D6FC5D68</styleUrl>
+				<Point>
+					<coordinates>30.95892806491733,-24.40361744468484,0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark id="5EED34DD6F000013">
+				<name>Hippo Track</name>
+				<LookAt>
+					<longitude>30.96269054279503</longitude>
+					<latitude>-24.3971516148093</latitude>
+					<altitude>0</altitude>
+					<heading>-0.02105575733611426</heading>
+					<tilt>0</tilt>
+					<gx:fovy>35</gx:fovy>
+					<range>1427.972548659814</range>
+					<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode>
+				</LookAt>
+				<styleUrl>#__managed_style_01E00C4A1542D6FC5D68</styleUrl>
+				<Point>
+					<coordinates>30.96269054279504,-24.3971516148093,0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark id="5EED34DD6F000014">
+				<name>Honey Badger</name>
+				<LookAt>
+					<longitude>30.966735960908</longitude>
+					<latitude>-24.38632894833197</latitude>
+					<altitude>0</altitude>
+					<heading>7.95138670365879e-15</heading>
+					<tilt>0</tilt>
+					<gx:fovy>35</gx:fovy>
+					<range>6392.243941910294</range>
+					<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode>
+				</LookAt>
+				<styleUrl>#__managed_style_01E00C4A1542D6FC5D68</styleUrl>
+				<Point>
+					<coordinates>30.95916853453853,-24.37336741299063,0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark id="5EED34DD6F000015">
+				<name>Honey Badger</name>
+				<LookAt>
+					<longitude>30.96879879317211</longitude>
+					<latitude>-24.37858545071145</latitude>
+					<altitude>0</altitude>
+					<heading>-0.01987766678156935</heading>
+					<tilt>0</tilt>
+					<gx:fovy>35</gx:fovy>
+					<range>3595.625441418089</range>
+					<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode>
+				</LookAt>
+				<styleUrl>#__managed_style_01E00C4A1542D6FC5D68</styleUrl>
+				<Point>
+					<coordinates>30.95743819294907,-24.37733980078776,0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark id="5EED34DD6F000016">
+				<name>Hyena</name>
+				<LookAt>
+					<longitude>30.96977629162057</longitude>
+					<latitude>-24.37811279227818</latitude>
+					<altitude>0</altitude>
+					<heading>-0.02397601658974798</heading>
+					<tilt>0</tilt>
+					<gx:fovy>35</gx:fovy>
+					<range>5495.023333843901</range>
+					<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode>
+				</LookAt>
+				<styleUrl>#__managed_style_01E00C4A1542D6FC5D68</styleUrl>
+				<Point>
+					<coordinates>30.96313572166887,-24.37992369554508,0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark id="5EED34DD6F000017">
+				<name>Hyena Road</name>
+				<LookAt>
+					<longitude>30.97044768411747</longitude>
+					<latitude>-24.38309268809074</latitude>
+					<altitude>0</altitude>
+					<heading>-0.02055809221452811</heading>
+					<tilt>0</tilt>
+					<gx:fovy>35</gx:fovy>
+					<range>2672.291565382042</range>
+					<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode>
+				</LookAt>
+				<styleUrl>#__managed_style_01E00C4A1542D6FC5D68</styleUrl>
+				<Point>
+					<coordinates>30.97093144630154,-24.37938894534389,0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark id="5EED34DD6F000018">
+				<name>Impala</name>
+				<LookAt>
+					<longitude>30.96295080859768</longitude>
+					<latitude>-24.37753323399712</latitude>
+					<altitude>0</altitude>
+					<heading>-0.00117167089062755</heading>
+					<tilt>0</tilt>
+					<gx:fovy>35</gx:fovy>
+					<range>4492.899748805656</range>
+					<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode>
+				</LookAt>
+				<styleUrl>#__managed_style_01E00C4A1542D6FC5D68</styleUrl>
+				<Point>
+					<coordinates>30.97016230389314,-24.37644806372825,0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark id="5EED34DD6F000019">
+				<name>Jackal</name>
+				<LookAt>
+					<longitude>30.96034461289875</longitude>
+					<latitude>-24.40170961067516</latitude>
+					<altitude>0</altitude>
+					<heading>-9.56362795140115e-05</heading>
+					<tilt>0</tilt>
+					<gx:fovy>35</gx:fovy>
+					<range>4452.827509764446</range>
+					<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode>
+				</LookAt>
+				<styleUrl>#__managed_style_01E00C4A1542D6FC5D68</styleUrl>
+				<Point>
+					<coordinates>30.95315174815712,-24.40664837759841,0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark id="5EED34DD6F00001A">
+				<name>Khaya  Ndlovu Main Road</name>
+				<LookAt>
+					<longitude>30.97044768411747</longitude>
+					<latitude>-24.38309268809074</latitude>
+					<altitude>0</altitude>
+					<heading>-0.02055809221452811</heading>
+					<tilt>0</tilt>
+					<gx:fovy>35</gx:fovy>
+					<range>2672.291565382042</range>
+					<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode>
+				</LookAt>
+				<styleUrl>#__managed_style_01E00C4A1542D6FC5D68</styleUrl>
+				<Point>
+					<coordinates>30.96130565714507,-24.38306888364852,0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark id="5EED34DD6F00001B">
+				<name>Khaya Ndlovu Main Road</name>
+				<LookAt>
+					<longitude>30.96281771423682</longitude>
+					<latitude>-24.38889467872232</latitude>
+					<altitude>0</altitude>
+					<heading>-0.001115871928197748</heading>
+					<tilt>0</tilt>
+					<gx:fovy>35</gx:fovy>
+					<range>4499.071277589035</range>
+					<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode>
+				</LookAt>
+				<styleUrl>#__managed_style_01E00C4A1542D6FC5D68</styleUrl>
+				<Point>
+					<coordinates>30.96090252042037,-24.37530512881285,0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark id="5EED34DD6F00001C">
+				<name>Khaya Ndlovu Main Road</name>
+				<LookAt>
+					<longitude>30.96606412208253</longitude>
+					<latitude>-24.37215234645899</latitude>
+					<altitude>0</altitude>
+					<heading>-0.02244397029958351</heading>
+					<tilt>0</tilt>
+					<gx:fovy>35</gx:fovy>
+					<range>1527.953869660151</range>
+					<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode>
+				</LookAt>
+				<styleUrl>#__managed_style_01E00C4A1542D6FC5D68</styleUrl>
+				<Point>
+					<coordinates>30.96183062253249,-24.36992840301902,0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark id="5EED34DD6F00001D">
+				<name>Kudu N</name>
+				<LookAt>
+					<longitude>30.96595249842202</longitude>
+					<latitude>-24.38864629242513</latitude>
+					<altitude>0</altitude>
+					<heading>-0.002411631525583715</heading>
+					<tilt>0</tilt>
+					<gx:fovy>35</gx:fovy>
+					<range>3380.983670247398</range>
+					<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode>
+				</LookAt>
+				<styleUrl>#__managed_style_01E00C4A1542D6FC5D68</styleUrl>
+				<Point>
+					<coordinates>30.97511262254542,-24.38778454391331,0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark id="5EED34DD6F00001E">
+				<name>Kudu S</name>
+				<LookAt>
+					<longitude>30.96791725141077</longitude>
+					<latitude>-24.39068786183193</latitude>
+					<altitude>0</altitude>
+					<heading>-0.02321157053105585</heading>
+					<tilt>0</tilt>
+					<gx:fovy>35</gx:fovy>
+					<range>5242.234967184568</range>
+					<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode>
+				</LookAt>
+				<styleUrl>#__managed_style_01E00C4A1542D6FC5D68</styleUrl>
+				<Point>
+					<coordinates>30.98079016507781,-24.39756420252799,0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark id="5EED34DD6F00001F">
+				<name>Leopard&apos;s Bend Road</name>
+				<LookAt>
+					<longitude>30.96034461289875</longitude>
+					<latitude>-24.40170961067516</latitude>
+					<altitude>0</altitude>
+					<heading>-9.56362795140115e-05</heading>
+					<tilt>0</tilt>
+					<gx:fovy>35</gx:fovy>
+					<range>4452.827509764446</range>
+					<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode>
+				</LookAt>
+				<styleUrl>#__managed_style_01E00C4A1542D6FC5D68</styleUrl>
+				<Point>
+					<coordinates>30.9722047337532,-24.40385412153211,0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark id="5EED34DD6F000020">
+				<name>Martin&apos;s Drift</name>
+				<LookAt>
+					<longitude>30.95624653654398</longitude>
+					<latitude>-24.37652848777766</latitude>
+					<altitude>0</altitude>
+					<heading>0.001597649358903741</heading>
+					<tilt>0</tilt>
+					<gx:fovy>35</gx:fovy>
+					<range>830.766897037806</range>
+					<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode>
+				</LookAt>
+				<styleUrl>#__managed_style_01E00C4A1542D6FC5D68</styleUrl>
+				<Point>
+					<coordinates>30.95433723864847,-24.3759119592587,0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark id="5EED34DD6F000021">
+				<name>Member&apos;s Entrance</name>
+				<LookAt>
+					<longitude>30.96606412208253</longitude>
+					<latitude>-24.37215234645899</latitude>
+					<altitude>0</altitude>
+					<heading>-0.02244397029958351</heading>
+					<tilt>0</tilt>
+					<gx:fovy>35</gx:fovy>
+					<range>1527.953869660151</range>
+					<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode>
+				</LookAt>
+				<styleUrl>#__managed_style_01E00C4A1542D6FC5D68</styleUrl>
+				<Point>
+					<coordinates>30.96372279696137,-24.37272540297334,0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark id="5EED34DD6F000022">
+				<name>Mhlanganweni</name>
+				<LookAt>
+					<longitude>30.96791725141077</longitude>
+					<latitude>-24.39068786183193</latitude>
+					<altitude>0</altitude>
+					<heading>-0.02321157053105585</heading>
+					<tilt>0</tilt>
+					<gx:fovy>35</gx:fovy>
+					<range>5242.234967184568</range>
+					<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode>
+				</LookAt>
+				<styleUrl>#__managed_style_01E00C4A1542D6FC5D68</styleUrl>
+				<Point>
+					<coordinates>30.96571783337586,-24.39023254136525,0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark id="5EED34DD6F000023">
+				<name>Mongoose</name>
+				<LookAt>
+					<longitude>30.96274444489389</longitude>
+					<latitude>-24.36657922149324</latitude>
+					<altitude>0</altitude>
+					<heading>-0.01764412630546484</heading>
+					<tilt>0</tilt>
+					<gx:fovy>35</gx:fovy>
+					<range>3398.728645588492</range>
+					<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode>
+				</LookAt>
+				<styleUrl>#__managed_style_01E00C4A1542D6FC5D68</styleUrl>
+				<Point>
+					<coordinates>30.95482252800779,-24.37122422841215,0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark id="5EED34DD6F000024">
+				<name>Mpumalanga Track</name>
+				<LookAt>
+					<longitude>30.96831421645973</longitude>
+					<latitude>-24.39549817901125</latitude>
+					<altitude>0</altitude>
+					<heading>-0.01967497390575057</heading>
+					<tilt>0</tilt>
+					<gx:fovy>35</gx:fovy>
+					<range>4694.329429660682</range>
+					<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode>
+				</LookAt>
+				<styleUrl>#__managed_style_01E00C4A1542D6FC5D68</styleUrl>
+				<Point>
+					<coordinates>30.98181700243429,-24.39367660654484,0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark id="5EED34DD6F000025">
+				<name>Ndlovu</name>
+				<LookAt>
+					<longitude>30.95934223423923</longitude>
+					<latitude>-24.3902834766288</latitude>
+					<altitude>0</altitude>
+					<heading>0.000321596857825192</heading>
+					<tilt>0</tilt>
+					<gx:fovy>35</gx:fovy>
+					<range>3166.690910371767</range>
+					<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode>
+				</LookAt>
+				<styleUrl>#__managed_style_01E00C4A1542D6FC5D68</styleUrl>
+				<Point>
+					<coordinates>30.9589051990682,-24.39090146147619,0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark id="5EED34DD6F000026">
+				<name>Nyala</name>
+				<LookAt>
+					<longitude>30.96831421645973</longitude>
+					<latitude>-24.39549817901125</latitude>
+					<altitude>0</altitude>
+					<heading>-0.01967497390575057</heading>
+					<tilt>0</tilt>
+					<gx:fovy>35</gx:fovy>
+					<range>4694.329429660682</range>
+					<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode>
+				</LookAt>
+				<styleUrl>#__managed_style_01E00C4A1542D6FC5D68</styleUrl>
+				<Point>
+					<coordinates>30.97874611141981,-24.38964061977508,0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark id="5EED34DD6F000027">
+				<name>Rhino</name>
+				<LookAt>
+					<longitude>30.96895622294969</longitude>
+					<latitude>-24.39423713927522</latitude>
+					<altitude>0</altitude>
+					<heading>-0.003651041556802181</heading>
+					<tilt>0</tilt>
+					<gx:fovy>35</gx:fovy>
+					<range>4492.899748807647</range>
+					<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode>
+				</LookAt>
+				<styleUrl>#__managed_style_01E00C4A1542D6FC5D68</styleUrl>
+				<Point>
+					<coordinates>30.97464007465124,-24.40006520808766,0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark id="5EED34DD6F000028">
+				<name>Rhino Crossing</name>
+				<LookAt>
+					<longitude>30.97263818248111</longitude>
+					<latitude>-24.39709123499717</latitude>
+					<altitude>0</altitude>
+					<heading>-0.005171991323011443</heading>
+					<tilt>0</tilt>
+					<gx:fovy>35</gx:fovy>
+					<range>3166.690910375823</range>
+					<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode>
+				</LookAt>
+				<styleUrl>#__managed_style_01E00C4A1542D6FC5D68</styleUrl>
+				<Point>
+					<coordinates>30.9779060818556,-24.39867235259187,0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark id="5EED34DD6F000029">
+				<name>Ridge Road</name>
+				<LookAt>
+					<longitude>30.97061844090492</longitude>
+					<latitude>-24.39168807455753</latitude>
+					<altitude>0</altitude>
+					<heading>0.001991749497810233</heading>
+					<tilt>0</tilt>
+					<gx:fovy>35</gx:fovy>
+					<range>2041.874147153097</range>
+					<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode>
+				</LookAt>
+				<styleUrl>#__managed_style_01E00C4A1542D6FC5D68</styleUrl>
+				<Point>
+					<coordinates>30.96040228344165,-24.39621969609314,0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark id="5EED34DD6F00002A">
+				<name>Runway</name>
+				<LookAt>
+					<longitude>30.96274444489389</longitude>
+					<latitude>-24.36657922149324</latitude>
+					<altitude>0</altitude>
+					<heading>-0.01764412630546484</heading>
+					<tilt>0</tilt>
+					<gx:fovy>35</gx:fovy>
+					<range>3398.728645588492</range>
+					<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode>
+				</LookAt>
+				<styleUrl>#__managed_style_01E00C4A1542D6FC5D68</styleUrl>
+				<Point>
+					<coordinates>30.9551190570248,-24.37246080771548,0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark id="5EED34DD6F00002B">
+				<name>Sandspruit Loop</name>
+				<LookAt>
+					<longitude>30.96791725141077</longitude>
+					<latitude>-24.39068786183193</latitude>
+					<altitude>0</altitude>
+					<heading>-0.02321157053105585</heading>
+					<tilt>0</tilt>
+					<gx:fovy>35</gx:fovy>
+					<range>5242.234967184568</range>
+					<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode>
+				</LookAt>
+				<styleUrl>#__managed_style_01E00C4A1542D6FC5D68</styleUrl>
+				<Point>
+					<coordinates>30.97002754306538,-24.38670099932089,0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark id="5EED34DD6F00002C">
+				<name>Sandspruit Loop</name>
+				<LookAt>
+					<longitude>30.96305342506554</longitude>
+					<latitude>-24.3870895331952</latitude>
+					<altitude>0</altitude>
+					<heading>-0.001211948537447335</heading>
+					<tilt>0</tilt>
+					<gx:fovy>35</gx:fovy>
+					<range>4509.083362559658</range>
+					<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode>
+				</LookAt>
+				<styleUrl>#__managed_style_01E00C4A1542D6FC5D68</styleUrl>
+				<Point>
+					<coordinates>30.97004417453474,-24.38332053392951,0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark id="5EED34DD6F00002D">
+				<name>Warthog</name>
+				<LookAt>
+					<longitude>30.96276914243824</longitude>
+					<latitude>-24.36662418206526</latitude>
+					<altitude>0</altitude>
+					<heading>-0.01765433870541996</heading>
+					<tilt>0</tilt>
+					<gx:fovy>35</gx:fovy>
+					<range>3398.728645588817</range>
+					<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode>
+				</LookAt>
+				<styleUrl>#__managed_style_01E00C4A1542D6FC5D68</styleUrl>
+				<Point>
+					<coordinates>30.95620357607084,-24.36663712549664,0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark id="5EED34DD6F00002E">
+				<name>Warthog</name>
+				<LookAt>
+					<longitude>30.96977629162057</longitude>
+					<latitude>-24.37811279227818</latitude>
+					<altitude>0</altitude>
+					<heading>-0.02397601658974798</heading>
+					<tilt>0</tilt>
+					<gx:fovy>35</gx:fovy>
+					<range>5495.023333843901</range>
+					<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode>
+				</LookAt>
+				<styleUrl>#__managed_style_01E00C4A1542D6FC5D68</styleUrl>
+				<Point>
+					<coordinates>30.95656042411875,-24.37406359721549,0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark id="5EED34DD6F00002F">
+				<name>Waterbuck</name>
+				<LookAt>
+					<longitude>30.96197087650127</longitude>
+					<latitude>-24.39697674172825</latitude>
+					<altitude>0</altitude>
+					<heading>-0.0002893937097500981</heading>
+					<tilt>0</tilt>
+					<gx:fovy>35</gx:fovy>
+					<range>2862.271504183268</range>
+					<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode>
+				</LookAt>
+				<styleUrl>#__managed_style_01E00C4A1542D6FC5D68</styleUrl>
+				<Point>
+					<coordinates>30.95626351554279,-24.39390299495422,0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark id="5EED34DD6F000030">
+				<name>Western Dam Road</name>
+				<LookAt>
+					<longitude>30.96034461289875</longitude>
+					<latitude>-24.40170961067516</latitude>
+					<altitude>0</altitude>
+					<heading>-9.56362795140115e-05</heading>
+					<tilt>0</tilt>
+					<gx:fovy>35</gx:fovy>
+					<range>4452.827509764446</range>
+					<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode>
+				</LookAt>
+				<styleUrl>#__managed_style_01E00C4A1542D6FC5D68</styleUrl>
+				<Point>
+					<coordinates>30.95002466478146,-24.40504738280494,0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark id="5EED34DD6F000031">
+				<name>Wild Dog</name>
+				<LookAt>
+					<longitude>30.96516633513543</longitude>
+					<latitude>-24.38079562127149</latitude>
+					<altitude>0</altitude>
+					<heading>-0.002086955935684559</heading>
+					<tilt>0</tilt>
+					<gx:fovy>35</gx:fovy>
+					<range>3380.98367024587</range>
+					<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode>
+				</LookAt>
+				<styleUrl>#__managed_style_01E00C4A1542D6FC5D68</styleUrl>
+				<Point>
+					<coordinates>30.97351544033415,-24.3793300942247,0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark id="5EED34DD6F000032">
+				<name>Wildebeest</name>
+				<LookAt>
+					<longitude>30.96295080859768</longitude>
+					<latitude>-24.37753323399712</latitude>
+					<altitude>0</altitude>
+					<heading>-0.00117167089062755</heading>
+					<tilt>0</tilt>
+					<gx:fovy>35</gx:fovy>
+					<range>4492.899748805656</range>
+					<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode>
+				</LookAt>
+				<styleUrl>#__managed_style_01E00C4A1542D6FC5D68</styleUrl>
+				<Point>
+					<coordinates>30.95786028233895,-24.37876671519876,0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark id="5EED34DD6F000033">
+				<name>Zebra N</name>
+				<LookAt>
+					<longitude>30.96281771423682</longitude>
+					<latitude>-24.38889467872232</latitude>
+					<altitude>0</altitude>
+					<heading>-0.001115871928197748</heading>
+					<tilt>0</tilt>
+					<gx:fovy>35</gx:fovy>
+					<range>4499.071277589035</range>
+					<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode>
+				</LookAt>
+				<styleUrl>#__managed_style_01E00C4A1542D6FC5D68</styleUrl>
+				<Point>
+					<coordinates>30.95429364306433,-24.38284770964265,0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark id="5EED34DD6F000034">
+				<name>Zebra S</name>
+				<LookAt>
+					<longitude>30.96034461289875</longitude>
+					<latitude>-24.40170961067516</latitude>
+					<altitude>0</altitude>
+					<heading>-9.56362795140115e-05</heading>
+					<tilt>0</tilt>
+					<gx:fovy>35</gx:fovy>
+					<range>4452.827509764446</range>
+					<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode>
+				</LookAt>
+				<styleUrl>#__managed_style_01E00C4A1542D6FC5D68</styleUrl>
+				<Point>
+					<coordinates>30.95228495192609,-24.40098299930039,0</coordinates>
+				</Point>
+			</Placemark>
+		</Folder>
+		<Folder id="5EED34DD6F000035">
+			<ex:extension>base64;GgA</ex:extension>
+			<name>Existing Roads</name>
+			<open>1</open>
+			<styleUrl>#__managed_style_03E45A446742D6FC5D6C</styleUrl>
+			<Folder id="5EED34DD6F000036">
+				<ex:extension>base64;GgA</ex:extension>
+				<name>Two Tracks Completed</name>
+				<open>1</open>
+				<styleUrl>#__managed_style_03E45A446742D6FC5D6C</styleUrl>
+				<Placemark id="5EED34DD6F000037">
+					<name>Cross Track</name>
+					<description>2.26 km</description>
+					<styleUrl>#__managed_style_08AA8E91A042D6FC5D61</styleUrl>
+					<LineString>
+						<tessellate>1</tessellate>
+						<coordinates>
+							30.96100860515083,-24.39394845158481,0 30.96105467727984,-24.39407052631833,0 30.96111890653329,-24.39419896929121,0 30.9612357825242,-24.39422405889946,0 30.96133810956985,-24.39419294838398,0 30.96146717014145,-24.39418647454181,0 30.9615760672973,-24.39421117599331,0 30.96168487855164,-24.39423584590703,0 30.96176282807826,-24.39423554749395,0 30.96187291670527,-24.39436026518583,0 30.9619304744062,-24.39444405165493,0 30.96201218658204,-24.39454041863427,0 30.9621040371992,-24.39460256143584,0 30.96226061053235,-24.3945961117968,0 30.96232190721632,-24.39458353136174,0 30.96249941732385,-24.39461136749031,0 30.96259512206991,-24.39465808836972,0 30.96265667936928,-24.39476119158976,0 30.96261574454443,-24.39485809740735,0 30.96256456648416,-24.39496113217726,0 30.96253731691898,-24.39506411408963,0 30.96254397206297,-24.3951642324858,0 30.96254733781633,-24.39523930471391,0 30.9624820591488,-24.3952894256476,0 30.96240700027534,-24.39535153513271,0 30.96241395268499,-24.39545452328746,0 30.96244122046039,-24.39552347271471,0 30.96233167208102,-24.39570134041023,0 30.96222595199721,-24.39579670858447,0 30.96226370384968,-24.3959246596433,0 30.96224030193449,-24.39604964905526,0 30.96223399457965,-24.39616198872043,0 30.96235001766999,-24.39632715736717,0 30.96238896504216,-24.39650621471209,0 30.96243720211242,-24.39664169361297,0 30.96251961992219,-24.39684040160882,0 30.96255863341341,-24.39693222902712,0 30.9626136745716,-24.39699679198602,0 30.96262514341877,-24.39710487631559,0 30.96255648054398,-24.39722945631251,0 30.96253360407535,-24.3972858246673,0 30.96256566456173,-24.39732958822025,0 30.96262980620431,-24.39739838732615,0 30.96269624874462,-24.39749847302577,0 30.96270319050065,-24.39757556731851,0 30.96266191437221,-24.39769038382547,0 30.96265277315821,-24.39776333235983,0 30.96274439786275,-24.39783628203047,0 30.96279029197902,-24.39791764334364,0 30.96281317122494,-24.39806562548292,0 30.96284060653432,-24.39812599363725,0 30.96289794655757,-24.39817197482799,0 30.96291177171011,-24.39821169011846,0 30.96286828918639,-24.39829096467891,0 30.96279254155235,-24.39844043135523,0 30.96269866662465,-24.39862902223158,0 30.96266664323661,-24.39870953103891,0 30.96268261910836,-24.39877754611941,0 30.96265520258147,-24.39886510684783,0 30.96263012519233,-24.39897115825271,0 30.96267578180943,-24.39905625835074,0 30.96275790735278,-24.39914555080194,0 30.9628125758301,-24.39921822800557,0 30.96282376553527,-24.39929494984881,0 30.96279864026348,-24.39935296907183,0 30.96279175742091,-24.39942130846834,0 30.96284410525312,-24.39950624253139,0 30.96289655017636,-24.39959128868047,0 30.96297193824433,-24.39965788709998,0 30.96304006922438,-24.39973021793256,0 30.96312172939845,-24.39985832216193,0 30.96317187158689,-24.39995782296106,0 30.9632105166802,-24.40012138216506,0 30.96325357591945,-24.40020809232978,0 30.96335587296286,-24.40026803432225,0 30.96340349825715,-24.40032097866364,0 30.96345783538021,-24.40040803158959,0 30.96352474753465,-24.40042216018288,0 30.96364902892705,-24.40043206967213,0 30.96372345951366,-24.40052557459274,0 30.96383199152716,-24.40064360814955,0 30.9638542859846,-24.40071419832769,0 30.96396683413536,-24.40078266580714,0 30.96406967894339,-24.40089062874608,0 30.96420270984328,-24.40100492394195,0 30.96428604992624,-24.40102171435982,0 30.96438045396147,-24.40095343222591,0 30.96442283993384,-24.40094105202466,0 30.9645626362757,-24.40100985331985,0 30.96468147482782,-24.40106222751474,0 30.96483721755953,-24.40111056547995,0 30.96504844580221,-24.40111312547207,0 30.96523028505521,-24.40107790629152,0 30.96532715768423,-24.40106971812984,0 30.96544740512505,-24.40106583184759,0 30.96553073908534,-24.4011142853432,0 30.96556297497298,-24.40117721569425,0 30.96569191644728,-24.40121906718634,0 30.96575134783467,-24.40122087361383,0 30.96586623655025,-24.40124916520618,0 30.96600397730925,-24.40129193152954,0 30.96608050877397,-24.40126045141309,0 30.96615000285444,-24.40122259152382,0 30.96630348356922,-24.40119124320188,0 30.96646383522137,-24.40112394937174,0 30.96658661006087,-24.40110756637936,0 30.96671464704565,-24.40106118245858,0 30.96684650972998,-24.40101464565404,0 30.96710620217029,-24.40095348193926,0 30.96723850021989,-24.40087324863837,0 30.96736851047299,-24.40083515071466,0 30.96748952594525,-24.4008711487026,0 30.96762001957589,-24.40082038400119,0 30.96772953578767,-24.40073563666625,0 30.96780897744203,-24.40064869516151,0 30.96790697160046,-24.40059562268818,0 30.96805403327058,-24.40057430624197,0 30.96819238683007,-24.40056561598824,0 30.96830936570253,-24.40061011920728,0 30.96838870400389,-24.40065894302359,0 30.96843226181286,-24.4007311506984,0 30.96841305652367,-24.40079693565497,0 30.96836572344287,-24.40088173311059,0 30.96839751390052,-24.40096427397057,0 30.96846494935172,-24.40096636503499,0 30.96855064795557,-24.4009138070379,0 30.9685970244947,-24.40082623578726,0 30.96867147571074,-24.40077491522916,0 30.96875072758282,-24.40081548887762,0 30.96875082215283,-24.4008967751362,0 30.96887886677456,-24.40096715737581,0 30.96899985180513,-24.40097987783712,0 30.96916491601018,-24.40095690305046,0 30.96934921078785,-24.40090049156175,0 30.96953851855014,-24.40083134125141,0 30.96983437455112,-24.40059428038611,0 30.96995240892419,-24.40053397802039,0 30.97012791600626,-24.40041059546409,0 30.97033473385409,-24.40032485089232,0 30.97054211018364,-24.40023325638584,0 30.97073236017959,-24.40019226970819,0 30.97094649685199,-24.40023210107118,0 30.97114024918197,-24.40021889314781,0 30.97123030113154,-24.40027864390863,0 30.97132384446946,-24.40034181270643,0 30.97150396793694,-24.4003381044289,0 30.97164607088135,-24.40026817098389,0 30.97181939752351,-24.40019844147126,0 30.97204120125501,-24.40017634247242,0 30.97217284742536,-24.4002332736143,0 30.97236002963054,-24.40028368042882,0 30.97264096075957,-24.40015705419709,0 30.97276673677494,-24.40006747089097,0 30.97278816555647,-24.40001334211408,0 30.9728248340453,-24.39990253619168,0 30.97281243441935,-24.39980419794226,0 30.97286750653817,-24.39973761953225,0 30.97294687088518,-24.39970264392597,0 30.97311357907753,-24.39965187040107,0 30.97318220918229,-24.39959776982323,0 30.97329770312854,-24.39951131763706,0 30.97337048461971,-24.39948578930941,0 30.97354557712045,-24.39959704214692,0 30.97365793756664,-24.39966070210412,0 30.97421267557421,-24.39995870711318,0 30.97429230136705,-24.39997762983841,0 30.97443108923375,-24.39995530712924,0 30.97451866354713,-24.39997937947645,0 
+						</coordinates>
+					</LineString>
+				</Placemark>
+				<Placemark id="5EED34DD6F000038">
+					<name>Giraffe Link</name>
+					<description>810 m</description>
+					<styleUrl>#__managed_style_08AA8E91A042D6FC5D61</styleUrl>
+					<LineString>
+						<tessellate>1</tessellate>
+						<coordinates>
+							30.97125052319567,-24.3947497247973,0 30.97150537527287,-24.39458569616396,0 30.97172920586887,-24.39448168500103,0 30.97197032045542,-24.39435784956051,0 30.97223303238983,-24.39418240182134,0 30.97246044230777,-24.39407083412306,0 30.97271814039462,-24.39398330337687,0 30.9729670589235,-24.39386797012484,0 30.97310243692883,-24.39364525348045,0 30.97322469309003,-24.39347425259719,0 30.97343831609087,-24.39340289040295,0 30.97369089031231,-24.39338328889645,0 30.97399965432903,-24.39328835501257,0 30.97425153836758,-24.39320537925176,0 30.97455513035732,-24.39307898457172,0 30.97476394410084,-24.39308299073796,0 30.97496436129304,-24.39304327779116,0 30.97509490297199,-24.39305122039818,0 30.97526878150368,-24.39308300175814,0 30.97548349870997,-24.39309171173204,0 30.97560286751657,-24.39319518706889,0 30.97576372074267,-24.39332228033487,0 30.97585461331588,-24.39343303553375,0 30.97591518665123,-24.39356742575456,0 30.97611354821962,-24.39355975655451,0 30.97628133689319,-24.39361913637265,0 30.97643168086838,-24.39363505218995,0 30.97656037141281,-24.3936351710252,0 30.97662894131764,-24.39372185974534,0 30.97670170556279,-24.39377700332041,0 30.9768174425104,-24.39373374761984,0 30.97689455716793,-24.39359212135821,0 30.97706500216983,-24.39338333229832,0 30.97709795230988,-24.39329837488376,0 30.97719601102799,-24.39329849137109,0 30.97722847534678,-24.39334850835801,0 30.97735863296135,-24.39347347093589,0 30.97751109140324,-24.39354337957641,0 30.97771301443158,-24.39349851459867,0 30.97783253214243,-24.39356836026987,0 30.97782720970162,-24.39354342822185,0 30.97780969750838,-24.39363296252489,0 30.97786350094223,-24.39357654926813,0 
+						</coordinates>
+					</LineString>
+				</Placemark>
+				<Placemark id="5EED34DD6F000039">
+					<name>Hippo Track</name>
+					<description>1.17 km</description>
+					<styleUrl>#__managed_style_08AA8E91A042D6FC5D61</styleUrl>
+					<LineString>
+						<tessellate>1</tessellate>
+						<coordinates>
+							30.96731144807852,-24.3955849654289,0 30.96631053867708,-24.39578582553083,0 30.96524956355594,-24.3960049316374,0 30.96400843390509,-24.39635171237834,0 30.96294749785671,-24.39680783163334,0 30.96214679174674,-24.397209178227,0 30.961306101808,-24.3978657951992,0 30.96060546495412,-24.39826711842441,0 30.95990478211587,-24.3985590469321,0 30.95928414496572,-24.3987415551724,0 30.95866356266317,-24.39917932905968,0 30.95724219302023,-24.4002919810505,0 
+						</coordinates>
+					</LineString>
+				</Placemark>
+				<Placemark id="5EED34DD6F00003A">
+					<name>Hippo Track</name>
+					<description>830 m</description>
+					<styleUrl>#__managed_style_08AA8E91A042D6FC5D61</styleUrl>
+					<LineString>
+						<tessellate>1</tessellate>
+						<coordinates>
+							30.96386329209254,-24.40071225596171,0 30.96374126639445,-24.40081485622077,0 30.96373083631754,-24.40093246588955,0 30.96372044937079,-24.4010691782792,0 30.96366472909945,-24.40117726291825,0 30.96361608571265,-24.40124083066437,0 30.96350830662498,-24.40128212905639,0 30.96343880515562,-24.40130433835048,0 30.96335899742963,-24.40140262913896,0 30.96325509729747,-24.40150393121015,0 30.96321355954234,-24.40155139560841,0 30.96316486834452,-24.40164959748024,0 30.9631131620655,-24.40169372269889,0 30.96298894070934,-24.40174078410563,0 30.96288915552017,-24.4017625124936,0 30.96282034334685,-24.40181280969234,0 30.96277894519818,-24.40188219439912,0 30.96281602819692,-24.40199341557485,0 30.96287078421917,-24.40208251437141,0 30.96286349444057,-24.40221888486921,0 30.96284892054372,-24.40230183377639,0 30.96280362284151,-24.40239062382673,0 30.9627856800788,-24.40252745546737,0 30.96280198528618,-24.40262385711047,0 30.96279348300896,-24.40275278952601,0 30.96276134929537,-24.40281415814132,0 30.96265020615138,-24.40282625989693,0 30.96255339365102,-24.4028221317386,0 30.962490213587,-24.40284167600677,0 30.96243676772437,-24.40292966460185,0 30.96238853984953,-24.40301250485072,0 30.96229814661194,-24.40307953654862,0 30.96216887396383,-24.4031273829796,0 30.9620080617577,-24.40313380233358,0 30.9618682334261,-24.4031434747188,0 30.96177380325191,-24.40315300424335,0 30.96171086582266,-24.40318173009532,0 30.96166890215606,-24.40326789829164,0 30.96162686151519,-24.40336710628068,0 30.96157422796621,-24.40340590759405,0 30.96146545960667,-24.4033902319151,0 30.96136732775499,-24.40339021796087,0 30.96131471013085,-24.40339986155442,0 30.96131086261726,-24.40349305583656,0 30.96132469749109,-24.40355096659164,0 30.9613103724456,-24.40362509153128,0 30.96125414066317,-24.40363474272706,0 30.96114895134757,-24.40360886576638,0 30.96096369051276,-24.40350253495746,0 30.96082677472403,-24.40346749381558,0 30.9606519217889,-24.40344803896658,0 30.96049287289253,-24.40342632756336,0 30.96023306779447,-24.40337529104741,0 30.96004718794604,-24.40329857167852,0 30.95985132232212,-24.40321536651065,0 30.95966488211051,-24.40318674688678,0 30.95952086820275,-24.40313886795728,0 30.95935210265629,-24.40305264864657,0 30.95921424155314,-24.4029183689585,0 30.9590601862846,-24.40280022578439,0 30.9589242079345,-24.40268538952673,0 30.95882554000899,-24.40258959398669,0 30.95867417636087,-24.4025032948847,0 30.95854047988258,-24.40241060795109,0 30.95842375354549,-24.40241358310571,0 
+						</coordinates>
+					</LineString>
+				</Placemark>
+				<Placemark id="5EED34DD6F00003B">
+					<name>Mpumalanga Track</name>
+					<description>1.4 km</description>
+					<styleUrl>#__managed_style_08AA8E91A042D6FC5D61</styleUrl>
+					<LineString>
+						<tessellate>1</tessellate>
+						<coordinates>
+							30.98816255935325,-24.39890842474302,0 30.9881129395788,-24.39877139859282,0 30.98808600331838,-24.39870697752811,0 30.98799736273364,-24.39859845438897,0 30.98778652857354,-24.3984784453632,0 30.98772487396278,-24.39840229440941,0 30.98762815868423,-24.39832220670404,0 30.98745812534564,-24.39823881700372,0 30.98724804376427,-24.39814320532279,0 30.98711216233341,-24.39814362538782,0 30.98699806149932,-24.39814397975457,0 30.98687925643452,-24.39810401636649,0 30.98674263772945,-24.39803180657578,0 30.98666326365695,-24.3979876475702,0 30.98657509161105,-24.39795558995526,0 30.98648241155144,-24.39790335974285,0 30.98642946831269,-24.39783097829811,0 30.98641181106539,-24.39771425566334,0 30.9863940732589,-24.39764580594869,0 30.98636750510926,-24.39757335128252,0 30.98630124413304,-24.39753713366018,0 30.9862393594455,-24.39746066555045,0 30.9861862708493,-24.39731581983001,0 30.98614647529567,-24.39721928832778,0 30.98607580708449,-24.39714682481858,0 30.98599186888504,-24.39707028751371,0 30.98591673721415,-24.39706216285682,0 30.98581946960539,-24.39702179733573,0 30.98576197152209,-24.39696535567855,0 30.98573100331771,-24.39690088221271,0 30.9857221530411,-24.39680824463297,0 30.98574869603976,-24.39671164210006,0 30.98577523574633,-24.39664323854739,0 30.98582388373521,-24.39655476156301,0 30.98579734627088,-24.39643391018282,0 30.98568232058638,-24.3963490363757,0 30.98556280775571,-24.3962882745165,0 30.98541220702197,-24.39615080833043,0 30.98526150100782,-24.39602130734148,0 30.98523253726198,-24.39587876624078,0 30.98513072927448,-24.39571340088052,0 30.98502444451291,-24.39558425482808,0 30.98488264864512,-24.39550745533021,0 30.98467846930155,-24.3954949112942,0 30.9845495780895,-24.39544211655879,0 30.98440297295889,-24.39540156282226,0 30.98423856280292,-24.39532866296761,0 30.984185385375,-24.39522766018739,0 30.98413680315377,-24.39511873709206,0 30.98405273926686,-24.39500985681484,0 30.98398644066241,-24.39490909191453,0 30.98389793633385,-24.39483254230605,0 30.98376138042624,-24.39470823548499,0 30.98367384733447,-24.39458421935174,0 30.9836437299107,-24.39446820117515,0 30.98356471539199,-24.39431979670773,0 30.98348150270554,-24.39421597899092,0 30.98332340229416,-24.39395951312887,0 30.98320269533789,-24.39392247658119,0 30.98307013109541,-24.39389436738645,0 30.98292872713661,-24.39382611772432,0 30.98281829252747,-24.39377795437878,0 30.98270347042421,-24.39368094137415,0 30.9825664384696,-24.39361198370309,0 30.98238948169898,-24.39360747166288,0 30.98215921594604,-24.39360685111694,0 30.98199095875178,-24.39357040481147,0 30.98185359965474,-24.39348955118369,0 30.98170756308991,-24.39346137900412,0 30.98153982160792,-24.39346188479311,0 30.98132954081258,-24.39353128706062,0 30.98125876271027,-24.39357963032714,0 30.98115259693995,-24.39359977123943,0 30.98103758309182,-24.3936360287251,0 30.98090487422193,-24.39365214126056,0 30.98083851988051,-24.39367228348734,0 30.98061291713899,-24.39376493822267,0 30.98045366767371,-24.39374479163047,0 30.98030769175006,-24.39367833369213,0 30.98019267850005,-24.39367430262979,0 30.98004669923074,-24.39367443086788,0 30.97999358303324,-24.39364648907225,0 30.97994928908819,-24.39363058046956,0 30.97986948682243,-24.39365517559146,0 30.97982511099856,-24.3936594372697,0 30.97962953513707,-24.39359980266415,0 30.97953599596856,-24.39354766136464,0 30.97945572178168,-24.39347921271079,0 30.97936648390971,-24.39341876600394,0 30.97925958938454,-24.39334598654388,0 30.97920166696286,-24.39327312892194,0 30.97915709894257,-24.39313949024634,0 30.97913035677182,-24.39302202193721,0 30.97912144792187,-24.39288833510541,0 30.97909470203708,-24.39273842649811,0 30.97910362435569,-24.39257232873283,0 30.9791080842081,-24.39252776948666,0 30.97904119986201,-24.39245476745981,0 30.97890278546845,-24.39235320876733,0 30.97879999800373,-24.39231651209289,0 30.97873736665422,-24.39228391687585,0 30.97872364418354,-24.39218230568436,0 
+						</coordinates>
+					</LineString>
+				</Placemark>
+				<Placemark id="5EED34DD6F00003C">
+					<name>Wild Dog Dam Track</name>
+					<description>0.65 km</description>
+					<styleUrl>#__managed_style_08AA8E91A042D6FC5D61</styleUrl>
+					<LineString>
+						<tessellate>1</tessellate>
+						<coordinates>
+							30.97603051891041,-24.38116506595372,0 30.97588094005813,-24.38123409759508,0 30.97577095785938,-24.3812663941826,0 30.97560067737834,-24.38131260594053,0 30.97540923370309,-24.38130811949168,0 30.97526250834425,-24.38126207375061,0 30.975126066017,-24.38122986955793,0 30.97500971042717,-24.38118844450514,0 30.97482307792687,-24.38117930275903,0 30.97459610603349,-24.38119783641296,0 30.97440922166911,-24.38120253036631,0 30.97427771823489,-24.38117028817247,0 30.97410072366915,-24.38112423214126,0 30.97398441319277,-24.38111504202183,0 30.97377183195312,-24.38115658857418,0 30.97354918118982,-24.3811566083551,0 30.97342789165068,-24.38109668413535,0 30.97329637224492,-24.38100454014672,0 30.97316995527776,-24.38092161856931,0 30.97306364629439,-24.3808985796516,0 30.97289567239518,-24.38088002524171,0 30.97278847583669,-24.38087992958442,0 30.97269137946828,-24.38087522376341,0 30.97259935602152,-24.38084742725131,0 30.97264070754141,-24.38071823823784,0 30.97271877595364,-24.38055733514101,0 30.97270484244218,-24.38039655630049,0 30.97266997633342,-24.38030011256814,0 30.97266637795592,-24.38013068627554,0 30.9725603157864,-24.3800248954885,0 30.9724131843568,-24.38000149082593,0 30.97217497077068,-24.379978072563,0 30.97199729909205,-24.37997769111677,0 30.97172176426789,-24.37993047954389,0 30.97154710185182,-24.37989244952604,0 30.97132633073424,-24.37979424254081,0 30.97123736337551,-24.37974323051857,0 30.97113050301439,-24.37970133904892,0 30.97100843788949,-24.3796872168824,0 30.97084567431926,-24.37965917836405,0 30.9707546105429,-24.37962707732188,0 
+						</coordinates>
+					</LineString>
+				</Placemark>
+			</Folder>
+			<Folder id="5EED34DD6F00003D">
+				<ex:extension>base64;GgA</ex:extension>
+				<name>No entry for Traverse</name>
+				<open>1</open>
+				<styleUrl>#__managed_style_03E45A446742D6FC5D6C</styleUrl>
+				<Placemark id="5EED34DD6F00003E">
+					<name>Hyena</name>
+					<description>1.4 km</description>
+					<styleUrl>#__managed_style_0EE7A9EC6942D6FC5D6E</styleUrl>
+					<LineString>
+						<tessellate>1</tessellate>
+						<coordinates>
+							30.95916566376167,-24.38033898504683,0 30.95939660450122,-24.38029552912553,0 30.95966452674761,-24.38030124723502,0 30.95999803400812,-24.38028255291803,0 30.96045171830215,-24.38021520090508,0 30.96084231847811,-24.38018462893096,0 30.96127102160994,-24.3801239750295,0 30.96161759014799,-24.38008775835319,0 30.9621146979728,-24.38000969419364,0 30.96235216679299,-24.37996174553079,0 30.96237194214003,-24.37996173975934,0 30.96243126228043,-24.37995572534357,0 30.96260917763214,-24.3799316917014,0 30.96302411189953,-24.3798236172405,0 30.96330845525814,-24.37976912882213,0 30.96371287091021,-24.37969022533592,0 30.96393796394804,-24.37964787979513,0 30.96415309182527,-24.37960460109389,0 30.96429806885293,-24.37949019098838,0 30.96441635497008,-24.37940604330286,0 30.96459070489401,-24.3793509376829,0 30.96481441385345,-24.37926459999177,0 30.96501239350684,-24.37920822111318,0 30.96515457754838,-24.37911033480311,0 30.96529194357054,-24.37909667518828,0 30.96550468158436,-24.379070267075,0 30.96562033820321,-24.37899649491501,0 30.96585523275831,-24.37889257765367,0 30.96604392211106,-24.37886154580922,0 30.9663200613379,-24.37879987991045,0 30.96683494306451,-24.37878150412688,0 30.9672713474238,-24.37874623621193,0 30.96753121951875,-24.37875171490521,0 30.96772003018303,-24.37874639408308,0 30.96786932799672,-24.3787475259485,0 30.96814653165505,-24.37876766885758,0 30.96833979317234,-24.37887076724345,0 30.96880986052752,-24.37904498903839,0 30.96919426004042,-24.37922565818953,0 30.9696401241166,-24.37940078102634,0 30.96996708708008,-24.37953394757009,0 30.97023489527866,-24.37963722654277,0 30.97048980001216,-24.37966781570673,0 30.97072008585558,-24.37964743198434,0 30.9707742907806,-24.37956258078573,0 30.97082827730214,-24.37945905699985,0 30.97086822385956,-24.37930267278166,0 30.97086734874864,-24.37912817631234,0 30.97085655377866,-24.37901309249807,0 30.97085949723486,-24.37892920208214,0 30.97089633813269,-24.37883918893409,0 30.97089866235155,-24.37869977966036,0 30.97087065261909,-24.37856687861526,0 30.97083951120343,-24.37845889086066,0 30.97078455079982,-24.37832954558501,0 30.97074332935579,-24.37821579786005,0 30.97068523536143,-24.37810227518312,0 
+						</coordinates>
+					</LineString>
+				</Placemark>
+				<Placemark id="5EED34DD6F00003F">
+					<name>Khaya Ndlovu Main Road</name>
+					<styleUrl>#__managed_style_0EE7A9EC6942D6FC5D6E</styleUrl>
+					<LineString>
+						<tessellate>1</tessellate>
+						<coordinates>
+							30.96125477345775,-24.38015768822437,0 30.96130350719985,-24.38096934099861,0 30.96126155453051,-24.38171382857958,0 30.96131237961037,-24.38240829563888,0 30.96119691661235,-24.38279873099501,0 30.96128502589598,-24.38332511013797,0 30.96141087075417,-24.38405466030268,0 30.96157728080969,-24.38456279406665,0 30.96157531320981,-24.38497021233318,0 30.96149755696167,-24.38541259537449,0 
+						</coordinates>
+					</LineString>
+				</Placemark>
+				<Placemark id="5EED34DD6F000040">
+					<name>Member&apos;s Entrance</name>
+					<description>980 m</description>
+					<styleUrl>#__managed_style_0EE7A9EC6942D6FC5D6E</styleUrl>
+					<LineString>
+						<tessellate>1</tessellate>
+						<coordinates>
+							30.96584353096268,-24.36935760029331,0 30.96579841166398,-24.369640242282,0 30.96559217848083,-24.3699557183223,0 30.9652573312847,-24.37032707626726,0 30.96498716479968,-24.37054565635465,0 30.96442509371734,-24.37085406154089,0 30.9642006247517,-24.37103304201813,0 30.9640833559991,-24.37126107000484,0 30.96406399069494,-24.37200970234284,0 30.96363598461448,-24.37230155325715,0 30.96367198837439,-24.37262137688271,0 30.9634946457033,-24.37345378689153,0 30.96341988759476,-24.37405040542729,0 30.96336821309688,-24.37465611978432,0 30.96326758300074,-24.37526241883117,0 30.96315770834156,-24.37585845267414,0 30.96309038259911,-24.37635025319476,0 30.96298978376715,-24.3766150261557,0 30.96301849402847,-24.37688705067167,0 30.96303256313691,-24.37708938789799,0 30.96298846645719,-24.37723429532558,0 
+						</coordinates>
+					</LineString>
+				</Placemark>
+				<Placemark id="5EED34DD6F000041">
+					<name>Private Road</name>
+					<styleUrl>#__managed_style_0EE7A9EC6942D6FC5D6E</styleUrl>
+					<LineString>
+						<tessellate>1</tessellate>
+						<coordinates>
+							30.96153232008473,-24.38535959200761,0 30.96149840436671,-24.38571405634212,0 30.96149465950339,-24.38582760905713,0 30.96144173416442,-24.3859035113425,0 30.96135478000743,-24.38612069972272,0 30.96131622554067,-24.38619025927176,0 30.96121093683184,-24.38637172083657,0 30.96109984844249,-24.38654246654291,0 30.96095970507188,-24.38679849944281,0 30.96109438114923,-24.38691592564184,0 30.96124637390283,-24.38699076879342,0 30.96159266885952,-24.38705991184164,0 30.96208622282932,-24.38696312398709,0 30.96230313764704,-24.38689896941479,0 30.96261353087189,-24.38677093088998,0 30.96280672389902,-24.3866909328915,0 30.962970755082,-24.38657890889912,0 30.9632692356808,-24.38655202419,0 
+						</coordinates>
+					</LineString>
+				</Placemark>
+				<Placemark id="5EED34DD6F000042">
+					<name>Wildebeest</name>
+					<description>0.92 km</description>
+					<styleUrl>#__managed_style_0EE7A9EC6942D6FC5D6E</styleUrl>
+					<LineString>
+						<tessellate>1</tessellate>
+						<coordinates>
+							30.955519791698,-24.37603373258645,0 30.95554143731306,-24.3760833619061,0 30.9557047971704,-24.37631226751924,0 30.95586147023143,-24.3766231286856,0 30.95601785316139,-24.37692050028951,0 30.95614700496944,-24.37713712570391,0 30.9563372300802,-24.37743409154632,0 30.95649323945168,-24.3776070972009,0 30.95668949833315,-24.37774261190629,0 30.95687825909303,-24.37789613625407,0 30.95702626931747,-24.37801255272345,0 30.95715430578895,-24.37812920523807,0 30.95738273867248,-24.37830044279562,0 30.95759739533613,-24.37847148277612,0 30.95784545125625,-24.37869753902463,0 30.95803884209428,-24.3788247631746,0 30.95830542461742,-24.37903104652153,0 30.95852560362,-24.3792439881131,0 30.95877286765809,-24.37952435941017,0 30.95890983692703,-24.37978971776768,0 30.95904120868436,-24.38008699816524,0 30.95918474371813,-24.38033426632768,0 30.95933211797612,-24.38062253374319,0 30.95950020122402,-24.38105713957776,0 30.95962597674158,-24.38154453853259,0 30.95973929561387,-24.38191138853964,0 30.95986704801325,-24.38219359365407,0 30.95999426607369,-24.38261111685688,0 30.96006149758925,-24.3829436133574,0 
+						</coordinates>
+					</LineString>
+				</Placemark>
+			</Folder>
+			<Folder id="5EED34DD6F000043">
+				<ex:extension>base64;GgA</ex:extension>
+				<name>KN Main roads</name>
+				<open>1</open>
+				<styleUrl>#__managed_style_03E45A446742D6FC5D6C</styleUrl>
+				<Placemark id="5EED34DD6F000044">
+					<name>Baboon</name>
+					<description>240 m</description>
+					<styleUrl>#__managed_style_08AA8E91A042D6FC5D61</styleUrl>
+					<LineString>
+						<tessellate>1</tessellate>
+						<coordinates>
+							30.95585761253011,-24.36524319873848,0 30.95627716258856,-24.36504074515,0 30.95686950760052,-24.36490570181827,0 30.95736313263471,-24.36481564812515,0 30.95807884784647,-24.36456815081305,0 
+						</coordinates>
+					</LineString>
+				</Placemark>
+				<Placemark id="5EED34DD6F000045">
+					<name>Civet</name>
+					<styleUrl>#__managed_style_08AA8E91A042D6FC5D61</styleUrl>
+					<LineString>
+						<tessellate>1</tessellate>
+						<coordinates>
+							30.94856742591357,-24.39283123010058,0 30.94910891156184,-24.39306947522715,0 30.94951460608868,-24.39334377717169,0 30.94993982229192,-24.39361889582613,0 30.95029170802825,-24.39387708567303,0 30.95065750199097,-24.39405214923083,0 30.95102490362269,-24.39427705309355,0 30.95134205229208,-24.39442173245596,0 30.95169435386154,-24.39446756563146,0 30.95201327424258,-24.3944649881639,0 30.95219146994292,-24.39446390254797,0 
+						</coordinates>
+					</LineString>
+				</Placemark>
+				<Placemark id="5EED34DD6F000046">
+					<name>Contractors</name>
+					<description>1.15 km</description>
+					<styleUrl>#__managed_style_08AA8E91A042D6FC5D61</styleUrl>
+					<LineString>
+						<tessellate>1</tessellate>
+						<coordinates>
+							30.97067677559002,-24.37808003413958,0 30.97056633924693,-24.37791097635717,0 30.97047753955845,-24.37765844676442,0 30.97037168750715,-24.37724645597563,0 30.97032917999102,-24.37691372201284,0 30.97025958417833,-24.37674239416551,0 30.97023643979879,-24.37654822148591,0 30.97018035862253,-24.37636033968369,0 30.97013750958181,-24.3761553408369,0 30.97012073110804,-24.37592732835818,0 30.97011890545707,-24.37564928989801,0 30.97010390230641,-24.37540180295962,0 30.97004331618469,-24.37521928958694,0 30.97006430957316,-24.37511030888239,0 30.97006013900049,-24.37498490423597,0 30.97005049376332,-24.37473867276137,0 30.97002640361998,-24.37461873568363,0 30.97000797204984,-24.37456177332546,0 30.96992107167929,-24.37439679786884,0 30.9697995107219,-24.37410975904785,0 30.96969748672504,-24.37398108998865,0 30.96952562583236,-24.37392243635515,0 30.96925884294562,-24.37386373881783,0 30.96889035591446,-24.37367243800881,0 30.9685397182671,-24.37352217318049,0 30.96821112303054,-24.37333675601921,0 30.96793086905058,-24.3730424250717,0 30.96766057115355,-24.37283525280697,0 30.96749940137267,-24.37264602684219,0 30.9674036025988,-24.37246367960689,0 30.96733088426286,-24.37237289232958,0 30.96724542586358,-24.37229938306726,0 30.96705951308365,-24.37216879365334,0 30.96693627994566,-24.37204396675657,0 30.96688200259475,-24.37192493014559,0 30.96688326698382,-24.37176560372034,0 30.96683886774344,-24.3716568428708,0 30.96639318388196,-24.37017177486414,0 30.9662991394244,-24.36986323150591,0 30.96619960238609,-24.36954451686582,0 30.9660869797331,-24.36931100096264,0 
+						</coordinates>
+					</LineString>
+				</Placemark>
+				<Placemark id="5EED34DD6F000047">
+					<name>Eastern Fence Road</name>
+					<styleUrl>#__managed_style_08AA8E91A042D6FC5D61</styleUrl>
+					<LineString>
+						<tessellate>1</tessellate>
+						<coordinates>
+							30.98908882101009,-24.39867474205235,0 30.98685390109273,-24.39599704532029,0 30.9841253633276,-24.39215200221149,0 30.98137728493694,-24.38813089876895,0 30.97975077576605,-24.38571528697589,0 30.97704973788575,-24.38185873434518,0 30.97563213722377,-24.37988244114213,0 30.97396237205772,-24.37736194729407,0 30.9728283246771,-24.37555185437156,0 30.97116974774128,-24.37452353886297,0 30.96964050975022,-24.37390671106113,0 
+						</coordinates>
+					</LineString>
+				</Placemark>
+				<Placemark id="5EED34DD6F000048">
+					<name>Eastern Loop</name>
+					<styleUrl>#__managed_style_08AA8E91A042D6FC5D61</styleUrl>
+					<LineString>
+						<tessellate>1</tessellate>
+						<coordinates>
+							30.9700472015663,-24.37509081997475,0 30.96995802160152,-24.37497912310178,0 30.96981174466983,-24.37484442361274,0 30.96968790580523,-24.37482104084291,0 30.96946045606638,-24.37479186136752,0 30.96919351078888,-24.37470447676318,0 30.96899975119362,-24.37459976765106,0 30.96880995771308,-24.3745006710674,0 30.96851849198521,-24.37440128522965,0 30.96818818830756,-24.37429571582083,0 30.96804832259311,-24.37426619939371,0 30.96784992156732,-24.37426607705164,0 30.9677209225105,-24.37423706589109,0 30.96755866498185,-24.3741327129329,0 30.96738397680992,-24.37402288264087,0 30.96729320556596,-24.37393638849239,0 30.96715112123366,-24.37379823760963,0 30.96705466743299,-24.37370620952126,0 30.96690092636,-24.37363205157997,0 30.96673497259679,-24.37360405915978,0 30.96655656072402,-24.37357044259245,0 30.96635945028478,-24.37357127868055,0 30.96621972416359,-24.37357187165357,0 30.96606725531203,-24.37365257613024,0 30.96586987891482,-24.37382524196548,0 30.96574225556018,-24.37394630015081,0 30.96558830402819,-24.37416567836528,0 30.96549835554655,-24.37428145910707,0 30.96531735127364,-24.37457757608839,0 30.96494004323021,-24.37515648138487,0 30.96457664865049,-24.37563262928087,0 30.96446601549537,-24.37582695653959,0 30.96438081289803,-24.37605692982564,0 30.96426317125132,-24.37627553328209,0 30.9641512176172,-24.37647729092532,0 30.96385054488185,-24.37673330099224,0 30.96360899884078,-24.37692964306652,0 30.96344558225772,-24.37710204544432,0 30.96332779470007,-24.37717976789066,0 30.96320990377717,-24.37722801967548,0 30.96306567002828,-24.37723517565988,0 30.96294787675507,-24.37721822375646,0 30.96279766675289,-24.37718936589262,0 30.96254137754983,-24.37717963123166,0 30.96237785568456,-24.37709747954495,0 30.96210857626308,-24.37702806209993,0 30.96199193217291,-24.37687979730309,0 30.96174903705919,-24.37678613427951,0 30.96162447349255,-24.37672138968323,0 30.96143844677508,-24.37667554667642,0 30.96122200150145,-24.37658886838785,0 30.96110034685594,-24.37655500026877,0 30.96097825611404,-24.37655063546999,0 30.96069617466934,-24.37653773992244,0 30.96047819836559,-24.37647089068064,0 30.96029779169373,-24.3763728910522,0 30.96016122722668,-24.37631478697403,0 30.95994603052189,-24.37622151610696,0 30.95977604475338,-24.37612148602119,0 30.95956618825884,-24.37598550550133,0 30.95945467855493,-24.37578208587588,0 30.95929639869169,-24.3756868863446,0 30.95917081697175,-24.37559122337548,0 30.95905820654894,-24.37551339696295,0 30.95893872069757,-24.37544755061985,0 30.95877903889161,-24.37545446793817,0 30.95868573480394,-24.37543701431107,0 30.9585922436666,-24.3753951895963,0 30.95847183605252,-24.37524360292148,0 30.95827731364101,-24.37509827068294,0 30.95814979321331,-24.37498872514696,0 30.95796820291267,-24.37489137609978,0 30.95774557406979,-24.37478777702236,0 30.95763739817711,-24.37472056138111,0 30.9575696780299,-24.37457365038681,0 30.95746879038242,-24.37441448062345,0 30.95740201909568,-24.37432278701306,0 30.95726161281704,-24.37417007991591,0 30.957140763056,-24.37407837792723,0 30.95697882649783,-24.37388234765308,0 30.95695220063618,-24.37377846868427,0 30.95690536733606,-24.37364400986351,0 30.95685185543777,-24.37349125410251,0 30.95679864241342,-24.37328983466042,0 30.95674485063257,-24.37313082383928,0 30.95671647415131,-24.37298279548034,0 30.95671551552771,-24.37284118591645,0 30.95682393370477,-24.37267072508813,0 30.95697840489165,-24.37214458734386,0 30.95697157825519,-24.37204044680991,0 30.95704621914732,-24.37191325072642,0 30.95711392838468,-24.37177978372486,0 30.95717435529153,-24.37166981799668,0 30.95711066874234,-24.37154586045483,0 30.95690604923518,-24.3712013019821,0 30.95680024409819,-24.37099125505409,0 30.95665937347047,-24.37066562014974,0 30.95654404567955,-24.37048708971192,0 30.95632471542441,-24.37008305977116,0 30.95615660802217,-24.36979857954168,0 30.95599873575979,-24.36951099176357,0 30.95586875889358,-24.36924352016823,0 30.95587792027911,-24.36904924913032,0 30.95586869190337,-24.36886331902933,0 
+						</coordinates>
+					</LineString>
+				</Placemark>
+				<Placemark id="5EED34DD6F000049">
+					<name>Eland</name>
+					<description>0.74km</description>
+					<styleUrl>#__managed_style_08AA8E91A042D6FC5D61</styleUrl>
+					<LineString>
+						<tessellate>1</tessellate>
+						<coordinates>
+							30.96862433904584,-24.39798191861073,0 30.96896077763653,-24.39826401843461,0 30.96910411869271,-24.39836859603438,0 30.96924780298066,-24.39852538850286,0 30.96940572059851,-24.39880253898793,0 30.96950728790371,-24.39920460677577,0 30.96963996638499,-24.39950314365213,0 30.96971734230143,-24.39983867548419,0 30.96983525042227,-24.40027902224397,0 30.96986848145608,-24.40079533109611,0 30.96997545509932,-24.40137199802848,0 30.97005018042053,-24.4019381525246,0 30.97003771266071,-24.40222077375995,0 30.97001024968889,-24.40241365978482,0 30.97001220273713,-24.40274728636115,0 30.97001683058553,-24.40321794561978,0 30.97007813909043,-24.40368723883317,0 30.97008103892862,-24.40391357563243,0 30.97009962079688,-24.40429072513626,0 
+						</coordinates>
+					</LineString>
+				</Placemark>
+				<Placemark id="5EED34DD6F00004A">
+					<name>Eland</name>
+					<description>0.68 km</description>
+					<styleUrl>#__managed_style_08AA8E91A042D6FC5D61</styleUrl>
+					<LineString>
+						<tessellate>1</tessellate>
+						<coordinates>
+							30.96862927944591,-24.39798916946571,0 30.96807345967492,-24.39757620465221,0 30.9679257604728,-24.39739910050508,0 30.96780356270853,-24.39708050905816,0 30.96770156314471,-24.39689608758576,0 30.96767981872095,-24.39672331371124,0 30.96761145617854,-24.39655076620248,0 30.96765749010192,-24.39642698964747,0 30.96763007390966,-24.39628541874963,0 30.96757589149928,-24.39613177044487,0 30.96749534900653,-24.39591756609989,0 30.9674157656721,-24.39574152252223,0 30.96729667010074,-24.39559735661642,0 30.9670724490625,-24.3953035442226,0 30.96698002634514,-24.39513467540823,0 30.96693225584287,-24.39493211576128,0 30.96697751175589,-24.39478911873667,0 30.96702731790563,-24.3946387632669,0 30.96707966795258,-24.39439550430925,0 30.96711300014933,-24.39415081804872,0 30.96719317210644,-24.39393689116264,0 30.96725325354447,-24.39358804036359,0 30.96730668312167,-24.39328804572459,0 30.96734004104385,-24.39299405217629,0 30.96742702708946,-24.39277967619153,0 30.9675945462328,-24.39262648097639,0 30.96772872461604,-24.39258354974906,0 
+						</coordinates>
+					</LineString>
+				</Placemark>
+				<Placemark id="5EED34DD6F00004B">
+					<name>Kudu North Road</name>
+					<description>1.073 km</description>
+					<styleUrl>#__managed_style_08AA8E91A042D6FC5D61</styleUrl>
+					<LineString>
+						<tessellate>1</tessellate>
+						<coordinates>
+							30.97671226404422,-24.38459053678563,0 30.97653200262778,-24.38479197160078,0 30.97620892231769,-24.38514951224155,0 30.97602092922548,-24.38542890169751,0 30.97583784167762,-24.3855506995828,0 30.97567853724023,-24.38567708508665,0 30.97557317897303,-24.38581530285541,0 30.97552506901643,-24.38589699871519,0 30.97543543829461,-24.38599406251081,0 30.97537940516152,-24.38610157270169,0 30.9753345925424,-24.38620909595974,0 30.97517219779471,-24.38632121384064,0 30.97509384313283,-24.38643896168998,0 30.9750210749172,-24.38651553608423,0 30.97498200198481,-24.38661292046664,0 30.97495427182562,-24.38675646285313,0 30.97494331734124,-24.38686912312066,0 30.97492123819065,-24.387001994581,0 30.97489355257831,-24.38711421909397,0 30.9748267306482,-24.38721599953685,0 30.97479901471177,-24.38729234610985,0 30.9747937068011,-24.38737883669364,0 30.97487192944615,-24.38744489035137,0 30.97495009044552,-24.38753115094884,0 30.97506710064213,-24.38763249528782,0 30.97512279149504,-24.38774896451408,0 30.97516735914805,-24.38790567482009,0 30.97516186524717,-24.38802694096641,0 30.97508970247563,-24.38812821413822,0 30.97498962879679,-24.38816401093722,0 30.9748280740359,-24.38819510431657,0 30.97470527715831,-24.38822100551208,0 30.97456558454598,-24.38828247032087,0 30.97443706806764,-24.38837426950046,0 30.97436438947521,-24.38846595506165,0 30.97431967601506,-24.38858806240717,0 30.97433091170774,-24.38867947078921,0 30.97433096997007,-24.38881157690327,0 30.9742526074206,-24.38884754397072,0 30.97417981727841,-24.38892417816529,0 30.97416939976029,-24.38905537607399,0 30.9741369536794,-24.38919109557488,0 30.97407274253915,-24.3892159333139,0 30.97398067392696,-24.38932378147871,0 30.97389879384558,-24.3894195350429,0 30.97378237108265,-24.38959964081364,0 30.97369896786654,-24.38972129260292,0 30.97349000054042,-24.39004281702589,0 30.9733585096246,-24.39017159595942,0 30.97312261952027,-24.39037265189625,0 30.97291864842564,-24.39050464250346,0 30.97267839864802,-24.39067863899524,0 30.97255664100779,-24.39082576711031,0 30.97241184931472,-24.39088657162288,0 30.97228659822146,-24.39089561963457,0 30.97212176518508,-24.39089573569,0 30.97200963841453,-24.39088085623157,0 30.971854649914,-24.39090193058859,0 30.97173274596251,-24.39094682048884,0 30.97166020190684,-24.39098288040326,0 30.97158417438425,-24.39104023588628,0 30.97146556540988,-24.39101907116664,0 30.97130394240159,-24.39101914281117,0 30.97120076058594,-24.39104506329689,0 30.97110179137971,-24.39092383353321,0 30.97094558948984,-24.39085693654584,0 
+						</coordinates>
+					</LineString>
+				</Placemark>
+				<Placemark id="5EED34DD6F00004C">
+					<name>Giraffe S</name>
+					<styleUrl>#__managed_style_08AA8E91A042D6FC5D61</styleUrl>
+					<LineString>
+						<tessellate>1</tessellate>
+						<coordinates>
+							30.98435507432031,-24.40004549061388,0 30.98438004068079,-24.39990612420907,0 30.98430751670385,-24.3995752363308,0 30.98401582903207,-24.39850830928879,0 30.9836404386128,-24.39801724243847,0 30.98331427426231,-24.39765073642312,0 30.98299918640159,-24.39707978556318,0 30.98278665547681,-24.39653420282147,0 30.98228480323741,-24.39606488116675,0 30.98199891212264,-24.39582035581968,0 30.98179530067288,-24.39565501496856,0 
+						</coordinates>
+					</LineString>
+				</Placemark>
+				<Placemark id="5EED34DD6F00004D">
+					<name>Hippo</name>
+					<styleUrl>#__managed_style_08AA8E91A042D6FC5D61</styleUrl>
+					<LineString>
+						<tessellate>1</tessellate>
+						<coordinates>
+							30.95723574730658,-24.40029386199761,0 30.95726499846488,-24.4006172339388,0 30.9573783458757,-24.40076802338516,0 30.95746610179535,-24.40098681618372,0 30.95753673974248,-24.40117310891157,0 30.95756545509002,-24.40132817823177,0 30.95770837820135,-24.40145727175866,0 30.95773478832182,-24.40167723951759,0 30.95780428035007,-24.40192319453679,0 30.95791810752212,-24.40207830475708,0 30.95799930517985,-24.40219627344564,0 30.95811397896656,-24.40223774446662,0 30.95844270818263,-24.4024536187685,0 30.95854004210251,-24.40276534352891,0 30.9585922311692,-24.40317020659594,0 30.95873307781147,-24.4034050003228,0 30.95890234560999,-24.40366631437205,0 30.95889952229996,-24.40391629393771,0 30.95899760236407,-24.40411365476323,0 30.95911171397629,-24.40429609656049,0 30.95919721316478,-24.40446565225491,0 30.95946949996918,-24.40447723901906,0 30.95977100026549,-24.40446099709601,0 30.96000005347555,-24.404407238147,0 30.9601290654389,-24.40430161419604,0 30.96037135527112,-24.40434073133201,0 30.96069941940212,-24.40432695986446,0 30.961127115095,-24.40430001841382,0 30.96136936403639,-24.40428690930576,0 30.96196745089051,-24.40423246424559,0 30.96240814544646,-24.40419114237294,0 30.96270621908197,-24.40412456649297,0 30.96289065770574,-24.40411062708639,0 30.96301893420223,-24.40424062001027,0 30.96319008257341,-24.4044097658111,0 30.9634466350701,-24.40456594708385,0 30.96368898108923,-24.40469615227439,0 30.9639305331023,-24.40492864575743,0 30.9641155500252,-24.40499342933987,0 30.96437156988402,-24.40505800224394,0 30.96459818079787,-24.40519904117631,0 30.96484357310177,-24.40534589758051,0 30.96504389727058,-24.40547665436378,0 30.96532383856628,-24.40572997033596,0 
+						</coordinates>
+					</LineString>
+				</Placemark>
+				<Placemark id="5EED34DD6F00004E">
+					<name>Hippo Dam Track</name>
+					<styleUrl>#__managed_style_08AA8E91A042D6FC5D61</styleUrl>
+					<LineString>
+						<tessellate>1</tessellate>
+						<coordinates>
+							30.95615976287066,-24.40151125693557,0 30.95611565685279,-24.40170661207538,0 30.95616388070047,-24.40204028732266,0 30.95615680387297,-24.40226700263553,0 30.95624968842094,-24.40246079933936,0 30.95638715795764,-24.40266868116041,0 30.95656933391054,-24.4028869930706,0 30.95668835466397,-24.40307359712251,0 30.95691479278594,-24.40332755058095,0 30.95707700469815,-24.40354438645421,0 30.95727847876949,-24.40370014627214,0 30.95742932105363,-24.40384699859208,0 30.95755558015265,-24.40366706803193,0 30.95765459146316,-24.40337334174663,0 30.95782248685429,-24.40313612105519,0 30.95782408469477,-24.40294561200191,0 30.95789344965031,-24.40286921530097,0 30.95796283933583,-24.40276150184767,0 30.95802512978653,-24.40267914242122,0 30.95825868045126,-24.40255802501472,0 30.95833436033544,-24.40241340593038,0 30.95833450854406,-24.40237580598736,0 
+						</coordinates>
+					</LineString>
+				</Placemark>
+				<Placemark id="5EED34DD6F00004F">
+					<name>Hippo Dam Track</name>
+					<styleUrl>#__managed_style_08AA8E91A042D6FC5D61</styleUrl>
+					<LineString>
+						<tessellate>1</tessellate>
+						<coordinates>
+							30.95798765109643,-24.40216461335567,0 30.95769233525905,-24.40213578029833,0 30.95739531077282,-24.40211939954825,0 30.95718190419559,-24.40203910184435,0 30.95692682676116,-24.40193378704631,0 30.95669627967927,-24.4018413821328,0 30.95644157469973,-24.4018055382442,0 30.95630659573576,-24.40172471246618,0 30.95616266972407,-24.40151288053527,0 30.9563258068532,-24.40123915165847,0 30.95641568132211,-24.40086207322476,0 
+						</coordinates>
+					</LineString>
+				</Placemark>
+				<Placemark id="5EED34DD6F000050">
+					<name>Hippo dam view</name>
+					<styleUrl>#__managed_style_08AA8E91A042D6FC5D61</styleUrl>
+					<LineString>
+						<tessellate>1</tessellate>
+						<coordinates>
+							30.95801081059118,-24.40218215078711,0 30.95789197522161,-24.40220051119196,0 30.95783415078273,-24.40224321296539,0 30.95775287975797,-24.40231096149722,0 30.95762889165298,-24.40231942857718,0 30.95747700420796,-24.40233533051317,0 30.95737176852723,-24.40231866180486,0 30.95726611521355,-24.40234788151922,0 30.9571284946073,-24.40240238682486,0 30.95703327331006,-24.4024817444414,0 30.95698438215471,-24.4026111048596,0 30.95689285523527,-24.40266237607387,0 30.95683707946414,-24.4026881884068,0 30.95673306858827,-24.40272925000746,0 30.95656408556922,-24.40284027161044,0 
+						</coordinates>
+					</LineString>
+				</Placemark>
+				<Placemark id="5EED34DD6F000051">
+					<name>Honey Badger</name>
+					<styleUrl>#__managed_style_08AA8E91A042D6FC5D61</styleUrl>
+					<LineString>
+						<tessellate>1</tessellate>
+						<coordinates>
+							30.95911606300241,-24.37560158534582,0 30.95892136991952,-24.37570330750853,0 30.95859714221363,-24.37591320202857,0 30.95835768399198,-24.37610540782911,0 30.9581584084901,-24.37626220524534,0 30.95784342057174,-24.37647447342406,0 30.95758959107721,-24.37668788294707,0 30.95739677476793,-24.37690202503301,0 30.95734101644255,-24.37709822867261,0 30.95717147873658,-24.377430282956,0 30.95714142106519,-24.37759053168449,0 30.95713870117629,-24.37780636851901,0 30.95711971585596,-24.37808485444732,0 
+						</coordinates>
+					</LineString>
+				</Placemark>
+				<Placemark id="5EED34DD6F000052">
+					<name>Impala Link Road</name>
+					<description>180 m</description>
+					<styleUrl>#__managed_style_08AA8E91A042D6FC5D61</styleUrl>
+					<LineString>
+						<tessellate>1</tessellate>
+						<coordinates>
+							30.96718123138032,-24.37224964964334,0 30.96700763349037,-24.37242107011634,0 30.96700769671985,-24.37259243766188,0 30.96686305388323,-24.37279680396838,0 30.96666773976786,-24.37294845685275,0 30.96652307415728,-24.37309350309501,0 30.96634951465393,-24.37337696968243,0 30.96621933399265,-24.37356155757169,0 
+						</coordinates>
+					</LineString>
+				</Placemark>
+				<Placemark id="5EED34DD6F000053">
+					<name>Khaya Ndlovu Main Road</name>
+					<description>1.080 km</description>
+					<styleUrl>#__managed_style_08AA8E91A042D6FC5D61</styleUrl>
+					<LineString>
+						<tessellate>1</tessellate>
+						<coordinates>
+							30.96044819908327,-24.37044296281485,0 30.96051645786962,-24.3707489346136,0 30.96049789668999,-24.3710545362852,0 30.9604850210874,-24.3712508135279,0 30.96049164560232,-24.37141723419668,0 30.96056389409818,-24.3716023361082,0 30.9605834850276,-24.37182191646138,0 30.96058214267646,-24.3720510136596,0 30.96058790920502,-24.37234115451237,0 30.96065303541967,-24.37256098021919,0 30.96071102694061,-24.37282197660878,0 30.96072951146638,-24.37308930573393,0 30.96079452215144,-24.37354888530926,0 30.96084688963389,-24.37449961544295,0 30.96095972745915,-24.37594374478106,0 30.96103408820122,-24.37652876662575,0 30.96104118546012,-24.37673915899873,0 30.96109937572174,-24.37718443732306,0 30.96109231885496,-24.37744005087988,0 30.96109828098616,-24.37776171363497,0 30.96120304933866,-24.37803613436839,0 30.96124208254309,-24.37829296539618,0 30.9612608121181,-24.37861084282408,0 30.96123346009271,-24.3788341845459,0 30.96123236989346,-24.37910058699309,0 30.96124457885141,-24.37942820200846,0 30.96125022830887,-24.37974504489491,0 30.96125527444488,-24.38012383404195,0 
+						</coordinates>
+					</LineString>
+				</Placemark>
+				<Placemark id="5EED34DD6F000054">
+					<name>Khaya Ndlovu Main Road</name>
+					<styleUrl>#__managed_style_08AA8E91A042D6FC5D61</styleUrl>
+					<LineString>
+						<tessellate>1</tessellate>
+						<coordinates>
+							30.967212284437,-24.36913382986366,0 30.96697126514855,-24.36912252108767,0 30.96683742083123,-24.36909972378119,0 30.96631429477421,-24.36924105593858,0 30.96546750694424,-24.36944682942818,0 30.96458977880167,-24.36960403864121,0 30.96381206069767,-24.36978740509418,0 30.96320220371875,-24.36994832850867,0 30.96307934511796,-24.369943254962,0 30.9630144312286,-24.36987916015068,0 30.96285848716234,-24.36980358478616,0 30.9627479342369,-24.36975690108448,0 30.96259168272451,-24.36973381655201,0 30.96235050905288,-24.36979940095078,0 30.96214129930841,-24.36978820871993,0 30.96186677309789,-24.36988944566082,0 30.961590979243,-24.36994369155342,0 30.9613882308727,-24.37007453552151,0 30.96105373112696,-24.37025942616536,0 30.96088156904307,-24.37027824029436,0 30.96069558411254,-24.37036269850449,0 30.96045471153399,-24.37044217231214,0 30.96019396213062,-24.3705814274837,0 30.95996636043416,-24.37072067944251,0 30.95979257572193,-24.37085355539439,0 30.95956980621337,-24.3709578031993,0 30.95943024601076,-24.37111429990929,0 30.95934189594961,-24.37114550551977,0 30.9593103216728,-24.37124091500399,0 30.95933981346858,-24.37137735198776,0 30.95939090150403,-24.37163831312188,0 30.95935941573102,-24.37189494985383,0 30.95926478907668,-24.37193249942379,0 30.95925543501626,-24.37219790596669,0 30.95921240731346,-24.37241022980938,0 30.95923037981453,-24.37251952155511,0 30.95922662336483,-24.37266682202989,0 30.95914348857196,-24.37283297231308,0 30.95917384123209,-24.37298810048123,0 30.95923073433668,-24.37315556604758,0 30.95916728404168,-24.37332897218756,0 30.95916312894797,-24.37354505004942,0 30.95913591845111,-24.37391257319143,0 30.95905771292552,-24.37413031005023,0 30.95909423650874,-24.37442161904682,0 30.95914175140841,-24.3746462576357,0 30.95914417334291,-24.37488263929641,0 30.95914652956404,-24.37511260527501,0 30.95914826313605,-24.37528182861456,0 30.95913120382587,-24.37560179925202,0 
+						</coordinates>
+					</LineString>
+				</Placemark>
+				<Placemark id="5EED34DD6F000055">
+					<name>Martin&apos;s Drift</name>
+					<styleUrl>#__managed_style_08AA8E91A042D6FC5D61</styleUrl>
+					<LineString>
+						<tessellate>1</tessellate>
+						<coordinates>
+							30.95262897194822,-24.37581317846882,0 30.95275111998458,-24.37571852146687,0 30.95285437504663,-24.37564243973977,0 30.95295227517569,-24.37565912140787,0 30.95307085356052,-24.37576841483264,0 30.95322913241261,-24.37588352757135,0 30.95334366698611,-24.37602524531438,0 30.95345250258578,-24.37614893131533,0 30.95352065250023,-24.37623554535584,0 30.95362162751203,-24.37628464827459,0 30.95372803539173,-24.37627755906835,0 30.95390738718407,-24.37615169363822,0 30.95401446729519,-24.3760513636706,0 30.95408914514014,-24.37600150660968,0 30.95430006523479,-24.37592666674191,0 30.95431364488137,-24.37591420037678,0 30.95435454225948,-24.3758769286912,0 30.95438862711186,-24.37585828912319,0 30.95444315512341,-24.37580238322977,0 30.95461358102803,-24.37571539657727,0 30.95478476376186,-24.37554265847691,0 30.95498333520613,-24.37532768433208,0 30.95508581820262,-24.37511824280048,0 30.95519499858629,-24.37494011595552,0 
+						</coordinates>
+					</LineString>
+				</Placemark>
+				<Placemark id="5EED34DD6F000056">
+					<name>Mhlanganweni Road</name>
+					<styleUrl>#__managed_style_08AA8E91A042D6FC5D61</styleUrl>
+					<LineString>
+						<tessellate>1</tessellate>
+						<coordinates>
+							30.96109335767027,-24.39387810330595,0 30.96152830890821,-24.39347700400885,0 30.96220049167904,-24.3929296100812,0 30.96271164737067,-24.39219808301259,0 30.96327086004844,-24.39150182214198,0 30.9637511470815,-24.39109850875377,0 30.96391254482961,-24.39047518201565,0 30.96447790762449,-24.38992543160498,0 30.96488047756211,-24.38952219905164,0 30.96552684004409,-24.38941285662856,0 30.96588968548039,-24.38915647705961,0 30.96625217044351,-24.38875334137295,0 30.96673528122707,-24.38835035096829,0 30.96681761401612,-24.38791138774966,0 
+						</coordinates>
+					</LineString>
+				</Placemark>
+				<Placemark id="5EED34DD6F000057">
+					<name>Mongoose</name>
+					<description>0.78 km</description>
+					<styleUrl>#__managed_style_08AA8E91A042D6FC5D61</styleUrl>
+					<LineString>
+						<tessellate>1</tessellate>
+						<coordinates>
+							30.95593793977088,-24.36879186865239,0 30.95576043479627,-24.36885153049966,0 30.95561276520165,-24.3690212688075,0 30.95545296327476,-24.36908693967838,0 30.95526853002321,-24.36914741298441,0 30.95497319259064,-24.36920208640989,0 30.95486841978313,-24.36922955077019,0 30.95478734337377,-24.36937934769803,0 30.95478559182042,-24.36962429882598,0 30.9548079861861,-24.36990887119326,0 30.9548368769401,-24.37019449246639,0 30.95484153797459,-24.37041909501559,0 30.95488365994462,-24.37067805678285,0 30.95489490424016,-24.37093747548814,0 30.9549373330508,-24.37119728815609,0 30.95498636117199,-24.37145726976513,0 30.95491175731743,-24.37159292455207,0 30.9548247486313,-24.37180767516764,0 30.95476345893434,-24.37220785966902,0 30.95465843956454,-24.37270971171084,0 30.9546211403012,-24.3728791588257,0 30.95471427651926,-24.37313312695911,0 30.95483842653834,-24.37331365698116,0 30.95502473078565,-24.37358985115587,0 30.95513060667067,-24.37376417329441,0 30.95518064054805,-24.37407909635737,0 30.95527968166334,-24.37428727474621,0 30.95529202735669,-24.37452375003384,0 30.95522988216981,-24.37478333849074,0 30.95519263323588,-24.37495256873203,0 
+						</coordinates>
+					</LineString>
+				</Placemark>
+				<Placemark id="5EED34DD6F000058">
+					<name>Ndlovu</name>
+					<styleUrl>#__managed_style_08AA8E91A042D6FC5D61</styleUrl>
+					<LineString>
+						<tessellate>1</tessellate>
+						<coordinates>
+							30.96101254148127,-24.39390457841146,0 30.96092642591241,-24.39357115981818,0 30.96080303853879,-24.39321465610483,0 30.96059265722273,-24.39291315945216,0 30.9602952814439,-24.39273391175811,0 30.95997274781274,-24.39258782678268,0 30.95989764433532,-24.39241880819865,0 30.95982138731858,-24.39213643505132,0 30.95974455687062,-24.39188696298109,0 30.95960605821987,-24.39177300591133,0 30.95944179738833,-24.39159042934662,0 30.95938981010654,-24.39136210862178,0 30.95921381653676,-24.3912817864938,0 30.95904829146889,-24.39102942287911,0 30.95886970912289,-24.39075345637961,0 30.9586899163337,-24.39051033379429,0 30.95848570505271,-24.39035775049616,0 30.95837300297043,-24.39023163995966,0 30.95834324811275,-24.39010366578333,0 30.95830427467919,-24.38990774202191,0 30.95819010299049,-24.38984967198088,0 30.95801324551516,-24.38983778748277,0 30.95786232819004,-24.38981510004919,0 30.95770049518431,-24.38955304201743,0 30.9575638771527,-24.38947443126621,0 30.95718145097208,-24.38934319293189,0 30.9570255236548,-24.38915488827601,0 30.95679741224165,-24.38898057275128,0 30.9564935743866,-24.38898733330451,0 30.95632598223347,-24.38893587300457,0 30.9559287863827,-24.3888550545578,0 30.95534760888357,-24.38878583020146,0 30.95490574626464,-24.38861580881498,0 30.95452368441938,-24.38851147930694,0 30.95429861588699,-24.38842721191876,0 30.95405796779871,-24.38833015423628,0 30.95385311900466,-24.38827729481588,0 
+						</coordinates>
+					</LineString>
+				</Placemark>
+				<Placemark id="5EED34DD6F000059">
+					<name>Nyala</name>
+					<description>0.51 km</description>
+					<styleUrl>#__managed_style_08AA8E91A042D6FC5D61</styleUrl>
+					<LineString>
+						<tessellate>1</tessellate>
+						<coordinates>
+							30.97837296930676,-24.39056084029174,0 30.97848099418179,-24.39012316436941,0 30.97864315321185,-24.38960847994852,0 30.97868445702832,-24.38909379818379,0 30.97884588139116,-24.38883626201086,0 30.9789473389818,-24.38852309267745,0 30.97892785370309,-24.38828358167287,0 30.97908964717728,-24.38800699441624,0 30.97929141949253,-24.38784746064443,0 30.97945063457169,-24.38760898466981,0 30.97953371781254,-24.38725236386751,0 30.97979537302214,-24.38692207926974,0 30.97993669444419,-24.38681132314343,0 30.98020043482863,-24.38670784645786,0 30.98034793192056,-24.38660451423193,0 
+						</coordinates>
+					</LineString>
+				</Placemark>
+				<Placemark id="5EED34DD6F00005A">
+					<name>Rhino</name>
+					<description>1.45 km</description>
+					<styleUrl>#__managed_style_08AA8E91A042D6FC5D61</styleUrl>
+					<LineString>
+						<tessellate>1</tessellate>
+						<coordinates>
+							30.97948472710489,-24.40155301723867,0 30.97955716507029,-24.4014281253814,0 30.97960445939599,-24.40133171168173,0 30.97957925639626,-24.40121814138701,0 30.97955802193571,-24.40107239401182,0 30.97954904517196,-24.40093068384899,0 30.97958900022535,-24.40065061229202,0 30.97962992943702,-24.40045161507083,0 30.97961957805839,-24.40024280419054,0 30.97953964851523,-24.39995969657614,0 30.97939854242733,-24.39970417933643,0 30.97918733864079,-24.39949698512918,0 30.97883916914462,-24.39923827990502,0 30.97859062402325,-24.39916387696369,0 30.97826721066202,-24.39916075838131,0 30.97803621636238,-24.39918349509953,0 30.97781969596124,-24.39922549665355,0 30.97766343984142,-24.39924482392071,0 30.97747142417861,-24.39928036419988,0 30.97738243318062,-24.39935498150387,0 30.97730257535907,-24.39945324978727,0 30.97716256484766,-24.3995628728036,0 30.97693496841062,-24.39962988454436,0 30.97674036908341,-24.39963604446863,0 30.97647268781482,-24.39966845369095,0 30.97624004718021,-24.39972957760124,0 30.97603485320168,-24.39975570746493,0 30.97577857165124,-24.39972546588655,0 30.97551901760452,-24.39969390978059,0 30.97534218019978,-24.3996683900526,0 30.97515045613634,-24.39966305099451,0 30.97502349683986,-24.39974854685934,0 30.97491806652916,-24.39986412870284,0 30.97483036016747,-24.39995750622569,0 30.97469523122907,-24.4000157926938,0 30.97454268421632,-24.39999631809857,0 30.97448960340746,-24.39993574358489,0 30.97441217148464,-24.3997831907323,0 30.97430239138793,-24.39964283725029,0 30.97413914041489,-24.39947761200665,0 30.97396003921082,-24.39931270372838,0 30.9737846600536,-24.39920222778829,0 30.97354179778461,-24.39908549966692,0 30.97328267412348,-24.39891702142014,0 30.97305163083584,-24.39877308866239,0 30.97268659709738,-24.39871209571666,0 30.97237927834824,-24.3985928331244,0 30.97208971671112,-24.39855633700731,0 30.97184287584346,-24.39848715989297,0 30.97158345957449,-24.39835715276408,0 30.97136297168183,-24.39820949127912,0 30.97109438089398,-24.39814837816667,0 30.97073454504007,-24.39796384183441,0 30.97047812788304,-24.39785019014845,0 30.97012555485237,-24.39778938802304,0 30.96973021833171,-24.39776261572717,0 30.96957364193662,-24.39770584141115,0 30.96941299561084,-24.39768345484505,0 30.96928137466587,-24.39770198502615,0 30.96914552451003,-24.39778330018143,0 30.96900064238619,-24.39792462211736,0 30.96876655344981,-24.39793944974023,0 30.96861082246273,-24.39798603066999,0 
+						</coordinates>
+					</LineString>
+				</Placemark>
+				<Placemark id="5EED34DD6F00005B">
+					<name>Rhino Crossing</name>
+					<styleUrl>#__managed_style_08AA8E91A042D6FC5D61</styleUrl>
+					<LineString>
+						<tessellate>1</tessellate>
+						<coordinates>
+							30.9775288732463,-24.39926535781874,0 30.97764618732145,-24.39909795590806,0 30.97771397046852,-24.39891375293385,0 30.9777569706043,-24.39880982269812,0 30.977767792445,-24.39865658941057,0 30.97778217701436,-24.39854538432338,0 30.97780364589675,-24.39846358954449,0 30.97781420607488,-24.39828720037818,0 30.97784636678358,-24.39819262059041,0 30.97786768788716,-24.39806560094049,0 30.97790337993452,-24.39794834349947,0 30.97791392206491,-24.39783789765932,0 30.97793505747878,-24.39774758512269,0 
+						</coordinates>
+					</LineString>
+				</Placemark>
+				<Placemark id="5EED34DD6F00005C">
+					<name>Ridge Loop Road</name>
+					<description>1.34 km</description>
+					<styleUrl>#__managed_style_08AA8E91A042D6FC5D61</styleUrl>
+					<LineString>
+						<tessellate>1</tessellate>
+						<coordinates>
+							30.95647119284922,-24.40086030989028,0 30.95584268379906,-24.40068535880602,0 30.95561587351716,-24.40050637154103,0 30.95533185603635,-24.40035393164937,0 30.95530113039462,-24.40014198931637,0 30.95529859820174,-24.39974709903981,0 30.95529637998171,-24.39932713775652,0 30.95529622734816,-24.39898825906621,0 30.95529572410348,-24.3985578395804,0 30.95529268537777,-24.39798199485213,0 30.95534844770838,-24.39772054265117,0 30.95541937634329,-24.39739490389944,0 30.95563469319719,-24.3969920804242,0 30.95578143205054,-24.39657711987147,0 30.95601369430941,-24.39629147986585,0 30.95613437430904,-24.39588846659147,0 30.95635123770662,-24.39556212594767,0 30.95651178177052,-24.39524864258903,0 30.95655711603411,-24.39498712437905,0 30.9565587255025,-24.39473848395404,0 30.9564635840098,-24.39446300558711,0 30.95638133932992,-24.39417398178041,0 30.95625452462983,-24.39397660646623,0 30.95632509292248,-24.39370144191408,0 30.95643798863964,-24.39350541720934,0 30.95657894364651,-24.39324428883647,0 30.95682378621551,-24.39278542197649,0 30.95707422257519,-24.39227104005439,0 30.9571486995254,-24.39207278506753,0 30.95736940320675,-24.3917023315647,0 30.957548569242,-24.39138294003017,0 30.9577107861308,-24.39119647471572,0 30.95799136760953,-24.39087631395252,0 30.95825595113478,-24.39058336535214,0 30.95855971576128,-24.39038563527764,0 
+						</coordinates>
+					</LineString>
+				</Placemark>
+				<Placemark id="5EED34DD6F00005D">
+					<name>Ridge Road</name>
+					<styleUrl>#__managed_style_08AA8E91A042D6FC5D61</styleUrl>
+					<LineString>
+						<tessellate>1</tessellate>
+						<coordinates>
+							30.95721338456838,-24.40028332545439,0 30.95718759776447,-24.39963340645426,0 30.95756378811312,-24.39925450513034,0 30.95787911342672,-24.39900281913419,0 30.95825277215144,-24.39869791802751,0 30.95854713390098,-24.39841179082787,0 30.95891988859859,-24.39816139344945,0 30.95925320460448,-24.39785762653818,0 30.95946241808095,-24.39757166088078,0 30.95971184847679,-24.39738708918231,0 30.95989399426831,-24.39717126154346,0 30.9600360083112,-24.39687430997445,0 30.96027450941565,-24.39646216069564,0 30.96045127575719,-24.39610418778444,0 30.96054857091472,-24.39558637493073,0 30.96062308426053,-24.39501650817926,0 30.96074435435402,-24.39447791484951,0 30.96097803398705,-24.39389507541328,0 
+						</coordinates>
+					</LineString>
+				</Placemark>
+				<Placemark id="5EED34DD6F00005E">
+					<name>Road 12</name>
+					<styleUrl>#__managed_style_08AA8E91A042D6FC5D61</styleUrl>
+					<LineString>
+						<tessellate>1</tessellate>
+						<coordinates>
+							30.96079172265356,-24.37030094809104,0 30.96070978840436,-24.37015933156508,0 30.96070812724373,-24.3700405830856,0 30.96083928140061,-24.36986757774124,0 30.96090444604572,-24.36977816926101,0 30.96095165459088,-24.36949199152943,0 30.9610320123005,-24.36930754698516,0 30.96113871198799,-24.36909391756366,0 30.96121828832957,-24.3689874154535,0 30.96124522030915,-24.36885720699459,0 30.96125921482684,-24.36867387268428,0 30.96133215045999,-24.36852070070246,0 30.96144373753535,-24.36830258068175,0 
+						</coordinates>
+					</LineString>
+				</Placemark>
+				<Placemark id="5EED34DD6F00005F">
+					<name>Road 9</name>
+					<styleUrl>#__managed_style_08AA8E91A042D6FC5D61</styleUrl>
+					<LineString>
+						<tessellate>1</tessellate>
+						<coordinates>
+							30.95661362555707,-24.36808823854464,0 30.95682897917758,-24.36815075073811,0 30.956973086829,-24.36818237799401,0 30.95715107594722,-24.36816486523183,0 30.9571578657525,-24.36813439421215,0 30.95718445205042,-24.36809792867835,0 30.95719111548932,-24.368085768885,0 30.95721113350185,-24.36804321500834,0 30.95731058644007,-24.36791587473461,0 30.95740315224567,-24.36781906666343,0 30.95753479702621,-24.3677713838045,0 30.95763363242679,-24.36771137235057,0 30.95766657687489,-24.36769338693163,0 30.95768634674217,-24.36768138320983,0 30.9577192998386,-24.36766336154877,0 30.95774566808694,-24.36764528329603,0 30.95775885396891,-24.36763320790162,0 30.95777863328685,-24.3676090270642,0 30.95780499560674,-24.36757275609956,0 30.95782475574153,-24.36756072614259,0 30.95784451211183,-24.36753657174957,0 30.9578642643981,-24.36751848507499,0 30.95788401657193,-24.36750646084898,0 30.95791034246052,-24.3674823540065,0 30.95794325656025,-24.36746433697905,0 30.95797617013543,-24.36744632051159,0 30.95802226511615,-24.3674283600233,0 30.958055214028,-24.36742244551857,0 30.95807497988959,-24.36741647535324,0 30.95810794361234,-24.36741055688869,0 30.95813429152166,-24.3673985593015,0 30.95817381445185,-24.36738056283414,0 30.95818038729579,-24.36737453858576,0 30.95822641974775,-24.36733842540275,0 30.95826590245531,-24.36731438741422,0 30.95828564225155,-24.36730236888032,0 30.95831855224813,-24.36728435375314,0 30.9583250788221,-24.36727229554637,0 30.95837106718909,-24.36723621445377,0 30.95840396561391,-24.36721820585569,0 30.9584303024549,-24.3672062125541,0 30.95844993194645,-24.36718214105822,0 30.95846304735579,-24.3671701163439,0 30.95850243730026,-24.36714007817456,0 30.95852204530999,-24.36711602815481,0 30.95854825449369,-24.36709200043279,0 30.95856790645136,-24.3670739838454,0 30.95858755399349,-24.36705597104083,0 30.95860719736524,-24.36703796278234,0 30.95864666634888,-24.36701998683562,0 30.95867297986279,-24.36700800242787,0 30.95871913770522,-24.36699604376909,0 30.95874552964447,-24.36699006734995,0 30.95877862132063,-24.36699010939275,0 30.95880492459477,-24.3669781139169,0 30.95882466616205,-24.36697211697723,0 30.9588575483041,-24.36696011917123,0 30.95889049399452,-24.36695412652092,0 30.95891023717919,-24.3669481286418,0 30.95892998010512,-24.3669421309519,0 30.95897614014423,-24.36693614111519,0 30.95901556038698,-24.36691814022959,0 30.95904191112112,-24.3669121432532,0 30.95907486969618,-24.36690614768228,0 30.95910122387592,-24.36690014971342,0 30.95913418863294,-24.36689415316961,0 30.9591671561829,-24.36688815577182,0 30.95920012708986,-24.36688215761312,0 30.95922657308567,-24.36688216135196,0 30.9592728650247,-24.3668821676463,0 30.95929923594888,-24.36687616694154,0 30.95932560805032,-24.36687016530154,0 30.95935198149817,-24.36686416433733,0 30.95938497401739,-24.36685816273279,0 30.95943101518478,-24.36684015481815,0 30.95944425230055,-24.36684015496046,0 30.95947707825622,-24.36682214874115,0 30.95951691649131,-24.36681615313428,0 30.95954345035118,-24.36681015300844,0 30.95958310385732,-24.36679214696069,0 30.95960965033523,-24.36678614321228,0 30.95962276405771,-24.36677413790428,0 30.95964887919835,-24.36674413061556,0 30.95970154082308,-24.36670811890231,0 30.95990525080746,-24.36655211529876,0 30.96012320296412,-24.36648599226862,0 30.96026711733168,-24.36635410630503,0 30.96045810821193,-24.36627606702113,0 30.96066225979557,-24.36621002052728,0 30.96090467602446,-24.36609024628967,0 30.96099570525599,-24.36602452154323,0 30.96102894864851,-24.36602443277166,0 30.96105554906059,-24.36602436110993,0 30.96108880586933,-24.36602427217647,0 30.96111522050079,-24.36601824860653,0 30.96114790499121,-24.36600629796969,0 30.96118010759519,-24.36600644709731,0 30.96120586017064,-24.36600656669748,0 30.96123160775265,-24.36601866985334,0 30.96125091960872,-24.36604871372376,0 30.96125735888274,-24.36606671440807,0 30.96127666421383,-24.36609674661311,0 30.96128953356408,-24.3661207575219,0 30.96130240051944,-24.36614476399414,0 30.96132811721048,-24.36616282413418,0 30.96134740079235,-24.36618085585238,0 30.96136668168379,-24.36620486956393,0 30.96138595938978,-24.36623486341704,0 30.96141164805849,-24.36625289799947,0 30.96142449211689,-24.36627088981851,0 30.96141166419473,-24.36630077680737,0 30.96173255817322,-24.36677937944789,0 30.96195953907037,-24.36700496793671,0 30.96213140511047,-24.36717613256307,0 30.96217309018185,-24.36736518818093,0 30.96204435738007,-24.36753713716513,0 30.96186489182409,-24.36769174764488,0 30.96170223400982,-24.36785768969647,0 30.96156937239305,-24.36810556677262,0 30.961457100762,-24.36829428720775,0 
+						</coordinates>
+					</LineString>
+				</Placemark>
+				<Placemark id="5EED34DD6F000060">
+					<name>Runway</name>
+					<styleUrl>#__managed_style_08AA8E91A042D6FC5D61</styleUrl>
+					<LineString>
+						<tessellate>1</tessellate>
+						<coordinates>
+							30.95467476898731,-24.37261831251545,0 30.95694535275242,-24.37115624338517,0 
+						</coordinates>
+					</LineString>
+				</Placemark>
+				<Placemark id="5EED34DD6F000061">
+					<name>Sandspruit Loop</name>
+					<description>2.89 km</description>
+					<styleUrl>#__managed_style_08AA8E91A042D6FC5D61</styleUrl>
+					<LineString>
+						<tessellate>1</tessellate>
+						<coordinates>
+							30.96768768198945,-24.39261545393563,0 30.96765880216565,-24.39258909209183,0 30.96761550339868,-24.39258883219353,0 30.96750365978297,-24.39218979694932,0 30.96736243444637,-24.39178592103192,0 30.96736698589778,-24.39110779614551,0 30.96727596112035,-24.39044619718567,0 30.96719555293064,-24.39019393763819,0 30.96725897262274,-24.38979194689891,0 30.96738083684333,-24.38953593793457,0 30.96742508197901,-24.38935242409158,0 30.96718616977361,-24.38902626782212,0 30.96703442639181,-24.38859185331968,0 30.96687399197254,-24.38834413756288,0 30.96679336625042,-24.38821247769785,0 30.96681028350546,-24.3880223559534,0 30.96693863700505,-24.3877623226115,0 30.96727993736187,-24.38685662254686,0 30.96742005883565,-24.38633503296058,0 30.96757756869511,-24.38577579349169,0 30.96793582774247,-24.38541005361894,0 30.9681092702835,-24.38525172004376,0 30.96835670113139,-24.38489542273819,0 30.96866001931182,-24.38463159744853,0 30.96890676714247,-24.38432796393937,0 30.96912410005542,-24.38414260122394,0 30.96950067443272,-24.38372089481548,0 30.9698351504299,-24.38344905787671,0 30.97005735254765,-24.38334852094611,0 30.97033122335008,-24.38308532383864,0 30.9707168207389,-24.38270113439412,0 30.9708612877642,-24.38268696837251,0 30.97094984892851,-24.3828061278929,0 30.97110236619562,-24.38288754036561,0 30.97124301182692,-24.38274346113977,0 30.97139572203888,-24.38270071123924,0 30.97150493982761,-24.38266166520753,0 30.97150335157782,-24.38253116933967,0 30.97161825200521,-24.38241549671803,0 30.97177047386761,-24.3823863985605,0 30.97202746327268,-24.38231819321767,0 30.97214329522252,-24.38242368620769,0 30.97228121341114,-24.38275102102711,0 30.9725966651008,-24.38272681388289,0 30.97282285563981,-24.38289920409919,0 30.97291759648308,-24.38299992172791,0 30.9728809887489,-24.38319199395355,0 30.97300202337852,-24.38342203261937,0 30.97307049748204,-24.38354679185396,0 30.97302869287715,-24.38367625482069,0 30.97309686876512,-24.38388178908921,0 30.97311255500135,-24.3839870020268,0 30.97301803878914,-24.38412098490965,0 30.97297087666059,-24.3842452775573,0 30.97288684688619,-24.3843313859347,0 30.9728291955401,-24.38448911527994,0 30.97274542405605,-24.38454626562821,0 30.9726721380553,-24.38461778399644,0 30.97261431049788,-24.38475171612425,0 30.97256180591224,-24.38484255323271,0 30.97242621712472,-24.38485129507393,0 30.97230583798534,-24.38485113206732,0 30.97223792387359,-24.38487959143205,0 30.97222177886208,-24.38495633355404,0 30.97227409522788,-24.38500896089746,0 30.97225280205707,-24.38516214079921,0 30.97225239034073,-24.38534897898647,0 30.97227632412135,-24.38554091505803,0 30.97217825180418,-24.38593322034987,0 30.97214953276122,-24.3860905313328,0 30.97196254728306,-24.38622166410216,0 30.97167054232267,-24.38619881612698,0 30.97132557364033,-24.38631169375216,0 30.97106517797028,-24.38650096015824,0 30.97095044808469,-24.38671086010018,0 30.97093481371659,-24.38689168880004,0 30.97077393341974,-24.38703143686146,0 30.97058254720701,-24.38710844796084,0 30.97054565625917,-24.3872853257048,0 30.97046037380775,-24.38756016337566,0 30.97022232895144,-24.38782025901074,0 30.97020691223734,-24.38809941073801,0 30.97024401007869,-24.38833280409165,0 30.97027474029113,-24.38854231841939,0 30.9702764998785,-24.38875197021439,0 30.97017686462216,-24.38897481911513,0 30.97016322707779,-24.38907974179036,0 30.97012079760385,-24.38921091272268,0 30.96986119320182,-24.38945399894958,0 30.96969167483975,-24.38960116689536,0 30.9696024035172,-24.38976139537375,0 30.96936347577488,-24.38998430894213,0 30.96935635777008,-24.39016706947742,0 30.96913871599218,-24.39044123725193,0 30.9688363328974,-24.39074212098503,0 30.96861894025527,-24.39114409868565,0 30.9685492148254,-24.39152774618148,0 30.9684434454768,-24.39186948184462,0 30.96840804047989,-24.39204093323491,0 30.96822786627785,-24.39224053607711,0 30.9680631439376,-24.39244739702184,0 30.96780315928719,-24.39255066513375,0 
+						</coordinates>
+					</LineString>
+				</Placemark>
+				<Placemark id="5EED34DD6F000062">
+					<name>Unknown</name>
+					<description>330 m</description>
+					<styleUrl>#__managed_style_08AA8E91A042D6FC5D61</styleUrl>
+					<LineString>
+						<tessellate>1</tessellate>
+						<coordinates>
+							30.97962019362836,-24.38565573002287,0 30.97947773928308,-24.38576046385413,0 30.97926875541282,-24.38566820823138,0 30.97905282332638,-24.3855388820128,0 30.97880268230209,-24.38545272179353,0 30.9783771132418,-24.38536628959283,0 30.97807934152302,-24.3852184030397,0 30.97772047519165,-24.38494103146363,0 30.97741544467962,-24.38479198914075,0 30.9771439744487,-24.38464943009426,0 30.97692695774673,-24.38455687591302,0 30.97674373794091,-24.38456909338618,0 
+						</coordinates>
+					</LineString>
+				</Placemark>
+				<Placemark id="5EED34DD6F000063">
+					<name>Unknown 2</name>
+					<description>100 m</description>
+					<styleUrl>#__managed_style_08AA8E91A042D6FC5D61</styleUrl>
+					<LineString>
+						<tessellate>1</tessellate>
+						<coordinates>
+							30.9768328138478,-24.38233947041211,0 30.97690105919143,-24.38221651942579,0 30.97694192074659,-24.38206885151169,0 30.9769695737254,-24.38193383432337,0 30.97705716053229,-24.38184733291331,0 
+						</coordinates>
+					</LineString>
+				</Placemark>
+				<Placemark id="5EED34DD6F000064">
+					<name>Warthog</name>
+					<styleUrl>#__managed_style_08AA8E91A042D6FC5D61</styleUrl>
+					<LineString>
+						<tessellate>1</tessellate>
+						<coordinates>
+							30.955866101048,-24.36887795205763,0 30.95598560939791,-24.36877126871541,0 30.95620873972852,-24.36859731189494,0 30.95635074368414,-24.36844914688526,0 30.95652476479734,-24.36830203619439,0 30.95658640790549,-24.3681492054717,0 30.95661362555707,-24.36808823854464,0 30.95663692471263,-24.36785708168304,0 30.95654901844809,-24.36757354169715,0 30.95643496559928,-24.36730388489281,0 30.95627550491786,-24.36706541491585,0 30.9562187746179,-24.36692883218254,0 30.95622659640636,-24.36675113466537,0 30.95619367225402,-24.36651435206478,0 30.95604417266565,-24.36598167121558,0 30.95600571240587,-24.36581031895541,0 30.95590072842132,-24.36566776556414,0 30.95588146797682,-24.36551402071703,0 30.95588274638155,-24.36531373679718,0 30.95581123554859,-24.36510078347726,0 30.95578554400509,-24.36497683822245,0 30.95567375921881,-24.36482780000598,0 30.95555505111758,-24.36469608305091,0 30.95543597944594,-24.36458770344804,0 30.9553293886087,-24.3645618722895,0 
+						</coordinates>
+					</LineString>
+				</Placemark>
+				<Placemark id="5EED34DD6F000065">
+					<name>Welverdiend boundary</name>
+					<description>4.83 km</description>
+					<styleUrl>#__managed_style_08AA8E91A042D6FC5D61</styleUrl>
+					<LineString>
+						<tessellate>1</tessellate>
+						<coordinates>
+							30.94402459767294,-24.41191939396833,0 30.9458104394018,-24.4114248821334,0 30.94619308684357,-24.4112973119467,0 30.94661378387378,-24.4111266327676,0 30.94693073180609,-24.41108868731731,0 30.94724353781953,-24.41101355500876,0 30.95474572924378,-24.40880302463519,0 30.95493078365988,-24.40865828198526,0 30.95495547273706,-24.40853604242478,0 30.95512857987508,-24.40847995810063,0 30.95530073559262,-24.40847964847566,0 30.95545926462427,-24.40855746211193,0 30.95558117085188,-24.40857969323815,0 30.98912035081518,-24.39866078439072,0 
+						</coordinates>
+					</LineString>
+				</Placemark>
+				<Placemark id="5EED34DD6F000066">
+					<name>Western Dam Loop</name>
+					<styleUrl>#__managed_style_08AA8E91A042D6FC5D61</styleUrl>
+					<LineString>
+						<tessellate>1</tessellate>
+						<coordinates>
+							30.94497223888148,-24.41162985677368,0 30.94506363700987,-24.4115456048383,0 30.94503548994622,-24.41140010017103,0 30.94497224876452,-24.41126079280743,0 30.9450002989863,-24.4110897988907,0 30.9449986240489,-24.41087942090476,0 30.94504544485259,-24.41073546724056,0 30.94515885681561,-24.4106635543916,0 30.94525763338365,-24.41056515254591,0 30.94529884538938,-24.41045987416387,0 30.94533206259619,-24.41030822130459,0 30.94539304669302,-24.41014318325904,0 30.94545490848347,-24.41002410154844,0 30.94551503988689,-24.40983161979952,0 30.94562871244803,-24.40973841857289,0 30.94586576329376,-24.40966494482899,0 30.94603102016377,-24.40961801634613,0 30.94619597107554,-24.40951733519906,0 30.94631718888321,-24.40933581083956,0 30.94647520528817,-24.4091198640096,0 30.94659767233868,-24.40890339768481,0 30.94677232239585,-24.40870641286769,0 30.94703592472052,-24.40847439290163,0 30.94724268272438,-24.4083042014499,0 30.94738333929719,-24.40814120747702,0 30.94753195876558,-24.40801272656563,0 30.94773271398856,-24.40790493584106,0 30.94784422828668,-24.40778362154876,0 30.94791114733588,-24.40766237136966,0 30.9479333346884,-24.40755392854513,0 30.94806737600165,-24.40754289408582,0 30.94818625287701,-24.40747087288612,0 30.94832712882856,-24.40735987300742,0 30.94841586239385,-24.40723474306855,0 30.94849703133508,-24.40712957998687,0 30.94860030046812,-24.40710367102571,0 30.94878457058211,-24.40709838545063,0 30.94897607029632,-24.40713312795076,0 30.94911601319291,-24.40720742944495,0 30.94923446737645,-24.40734689929655,0 30.94928605291589,-24.40756873604577,0 30.94939605561646,-24.40779833287928,0 30.9494397419395,-24.40795364995448,0 30.94954862572643,-24.40814371814858,0 30.94966626989699,-24.40837148014526,0 30.94979853294578,-24.40847201973827,0 30.9498946301675,-24.40863904928387,0 30.94993226093894,-24.40881939615065,0 30.94986593296703,-24.40896021246386,0 30.94977012699759,-24.40909433934603,0 30.94971082262432,-24.40928212813823,0 30.94963702314483,-24.40943626006903,0 30.94957799690714,-24.40956353167594,0 30.94957757336375,-24.4096974414797,0 30.94958449170349,-24.40982455524323,0 30.94962783244257,-24.40999830513057,0 30.94969337378451,-24.410078366628,0 30.94980253529815,-24.41019831364569,0 30.94983884040769,-24.41025159325349,0 
+						</coordinates>
+					</LineString>
+				</Placemark>
+				<Placemark id="5EED34DD6F000067">
+					<name>Western Dam Road</name>
+					<description>1.21 km</description>
+					<styleUrl>#__managed_style_08AA8E91A042D6FC5D61</styleUrl>
+					<LineString>
+						<tessellate>1</tessellate>
+						<coordinates>
+							30.94748864749253,-24.40663108143665,0 30.94762430492406,-24.40645771317342,0 30.95400676707744,-24.40243125596279,0 30.95444184659242,-24.4021712256319,0 30.95497705727138,-24.40186667259843,0 30.95555842015863,-24.40155397035708,0 30.95584153219642,-24.40133094385105,0 30.95590014999783,-24.40118747673143,0 30.95607648088479,-24.40108314040499,0 30.95641568132211,-24.40086207322476,0 30.95656272100403,-24.40074535092195,0 30.95685603118366,-24.40053844062086,0 30.95719201888402,-24.4003066018206,0 
+						</coordinates>
+					</LineString>
+				</Placemark>
+				<Placemark id="5EED34DD6F000068">
+					<name>Western Dam Road</name>
+					<styleUrl>#__managed_style_08AA8E91A042D6FC5D61</styleUrl>
+					<LineString>
+						<tessellate>1</tessellate>
+						<coordinates>
+							30.94745001203666,-24.40663838962091,0 30.94743125627745,-24.40683662192421,0 30.94747246102039,-24.40701872598175,0 30.94747158344038,-24.40718533596038,0 30.94754534221623,-24.40738669646416,0 30.9477052697053,-24.40750002813297,0 30.94789801443833,-24.40755639961844,0 30.94781434102176,-24.40776950530273,0 
+						</coordinates>
+					</LineString>
+				</Placemark>
+				<Placemark id="5EED34DD6F000069">
+					<name>Wild Dog</name>
+					<styleUrl>#__managed_style_08AA8E91A042D6FC5D61</styleUrl>
+					<LineString>
+						<tessellate>1</tessellate>
+						<coordinates>
+							30.97068173214599,-24.37808955989355,0 30.97078715671908,-24.37802020672186,0 30.97089765602558,-24.37794680500252,0 30.97097468626467,-24.37789954795987,0 30.97109599650864,-24.37778856264537,0 30.97127160150133,-24.37776149377778,0 30.97141866672722,-24.37776910073267,0 30.97155708372185,-24.3777690568802,0 30.97176199893647,-24.37779456474797,0 30.97190105200025,-24.37781289700926,0 30.97192996261489,-24.377817707446,0 30.97195886198427,-24.37782251256875,0 30.97198291602895,-24.37782720147869,0 30.97200202652909,-24.37783159642449,0 30.97202113562707,-24.37783599092545,0 30.97204024397538,-24.37784038536441,0 30.97206414452426,-24.37784482230535,0 30.97208804220181,-24.37784925944356,0 30.97211193754972,-24.37785369618554,0 30.97213583061634,-24.37785813221702,0 30.97215966311092,-24.37786678858972,0 30.97216918461778,-24.37787109563566,0 30.97221222957518,-24.37787569968385,0 30.97223127460879,-24.37788430913716,0 30.97224542469759,-24.37790132505958,0 30.97225489044268,-24.37790986257323,0 30.97227388780472,-24.37792270432473,0 30.97229288901605,-24.37793554850386,0 30.97232156863341,-24.37794002312245,0 30.97233578671234,-24.37795282786039,0 30.97234521921784,-24.37796559452742,0 30.97235943717867,-24.37798707023381,0 30.97236418228601,-24.37800003126065,0 30.97236889887435,-24.37802160807608,0 30.9723784204235,-24.37803892011496,0 30.9723927445356,-24.37805196380883,0 30.97240225345705,-24.37807358641201,0 30.97240697436899,-24.37809083452482,0 30.97241640332916,-24.37810792841154,0 30.97242106281486,-24.37812502923553,0 30.97243049847302,-24.37814213321172,0 30.97243513336037,-24.37816352335006,0 30.97243977047948,-24.37818492246016,0 30.97243974279009,-24.37818920338805,0 30.97245388176712,-24.37821917611961,0 30.97245857858564,-24.37823202628578,0 30.9724632232555,-24.37825345191033,0 30.97246311593053,-24.37827059967679,0 30.97246308910579,-24.37827488761441,0 30.97270215554473,-24.37863156339849,0 30.97278922491978,-24.37881270140327,0 30.9729858693795,-24.37901680688153,0 30.97308117628976,-24.37913979995598,0 30.97324217469355,-24.37921534297611,0 30.97341188075985,-24.37925525500295,0 30.97355286188117,-24.37936350772069,0 30.97367094824294,-24.3794917903416,0 30.97384075835737,-24.37962039491247,0 30.97401014933723,-24.37970627999577,0 30.97414701998361,-24.3798134629115,0 30.97427416447113,-24.37989067425731,0 30.97435034981388,-24.37998935662626,0 30.97445837385357,-24.38003653022596,0 30.97461739181899,-24.38004927869489,0 30.97478258008016,-24.38006210403804,0 30.97489684132612,-24.38010076153811,0 30.9750975324312,-24.38017825233926,0 30.97528684758473,-24.38024273029232,0 30.97545766185444,-24.38042006029678,0 30.97556439547837,-24.38053701839553,0 30.97566153909919,-24.38068869223499,0 30.97579098066745,-24.38083753242539,0 30.97589242071971,-24.38096104203245,0 30.97594828844144,-24.38110325324802,0 30.97602365985173,-24.3811613522603,0 30.9761528340891,-24.38126797219559,0 30.97619648721523,-24.38135111642728,0 30.97627827387661,-24.38148217986629,0 30.97635351092846,-24.38154253444302,0 30.97648382966872,-24.38159294146994,0 30.97661960378759,-24.38172017698282,0 30.97666365615704,-24.38185408952502,0 30.97672332778864,-24.38199779732333,0 30.97671848977627,-24.38207038065397,0 30.9767325812742,-24.38218663502019,0 30.97674247065217,-24.38226724648803,0 30.97678814687883,-24.38233595535979,0 30.97675075200496,-24.38241926500271,0 30.97676331358593,-24.38270889219316,0 30.97672223065751,-24.38290017916463,0 30.97653854362029,-24.38307754409927,0 30.97648944647106,-24.38325805341393,0 30.97648919141595,-24.38355409318444,0 30.97641420885457,-24.38398633561639,0 30.97641367553786,-24.38428261563551,0 30.97673502752452,-24.38455866839987,0 
+						</coordinates>
+					</LineString>
+				</Placemark>
+				<Placemark id="5EED34DD6F00006A">
+					<name>Zebra N</name>
+					<styleUrl>#__managed_style_08AA8E91A042D6FC5D61</styleUrl>
+					<LineString>
+						<tessellate>1</tessellate>
+						<coordinates>
+							30.95218053003698,-24.39442050696249,0 30.95252275150094,-24.39382922294043,0 30.95268342507185,-24.3933869965951,0 30.95277115669607,-24.3928794529327,0 30.95280468391903,-24.39255264369905,0 30.9526777613514,-24.39225660266163,0 30.95243018027712,-24.39195611918437,0 30.95221518482913,-24.39162599425263,0 30.95212788259833,-24.39137749594483,0 30.95243008778029,-24.39110073614356,0 30.9526809235797,-24.39088801835031,0 30.95284886619611,-24.39049017821331,0 30.95303575299699,-24.39009255884914,0 30.95307805045802,-24.38979441514234,0 30.95326127293905,-24.38954719300577,0 30.95347350079697,-24.3894502235153,0 30.95352840928107,-24.38930230469964,0 30.95360158625967,-24.3891051743865,0 30.95360914349698,-24.38871007130209,0 30.95361154329864,-24.38854599789803,0 30.95384396643808,-24.38828444489295,0 30.95396125290715,-24.38782609063056,0 30.95419673602844,-24.38751607355909,0 30.95439226618662,-24.38722235080591,0 30.95446250724177,-24.38671632325176,0 30.95444239392518,-24.38632393555335,0 30.95456498533452,-24.38611042442667,0 30.95475534662388,-24.38561604873054,0 30.95480185007517,-24.38515209637473,0 30.95481520366114,-24.38486929617782,0 30.95479506699881,-24.38470319152229,0 30.95464707054052,-24.38437112844566,0 30.95451860334773,-24.38413887489346,0 30.95451595517955,-24.38393861781688,0 30.95451197397518,-24.38363769388068,0 30.95450891484244,-24.38345276334924,0 30.95448816268131,-24.38315246498314,0 30.95428747846692,-24.38272163740638,0 30.95416097751517,-24.38237546817344,0 30.95401787405177,-24.38209744931875,0 30.95394427251924,-24.38171623967881,0 30.95401472299153,-24.38144890254797,0 30.95403152851727,-24.38131470741318,0 30.9541012752858,-24.38109523425602,0 30.95415327979423,-24.38089257978918,0 30.9541511890033,-24.38069033992411,0 30.95405562963007,-24.38031790283656,0 30.95392372925261,-24.37976271869279,0 30.9537960544805,-24.37949704829203,0 30.95379521223057,-24.3793461621657,0 30.95379306752389,-24.37914288552983,0 30.95377195985582,-24.37883832145521,0 30.95367572193874,-24.37857729355391,0 30.95363453257612,-24.37834493130027,0 30.95360556108698,-24.37798411756143,0 30.9535248901054,-24.37776939691955,0 30.95356352584861,-24.37764712245776,0 30.95362145761719,-24.37744493949361,0 30.95367938539654,-24.37725458287913,0 30.95372408119346,-24.3771315142701,0 30.95372291823931,-24.37704522090883,0 30.95372242001118,-24.37700820928904,0 30.95372200402347,-24.37697735315614,0 30.95370848222167,-24.37695885756607,0 30.95370134341333,-24.37692182563056,0 30.95369437108575,-24.3768971358241,0 30.95368748048294,-24.37687862144911,0 30.95368697257223,-24.3768415443807,0 30.95368654945013,-24.37681063333336,0 30.95368595724575,-24.37676733811327,0 30.95368561884901,-24.37674258742891,0 30.9536852803549,-24.37671782864227,0 30.95369823002424,-24.37669300454152,0 30.95371110393814,-24.37666196942938,0 30.95371085245582,-24.3766433778604,0 30.95371034965912,-24.376606181724,0 30.95371693476725,-24.37659994908826,0 30.95372998601714,-24.37656272151284,0 30.95372985889231,-24.37654413955119,0 30.95373630267707,-24.37651312386863,0 30.95374262217891,-24.37646350456187,0 30.95374245357185,-24.37643870947684,0 30.95374228539675,-24.37641391072018,0 30.95374211657457,-24.37638910792517,0 30.95374194748301,-24.37636430090255,0 30.95372845951679,-24.37633959406632,0 30.9537282474368,-24.37630857980826,0 30.95372803539173,-24.37627755906835,0 
+						</coordinates>
+					</LineString>
+				</Placemark>
+				<Placemark id="5EED34DD6F00006B">
+					<name>Zebra S</name>
+					<styleUrl>#__managed_style_08AA8E91A042D6FC5D61</styleUrl>
+					<LineString>
+						<tessellate>1</tessellate>
+						<coordinates>
+							30.95296472145603,-24.40933809226401,0 30.95276539763293,-24.40878718060976,0 30.95291474774011,-24.4081686444142,0 30.95297407824584,-24.40777590467174,0 30.95289141339777,-24.40748567824082,0 30.95289131899812,-24.40720764739623,0 30.95314334892411,-24.40663131649564,0 30.95330721844251,-24.40640676540199,0 30.95372651885891,-24.40562507942578,0 30.953794758696,-24.40516891642958,0 30.95376492577154,-24.40482858660191,0 30.95400766017884,-24.40450753893914,0 30.95426555154462,-24.40425237031456,0 30.95420602275746,-24.40389670950788,0 30.95381162156308,-24.40322426887381,0 30.95343008669294,-24.40274070711145,0 30.95324731152106,-24.40265343652579,0 30.9530421035097,-24.40257979183147,0 30.95285993234289,-24.40214016448792,0 30.95265833589509,-24.40157014933664,0 30.95238608027151,-24.40112921698431,0 30.952073320105,-24.40059233730457,0 30.95190397419021,-24.39990629673725,0 30.95180173020555,-24.39955817506399,0 30.95171540100167,-24.39906397960858,0 30.95169571346882,-24.39870337254093,0 30.95180346711503,-24.39829297428761,0 30.95194694798651,-24.39793188446279,0 30.95194713925873,-24.39761984732218,0 30.9519822000475,-24.3973736214109,0 30.95198215606483,-24.39720939753039,0 30.95210509411734,-24.39679872534828,0 30.95214019216921,-24.39650286516744,0 30.95220942530313,-24.39605867280033,0 30.95224336810017,-24.39579512857352,0 30.95231423262663,-24.39556446388158,0 30.95250933795893,-24.39523415394362,0 30.95250897988138,-24.39510231598621,0 30.9525100902401,-24.39490518139478,0 30.9521739498758,-24.39441483483843,0 
+						</coordinates>
+					</LineString>
+				</Placemark>
+				<Placemark id="5EED34DD6F00006C">
+					<name>Caracal Crossing</name>
+					<description>208 m</description>
+					<styleUrl>#__managed_style_08AA8E91A042D6FC5D61</styleUrl>
+					<LineString>
+						<tessellate>1</tessellate>
+						<coordinates>
+							30.96936482741333,-24.39018043297996,0 30.96956267811964,-24.39030091632517,0 30.9696321460425,-24.39023547763595,0 30.96994998872859,-24.39015038511713,0 30.97017834998867,-24.39022292632656,0 30.97040495011371,-24.39030248109279,0 30.97075036160642,-24.39037849045244,0 30.97088950057281,-24.39046719579097,0 30.97088929270245,-24.39063002048554,0 30.97085970489938,-24.39081007725351,0 
+						</coordinates>
+					</LineString>
+				</Placemark>
+				<Placemark id="5EED34DD6F00006D">
+					<name>Kudu South</name>
+					<description>1.825 m</description>
+					<styleUrl>#__managed_style_08AA8E91A042D6FC5D61</styleUrl>
+					<LineString>
+						<tessellate>1</tessellate>
+						<coordinates>
+							30.97085966964308,-24.39081917507758,0 30.97066161423427,-24.39119806145716,0 30.97035432087979,-24.39154185434812,0 30.9701070786473,-24.39204614046434,0 30.97013665699147,-24.39246098860202,0 30.97015647168786,-24.39274035938366,0 30.97018626901908,-24.39291138273689,0 30.97044344965467,-24.39305559988855,0 30.97065126797121,-24.39320885784714,0 30.97069042927774,-24.39372253342841,0 30.97083811394552,-24.39406463990928,0 30.971085811535,-24.3944430011031,0 30.97127342672366,-24.39475807253399,0 30.97153211772416,-24.3950372257953,0 30.97176927873022,-24.3952714959177,0 30.97202698056723,-24.39554089649327,0 30.97235308083963,-24.39566710705957,0 30.97267925810215,-24.39574813291832,0 30.97295610490633,-24.39609925809505,0 30.97326260552004,-24.39638738746135,0 30.97355920711369,-24.39666721838989,0 30.97392484092741,-24.39680974038898,0 30.97412247515404,-24.39680956929242,0 30.97436972152835,-24.39684612429454,0 30.97457690240623,-24.39697090884967,0 30.97475457784687,-24.39705146550595,0 30.97505108976618,-24.39704271327994,0 30.9752880371023,-24.39710535685473,0 30.97565358214623,-24.39710531420288,0 30.97597972083299,-24.39710542354833,0 30.9762562565185,-24.39715028160225,0 30.97654288051545,-24.39731235261121,0 30.97694777312256,-24.39752803745841,0 30.9776594448827,-24.39764527542183,0 30.97800593355705,-24.39773581880415,0 30.97856627843671,-24.39775148925299,0 30.97905072925727,-24.39788673185893,0 30.97959162066321,-24.39805592851118,0 30.9797389289692,-24.39811830602784,0 30.98021853701534,-24.39752607295631,0 30.98059156384858,-24.39702743302307,0 30.98073324866033,-24.39671149680448,0 30.98097451402859,-24.39650397636854,0 30.9813073099714,-24.39624414725147,0 30.98156727957601,-24.39594791459359,0 30.98177001881727,-24.39563379216011,0 
+						</coordinates>
+					</LineString>
+				</Placemark>
+				<Placemark id="5EED34DD6F00006E">
+					<name>Giraffe North</name>
+					<description>1.62 m</description>
+					<styleUrl>#__managed_style_08AA8E91A042D6FC5D61</styleUrl>
+					<LineString>
+						<tessellate>1</tessellate>
+						<coordinates>
+							30.98177025472563,-24.39565174503899,0 30.98133621768258,-24.39554370548911,0 30.98088422231804,-24.39555229436718,0 30.98011029775872,-24.39549018497167,0 30.97975768125057,-24.39543678945581,0 30.97924750577149,-24.39527600379894,0 30.97879653507285,-24.39508856493328,0 30.97845413189905,-24.39500874641563,0 30.97813042178326,-24.39466929911287,0 30.97789475455075,-24.39419567808731,0 30.97772852339575,-24.39381151419182,0 30.97774814602925,-24.39361488162019,0 30.9780027701243,-24.3931770284206,0 30.97833635071076,-24.39267658940494,0 30.9786602852577,-24.39216707481509,0 30.97877790840184,-24.39199736678837,0 30.97900468289808,-24.39170156881252,0 30.97884938914732,-24.39130646550259,0 30.97860571778174,-24.39088351635963,0 30.97834206551354,-24.39053131838632,0 30.97806775103081,-24.39007141843638,0 30.97777407677104,-24.38948291687516,0 30.97755751585792,-24.38919393398085,0 30.97737079041111,-24.38861928499098,0 30.97736148014016,-24.38810596590703,0 30.97726266846688,-24.38766496790522,0 30.97718411224783,-24.38732180945629,0 30.97718435990118,-24.38694285752179,0 30.9769669456881,-24.38667202110009,0 30.97675939175265,-24.38624729226905,0 30.97662094096836,-24.38564090444262,0 30.97665061772203,-24.38516327858927,0 30.97664096607671,-24.38476270537597,0 30.97668054695794,-24.38455490861179,0 
+						</coordinates>
+					</LineString>
+				</Placemark>
+			</Folder>
+		</Folder>
+	</Folder>
+</Document>
+</kml>
