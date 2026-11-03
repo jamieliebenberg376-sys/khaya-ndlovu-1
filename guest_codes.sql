@@ -87,14 +87,17 @@ begin
 end $$;
 grant execute on function public.create_guest_code(text, timestamptz) to authenticated;
 
--- owners: list guest codes with how many people use each
+-- owners: list every owner's guest codes, who made each one, and the guests on it
 create or replace function public.list_guest_codes()
 returns json language plpgsql stable security definer set search_path = public as $$
 begin
   if not public.is_owner() then raise exception 'owners only'; end if;
   return coalesce((select json_agg(row_to_json(x) order by x.created_at desc) from (
-    select g.code, g.label, g.created_by_name, g.expires_at, g.revoked, g.created_at,
-      (select count(*) from public.members m where m.code = g.code) as people
+    select g.code, g.label, coalesce((select name from public.members o where o.user_id = g.created_by), g.created_by_name) as created_by_name,
+      g.created_by = auth.uid() as mine, g.expires_at, g.revoked, g.created_at,
+      (select count(*) from public.members m where m.code = g.code) as people,
+      coalesce((select json_agg(json_build_object('name', m.name, 'joined_at', m.joined_at) order by m.joined_at)
+                from public.members m where m.code = g.code), '[]'::json) as guests
     from public.guest_codes g where g.created_at > now() - interval '120 days') x), '[]'::json);
 end $$;
 grant execute on function public.list_guest_codes() to authenticated;

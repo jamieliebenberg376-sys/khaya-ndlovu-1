@@ -179,6 +179,9 @@ body.drivecam #roadCard{display:none!important}body.drivecam #junc{top:calc(var(
 #gate .gout{background:#fce8e6;color:#c5221f;font-weight:700;border-radius:12px;padding:12px 16px;margin:4px 0 14px;text-align:center;font-size:15px;max-width:360px;width:100%;animation:gpop .35s ease}#gate .gout small,body.night #gate .gout small{display:block;font-weight:500;color:#a50e0e!important;margin-top:3px;font-size:13px}@keyframes gpop{from{transform:scale(.92);opacity:0}}
 .gcode{font:800 34px/1 ui-monospace,Menlo,monospace;letter-spacing:6px;text-align:center;padding:18px 0 10px;color:#1a73e8}
 .gpres{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:10px}.gpres .chip{justify-content:center;padding:9px 4px}
+.gc{border-top:1px solid var(--line,#e8eaed);padding:12px 0}.gc:first-child{border-top:0}.gh{display:flex;gap:8px;align-items:flex-start;justify-content:space-between}.gh small{color:var(--sub)}.gb{display:flex;gap:6px;flex-shrink:0}.mono{font-family:ui-monospace,Menlo,monospace;letter-spacing:1px}
+.gw{margin-top:8px;background:rgba(127,127,127,.08);border-radius:12px;padding:6px 10px}.gl{display:block;font-weight:700;color:var(--sub);font-size:11.5px;text-transform:uppercase;letter-spacing:.5px;margin:4px 0 2px}
+.gg{display:flex;gap:10px;align-items:flex-start;padding:7px 0}.gg small{display:block;color:var(--sub);font-size:12.5px;line-height:1.4}.gav{width:30px;height:30px;border-radius:50%;background:#1a73e8;color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px}
 .tag{display:inline-block;font-size:11.5px;font-weight:700;border-radius:8px;padding:2px 7px;margin-left:6px;background:#e6f4ea;color:#137333}.tag.x{background:#f1f3f4;color:#5f6368}.tag.w{background:#fef7e0;color:#b06000}
 #recenter{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(var(--safe-b) + 34px);z-index:11;background:#fff;color:#1a73e8;font-weight:700;font-size:15px;padding:12px 20px;border-radius:24px;box-shadow:0 2px 10px rgba(0,0,0,.25);display:flex;align-items:center;gap:8px}
 body.night #recenter{background:#1f2226;color:#8ab4f8}
@@ -1048,7 +1051,7 @@ async function guestSheet(){
   <div class="gpres">${[['Today',0],['3 days',2],['1 week',6],['1 month',29]].map(([l,d],i)=>`<button class="chip${i==1?' sel':''}" data-d="${d}">${l}</button>`).join('')}</div>
   <div class="sub" style="margin-top:12px">Ends</div><input class="inp" id="gExp" type="datetime-local" style="margin-top:4px">
   <button class="btn pri" id="gMake" style="width:100%;margin-top:12px">Create guest code</button>
-  <div id="gNew"></div><div class="sub" style="margin-top:16px"><b>Your codes</b></div><div class="list" id="gList"><div class="it"><small>Loading...</small></div></div>`,()=>{
+  <div id="gNew"></div><div class="sub" style="margin-top:16px"><b>All guest codes</b> · every owner's codes and who is on them</div><div id="gList"><div class="it"><small>Loading...</small></div></div>`,()=>{
     const ex=$('gExp');ex.value=dtLocal(endOfDay(2));ex.min=dtLocal(new Date());
     document.querySelectorAll('.gpres .chip').forEach(b=>b.onclick=()=>{document.querySelectorAll('.gpres .chip').forEach(x=>x.classList.remove('sel'));b.classList.add('sel');ex.value=dtLocal(endOfDay(+b.dataset.d))});
     ex.oninput=()=>document.querySelectorAll('.gpres .chip').forEach(x=>x.classList.remove('sel'));
@@ -1064,11 +1067,17 @@ async function guestSheet(){
       $('gMake').textContent='Create guest code';$('gMake').disabled=false};
     loadGuests()});
 }
+const fmtDay=t=>new Date(t).toLocaleString([],{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+function left(t){const m=Math.max(0,(t-Date.now())/6e4);if(m<60)return Math.ceil(m)+' min';const h=m/60;if(h<24)return Math.round(h)+(Math.round(h)==1?' hour':' hours');return Math.round(h/24)+' days'}
+function span(a,b){const d=Math.round((b-a)/864e5);return d<1?'under a day':d+(d==1?' day':' days')+' total'}
 async function loadGuests(){const el=$('gList');if(!el)return;let L;
   try{L=await rpc('list_guest_codes')}catch(e){el.innerHTML=`<div class="it"><small>${/404|PGRST202|Could not find/.test(e.message)?'Guest codes need a quick database update first (guest_codes.sql).':'Could not load codes'}</small></div>`;return}
-  el.innerHTML=(L||[]).map(g=>{const ex=Date.parse(g.expires_at),live=!g.revoked&&ex>Date.now();
+  el.innerHTML=(L||[]).map(g=>{const ex=Date.parse(g.expires_at),live=!g.revoked&&ex>Date.now(),gs=g.guests||[];
     const tag=g.revoked?'<span class="tag x">Ended</span>':!live?'<span class="tag x">Expired</span>':ex-Date.now()<864e5?'<span class="tag w">Ends soon</span>':'<span class="tag">Active</span>';
-    return `<div class="it"><div><b style="font-family:ui-monospace,Menlo,monospace;letter-spacing:1px">${esc(g.code)}</b>${tag}<br><small>${g.label?esc(g.label)+' · ':''}${live?'until':'ended'} ${esc(fmtExp(g.revoked&&!live?ex:ex))} · ${g.people} ${g.people==1?'person':'people'}</small></div>${live?`<button class="sm" data-share="${esc(g.code)}">Share</button><button class="sm red" data-end="${esc(g.code)}">End</button>`:`<button class="sm" data-ext="${esc(g.code)}">Renew</button>`}</div>`}).join('')||'<div class="it"><small>No guest codes yet</small></div>';
+    const who=g.mine?'you':esc(g.created_by_name||'an owner');
+    const guests=gs.length?gs.map(m=>`<div class="gg"><span class="gav">${esc((m.name||'?').trim()[0]||'?').toUpperCase()}</span><div><b>${esc(m.name||'Guest')}</b><small>Added by ${who} · joined ${esc(fmtDay(Date.parse(m.joined_at)))}<br>${live?'On the map for '+esc(left(ex))+' more':'Logged out '+esc(fmtDay(ex))}${live?' · stay '+esc(span(Date.parse(m.joined_at),ex)):''}</small></div></div>`).join(''):'<div class="gg"><small style="padding-left:2px">Nobody has used this code yet</small></div>';
+    return `<div class="gc"><div class="gh"><div><b class="mono">${esc(g.code)}</b>${tag}<br><small>${g.label?esc(g.label)+' · ':''}made by ${who}</small><br><small>${live?'Ends '+esc(fmtExp(ex))+' · '+esc(left(ex))+' left':'Ended '+esc(fmtExp(ex))}</small></div><div class="gb">${live?`<button class="sm" data-share="${esc(g.code)}">Share</button><button class="sm red" data-end="${esc(g.code)}">End</button>`:`<button class="sm" data-ext="${esc(g.code)}">Renew</button>`}</div></div>
+      <div class="gw">${gs.length?`<small class="gl">${gs.length} ${gs.length==1?'guest':'guests'}</small>`:''}${guests}</div></div>`}).join('')||'<div class="it"><small>No guest codes yet</small></div>';
   el.querySelectorAll('[data-end]').forEach(b=>b.onclick=async()=>{if(b.dataset.sure!=='1'){b.dataset.sure='1';b.textContent='Sure?';return}
     b.textContent='...';try{await rpc('revoke_guest_code',{p_code:b.dataset.end});toast('Code ended. Guests on it are logged out.',3500)}catch(e){toast('Could not end the code')}loadGuests()});
   el.querySelectorAll('[data-share]').forEach(b=>b.onclick=()=>{const g=L.find(x=>x.code===b.dataset.share),msg='Khaya Ndlovu map\nOpen '+location.origin+'/ and use guest code '+g.code+'\nWorks until '+fmtExp(Date.parse(g.expires_at));navigator.share?navigator.share({text:msg}).catch(()=>{}):(navigator.clipboard&&navigator.clipboard.writeText(msg),toast('Copied'))});
