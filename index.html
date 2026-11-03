@@ -1363,10 +1363,9 @@ async function guestSheet(){
     $('gMake').onclick=async()=>{const t=new Date(ex.value);if(!ex.value||isNaN(t)||t<=new Date()){toast('Pick an end date in the future');return}
       $('gMake').textContent='Creating...';$('gMake').disabled=true;
       try{const code=await rpc('create_guest_code',{p_label:$('gLabel').value.trim(),p_expires:t.toISOString()});
-        const msg='Khaya Ndlovu map\nOpen '+location.origin+'/ and use guest code '+code+'\nWorks until '+fmtExp(t);
-        $('gNew').innerHTML=`<div class="gcode">${esc(code)}</div><div class="sub" style="text-align:center">Works until ${esc(fmtExp(t))}</div><div class="row"><button class="btn" id="gCopy">Copy</button><button class="btn pri" id="gShare">Share</button></div>`;
-        $('gCopy').onclick=()=>{navigator.clipboard&&navigator.clipboard.writeText(msg).then(()=>toast('Copied'),()=>toast(code))};
-        $('gShare').onclick=()=>{navigator.share?navigator.share({text:msg}).catch(()=>{}):$('gCopy').onclick()};
+        const G={code,label:$('gLabel').value.trim(),exp:t.getTime()};
+        $('gNew').innerHTML=`<button class="gcode" id="gCodeBtn" style="width:100%;background:none;border:0">${esc(code)}<small style="display:block;font:600 12px system-ui;letter-spacing:0;color:var(--sub);margin-top:6px">Tap the code to send it</small></button><div class="sub" style="text-align:center">Works until ${esc(fmtExp(t))}</div><button class="btn pri" id="gShare" style="width:100%;margin-top:10px">Send to guest</button>`;
+        $('gCodeBtn').onclick=$('gShare').onclick=()=>sendGuest(G);
         $('gLabel').value='';loadGuests()}
       catch(e){toast(/owners only/.test(e.message)?'Only owners can make guest codes':'Could not create the code: '+String(e.message||e).slice(0,70),4000)}
       $('gMake').textContent='Create guest code';$('gMake').disabled=false};
@@ -1375,6 +1374,31 @@ async function guestSheet(){
 const fmtDay=t=>new Date(t).toLocaleString([],{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
 function left(t){const m=Math.max(0,(t-Date.now())/6e4);if(m<60)return Math.ceil(m)+' min';const h=m/60;if(h<24)return Math.round(h)+(Math.round(h)==1?' hour':' hours');return Math.round(h/24)+' days'}
 function span(a,b){const d=Math.round((b-a)/864e5);return d<1?'under a day':d+(d==1?' day':' days')+' total'}
+/* ---- sending a guest code: clean message, one-tap WhatsApp / SMS, link fills in the code ---- */
+function guestMsg(G,wa){const b=wa?s=>'*'+s+'*':s=>s,link=location.origin+'/?guest='+encodeURIComponent(G.code);
+  const end=new Date(G.exp).toLocaleString([],{weekday:'long',day:'numeric',month:'long',hour:'2-digit',minute:'2-digit'});
+  return [ '🐘 '+b('Khaya Ndlovu Game Drive Map'),'',
+    (G.label?'Hi '+G.label+'! ':'Hi! ')+"You've been invited to use the reserve map.",'',
+    '🔑 Guest code: '+b(G.code),'📅 Valid until: '+end,'',
+    '👉 Open the map:',link,'',
+    b('How to start'),'1. Tap the link above','2. Type your name (the code fills in by itself)','3. Tap Share, then Add to Home Screen','4. Open it once with signal so it works offline','',
+    'You will be logged out automatically when the code ends.'].join('\n')}
+function sendGuest(G,fromList){const wa=guestMsg(G,true),sms=guestMsg(G,false),back=fromList?()=>guestSheet():null;
+  openSheet(`<h2>Send guest code</h2><div class="gcode" style="padding:10px 0 4px">${esc(G.code)}</div><div class="sub" style="text-align:center">${G.label?esc(G.label)+' · ':''}until ${esc(fmtExp(G.exp))}</div>
+  <div class="list" style="margin-top:12px">
+   <a class="it" id="sWa" href="https://wa.me/?text=${encodeURIComponent(wa)}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit"><div style="width:38px;height:38px;border-radius:10px;background:#25d366;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.3-.5 0-1 .2-3.3-.7-2.8-1.1-4.5-4-4.7-4.2-.1-.2-1.1-1.5-1.1-2.9 0-1.4.7-2 1-2.3.3-.3.6-.3.8-.3h.6c.2 0 .4 0 .6.5l.9 2.1c.1.2.1.4 0 .5l-.4.6-.4.4c-.1.2-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.3 2.4 1.5.3.1.5.1.6-.1l.9-1.1c.2-.3.4-.2.6-.1l2 .9c.3.2.5.2.6.3.1.2.1.8-.1 1.4z"/></svg></div><div style="flex:1"><b>WhatsApp</b><br><small>Pick a chat and send</small></div><small>›</small></a>
+   <a class="it" id="sSms" href="sms:?&body=${encodeURIComponent(sms)}" style="text-decoration:none;color:inherit"><div style="width:38px;height:38px;border-radius:10px;background:#34c759;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><path d="M12 3C6.5 3 2 6.6 2 11c0 2.3 1.2 4.4 3.2 5.9L4.5 21l4.1-2.2c1.1.3 2.2.4 3.4.4 5.5 0 10-3.6 10-8.1S17.5 3 12 3z"/></svg></div><div style="flex:1"><b>Messages (SMS)</b><br><small>Send as a text message</small></div><small>›</small></a>
+   <button class="it" id="sCopy" style="width:100%;text-align:left;background:none;border:0;color:inherit;font:inherit"><div style="width:38px;height:38px;border-radius:10px;background:#5f6368;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px">📋</div><div style="flex:1"><b>Copy message</b><br><small>Paste it anywhere</small></div></button>
+   <button class="it" id="sCode" style="width:100%;text-align:left;background:none;border:0;color:inherit;font:inherit"><div style="width:38px;height:38px;border-radius:10px;background:#1a73e8;display:flex;align-items:center;justify-content:center;flex-shrink:0;font:800 13px system-ui;color:#fff">ABC</div><div style="flex:1"><b>Copy code only</b><br><small>${esc(G.code)}</small></div></button>
+   ${navigator.share?`<button class="it" id="sMore" style="width:100%;text-align:left;background:none;border:0;color:inherit;font:inherit"><div style="width:38px;height:38px;border-radius:10px;background:#8e8e93;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px;color:#fff">⋯</div><div style="flex:1"><b>More apps</b><br><small>Email, Telegram and others</small></div></button>`:''}
+  </div>${back?'<button class="btn" id="sBack" style="width:100%;margin-top:12px">Back to guest codes</button>':''}
+  <div class="sub" style="font-size:12px;margin-top:10px;white-space:pre-line;opacity:.85;max-height:0;overflow:hidden" id="sPrev"></div>`,()=>{
+    const cp=(t,m)=>{const ok=()=>toast(m);if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t).then(ok,()=>fallbackCopy(t,m));else fallbackCopy(t,m)};
+    $('sCopy').onclick=()=>cp(wa.replace(/\*/g,''),'Message copied');
+    $('sCode').onclick=()=>cp(G.code,'Code '+G.code+' copied');
+    if($('sMore'))$('sMore').onclick=()=>navigator.share({text:sms}).catch(()=>{});
+    if($('sBack'))$('sBack').onclick=back})}
+function fallbackCopy(t,m){const a=document.createElement('textarea');a.value=t;a.setAttribute('readonly','');a.style.cssText='position:fixed;top:-100px;opacity:0';document.body.appendChild(a);a.select();a.setSelectionRange(0,99999);try{document.execCommand('copy');toast(m)}catch(e){toast(t)}a.remove()}
 async function loadGuests(){const el=$('gList');if(!el)return;let L;
   try{L=await rpc('list_guest_codes')}catch(e){el.innerHTML=`<div class="it"><small>${/404|PGRST202|Could not find/.test(e.message)?'Guest codes need a quick database update first (guest_codes.sql).':'Could not load codes'}</small></div>`;return}
   el.innerHTML=(L||[]).map(g=>{const ex=Date.parse(g.expires_at),live=!g.revoked&&ex>Date.now(),gs=g.guests||[];
@@ -1385,7 +1409,8 @@ async function loadGuests(){const el=$('gList');if(!el)return;let L;
       <div class="gw">${gs.length?`<small class="gl">${gs.length} ${gs.length==1?'guest':'guests'}</small>`:''}${guests}</div></div>`}).join('')||'<div class="it"><small>No guest codes yet</small></div>';
   el.querySelectorAll('[data-end]').forEach(b=>b.onclick=async()=>{if(b.dataset.sure!=='1'){b.dataset.sure='1';b.textContent='Sure?';return}
     b.textContent='...';try{await rpc('revoke_guest_code',{p_code:b.dataset.end});toast('Code ended. Guests on it are logged out.',3500)}catch(e){toast('Could not end the code')}loadGuests()});
-  el.querySelectorAll('[data-share]').forEach(b=>b.onclick=()=>{const g=L.find(x=>x.code===b.dataset.share),msg='Khaya Ndlovu map\nOpen '+location.origin+'/ and use guest code '+g.code+'\nWorks until '+fmtExp(Date.parse(g.expires_at));navigator.share?navigator.share({text:msg}).catch(()=>{}):(navigator.clipboard&&navigator.clipboard.writeText(msg),toast('Copied'))});
+  el.querySelectorAll('[data-share]').forEach(b=>b.onclick=()=>{const g=L.find(x=>x.code===b.dataset.share);sendGuest({code:g.code,label:g.label,exp:Date.parse(g.expires_at)},true)});
+  el.querySelectorAll('.gh .mono').forEach(c=>{c.style.cursor='pointer';c.onclick=()=>{const g=L.find(x=>x.code===c.textContent);if(g)sendGuest({code:g.code,label:g.label,exp:Date.parse(g.expires_at)},true)}});
   el.querySelectorAll('[data-ext]').forEach(b=>b.onclick=async()=>{const t=new Date($('gExp').value);if(isNaN(t)||t<=new Date()){toast('Set the Ends date above first');return}
     try{await rpc('extend_guest_code',{p_code:b.dataset.ext,p_expires:t.toISOString()});toast('Renewed until '+fmtExp(t))}catch(e){toast('Could not renew')}loadGuests()});
 }
@@ -1544,6 +1569,7 @@ function showGate(){const g=$('gate');g.classList.remove('hide');
   $('gCode').oninput=()=>{$('gCode').classList.remove('bad');$('gErr').classList.remove('on')};$('gName').oninput=()=>$('gName').classList.remove('bad');
 }
 function afterGate(){if(!LS.get('onboarded',false)||!LS.get('offline',null))setTimeout(()=>offlineSheet(!LS.get('onboarded',false)),400)}
+{const q=new URLSearchParams(location.search).get('guest');if(q){try{history.replaceState(null,'',location.pathname)}catch(e){}if(needGate()){$('gCode').value=q.toUpperCase().slice(0,12);setTimeout(()=>{try{$('gName').focus()}catch(e){}},600)}}}
 if(needGate())showGate();else armExpiry();
 
 /* ============ offline download ============ */
