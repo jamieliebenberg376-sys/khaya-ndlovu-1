@@ -126,6 +126,11 @@ body.drivecam #roadCard{display:none!important}body.drivecam #junc{top:calc(var(
 /* toast & crosshair */
 #toast{position:fixed;left:50%;bottom:calc(var(--safe-b) + 100px);transform:translateX(-50%);z-index:30;background:#202124;color:#fff;padding:10px 16px;border-radius:12px;font-size:14px;opacity:0;transition:opacity .25s;pointer-events:none;max-width:88vw;text-align:center}
 #toast.on{opacity:.95}
+#ping{position:fixed;left:10px;right:10px;top:calc(var(--safe-t) + 8px);z-index:96;background:#fff;color:#202124;border-radius:18px;box-shadow:0 6px 24px rgba(0,0,0,.28);padding:12px 14px;display:flex;gap:12px;align-items:center;transform:translateY(-140%);transition:transform .35s cubic-bezier(.2,.9,.3,1.2);max-width:520px;margin:0 auto}
+#ping.on{transform:none}#ping .pe{font-size:30px;line-height:1;width:44px;height:44px;border-radius:12px;background:#e8f0fe;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+#ping b{display:block;font-size:15px}#ping small{color:#5f6368;font-size:12.5px}#ping .px{margin-left:auto;color:#80868b;font-size:20px;padding:4px 6px}
+body.night #ping{background:#2a2d31;color:#e8eaed}body.night #ping .pe{background:#1f3a5f}
+.tapmk{width:30px;height:40px;transform-origin:50% 100%;animation:tapdrop .3s ease-out}@keyframes tapdrop{from{transform:translateY(-18px);opacity:0}}
 #cross{position:fixed;left:50%;top:50%;width:44px;height:44px;margin:-22px 0 0 -22px;z-index:8;pointer-events:none}
 #calBar{position:fixed;left:10px;right:10px;bottom:calc(var(--safe-b) + 16px);z-index:21;background:#fff;border-radius:18px;box-shadow:0 4px 16px rgba(0,0,0,.22);padding:14px}
 #calBar p{margin:0 0 10px;font-size:14px;line-height:1.35}
@@ -262,7 +267,7 @@ body.drive #nav .dist{font-size:24px}body.drive #nav .ins{font-size:32px}body.dr
 
 <div id="scrim"></div>
 <div id="sheet"><div class="grab"></div><div id="sheetBody"></div></div>
-<div id="toast"></div>
+<div id="toast"></div><div id="ping"><div class="pe" id="pingE"></div><div><b id="pingT"></b><small id="pingS"></small></div><span class="px" id="pingX">✕</span></div>
 
 <script>/**
  * MapLibre GL JS
@@ -630,6 +635,7 @@ async function sync(){
       api('/rest/v1/reports?select=client_id,user_id,name,kind,note,road,lat,lng,created_at&resolved=is.false&expires_at=gt.'+now+'&order=created_at.desc&limit=400'),
       api('/rest/v1/members?select=user_id'),
       api('/rest/v1/map_data?select=version')]);
+    alertNew(s||[]);
     Cloud.remote={sightings:s||[],reports:r||[]};Cloud.owners=(m||[]).length;Cloud.lastSync=Date.now();Cloud.err=null;saveCloud();
     if(md&&md[0]&&md[0].version>MAP_VERSION&&LS.get('mapVer',0)<md[0].version){const full=await api('/rest/v1/map_data?select=version,data');if(full&&full[0]){try{localStorage.setItem('kn_mapdata',JSON.stringify(full[0].data));LS.set('mapVer',full[0].version);toast('Map update downloaded. It shows next time you open the app.',4500)}catch(e){}}}
     refreshOverlays();
@@ -646,6 +652,29 @@ async function checkStatus(){
   const exp=st.expires_at?Date.parse(st.expires_at):null;
   if(Cloud.member.role!==st.role||Cloud.member.exp!==exp){Cloud.member.role=st.role;Cloud.member.exp=exp;saveCloud();armExpiry()}
   return false}
+/* ============ new sighting alerts ============ */
+let pingQ=[],pingOn=false,actx=null,alertSound=LS.get('alertSound',true),alertOn=LS.get('alertOn',true);
+function unlockAudio(){try{if(!actx)actx=new (window.AudioContext||window.webkitAudioContext)();if(actx.state==='suspended')actx.resume()}catch(e){}}
+['touchstart','pointerdown','keydown'].forEach(ev=>addEventListener(ev,unlockAudio,{passive:true}));
+function bing(){if(!alertSound)return;try{unlockAudio();const t=actx.currentTime;[[1046.5,0],[1568,.13]].forEach(([f,d])=>{const o=actx.createOscillator(),g=actx.createGain();o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(0,t+d);g.gain.linearRampToValueAtTime(.35,t+d+.012);g.gain.exponentialRampToValueAtTime(.001,t+d+.9);o.connect(g).connect(actx.destination);o.start(t+d);o.stop(t+d+1)})}catch(e){}
+  try{navigator.vibrate&&navigator.vibrate([40,60,40])}catch(e){}}
+function alertNew(list){
+  const seen=LS.get('seenT',0),uid=Cloud.sess&&Cloud.sess.uid;let top=seen;
+  const fresh=list.filter(x=>{const t=Date.parse(x.created_at);if(t>top)top=t;return t>seen&&x.user_id!==uid});
+  LS.set('seenT',Math.max(top,seen||Date.now()));
+  if(!seen||!alertOn||!fresh.length)return;
+  fresh.slice(0,3).reverse().forEach(x=>pingQ.push(x));
+  if(fresh.length>3)pingQ.push({more:fresh.length-3});
+  if(document.hidden&&'Notification' in window&&Notification.permission==='granted'&&navigator.serviceWorker)navigator.serviceWorker.ready.then(r=>fresh.slice(0,3).forEach(x=>r.showNotification((x.name||'Someone')+' marked a sighting of '+x.what,{body:(x.note||'Tap to see it on the map'),icon:'icon.png',tag:x.client_id}))).catch(()=>{});
+  if(!pingOn)nextPing()}
+function nextPing(){const x=pingQ.shift(),el=$('ping');if(!x){pingOn=false;el.classList.remove('on');return}pingOn=true;
+  if(x.more){$('pingE').textContent='👀';$('pingT').textContent='+'+x.more+' more sightings';$('pingS').textContent='Open Sightings in the menu to see them all';el.onclick=()=>{el.classList.remove('on');openSheet(sightsSheet(),bindSights)}}
+  else{$('pingE').textContent=EMO[x.what]||'📍';$('pingT').textContent=(x.name||'Someone')+' marked a sighting of '+x.what;
+    const road=(nearestEdge([x.lng,x.lat],120)||{}).e;$('pingS').textContent=[x.note,road?'on '+ROADS[road.road].properties.name:'',me?fmtD(dist(me.ll,[x.lng,x.lat]))+' from you':'just now'].filter(Boolean).join(' · ');
+    el.onclick=ev=>{if(ev.target.id==='pingX')return;el.classList.remove('on');pingQ=[];pingOn=false;showPlace({kind:'sight',name:x.what,sub:'Sighting · just now · '+(x.name||'Owner')+(x.note?' · '+x.note:''),ll:[x.lng,x.lat],cid:x.client_id})}}
+  $('pingX').onclick=e=>{e.stopPropagation();clearTimeout(nextPing.t);el.classList.remove('on');setTimeout(nextPing,400)};
+  el.classList.remove('on');void el.offsetWidth;el.classList.add('on');if(!x.more)bing();
+  clearTimeout(nextPing.t);nextPing.t=setTimeout(()=>{el.classList.remove('on');setTimeout(nextPing,450)},6000)}
 let expT=0;
 function armExpiry(){clearTimeout(expT);const m=Cloud.member;if(!m||!m.exp)return;const d=m.exp-Date.now();
   if(d<=0){logOut('expired');return}expT=setTimeout(()=>logOut('expired'),Math.min(d,2147e6))}
@@ -834,7 +863,7 @@ $('layerBtn').onclick=()=>openSheet(layerSheet());
 
 /* ============ sheet ============ */
 function openSheet(html,onOpen){$('sheetBody').innerHTML=html;$('sheet').classList.add('open');$('scrim').classList.add('on');if(onOpen)onOpen()}
-function closeSheet(){$('sheet').classList.remove('open');$('scrim').classList.remove('on')}
+function closeSheet(){$('sheet').classList.remove('open');$('scrim').classList.remove('on');clearPin()}
 $('scrim').onclick=closeSheet;
 function layerSheet(){setTimeout(()=>{document.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{mode=b.dataset.mode;LS.set('mode',mode);applyMode();closeSheet()});const ft=$('farmTog');if(ft)ft.onclick=()=>{showFarms=!showFarms;LS.set('farms',showFarms);applyMode();openSheet(layerSheet())};
   document.querySelectorAll('[data-th]').forEach(b=>b.onclick=()=>{theme=b.dataset.th;LS.set('theme',theme);checkNight();applyMode();openSheet(layerSheet())});
@@ -975,14 +1004,19 @@ function delSight(cid){const i=sights.findIndex(s=>s.cid===cid);if(i>-1){sights.
   Cloud.remote.sightings=(Cloud.remote.sightings||[]).filter(x=>x.client_id!==cid);queue({op:'del',t:'sightings',id:cid});refreshOverlays()}
 function resolveReport(cid){const i=reports.findIndex(r=>r.cid===cid);if(i>-1){reports.splice(i,1);LS.set('reports',reports)}
   Cloud.remote.reports=(Cloud.remote.reports||[]).filter(x=>x.client_id!==cid);queue({op:'resolve',id:cid});refreshOverlays()}
-function addSheet(tab){
-  const ll=me?me.ll:map.getCenter().toArray();let pick=null;
-  const near=nearestEdge(ll,120);const road=near?ROADS[near.e.road].properties.name:null;
-  const where=me?'At your current location'+(road?' on '+road:''):'No GPS yet, pinned at the centre of the map';
+var tapMk=null;
+function dropPin(ll){if(!tapMk){const el=document.createElement('div');el.innerHTML='<svg class="tapmk" viewBox="0 0 30 40"><path d="M15 39C15 39 2 23 2 14a13 13 0 0 1 26 0c0 9-13 25-13 25z" fill="#ea4335" stroke="#fff" stroke-width="2"/><circle cx="15" cy="14" r="5" fill="#fff"/></svg>';tapMk=new maplibregl.Marker({element:el,anchor:'bottom'})}tapMk.setLngLat(ll).addTo(map)}
+function clearPin(){if(tapMk)tapMk.remove()}
+function addSheet(tab,at){
+  const ll=at||(me?me.ll:map.getCenter().toArray());let pick=null;
+  const near=nearestEdge(ll,at?60:120);const road=near?ROADS[near.e.road].properties.name:null;
+  const away=at&&me?route(me.ll,ll):null;
+  const where=at?'Where you tapped'+(road?' on '+road:'')+(away?' · '+fmtD(away.len)+' away by road':me?' · '+fmtD(dist(me.ll,ll))+' away':''):me?'At your current location'+(road?' on '+road:''):'No GPS yet, pinned at the centre of the map';
   const shared=Cloud.on&&Cloud.member;
   const opts=tab==='report'?REPORT_KINDS:ANIMALS;
-  openSheet(`<h2>${tab==='report'?'Report a road problem':'Add a sighting'}</h2><div class="seg" style="margin-top:12px"><button data-tab="sight" class="${tab!=='report'?'sel':''}">Sighting</button><button data-tab="report" class="${tab==='report'?'sel':''}">Road report</button></div><div class="sub" style="margin-top:12px">${esc(where)}</div><div class="chips grid">${opts.map(a=>`<button class="chip" data-a="${a}">${(EMO[a]||'')+' '+a}</button>`).join('')}</div><input class="inp" id="sNote" placeholder="${tab==='report'?'Note (optional), e.g. drift is 50 cm deep':'Note (optional), e.g. 2 males under tree'}"><div class="sub" id="shareNote" style="margin-top:10px;font-size:12.5px">${shared?(tab==='report'?'Shared with all owners for 5 days. Navigation avoids blocked roads.':'Shared with all owners for 3 days.'):'Saved on this phone only.'}</div><div class="sticky-save"><button class="btn pri" id="sSave" style="width:100%">Save</button></div>`,()=>{
-    document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>addSheet(b.dataset.tab));
+  openSheet(`<h2>${tab==='report'?'Report a road problem':'Add a sighting'}</h2><div class="seg" style="margin-top:12px"><button data-tab="sight" class="${tab!=='report'?'sel':''}">Sighting</button><button data-tab="report" class="${tab==='report'?'sel':''}">Road report</button></div><div class="sub" style="margin-top:12px">${esc(where)}</div><div class="chips grid">${opts.map(a=>`<button class="chip" data-a="${a}">${(EMO[a]||'')+' '+a}</button>`).join('')}</div><input class="inp" id="sNote" placeholder="${tab==='report'?'Note (optional), e.g. drift is 50 cm deep':'Note (optional), e.g. 2 males under tree'}"><div class="sub" id="shareNote" style="margin-top:10px;font-size:12.5px">${shared?(tab==='report'?'Shared with all owners for 5 days. Navigation avoids blocked roads.':'Shared with all owners for 3 days.'):'Saved on this phone only.'}</div><div class="sticky-save">${at?`<div class="row" style="margin:0"><button class="btn" id="sGo"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l8 20-8-5-8 5z"/></svg>Go now</button><button class="btn pri" id="sSave">Save</button></div>`:`<button class="btn pri" id="sSave" style="width:100%">Save</button>`}</div>`,()=>{
+    document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>addSheet(b.dataset.tab,at));
+    if(at){dropPin(ll);$('sGo').onclick=()=>{clearPin();startNav({kind:'pin',name:road||'Dropped pin',ll})}}
     document.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{document.querySelectorAll('.chip').forEach(x=>x.classList.remove('sel'));c.classList.add('sel');pick=c.dataset.a;
       if(shared&&tab!=='report')$('shareNote').textContent=(pick==='Rhino'&&!shareRhino)?'Rhino sightings stay on this phone only, to keep rhinos safe. You can change this in Shared map settings.':'Shared with all owners for 3 days.'});
     $('sSave').onclick=()=>{if(!pick){toast(tab==='report'?'Tap the problem first':'Tap what you saw first');const g=document.querySelector('.chips.grid');if(g){g.animate([{transform:'translateX(0)'},{transform:'translateX(-6px)'},{transform:'translateX(6px)'},{transform:'translateX(0)'}],{duration:280})}return}
@@ -997,8 +1031,8 @@ map.on('click','sights',e=>{const s=allSights().find(x=>x.cid===e.features[0].pr
 map.on('click','reports',e=>{const r=allReports().find(x=>x.cid===e.features[0].properties.cid);if(r)showPlace({kind:'report',name:r.kind,sub:'Road report · '+ago(r.t)+' · '+r.by+(r.road?' · '+r.road:'')+(r.note?' · '+r.note:''),ll:r.ll,cid:r.cid,mine:r.mine})});
 map.on('click','poi',e=>{const f=e.features[0];showPlace({kind:f.properties.kind,name:f.properties.name,sub:'',ll:f.geometry.coordinates})});
 map.on('click',e=>{const f=map.queryRenderedFeatures(e.point,{layers:['sights','reports','poi','home']});if(f.length)return;
-  const rf=map.queryRenderedFeatures([[e.point.x-10,e.point.y-10],[e.point.x+10,e.point.y+10]],{layers:['road','road-check']});
-  if(rf.length){const n=rf[0].properties.name;{const rp=rf[0].properties;showPlace({kind:'road',name:n,sub:(rp.farm==='BB'?'Bloubank':'Khaya Ndlovu')+' road · '+fmtD(roadLen(n))+' long'+(rp.restricted?' · no entry for traverse vehicles':''),road:n})}}});
+  if(nav)return;if(follow)setFollow(0);
+  const ll=e.lngLat.toArray();addSheet('sight',ll);map.easeTo({center:ll,offset:[0,-innerHeight*0.22],duration:500})});
 for(const l of['sights','reports','poi','road','road-check'])map.on('mouseenter',l,()=>map.getCanvas().style.cursor='pointer'),map.on('mouseleave',l,()=>map.getCanvas().style.cursor='');
 
 /* ============ menu ============ */
@@ -1086,8 +1120,14 @@ async function loadGuests(){const el=$('gList');if(!el)return;let L;
 }
 function cloudSheet(){
   openSheet(`<h2>Shared map</h2><div class="sub">Signed in as <b>${esc(Cloud.member.name)}</b><br>${esc(cloudStatus())}${Cloud.err?'<br><span style="color:#c5221f">Last sync problem: '+esc(Cloud.err.slice(0,90))+'</span>':''}</div>
-  <div class="list" style="margin-top:8px"><div class="it"><div><b>Share rhino sightings</b><br><small>Off keeps rhino locations on this phone only</small></div><button class="sm ${shareRhino?'':'red'}" id="cRhino">${shareRhino?'On':'Off'}</button></div></div>
+  <div class="list" style="margin-top:8px"><div class="it"><div><b>New sighting alerts</b><br><small>Pops up when someone else marks a sighting</small></div><button class="sm ${alertOn?'':'red'}" id="cAlert">${alertOn?'On':'Off'}</button></div>
+  <div class="it"><div><b>Alert sound</b><br><small>Plays a bing with each alert</small></div><button class="sm ${alertSound?'':'red'}" id="cSound">${alertSound?'On':'Off'}</button></div>
+  ${'Notification' in window&&Notification.permission!=='granted'?`<div class="it"><div><b>Phone notifications</b><br><small>Also alert you while the app is in the background</small></div><button class="sm" id="cNotif">Turn on</button></div>`:''}
+  <div class="it"><div><b>Share rhino sightings</b><br><small>Off keeps rhino locations on this phone only</small></div><button class="sm ${shareRhino?'':'red'}" id="cRhino">${shareRhino?'On':'Off'}</button></div></div>
   <div class="row"><button class="btn pri" id="cSync">Sync now</button><button class="btn red" id="cLeave">Leave</button></div>`,()=>{
+    $('cAlert').onclick=()=>{alertOn=!alertOn;LS.set('alertOn',alertOn);cloudSheet()};
+    $('cSound').onclick=()=>{alertSound=!alertSound;LS.set('alertSound',alertSound);if(alertSound)bing();cloudSheet()};
+    if($('cNotif'))$('cNotif').onclick=async()=>{try{const r=await Notification.requestPermission();toast(r==='granted'?'Notifications on':'Notifications are blocked. Allow them in Settings.',3500)}catch(e){toast('This phone needs the app added to the Home Screen first',3500)}cloudSheet()};
     $('cRhino').onclick=()=>{shareRhino=!shareRhino;LS.set('shareRhino',shareRhino);cloudSheet()};
     $('cSync').onclick=async()=>{if(!navigator.onLine){toast('No signal right now. It syncs by itself when signal comes back.');return}$('cSync').textContent='Syncing...';await sync();cloudSheet();toast(Cloud.err?'Sync failed, will retry':'Up to date')};
     $('cLeave').onclick=()=>{Cloud.member=null;Cloud.outbox=[];Cloud.remote={sightings:[],reports:[]};saveCloud();refreshOverlays();closeSheet();$('gOut').classList.add('hide');showGate()};
