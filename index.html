@@ -55,13 +55,13 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;paddin
 
 /* nav banner */
 #nav{position:fixed;left:10px;right:10px;top:calc(var(--safe-t) + 10px);z-index:12;color:#fff;filter:drop-shadow(0 4px 10px rgba(0,0,0,.28))}
-#nav .main{background:#1a66d2;border-radius:16px;display:flex;align-items:center;gap:14px;padding:14px 16px;min-height:88px}
+#nav .main{background:#1a66d2;border-radius:18px;display:flex;align-items:center;gap:18px;padding:16px 20px;min-height:96px}
 #nav.then-on .main{border-radius:16px 16px 16px 0}
 #nav .arr{width:56px;height:56px;flex:none}
-#nav .dist{font-size:28px;font-weight:800;line-height:1;letter-spacing:-.3px}
-#nav .ins{font-size:19px;font-weight:700;margin-top:5px;line-height:1.2}
-#nav .thenrow{display:inline-flex;align-items:center;gap:8px;background:#0d4ea6;border-radius:0 0 14px 14px;padding:7px 14px;font-size:14.5px;font-weight:600}
-#nav .thenrow svg{width:20px;height:20px}
+#nav .dist{font-size:22px;font-weight:700;line-height:1.1;opacity:.95}
+#nav .ins{font-size:30px;font-weight:500;margin-top:2px;line-height:1.15;letter-spacing:-.2px}#nav .ins .pre{font-size:19px;font-weight:500;opacity:.92}
+#nav .thenrow{display:inline-flex;align-items:center;gap:10px;background:#0d4ea6;border-radius:0 0 16px 16px;padding:10px 18px 12px;font-size:20px;font-weight:500}
+#nav .thenrow svg{width:26px;height:26px}
 #navBottom{position:fixed;left:0;right:0;bottom:0;z-index:12;background:#fff;border-radius:22px 22px 0 0;box-shadow:0 -2px 14px rgba(0,0,0,.16);padding:14px 16px calc(var(--safe-b) + 14px);display:flex;align-items:center;gap:12px}
 #navBottom .mid{flex:1;text-align:center}
 #navBottom .eta{font-size:28px;font-weight:800;color:#137333;letter-spacing:-.3px}
@@ -106,7 +106,11 @@ body.drivecam #roadCard{display:none!important}body.drivecam #junc{top:calc(var(
 .menu .mi small{display:block;color:var(--sub);font-size:12.5px}
 .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
 .chip{padding:9px 14px;border-radius:18px;background:#f3f1ee;font-weight:600;font-size:14.5px}
-.chip.sel{background:var(--blue);color:#fff}
+.chip.sel{background:var(--blue);color:#fff;box-shadow:0 0 0 2px rgba(26,115,232,.35)}
+.chips.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.chips.grid .chip{padding:10px 6px;font-size:14px;text-align:center;border-radius:14px}
+#sheet{max-height:88vh;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+.sticky-save{position:sticky;bottom:calc(-1*(var(--safe-b) + 18px));background:inherit;padding:10px 0 calc(var(--safe-b) + 6px);margin-top:6px}
 .inp{width:100%;margin-top:12px;height:46px;border:1px solid var(--line);border-radius:12px;padding:0 14px;font-size:16px;outline:0}
 .seg{display:flex;background:#f3f1ee;border-radius:14px;padding:4px;margin-top:14px}
 .seg button{flex:1;height:40px;border-radius:11px;font-weight:700;font-size:14.5px;color:var(--sub)}
@@ -147,6 +151,13 @@ body.drivecam #roadCard{display:none!important}body.drivecam #junc{top:calc(var(
 #spot .ctl button{width:34px;height:30px;display:flex;align-items:center;justify-content:center;color:#fff;border-radius:15px}
 #spot .ctl button:active{background:#333}#spot .ctl svg{width:20px;height:20px}
 #spot .ctl .pp{background:#fff;color:#000;width:32px;height:32px;border-radius:16px}
+#spot.docked,#spot.wide{position:static;width:100%}
+#spot.docked .card,#spot.wide .card{width:100%;max-width:none;box-sizing:border-box}
+#spot.docked .card{border-radius:0 0 16px 16px;box-shadow:none;background:#121212;padding:10px 14px}
+#spot.wide{margin-top:8px}#spot.wide .card{border-radius:16px}
+#nav.spon .main{border-radius:16px 16px 0 0!important}
+#nav.spon .thenrow{border-radius:0;width:100%;box-sizing:border-box}
+#nav{display:flex;flex-direction:column;align-items:flex-start}#nav .main{width:100%;box-sizing:border-box}
 #spot .side{display:flex;flex-direction:column;align-items:center;gap:8px;align-self:stretch;justify-content:space-between}
 #spot .side .splogo{width:20px;height:20px}#spot .mini{color:#b3b3b3;width:26px;height:22px;display:flex;align-items:center;justify-content:center}
 
@@ -159,7 +170,7 @@ body.night #recenter{background:#1f2226;color:#8ab4f8}
 body.night{background:#111}
 body.night #search,body.night #roadCard,body.night #results,body.night .fab,body.night #speed,body.night #sheet,body.night #navBottom,body.night #junc,body.night #calBar{background:#1f2226;color:#e8eaed;box-shadow:0 2px 10px rgba(0,0,0,.6)}
 body.night #search input{color:#e8eaed}body.night .sub,body.night .rs,body.night small,body.night #speed small{color:#c4c7c5!important}
-body.night .res{border-color:#2c3035}body.night .chip,body.night .seg{background:#2c3035;color:#e8eaed}body.night .seg button.sel{background:#3c4043;color:#fff}
+body.night .res{border-color:#2c3035}body.night .chip,body.night .seg{background:#2c3035;color:#e8eaed}body.night .chip.sel{background:#1a73e8;color:#fff}body.night .seg button.sel{background:#3c4043;color:#fff}
 body.night .ib:active{background:#2c3035}body.night .btn:not(.pri){background:#2c3035;color:#8ab4f8}body.night #speed{border-color:#2c3035}body.night .fab svg,body.night .ib svg{color:#e8eaed}
 body.night .list .it,body.night .menu .mi{border-color:#2c3035}body.night .inp{background:#2c3035;border-color:#3c4043;color:#fff}
 #junc{position:fixed;left:10px;top:calc(var(--safe-t) + 128px);z-index:10;background:#fff;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.18);padding:8px 12px;font-size:13.5px;max-width:78vw;transition:opacity .25s,transform .25s}
@@ -170,7 +181,7 @@ body:not(.drivecam) #junc .jr{opacity:1}#junc .jr svg{width:18px;height:18px;fle
 body.drive #roadCard .rn{font-size:21px}body.drive #roadCard .rs{font-size:14.5px}body.drive #roadCard{padding:11px 16px}
 body.drive #speed{width:80px;height:80px;border-radius:40px}body.drive #speed b{font-size:30px}
 body.drive #junc{top:calc(var(--safe-t) + 152px)}
-body.drive #nav .dist{font-size:34px}body.drive #nav .ins{font-size:19px}body.drive #nav .arr{width:66px;height:66px}body.drive #junc{font-size:16px}
+body.drive #nav .dist{font-size:24px}body.drive #nav .ins{font-size:32px}body.drive #nav .arr{width:66px;height:66px}body.drive #junc{font-size:16px}
 #sunTxt{margin-top:6px;font-size:12.5px;color:#8a6a4a}
 </style>
 </head>
@@ -732,11 +743,15 @@ function showNavJunction(st,dd,idx){const el=$('junc');if(!st||!st.junc){el.clas
   if(now>navPop.until&&stage<3){el.classList.add('hide');return}
   el.innerHTML=`<b>${stage===3?'TURN NOW':'IN '+fmtD(dd).toUpperCase()}</b>`+st.junc.map(r=>`<div class="jr${r.take?' take':''}">${TURN_SVG(r.turn)}${esc(r.name)}${r.take?' <small>← your route</small>':''}</div>`).join('');
   el.style.top='calc(var(--safe-t) + '+($('nav').offsetHeight+20)+'px)';el.classList.remove('hide')}
-setInterval(()=>{const sp=$('spot');if(!sp)return;let top='';
-  if(nav&&!$('nav').classList.contains('hide'))top=($('nav').getBoundingClientRect().bottom+10)+'px';
-  else if(sp.classList.contains('open')){const rc=$('roadCard');const r=rc.getBoundingClientRect();if(!rc.classList.contains('hide')&&r.height>0&&getComputedStyle(rc).display!=='none')top=(r.bottom+8)+'px';
-    const j=$('junc');if(!j.classList.contains('hide')){const jr=j.getBoundingClientRect();top=(jr.bottom+8)+'px'}}
-  sp.style.top=top},500);
+/* Spotify placement (Waze style): playing -> full-width bar docked under the blue nav banner (or under search when not navigating); not playing -> small logo */
+function placeSpot(){const sp=$('spot');if(!sp)return;const playing=sp.classList.contains('open');const navOn=nav&&!$('nav').classList.contains('hide');
+  const host=playing?(navOn?$('nav'):$('top')):document.body;
+  if(sp.parentNode!==host){if(host===$('top'))host.insertBefore(sp,$('search').nextSibling);else host.appendChild(sp)}
+  sp.classList.toggle('docked',playing&&navOn);sp.classList.toggle('wide',playing&&!navOn);
+  $('nav').classList.toggle('spon',playing&&navOn);
+  sp.style.top=(!playing&&navOn)?($('nav').getBoundingClientRect().bottom+10)+'px':'';
+  if(navOn&&!$('junc').classList.contains('hide'))$('junc').style.top=($('nav').getBoundingClientRect().bottom+10)+'px'}
+setInterval(placeSpot,400);
 function showJunction(j){const el=$('junc');el.style.top='';if(nav)return;if(!j||j.d>150||j.d<8||!drivingNow&&driveMode!=='on'&&j.d>120){el.classList.add('hide');lastJ='';return}
   const k=j.roads.map(r=>r.name).join('|');const h=`<b>JUNCTION IN ${fmtD(j.d).toUpperCase()}</b>`+j.roads.map(r=>`<div class="jr">${TURN_SVG(r.turn)}${esc(r.name)}${r.straight?' <small>(straight on)</small>':''}</div>`).join('');
   el.innerHTML=h;el.classList.remove('hide');lastJ=k}
@@ -867,9 +882,9 @@ function navTick(){
   else{const st=nav.steps[i];txt=st.text;icon=st.icon||'straight';dd=st.startAt-along;const nx=nav.steps[i+1];then=nx?'Then '+nx.text.toLowerCase().replace(/ onto .*/,'')+' onto '+nx.road:'Then arrive at '+nav.target.name;
     const curStep=nav.steps[i-1];if(dd>250&&curStep&&curStep.road){then='On '+curStep.road+' · '+then}}
   $('navArr').innerHTML=`<path fill="#fff" d="${ARROWS[icon]||ARROWS.straight}"/>`;
-  $('navDist').textContent=fmtD(dd);$('navIns').textContent=txt.replace(/^(Turn|Bear|Sharp|Continue) (left |right )?onto /,'').replace(/^Continue to /,'')||txt;
+  $('navDist').textContent=fmtD(dd);{const road=txt.replace(/^(Turn|Bear|Sharp|Continue) (left |right )?onto /,'').replace(/^Continue to /,'')||txt;const pre=/^Continue to/.test(txt)?'to':(icon==='straight'?'towards':'onto');$('navIns').innerHTML='<span class="pre">'+pre+'</span> '+esc(road)}
   const nx=i>=0?nav.steps[i+1]:null;const tr=$('navThenRow');
-  if(i>=0&&dd<400){tr.style.display='';$('nav').classList.add('then-on');if(nx){$('navThenArr').innerHTML=`<path fill="#fff" d="${ARROWS[nx.icon||'straight']}"/>`;$('navThen').textContent=nx.road}else{$('navThenArr').innerHTML=`<path fill="#fff" d="${ARROWS.arrive}"/>`;$('navThen').textContent=nav.target.name}}
+  if(i>=0){tr.style.display='';$('nav').classList.add('then-on');if(nx){$('navThenArr').innerHTML=`<path fill="#fff" d="${ARROWS[nx.icon||'straight']}"/>`;$('navThen').textContent=''}else{$('navThenArr').innerHTML=`<path fill="#fff" d="${ARROWS.arrive}"/>`;$('navThen').textContent=''}}
   else{tr.style.display='none';$('nav').classList.remove('then-on')}
   if(i>=0){speakStep(i,dd,txt);showNavJunction(nav.steps[i],dd,i)}else $('junc').classList.add('hide');
   const kmh=me.speed*3.6;const v=(kmh>5?Math.max(10,Math.min(40,kmh)):18)/3.6;
@@ -908,7 +923,8 @@ function updatePill(){const el=$('roadPill');const on=follow===2&&me&&!calMode;d
 let calMode=false;
 
 /* ============ sightings & road reports ============ */
-const ANIMALS=['Lion','Leopard','Elephant','Rhino','Cheetah','Wild dog','Hippo','Giraffe','Buffalo','Hyena','Other'];
+const ANIMALS=['Lion','Leopard','Elephant','Rhino','Cheetah','Wild dog','Hippo','Buffalo','Hyena','Giraffe','Zebra','Kudu','Other'];
+const EMO={Lion:'🦁',Leopard:'🐆',Elephant:'🐘',Rhino:'🦏',Cheetah:'🐆','Wild dog':'🐕',Hippo:'🦛',Giraffe:'🦒',Buffalo:'🐃',Hyena:'🐺',Zebra:'🦓',Kudu:'🦌',Other:'📍','Washed out':'🌊',Closed:'⛔','Blocked by animal':'🐘','Fallen tree':'🌳',Muddy:'🟫','Deep water':'💧'};
 function delSight(cid){const i=sights.findIndex(s=>s.cid===cid);if(i>-1){sights.splice(i,1);LS.set('sights',sights)}
   Cloud.remote.sightings=(Cloud.remote.sightings||[]).filter(x=>x.client_id!==cid);queue({op:'del',t:'sightings',id:cid});refreshOverlays()}
 function resolveReport(cid){const i=reports.findIndex(r=>r.cid===cid);if(i>-1){reports.splice(i,1);LS.set('reports',reports)}
@@ -919,11 +935,11 @@ function addSheet(tab){
   const where=me?'At your current location'+(road?' on '+road:''):'No GPS yet, pinned at the centre of the map';
   const shared=Cloud.on&&Cloud.member;
   const opts=tab==='report'?REPORT_KINDS:ANIMALS;
-  openSheet(`<h2>${tab==='report'?'Report a road problem':'Add a sighting'}</h2><div class="seg" style="margin-top:12px"><button data-tab="sight" class="${tab!=='report'?'sel':''}">Sighting</button><button data-tab="report" class="${tab==='report'?'sel':''}">Road report</button></div><div class="sub" style="margin-top:12px">${esc(where)}</div><div class="chips">${opts.map(a=>`<button class="chip" data-a="${a}">${a}</button>`).join('')}</div><input class="inp" id="sNote" placeholder="${tab==='report'?'Note (optional), e.g. drift is 50 cm deep':'Note (optional), e.g. 2 males under tree'}"><div class="sub" id="shareNote" style="margin-top:10px;font-size:12.5px">${shared?(tab==='report'?'Shared with all owners for 5 days. Navigation avoids blocked roads.':'Shared with all owners for 3 days.'):'Saved on this phone only.'}</div><div class="row"><button class="btn pri" id="sSave">Save</button></div>`,()=>{
+  openSheet(`<h2>${tab==='report'?'Report a road problem':'Add a sighting'}</h2><div class="seg" style="margin-top:12px"><button data-tab="sight" class="${tab!=='report'?'sel':''}">Sighting</button><button data-tab="report" class="${tab==='report'?'sel':''}">Road report</button></div><div class="sub" style="margin-top:12px">${esc(where)}</div><div class="chips grid">${opts.map(a=>`<button class="chip" data-a="${a}">${(EMO[a]||'')+' '+a}</button>`).join('')}</div><input class="inp" id="sNote" placeholder="${tab==='report'?'Note (optional), e.g. drift is 50 cm deep':'Note (optional), e.g. 2 males under tree'}"><div class="sub" id="shareNote" style="margin-top:10px;font-size:12.5px">${shared?(tab==='report'?'Shared with all owners for 5 days. Navigation avoids blocked roads.':'Shared with all owners for 3 days.'):'Saved on this phone only.'}</div><div class="sticky-save"><button class="btn pri" id="sSave" style="width:100%">Save</button></div>`,()=>{
     document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>addSheet(b.dataset.tab));
     document.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{document.querySelectorAll('.chip').forEach(x=>x.classList.remove('sel'));c.classList.add('sel');pick=c.dataset.a;
       if(shared&&tab!=='report')$('shareNote').textContent=(pick==='Rhino'&&!shareRhino)?'Rhino sightings stay on this phone only, to keep rhinos safe. You can change this in Shared map settings.':'Shared with all owners for 3 days.'});
-    $('sSave').onclick=()=>{if(!pick){toast(tab==='report'?'Pick the problem':'Pick what you saw');return}
+    $('sSave').onclick=()=>{if(!pick){toast(tab==='report'?'Tap the problem first':'Tap what you saw first');const g=document.querySelector('.chips.grid');if(g){g.animate([{transform:'translateX(0)'},{transform:'translateX(-6px)'},{transform:'translateX(6px)'},{transform:'translateX(0)'}],{duration:280})}return}
       const note=$('sNote').value.trim(),cid=cidNew(),t=Date.now();
       if(tab==='report'){const r={cid,kind:pick,note,road,ll,t};reports.unshift(r);LS.set('reports',reports);queue({op:'add',t:'reports',row:reportRow(r)});toast(pick+' reported'+(road?' on '+road:''))}
       else{const sg={cid,what:pick,note,ll,t};sights.unshift(sg);LS.set('sights',sights);if(!(pick==='Rhino'&&!shareRhino))queue({op:'add',t:'sightings',row:sightRow(sg)});toast(pick+' saved')}
@@ -1086,7 +1102,7 @@ async function spPoll(){clearTimeout(SP.timer);
       SP.lastOk=Date.now()}catch(e){if(String(e.message)==='nologin'){SP.tok=null}}}
   spRender();SP.timer=setTimeout(spPoll,SP.now&&SP.now.playing?4000:9000)}
 function spRender(){const el=$('spot');const n=SP.now;
-  const show=SP.open&&SP.tok&&n;el.classList.toggle('open',!!show);
+  const show=SP.open&&SP.tok&&n&&n.playing;el.classList.toggle('open',!!show);setTimeout(placeSpot,0);
   if(!show)return;
   $('spT').textContent=n.t;$('spA').textContent=n.a;if(n.art&&$('spArt').src!==n.art.url)$('spArt').src=n.art.url;
   $('spPlay').innerHTML=n.playing?PAUSE_SVG:PLAY_SVG}
@@ -1095,7 +1111,7 @@ async function spCmd(path,method){try{const r=await spApi(path,{method});if(r.st
   if(SP.now&&path.includes('pause')){SP.now.playing=false;SP.now.p+=Date.now()-SP.now.at;SP.now.at=Date.now()}if(SP.now&&path.includes('play')){SP.now.playing=true;SP.now.at=Date.now()}spRender();setTimeout(spPoll,700)}catch(e){toast(navigator.onLine?'Spotify did not respond':'No signal for Spotify right now')}}
 $('spDot').onclick=()=>{if(!SP.tok){openSheet(`<h2>Connect Spotify</h2><div class="sub" style="line-height:1.5;margin-top:8px">See what's playing and skip or pause from the map. Needs signal. Skip and pause need Spotify Premium.</div><div class="row"><button class="btn" id="spNo">Not now</button><button class="btn pri" id="spGo" style="background:#1ed760;color:#000">Connect Spotify</button></div>`,()=>{$('spNo').onclick=closeSheet;$('spGo').onclick=spLogin});return}
   if(!SP.now){toast('Nothing playing. Start music in Spotify and it shows here.',3000);try{location.href='spotify:'}catch(e){}return}
-  SP.open=true;LS.set('spOpen',true);spRender()};
+  SP.open=true;LS.set('spOpen',true);if(!SP.now.playing)spCmd('/me/player/play','PUT');spRender()};
 $('spMin').onclick=()=>{SP.open=false;LS.set('spOpen',false);spRender()};
 $('spPlay').onclick=()=>spCmd(SP.now&&SP.now.playing?'/me/player/pause':'/me/player/play','PUT');
 $('spNext').onclick=()=>spCmd('/me/player/next','POST');$('spPrev').onclick=()=>spCmd('/me/player/previous','POST');
