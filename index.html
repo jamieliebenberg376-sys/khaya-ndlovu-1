@@ -1047,21 +1047,36 @@ function precacheTerrain(){if(LS.get('demCached',0)>=2||!navigator.onLine)return
     const a=t(minX-.02,maxY+.02),b=t(maxX+.02,minY-.02);for(let x=a[0];x<=b[0];x++)for(let y=a[1];y<=b[1];y++)urls.push(`https://s3.amazonaws.com/elevation-tiles-prod/terrarium/${z}/${x}/${y}.png`)}
   let i=0,ok=0;const next=()=>{if(i>=urls.length){if(ok>urls.length*.9)LS.set('demCached',2);return}fetch(urls[i++],{mode:'cors'}).then(r=>{if(r.ok)ok++}).catch(()=>{}).finally(()=>setTimeout(next,40))};next()}
 /* ============ Spotify now playing ============ */
-const SP={id:SPOTIFY_ID,redirect:location.origin+location.pathname,scopes:'user-read-currently-playing user-read-playback-state user-modify-playback-state',
+const SP={id:SPOTIFY_ID,redirect:location.origin+'/',scopes:'user-read-currently-playing user-read-playback-state user-modify-playback-state',
   tok:LS.get('spTok',null),now:null,open:LS.get('spOpen',true),timer:null,lastOk:0};
 const PLAY_SVG='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>',PAUSE_SVG='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>';
 const b64u=b=>btoa(String.fromCharCode(...new Uint8Array(b))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
 async function spLogin(){if(!SP.id){toast('Spotify is not set up in this copy of the app yet');return}
   const v=b64u(crypto.getRandomValues(new Uint8Array(48)));const ch=b64u(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(v)));
-  try{sessionStorage.setItem('spV',v)}catch(e){}LS.set('spV',v);
-  location.href='https://accounts.spotify.com/authorize?'+new URLSearchParams({client_id:SP.id,response_type:'code',redirect_uri:SP.redirect,code_challenge_method:'S256',code_challenge:ch,scope:SP.scopes})}
+  const pair=b64u(crypto.getRandomValues(new Uint8Array(18)));LS.set('spV',v);LS.set('spPair',pair);LS.set('spPairT',Date.now());
+  // the verifier rides along in "state" because on iPhone the login comes back in a separate Safari window
+  location.href='https://accounts.spotify.com/authorize?'+new URLSearchParams({client_id:SP.id,response_type:'code',redirect_uri:SP.redirect,code_challenge_method:'S256',code_challenge:ch,scope:SP.scopes,state:pair+'.'+v})}
 async function spToken(body){const r=await fetch('https://accounts.spotify.com/api/token',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({client_id:SP.id,...body})});
   const j=await r.json();if(!r.ok)throw new Error(j.error_description||j.error||'token');
   SP.tok={a:j.access_token,r:j.refresh_token||(SP.tok&&SP.tok.r),exp:Date.now()+(j.expires_in-60)*1000};LS.set('spTok',SP.tok);return SP.tok}
-async function spAuthReturn(){const q=new URLSearchParams(location.search);if(!q.get('code')&&!q.get('error'))return;
+async function relay(fn,args){if(!SUPA.url)throw new Error('norelay');const r=await fetch(SUPA.url+'/rest/v1/rpc/'+fn,{method:'POST',headers:{apikey:SUPA.key,Authorization:'Bearer '+SUPA.key,'Content-Type':'application/json'},body:JSON.stringify(args)});if(!r.ok)throw new Error('relay '+r.status);const t=await r.text();return t?JSON.parse(t):null}
+async function spAuthReturn(){const q=new URLSearchParams(location.search);if(!q.get('code')&&!q.get('error'))return false;
   history.replaceState(null,'',location.pathname);
-  if(q.get('error')){toast('Spotify not connected');return}
-  try{await spToken({grant_type:'authorization_code',code:q.get('code'),redirect_uri:SP.redirect,code_verifier:LS.get('spV','')});toast('Spotify connected');SP.open=true;LS.set('spOpen',true);spPoll()}catch(e){toast('Spotify login failed: '+String(e.message).slice(0,60),4000)}}
+  if(q.get('error')){toast('Spotify not connected');return false}
+  const st=(q.get('state')||'').split('.');const pair=st[0],v=st[1]||LS.get('spV','');
+  try{await spToken({grant_type:'authorization_code',code:q.get('code'),redirect_uri:SP.redirect,code_verifier:v});
+    let relayed=false;try{await relay('sp_relay_put',{p_id:pair,p_payload:JSON.stringify(SP.tok)});relayed=true}catch(e){}
+    if(LS.get('spPair','')===pair){LS.set('spPair','');toast('Spotify connected');SP.open=true;LS.set('spOpen',true);spPoll();return true}
+    // we are in the separate login window: tell the user to go back
+    document.body.insertAdjacentHTML('beforeend',`<div style="position:fixed;inset:0;z-index:999;background:#191414;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px;font-family:-apple-system,sans-serif">
+      <div style="width:64px;height:64px;border-radius:32px;background:#1ed760;display:flex;align-items:center;justify-content:center;font-size:34px;color:#000;margin-bottom:18px">✓</div>
+      <h2 style="margin:0 0 8px">Spotify connected</h2><p style="color:#b3b3b3;line-height:1.5;margin:0">${relayed?'Tap <b>Done</b> (top left) to go back to the map. It picks up your music in a few seconds.':'Close this window and open the map again.'}</p></div>`);
+    return true}catch(e){toast('Spotify login failed: '+String(e.message).slice(0,60),4000);return false}}
+async function spCheckRelay(){const pair=LS.get('spPair','');if(!pair||SP.tok&&!LS.get('spPairT',0))return;
+  if(Date.now()-LS.get('spPairT',0)>15*60e3){LS.set('spPair','');return}
+  try{const p=await relay('sp_relay_take',{p_id:pair});if(p){SP.tok=JSON.parse(p);LS.set('spTok',SP.tok);LS.set('spPair','');LS.set('spPairT',0);toast('Spotify connected');SP.open=true;LS.set('spOpen',true);spPoll()}}catch(e){}}
+setInterval(()=>{if(LS.get('spPair',''))spCheckRelay()},2500);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)spCheckRelay()});
 async function spApi(path,opt={}){if(!SP.tok)throw new Error('nologin');if(Date.now()>SP.tok.exp)await spToken({grant_type:'refresh_token',refresh_token:SP.tok.r});
   const r=await fetch('https://api.spotify.com/v1'+path,{...opt,headers:{Authorization:'Bearer '+SP.tok.a,...(opt.headers||{})}});
   if(r.status===401){SP.tok.exp=0;LS.set('spTok',SP.tok);throw new Error('expired')}return r}
@@ -1078,7 +1093,7 @@ function spRender(){const el=$('spot');const n=SP.now;
 setInterval(()=>{const n=SP.now;if(!n||!$('spot').classList.contains('open'))return;const p=n.playing?n.p+(Date.now()-n.at):n.p;$('spPb').style.width=Math.min(100,p/n.d*100)+'%'},500);
 async function spCmd(path,method){try{const r=await spApi(path,{method});if(r.status===403){toast('Skip and pause need Spotify Premium');return}if(r.status===404){toast('Open Spotify on this phone first');return}
   if(SP.now&&path.includes('pause')){SP.now.playing=false;SP.now.p+=Date.now()-SP.now.at;SP.now.at=Date.now()}if(SP.now&&path.includes('play')){SP.now.playing=true;SP.now.at=Date.now()}spRender();setTimeout(spPoll,700)}catch(e){toast(navigator.onLine?'Spotify did not respond':'No signal for Spotify right now')}}
-$('spDot').onclick=()=>{if(!SP.tok){openSheet(`<h2>Connect Spotify</h2><div class="sub" style="line-height:1.5;margin-top:8px">See what's playing and skip or pause from the map. Needs signal. Skip and pause need Spotify Premium.</div><div class="row"><button class="btn" id="spNo">Not now</button><button class="btn pri" id="spGo" style="background:#1ed760;color:#000">Connect Spotify</button></div>`,()=>{$('spNo').onclick=closeSheet;$('spGo').onclick=spLogin});return}
+$('spDot').onclick=()=>{if(!SP.tok){openSheet(`<h2>Connect Spotify</h2><div class="sub" style="line-height:1.5;margin-top:8px">See what's playing and skip or pause from the map. Needs signal. Skip and pause need Spotify Premium.<br><br><small>Redirect URI in your Spotify app must be exactly:<br><b style="user-select:all">${esc(SP.redirect)}</b></small></div><div class="row"><button class="btn" id="spNo">Not now</button><button class="btn pri" id="spGo" style="background:#1ed760;color:#000">Connect Spotify</button></div>`,()=>{$('spNo').onclick=closeSheet;$('spGo').onclick=spLogin});return}
   if(!SP.now){toast('Nothing playing. Start music in Spotify and it shows here.',3000);try{location.href='spotify:'}catch(e){}return}
   SP.open=true;LS.set('spOpen',true);spRender()};
 $('spMin').onclick=()=>{SP.open=false;LS.set('spOpen',false);spRender()};
