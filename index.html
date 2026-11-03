@@ -79,6 +79,7 @@ body.drivecam #roadCard{display:none!important}body.drivecam #junc{top:calc(var(
 
 /* fab */
 #fabs{position:fixed;right:10px;bottom:calc(var(--safe-b) + 22px);z-index:9;display:flex;flex-direction:column;gap:10px}
+.prof{background:rgba(127,127,127,.09);border-radius:14px;padding:12px 14px;margin-top:14px}.prof>b{display:block;font-size:15.5px}.prof>small{display:block;color:var(--sub);font-size:12px;margin:2px 0 4px}.prof .pr{display:flex;gap:10px;align-items:flex-start;padding:6px 0;font-size:14px;font-weight:600}.prof .pr span{font-size:17px;width:22px;text-align:center}.prof .pr small{display:block;color:var(--sub);font-weight:500;font-size:11.5px}
 .fab.wx{flex-direction:column;gap:0;line-height:1}.fab.wx .we{font-size:20px}.fab.wx b{font-size:12.5px;color:#202124;margin-top:1px}body.night .fab.wx b{color:#e8eaed}.fab.wx.storm{box-shadow:0 0 0 3px #f9ab00,0 2px 8px rgba(0,0,0,.22)}
 .wxm{background:rgba(255,255,255,.94);color:#202124;border-radius:14px;padding:3px 8px 3px 5px;font:700 13px/1.1 system-ui,-apple-system,sans-serif;box-shadow:0 1px 5px rgba(0,0,0,.25);display:flex;align-items:center;gap:4px;white-space:nowrap;cursor:pointer}.wxm span{font-size:16px}.wxm small{font-weight:600;color:#5f6368;font-size:10.5px;display:block}
 body.night .wxm{background:rgba(32,34,38,.92);color:#e8eaed}body.night .wxm small{color:#bdc1c6}body.drivecam .wxm,body.navon .wxm{display:none}
@@ -454,7 +455,7 @@ function style(){return{version:8,glyphs:'local://{fontstack}/{range}',
   cur:{type:'geojson',data:empty},
   route:{type:'geojson',data:empty},
   tracks:{type:'geojson',data:empty},
-  sights:{type:'geojson',data:empty},
+  sights:{type:'geojson',data:empty},spath:{type:'geojson',data:empty},sprev:{type:'geojson',data:empty},
   reports:{type:'geojson',data:empty},
   home:{type:'geojson',data:empty},
   acc:{type:'geojson',data:empty}},
@@ -493,7 +494,10 @@ function style(){return{version:8,glyphs:'local://{fontstack}/{range}',
   {id:'water-lbl',type:'symbol',source:'pois',minzoom:14.6,filter:['==',['get','kind'],'water'],layout:{'text-field':['get','name'],'text-font':['Sans Italic'],'text-size':12,'text-offset':[0,.9],'text-anchor':'top','text-optional':true},paint:{'text-color':'#1967d2','text-halo-color':'#fff','text-halo-width':1.5}},
   {id:'poi',type:'symbol',source:'pois',filter:['!=',['get','kind'],'water'],layout:{'icon-image':['get','kind'],'icon-size':['interpolate',['linear'],['zoom'],12,.42,15,.62],'icon-allow-overlap':true,'text-field':['step',['zoom'],'',14,['get','name']],'text-font':['Sans Bold'],'text-size':12,'text-offset':[0,1.25],'text-anchor':'top','text-optional':true,'symbol-sort-key':['match',['get','kind'],'home',0,'gate',1,'lodge',2,5]},paint:{'text-color':['match',['get','kind'],'picnic','#137333','gate','#202124','view','#6a1b9a','home','#c5221f','#3c4043'],'text-halo-color':'#fff','text-halo-width':1.6}},
   {id:'home',type:'symbol',source:'home',layout:{'icon-image':'home','icon-size':['interpolate',['linear'],['zoom'],12,.5,15,.72],'icon-allow-overlap':true,'text-field':'Home','text-font':['Sans Bold'],'text-size':12.5,'text-offset':[0,1.3],'text-anchor':'top','text-optional':true},paint:{'text-color':'#c5221f','text-halo-color':'#fff','text-halo-width':1.8}},
-  {id:'sights',type:'symbol',source:'sights',layout:{'icon-image':'sight','icon-size':['interpolate',['linear'],['zoom'],12,.5,15,.7],'icon-allow-overlap':true,'text-field':['get','label'],'text-font':['Sans Bold'],'text-size':12,'text-offset':[0,1.3],'text-anchor':'top','text-optional':true},paint:{'text-color':'#b45309','text-halo-color':'#fff','text-halo-width':1.8}},
+  {id:'spath',type:'line',source:'spath',layout:{'line-cap':'round'},paint:{'line-color':'#f57c00','line-width':['interpolate',['linear'],['zoom'],12,2,16,3.5],'line-dasharray':[1.2,1.6],'line-opacity':['get','op']}},
+  {id:'spath-arrow',type:'symbol',source:'spath',layout:{'symbol-placement':'line','symbol-spacing':70,'icon-image':'sarrow','icon-size':['interpolate',['linear'],['zoom'],12,.45,16,.7],'icon-allow-overlap':true,'icon-rotation-alignment':'map'},paint:{'icon-opacity':['get','op']}},
+  {id:'spath-start',type:'circle',source:'sprev',paint:{'circle-radius':4,'circle-color':'#fff','circle-stroke-color':'#f57c00','circle-stroke-width':2,'circle-opacity':['*',['get','op'],.8],'circle-stroke-opacity':['*',['get','op'],.8]}},
+  {id:'sights',type:'symbol',source:'sights',layout:{'icon-image':'sight','icon-size':['interpolate',['linear'],['zoom'],12,.5,15,.7],'icon-allow-overlap':true,'text-field':['get','label'],'text-font':['Sans Bold'],'text-size':12,'text-line-height':1.15,'text-offset':[0,1.3],'text-anchor':'top','text-optional':true},paint:{'text-color':'#b45309','text-halo-color':'#fff','text-halo-width':1.8,'icon-opacity':['get','op'],'text-opacity':['get','op']}},
   {id:'reports',type:'symbol',source:'reports',layout:{'icon-image':'report','icon-size':['interpolate',['linear'],['zoom'],12,.5,15,.72],'icon-allow-overlap':true,'text-field':['get','label'],'text-font':['Sans Bold'],'text-size':12,'text-offset':[0,1.3],'text-anchor':'top','text-optional':true},paint:{'text-color':'#c5221f','text-halo-color':'#fff','text-halo-width':1.8}}
  ]}}
 const CALLOUT={id:'road-callout',type:'symbol',source:'roads',minzoom:12,layout:{visibility:'none','symbol-placement':'line-center','text-field':['get','name'],'text-font':['Sans Bold'],'text-size':14,'text-rotation-alignment':'viewport','text-pitch-alignment':'viewport','icon-image':'pill','icon-text-fit':'both','icon-text-fit-padding':[3,9,3,9],'icon-rotation-alignment':'viewport','icon-pitch-alignment':'viewport','text-padding':10,'symbol-sort-key':['-',0,['get','len']],'text-max-width':12},paint:{'text-color':'#202124'}};
@@ -520,6 +524,7 @@ function drawIcon(kind){
 function hatch(col,bg){const S=16,c=document.createElement('canvas');c.width=c.height=S;const x=c.getContext('2d');x.fillStyle=bg;x.fillRect(0,0,S,S);x.strokeStyle=col;x.lineWidth=2.2;x.lineCap='square';
   for(const o of[-S,0,S]){x.beginPath();x.moveTo(o,S);x.lineTo(o+S,0);x.stroke()}return x.getImageData(0,0,S,S)}
 map.on('styleimagemissing',e=>{if(COLORS[e.id])map.addImage(e.id,drawIcon(e.id),{pixelRatio:2});
+  else if(e.id==='sarrow'){const c=document.createElement('canvas');c.width=c.height=32;const x=c.getContext('2d');x.fillStyle='#f57c00';x.strokeStyle='#fff';x.lineWidth=3;x.lineJoin='round';x.beginPath();x.moveTo(25,16);x.lineTo(8,6);x.lineTo(12,16);x.lineTo(8,26);x.closePath();x.stroke();x.fill();map.addImage('sarrow',x.getImageData(0,0,32,32),{pixelRatio:2})}
   else if(e.id==='hatch')map.addImage('hatch',hatch('#4a90e2','rgba(178,214,245,.55)'),{pixelRatio:2});
   else if(e.id==='hatch-n')map.addImage('hatch-n',hatch('#4f8fd6','rgba(28,58,85,.75)'),{pixelRatio:2});
   else if(e.id==='pill'){const W=48,H=40,c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');x.shadowColor='rgba(0,0,0,.3)';x.shadowBlur=5;x.shadowOffsetY=1.5;x.fillStyle='#ffffff';const r=14;x.beginPath();x.roundRect(4,4,W-8,H-10,r);x.fill();
@@ -584,7 +589,7 @@ let sights=LS.get('sights',[]);sights.forEach(s=>{if(!s.cid)s.cid=cidNew()});
 let reports=LS.get('reports',[]);
 let shareRhino=LS.get('shareRhino',false);
 function cidNew(){return Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,10)}
-const SIGHT_TTL=3*864e5, REPORT_TTL=5*864e5;
+const SIGHT_TTL=864e5, REPORT_TTL=5*864e5;
 const REPORT_KINDS=['Washed out','Closed','Blocked by animal','Fallen tree','Muddy','Deep water','Other'];
 const BLOCKING=['Washed out','Closed','Blocked by animal','Fallen tree','Deep water'];
 let tracks=LS.get('tracks',[]);
@@ -642,7 +647,7 @@ async function sync(){
       api('/rest/v1/reports?select=client_id,user_id,name,kind,note,road,lat,lng,created_at&resolved=is.false&expires_at=gt.'+now+'&order=created_at.desc&limit=400'),
       api('/rest/v1/members?select=user_id'),
       api('/rest/v1/map_data?select=version')]);
-    alertNew(s||[]);
+    alertNew(s||[]);mergeLog(s||[]);if(Date.now()-LS.get('histT',0)>6*36e5){api('/rest/v1/sightings?select=client_id,what,lat,lng,created_at&created_at=gt.'+encodeURIComponent(new Date(Date.now()-365*864e5).toISOString())+'&order=created_at.desc&limit=5000').then(h=>{mergeLog(h||[]);LS.set('histT',Date.now());refreshOverlays()}).catch(()=>{})}
     Cloud.remote={sightings:s||[],reports:r||[]};Cloud.owners=(m||[]).length;Cloud.lastSync=Date.now();Cloud.err=null;saveCloud();
     if(md&&md[0]&&md[0].version>MAP_VERSION&&LS.get('mapVer',0)<md[0].version){const full=await api('/rest/v1/map_data?select=version,data');if(full&&full[0]){try{localStorage.setItem('kn_mapdata',JSON.stringify(full[0].data));LS.set('mapVer',full[0].version);toast('Map update downloaded. It shows next time you open the app.',4500)}catch(e){}}}
     refreshOverlays();
@@ -650,7 +655,7 @@ async function sync(){
   finally{Cloud.busy=false}
 }
 window.addEventListener('online',()=>sync());
-setInterval(()=>sync(),60000);
+setInterval(()=>sync(),60000);setInterval(()=>{if(mapReady)refreshOverlays()},60000);
 /* guest access: server says if your code is still valid; the end date is also kept on the phone so it logs out with no signal */
 async function checkStatus(){
   let st;try{st=await api('/rest/v1/rpc/my_status',{method:'POST',body:'{}'})}catch(e){if(/404|PGRST202|Could not find/.test(String(e.message||e)))return false;throw e}
@@ -717,7 +722,7 @@ function nextPing(){const x=pingQ.shift(),el=$('ping');if(!x){pingOn=false;el.cl
   if(x.more){$('pingE').textContent='👀';$('pingT').textContent='+'+x.more+' more sightings';$('pingS').textContent='Open Sightings in the menu to see them all';el.onclick=()=>{el.classList.remove('on');openSheet(sightsSheet(),bindSights)}}
   else{$('pingE').textContent=EMO[x.what]||'📍';$('pingT').textContent=(x.name||'Someone')+' marked a sighting of '+x.what;
     const road=(nearestEdge([x.lng,x.lat],120)||{}).e;$('pingS').textContent=[x.note,road?'on '+ROADS[road.road].properties.name:'',me?fmtD(dist(me.ll,[x.lng,x.lat]))+' from you':'just now'].filter(Boolean).join(' · ');
-    el.onclick=ev=>{if(ev.target.id==='pingX')return;el.classList.remove('on');pingQ=[];pingOn=false;showPlace({kind:'sight',name:x.what,sub:'Sighting · just now · '+(x.name||'Owner')+(x.note?' · '+x.note:''),ll:[x.lng,x.lat],cid:x.client_id})}}
+    el.onclick=ev=>{if(ev.target.id==='pingX')return;el.classList.remove('on');pingQ=[];pingOn=false;{const h=allSights().find(y=>y.cid===x.client_id);showPlace(h?sightPlace(h):{kind:'sight',name:x.what,sub:'Last seen just now · '+(x.name||'Owner'),ll:[x.lng,x.lat],cid:x.client_id})}}}
   $('pingX').onclick=e=>{e.stopPropagation();clearTimeout(nextPing.t);el.classList.remove('on');setTimeout(nextPing,400)};
   el.classList.remove('on');void el.offsetWidth;el.classList.add('on');if(!x.more)bing();
   clearTimeout(nextPing.t);nextPing.t=setTimeout(()=>{el.classList.remove('on');setTimeout(nextPing,450)},6000)}
@@ -733,12 +738,55 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)armExpiry(
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)sync()});
 
 /* merged views: my items + other owners' items */
-function allSights(){
-  const mine=new Set(sights.map(s=>s.cid));
-  const out=sights.filter(s=>Date.now()-s.t<SIGHT_TTL).map(s=>({...s,mine:true,by:'You'}));
-  (Cloud.remote.sightings||[]).forEach(x=>{if(mine.has(x.client_id))return;out.push({cid:x.client_id,what:x.what,note:x.note,ll:[x.lng,x.lat],t:Date.parse(x.created_at),by:x.name||'Owner',mine:Cloud.sess&&x.user_id===Cloud.sess.uid})});
-  return out.sort((a,b)=>b.t-a.t);
+function rawSights(){
+  const mine=new Set(sights.map(s=>s.cid)),now=Date.now();
+  const out=sights.filter(s=>now-s.t<SIGHT_TTL).map(s=>({...s,mine:true,by:'You'}));
+  (Cloud.remote.sightings||[]).forEach(x=>{if(mine.has(x.client_id))return;const t=Date.parse(x.created_at);if(now-t>=SIGHT_TTL)return;out.push({cid:x.client_id,what:x.what,note:x.note,ll:[x.lng,x.lat],t,by:x.name||'Owner',mine:Cloud.sess&&x.user_id===Cloud.sess.uid})});
+  return out.sort((a,b)=>a.t-b.t);
 }
+/* animals move: a newer sighting of the same animal replaces the older one and we draw the path (as the crow flies) */
+const MAXKMH={Elephant:6,Rhino:6,Hippo:5,Buffalo:6,Lion:8,Leopard:8,Cheetah:12,'Wild dog':15,Hyena:10,Giraffe:7,Zebra:9,Kudu:9};
+function linkChains(list,winH){const heads=[];
+  for(const s of list){if(s.what==='Other'){heads.push({...s,chain:[s]});continue}
+    let best=null;for(const h of heads){if(h.what!==s.what)continue;const dh=Math.max(.25,(s.t-h.t)/36e5);if(dh>winH)continue;const km=dist(h.ll,s.ll)/1000;if(km/dh>(MAXKMH[s.what]||8)&&km>1.5)continue;if(!best||h.t>best.t)best=h}
+    if(best){heads.splice(heads.indexOf(best),1);heads.push({...s,chain:best.chain.concat([s]),prev:best})}else heads.push({...s,chain:[s]})}
+  return heads}
+function sightOp(s){const age=(Date.now()-s.t)/36e5,stay=animalProfile(s.what).stayH;return age<=stay?1:Math.max(.22,1-(age-stay)/(24-stay)*.78)}
+function allSights(){return linkChains(rawSights(),24).sort((a,b)=>b.t-a.t)}
+function lastSeen(t){const m=Math.max(0,Math.round((Date.now()-t)/6e4)),d=new Date(t),today=new Date();
+  if(d.toDateString()!==today.toDateString()){const y=new Date(Date.now()-864e5).toDateString()===d.toDateString();return (y?'yesterday ':d.toLocaleDateString([],{weekday:'short'})+' ')+d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}
+  if(m<1)return 'just now';if(m<60)return m+' min ago';const h=Math.floor(m/60),r=m%60;return h+' h'+(r?' '+r+' min':'')+' ago'}
+const fmtDur=h=>h<1?Math.round(h*60)+' min':h<10&&h%1>.1?Math.floor(h)+' h '+Math.round(h%1*60)+' min':Math.round(h)+' h';
+function moveTxt(s){if(!s.prev)return '';const km=dist(s.prev.ll,s.ll);return 'moved '+fmtD(km)+' in '+fmtDur((s.t-s.prev.t)/36e5)}
+/* ---- behaviour profile per animal, learned from every sighting ever shared ---- */
+let SLOG=LS.get('slog',[]),profCache={};
+function logSight(cid,what,ll,t){if(SLOG.some(x=>x[0]===cid))return;SLOG.push([cid,what,+ll[0].toFixed(5),+ll[1].toFixed(5),t]);if(SLOG.length>6000)SLOG=SLOG.slice(-6000);profCache={};LS.set('slog',SLOG)}
+function mergeLog(rows){let ch=0;const have=new Set(SLOG.map(x=>x[0]));rows.forEach(x=>{if(have.has(x.client_id))return;have.add(x.client_id);SLOG.push([x.client_id,x.what,+(+x.lng).toFixed(5),+(+x.lat).toFixed(5),Date.parse(x.created_at)]);ch=1});
+  if(ch){SLOG.sort((a,b)=>a[4]-b[4]);if(SLOG.length>6000)SLOG=SLOG.slice(-6000);profCache={};LS.set('slog',SLOG)}}
+const med=a=>{if(!a.length)return null;const b=[...a].sort((x,y)=>x-y),m=b.length>>1;return b.length%2?b[m]:(b[m-1]+b[m])/2};
+const PERIODS=[['early morning',5,8],['morning',8,11],['midday',11,14],['afternoon',14,17],['evening',17,20],['night',20,29]];
+function inRing(p,r){let c=false;for(let i=0,j=r.length-1;i<r.length;j=i++){const [xi,yi]=r[i],[xj,yj]=r[j];if((yi>p[1])!==(yj>p[1])&&p[0]<(xj-xi)*(p[1]-yi)/(yj-yi)+xi)c=!c}return c}
+const AREAS=(DATA.farms&&DATA.farms.features||[]).map(f=>({n:f.properties.name.split(' · ')[0].replace(' (restricted)',''),k:f.properties.kind,r:f.geometry.type==='Polygon'?f.geometry.coordinates[0]:f.geometry.coordinates[0][0]}));
+function areaOf(ll){const z=AREAS.find(a=>a.k==='zone'&&inRing(ll,a.r));if(z)return z.n;const f=AREAS.find(a=>a.k==='farm'&&inRing(ll,a.r));return f?f.n:null}
+function animalProfile(what){if(profCache[what])return profCache[what];
+  const L=SLOG.filter(x=>x[1]===what).map(x=>({cid:x[0],what,ll:[x[2],x[3]],t:x[4]}));
+  const heads=linkChains(L,12),gaps=[],moves=[],speeds=[];heads.forEach(h=>{for(let i=1;i<h.chain.length;i++){const a=h.chain[i-1],b=h.chain[i],dh=(b.t-a.t)/36e5;gaps.push(dh);const km=dist(a.ll,b.ll)/1000;moves.push(km);if(dh>.2)speeds.push(km/dh)}});
+  const hrs=PERIODS.map(([n,a,b])=>({n,c:L.filter(x=>{let h=new Date(x.t).getHours();if(h<5)h+=24;return h>=a&&h<b}).length}));const top=hrs.reduce((a,b)=>b.c>a.c?b:a,hrs[0]);
+  const ar={};L.forEach(x=>{const a=areaOf(x.ll);if(a)ar[a]=(ar[a]||0)+1});const area=Object.entries(ar).sort((a,b)=>b[1]-a[1])[0];
+  const days=new Set(L.map(x=>new Date(x.t).toDateString())).size;
+  const stay=med(gaps);
+  return profCache[what]={n:L.length,days,stayH:Math.min(8,Math.max(1,stay==null?2:stay)),gapH:stay,moveKm:med(moves),kmh:med(speeds),links:gaps.length,period:top&&top.c?top.n:null,periodPct:top&&L.length?Math.round(top.c/L.length*100):0,area:area?area[0]:null,areaPct:area?Math.round(area[1]/L.length*100):0}}
+const sightSub=s=>'Last seen '+lastSeen(s.t)+' · '+s.by+(s.prev?' · '+moveTxt(s):'')+(s.note?' · '+s.note:'');
+const sightPlace=s=>({kind:'sight',name:s.what,sub:sightSub(s),ll:s.ll,cid:s.cid,mine:s.mine});
+function profileHtml(what){if(what==='Other')return '';const p=animalProfile(what);
+  if(!p.n)return `<div class="prof"><b>${EMO[what]||''} ${esc(what)} profile</b><small>No ${esc(what.toLowerCase())} sightings yet. The app learns how they move as people mark them.</small></div>`;
+  const L=[];
+  if(p.period)L.push(['🕒','Most seen',p.period+(p.n>=4?' ('+p.periodPct+'%)':'')]);
+  if(p.area)L.push(['📍','Usually in',p.area+(p.n>=4?' ('+p.areaPct+'%)':'')]);
+  if(p.gapH!=null)L.push(['⏱️','Spotted again after',fmtDur(p.gapH)+' on average']);
+  if(p.moveKm!=null)L.push(['🐾','Moves between sightings',fmtD(p.moveKm*1000)+(p.kmh!=null?' · about '+(p.kmh<1?p.kmh.toFixed(1):Math.round(p.kmh))+' km/h':'')]);
+  L.push(['💡','Sighting stays fresh for',fmtDur(p.stayH)+', then fades out by 24 h']);
+  return `<div class="prof"><b>${EMO[what]||''} ${esc(what)} profile</b><small>${p.n<5?'Still learning · ':''}${p.n} sighting${p.n==1?'':'s'} over ${p.days} day${p.days==1?'':'s'}</small>${L.map(([i,a,b])=>`<div class="pr"><span>${i}</span><div><small>${a}</small>${esc(b)}</div></div>`).join('')}</div>`}
 function allReports(){
   const mine=new Set(reports.map(r=>r.cid));
   const out=reports.filter(r=>Date.now()-r.t<REPORT_TTL).map(r=>({...r,mine:true,by:'You'}));
@@ -750,7 +798,10 @@ function updateBlocked(){blockedNodes=new Set();allReports().filter(r=>BLOCKING.
 
 function refreshOverlays(){
   map.getSource('home').setData(home?{type:'Feature',geometry:{type:'Point',coordinates:home.ll},properties:{}}:empty);
-  map.getSource('sights').setData({type:'FeatureCollection',features:allSights().map(s=>({type:'Feature',properties:{cid:s.cid,label:s.what+' · '+ago(s.t)+(s.mine?'':' · '+s.by)},geometry:{type:'Point',coordinates:s.ll}}))});
+  const AS=allSights();
+  map.getSource('sights').setData({type:'FeatureCollection',features:AS.map(s=>({type:'Feature',properties:{cid:s.cid,op:sightOp(s),label:s.what+'\n'+(new Date(s.t).toDateString()===new Date().toDateString()?'Last seen '+lastSeen(s.t):'Last seen here '+lastSeen(s.t))},geometry:{type:'Point',coordinates:s.ll}}))});
+  map.getSource('spath').setData({type:'FeatureCollection',features:AS.filter(s=>s.chain&&s.chain.length>1).map(s=>({type:'Feature',properties:{op:sightOp(s)},geometry:{type:'LineString',coordinates:s.chain.map(c=>c.ll)}}))});
+  map.getSource('sprev').setData({type:'FeatureCollection',features:AS.filter(s=>s.chain&&s.chain.length>1).flatMap(s=>s.chain.slice(0,-1).map(c=>({type:'Feature',properties:{op:sightOp(s)*.7},geometry:{type:'Point',coordinates:c.ll}})))});
   map.getSource('reports').setData({type:'FeatureCollection',features:allReports().map(r=>({type:'Feature',properties:{cid:r.cid,label:r.kind+' · '+ago(r.t)},geometry:{type:'Point',coordinates:r.ll}}))});
   updateBlocked();
   const tf=tracks.map(t=>({type:'Feature',properties:{},geometry:{type:'LineString',coordinates:t.pts}}));
@@ -933,7 +984,7 @@ function searchItems(){
   const farmOf=n=>{const f=ROADS.find(r=>r.properties.name===n);return f&&f.properties.farm==='BB'?'Bloubank':'Khaya Ndlovu'};
   roadNames.forEach(n=>items.push({kind:'road',name:n,sub:farmOf(n)+' road · '+fmtD(roadLen(n))+' long',road:n}));
   DATA.pois.features.forEach(f=>items.push({kind:f.properties.kind,name:f.properties.name,sub:{gate:'Gate',water:'Dam / waterhole',picnic:'Picnic spot',view:'Viewpoint',hide:'Bird hide',lodge:'Lodge',home:'House'}[f.properties.kind]||'',ll:f.geometry.coordinates}));
-  allSights().forEach(s=>items.push({kind:'sight',name:s.what,sub:'Sighting · '+ago(s.t)+' · '+s.by+(s.note?' · '+s.note:''),ll:s.ll,cid:s.cid,mine:s.mine}));
+  allSights().forEach(s=>items.push(sightPlace(s)));
   allReports().forEach(r=>items.push({kind:'report',name:r.kind,sub:'Road report · '+ago(r.t)+' · '+r.by+(r.road?' · '+r.road:''),ll:r.ll,cid:r.cid,mine:r.mine}));
   return items;
 }
@@ -963,7 +1014,7 @@ function showPlace(x){
   const d=me?fmtD(dist(me.ll,ll))+' straight line':'';
   const r=me?route(me.ll,ll):null;
   const extra=(x.kind==='sight'&&x.mine)?`<button class="btn red" id="delS">Delete</button>`:x.kind==='report'?`<button class="btn red" id="resR">Road is clear</button>`:'';
-  openSheet(`<h2>${esc(x.name)}</h2><div class="sub">${esc(x.sub||'')}${d?' · '+d:''}${r?' · '+fmtD(r.len)+' by road':''}</div><div class="row"><button class="btn pri" id="goBtn"><svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M12 2l8 20-8-5-8 5z"/></svg>Go</button>${extra}</div>`,()=>{
+  openSheet(`<h2>${esc(x.name)}</h2><div class="sub">${esc(x.sub||'')}${d?' · '+d:''}${r?' · '+fmtD(r.len)+' by road':''}</div><div class="row"><button class="btn pri" id="goBtn"><svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M12 2l8 20-8-5-8 5z"/></svg>Go</button>${extra}</div>${x.kind==='sight'?profileHtml(x.name):''}`,()=>{
     $('goBtn').onclick=()=>{closeSheet();startNav(x)};
     if($('delS'))$('delS').onclick=()=>{delSight(x.cid);closeSheet();toast('Sighting deleted')};
     if($('resR'))$('resR').onclick=()=>{resolveReport(x.cid);closeSheet();toast('Marked as clear')}
@@ -1068,12 +1119,12 @@ function addSheet(tab,at){
     $('sSave').onclick=()=>{if(!pick){toast(tab==='report'?'Tap the problem first':'Tap what you saw first');const g=document.querySelector('.chips.grid');if(g){g.animate([{transform:'translateX(0)'},{transform:'translateX(-6px)'},{transform:'translateX(6px)'},{transform:'translateX(0)'}],{duration:280})}return}
       const note=$('sNote').value.trim(),cid=cidNew(),t=Date.now();
       if(tab==='report'){const r={cid,kind:pick,note,road,ll,t};reports.unshift(r);LS.set('reports',reports);queue({op:'add',t:'reports',row:reportRow(r)});toast(pick+' reported'+(road?' on '+road:''))}
-      else{const sg={cid,what:pick,note,ll,t};sights.unshift(sg);LS.set('sights',sights);if(!(pick==='Rhino'&&!shareRhino))queue({op:'add',t:'sightings',row:sightRow(sg)});toast(pick+' saved')}
+      else{const sg={cid,what:pick,note,ll,t};sights.unshift(sg);LS.set('sights',sights);logSight(cid,pick,ll,t);if(!(pick==='Rhino'&&!shareRhino))queue({op:'add',t:'sightings',row:sightRow(sg)});toast(pick+' saved')}
       refreshOverlays();closeSheet()}
   });
 }
 $('pinBtn').onclick=()=>addSheet('sight');
-map.on('click','sights',e=>{const s=allSights().find(x=>x.cid===e.features[0].properties.cid);if(s)showPlace({kind:'sight',name:s.what,sub:'Sighting · '+ago(s.t)+' · '+s.by+(s.note?' · '+s.note:''),ll:s.ll,cid:s.cid,mine:s.mine})});
+map.on('click','sights',e=>{const s=allSights().find(x=>x.cid===e.features[0].properties.cid);if(s)showPlace(sightPlace(s))});
 map.on('click','reports',e=>{const r=allReports().find(x=>x.cid===e.features[0].properties.cid);if(r)showPlace({kind:'report',name:r.kind,sub:'Road report · '+ago(r.t)+' · '+r.by+(r.road?' · '+r.road:'')+(r.note?' · '+r.note:''),ll:r.ll,cid:r.cid,mine:r.mine})});
 map.on('click','poi',e=>{const f=e.features[0];showPlace({kind:f.properties.kind,name:f.properties.name,sub:'',ll:f.geometry.coordinates})});
 map.on('click',e=>{const f=map.queryRenderedFeatures(e.point,{layers:['sights','reports','poi','home']});if(f.length)return;
@@ -1198,9 +1249,13 @@ async function exportTrack(t){
 }
 function sightsSheet(){
   const S=allSights(),Rp=allReports();
-  const row=(x,kind)=>`<div class="it"><div><b>${esc(kind==='r'?x.kind:x.what)}</b><br><small>${ago(x.t)} · ${esc(x.by)}${x.road?' · '+esc(x.road):''}${x.note?' · '+esc(x.note):''}</small></div><button class="sm" data-g="${kind}:${x.cid}">Go</button>${kind==='r'?`<button class="sm red" data-r="${x.cid}">Clear</button>`:x.mine?`<button class="sm red" data-d="${x.cid}">✕</button>`:''}</div>`;
-  return `<h2>Road reports</h2><div class="list">${Rp.map(x=>row(x,'r')).join('')||'<div class="it"><small>No road problems reported. Tap + then Road report to add one.</small></div>'}</div><h2 style="margin-top:18px">Sightings</h2><div class="list">${S.map(x=>row(x,'s')).join('')||'<div class="it"><small>No sightings in the last 3 days. Tap + on the map to add one.</small></div>'}</div>`}
+  const row=(x,kind)=>`<div class="it" style="${kind==='s'?'opacity:'+Math.max(.5,sightOp(x)):''}"><div><b>${kind==='s'?(EMO[x.what]||'')+' ':''}${esc(kind==='r'?x.kind:x.what)}</b><br><small>${kind==='s'?'Last seen '+lastSeen(x.t)+(x.prev?' · '+moveTxt(x):''):ago(x.t)} · ${esc(x.by)}${x.road?' · '+esc(x.road):''}${x.note?' · '+esc(x.note):''}</small></div><button class="sm" data-g="${kind}:${x.cid}">Go</button>${kind==='r'?`<button class="sm red" data-r="${x.cid}">Clear</button>`:x.mine?`<button class="sm red" data-d="${x.cid}">✕</button>`:''}</div>`;
+  return `<h2>Road reports</h2><div class="list">${Rp.map(x=>row(x,'r')).join('')||'<div class="it"><small>No road problems reported. Tap + then Road report to add one.</small></div>'}</div><h2 style="margin-top:18px">Sightings</h2><div class="list">${S.map(x=>row(x,'s')).join('')||'<div class="it"><small>No sightings in the last 24 hours. Tap the map or + to add one.</small></div>'}</div>${profilesHtml()}`}
+function profilesHtml(){const seen=[...new Set(SLOG.map(x=>x[1]))].filter(w=>w!=='Other');if(!seen.length)return '';
+  seen.sort((a,b)=>animalProfile(b).n-animalProfile(a).n);
+  return `<h2 style="margin-top:18px">Animal profiles</h2><div class="sub">Learned from every sighting people have marked. Gets smarter over time.</div><div class="list">${seen.map(w=>{const p=animalProfile(w);return `<div class="it" data-prof="${esc(w)}"><div style="font-size:24px;width:32px">${EMO[w]||'📍'}</div><div style="flex:1"><b>${esc(w)}</b><br><small>${p.n} sighting${p.n==1?'':'s'}${p.period?' · mostly '+p.period:''}${p.area?' · '+esc(p.area):''}</small></div><small>›</small></div>`}).join('')}</div>`}
 function bindSights(){
+  document.querySelectorAll('[data-prof]').forEach(b=>b.onclick=()=>openSheet('<button class="sm" id="pBack" style="margin-bottom:6px">‹ Back</button>'+profileHtml(b.dataset.prof),()=>{$('pBack').onclick=()=>openSheet(sightsSheet(),bindSights)}));
   document.querySelectorAll('[data-g]').forEach(b=>b.onclick=()=>{const [k,c]=b.dataset.g.split(':');const x=(k==='r'?allReports():allSights()).find(y=>y.cid===c);if(!x)return;closeSheet();startNav({kind:k==='r'?'report':'sight',name:k==='r'?x.kind:x.what,ll:x.ll})});
   document.querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>{delSight(b.dataset.d);openSheet(sightsSheet(),bindSights)});
   document.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>{resolveReport(b.dataset.r);openSheet(sightsSheet(),bindSights)});
@@ -1361,7 +1416,7 @@ window.addEventListener('offline',()=>$('offPill')&&$('offPill').classList.remov
 let mapReady=false,prog=0;
 function setProg(p,t){prog=Math.max(prog,p);$('barFill').style.width=prog+'%';if(t)$('gpsTxt').textContent=t}
 setProg(15,'Loading map...');
-map.on('load',()=>{mapReady=true;setTimeout(()=>document.querySelectorAll('.maplibregl-compact-show').forEach(e=>e.classList.remove('maplibregl-compact-show')),50);checkNight();applyMode();if(trail.length>1)map.getSource('trail').setData({type:'Feature',geometry:{type:'LineString',coordinates:trail},properties:{}});setInterval(checkNight,60000);setTimeout(precacheTerrain,8000);refreshOverlays();loadWx();map.on('zoom',wxZoom);setProg(55,'Finding satellites...');
+map.on('load',()=>{mapReady=true;setTimeout(()=>document.querySelectorAll('.maplibregl-compact-show').forEach(e=>e.classList.remove('maplibregl-compact-show')),50);checkNight();applyMode();if(trail.length>1)map.getSource('trail').setData({type:'Feature',geometry:{type:'LineString',coordinates:trail},properties:{}});setInterval(checkNight,60000);setTimeout(precacheTerrain,8000);sights.forEach(x=>logSight(x.cid,x.what,x.ll,x.t));refreshOverlays();loadWx();map.on('zoom',wxZoom);setProg(55,'Finding satellites...');
   const r=LS.get('rec',null);if(r){recTrack=r;$('rec').classList.remove('hide');$('recInfo').textContent=fmtD(r.len)}
   startGPS();bootWait();if(!navigator.onLine)$('offPill').classList.remove('hide');try{$('sunTxt').textContent=sunLine()}catch(e){}});
 function bootWait(){
