@@ -838,7 +838,7 @@ function armExpiry(){clearTimeout(expT);const m=Cloud.member;if(!m||!m.exp)retur
 function logOut(why){if(!Cloud.member)return;clearTimeout(expT);rtStop();Object.values(liveMk).forEach(m=>m.remove());liveMk={};LIVE={};
   Cloud.member=null;Cloud.outbox=[];Cloud.remote={sightings:[],reports:[]};saveCloud();
   try{if(nav)endNav()}catch(e){}try{closeSheet()}catch(e){}refreshOverlays();
-  const o=$('gOut');o.innerHTML='You have been logged out<small>'+(why==='expired'?'Your guest code has expired. Ask an owner for a new one.':why==='revoked'?'An owner ended your guest code.':'Your access to the map was removed.')+'</small>';o.classList.remove('hide');
+  const o=$('gOut');o.style.background='';o.style.color='';o.innerHTML='You have been logged out<small>'+(why==='expired'?'Your guest code has expired. Ask an owner for a new one.':why==='revoked'?'An owner ended your guest code.':'Your access to the map was removed.')+'</small>';o.classList.remove('hide');
   $('gCode').value='';showGate();try{navigator.vibrate&&navigator.vibrate(200)}catch(e){}}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)armExpiry()});
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)sync()});
@@ -1320,7 +1320,9 @@ $('menuBtn').onclick=()=>{
   ${MI('mSights','<circle cx="12" cy="12" r="3"/><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/>','Sightings & road reports',ns+' sightings · '+nr+' reports')}
   ${MI('mCal','<circle cx="12" cy="12" r="8"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/>','Calibrate GPS',calib[0]||calib[1]?'Correction active':'If your dot sits next to the road')}
   ${MI('mDemo','<path d="M6 4l14 8-14 8z"/>','Demo drive','Test the navigation at home')}
-  ${MI('mHelp','<circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .8-1 1.5V14M12 17.5v.01"/>','Install & offline use','')}</div>`,()=>{
+  ${MI('mHelp','<circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .8-1 1.5V14M12 17.5v.01"/>','Install & offline use','')}
+  ${Cloud.member?MI('mOut','<path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3"/><path d="M10 17l-5-5 5-5M5 12h11"/>','Sign out','Signed in as '+esc(Cloud.member.name)+(Cloud.member.role==='admin'?' (admin)':Cloud.member.role==='guest'?' (guest)':'')):''}</div>`,()=>{
+    if($('mOut'))$('mOut').onclick=()=>signOutSheet();
     $('mOff').onclick=()=>offlineSheet(false);
     if($('mCloud'))$('mCloud').onclick=()=>Cloud.member?cloudSheet():joinSheet();
     if($('mGuest'))$('mGuest').onclick=()=>guestSheet();
@@ -1454,20 +1456,33 @@ async function membersSheet(){
     $('mBack').onclick=()=>cloudSheet();
     document.querySelectorAll('[data-rm]').forEach(b=>b.onclick=async()=>{if(b.dataset.sure!=='1'){b.dataset.sure='1';b.textContent='Sure?';return}
       b.textContent='...';try{await rpc('remove_member',{p_user:b.dataset.rm});toast((b.dataset.n||'They')+' was removed and will be logged out',3500)}catch(e){toast('Could not remove: '+String(e.message||e).slice(0,60))}membersSheet()})})}
+/* ============ sign out: takes you off the map and out of the people list ============ */
+function signOutSheet(){const m=Cloud.member;if(!m)return;
+  openSheet(`<h2>Sign out?</h2><div class="sub" style="line-height:1.45">You'll be taken off the map completely:</div>
+  <div class="prof" style="margin-top:10px"><div class="pr"><span>👥</span><div>Removed from the people list<small>Other owners won't see you as on the app any more</small></div></div><div class="pr"><span>📍</span><div>Your live dot is removed<small>Nobody can see where you are</small></div></div><div class="pr"><span>🔑</span><div>You'll need ${m.role==='guest'?'your guest code':'your code'} to get back in<small>${m.role==='guest'?'If it has ended, ask an owner for a new one':'Your home point and drives stay saved on this phone'}</small></div></div></div>
+  ${Cloud.outbox.length?`<div class="wxwarn">${Cloud.outbox.length} sighting${Cloud.outbox.length==1?'':'s'} or report${Cloud.outbox.length==1?'':'s'} still waiting for signal will not be shared.</div>`:''}
+  <div class="row"><button class="btn" id="soNo">Cancel</button><button class="btn" id="soYes" style="background:#d93025;color:#fff">Sign out</button></div>`,()=>{
+    $('soNo').onclick=closeSheet;
+    $('soYes').onclick=async()=>{$('soYes').textContent='Signing out...';$('soYes').disabled=true;let off=true;
+      if(navigator.onLine&&Cloud.sess){try{await rpc('leave_reserve')}catch(e){off=false;try{await api('/rest/v1/live_locs?user_id=eq.'+Cloud.sess.uid,{method:'DELETE'})}catch(x){}}}else off=false;
+      LS_.on=false;rtStop();Object.values(liveMk).forEach(x=>x.remove());liveMk={};LIVE={};clearTimeout(expT);
+      Cloud.member=null;Cloud.outbox=[];Cloud.remote={sightings:[],reports:[]};saveCloud();refreshOverlays();closeSheet();
+      const o=$('gOut');o.innerHTML='You have been signed out<small style="color:#1967d2!important">'+(off?"You're no longer listed as on the app. Enter your code to come back.":"You're signed out on this phone. It may take a little while to disappear from the list.")+'</small>';o.classList.remove('hide');o.style.background='#e8f0fe';o.style.color='#1967d2';
+      $('gCode').value='';showGate()}})}
 function cloudSheet(){
   openSheet(`<h2>Shared map</h2><div class="sub">Signed in as <b>${esc(Cloud.member.name)}</b>${Cloud.member.role==='admin'?' <span class="tag">Admin</span>':Cloud.member.role==='guest'?' <span class="tag w">Guest</span>':''}<br>${esc(cloudStatus())}${Cloud.err?'<br><span style="color:#c5221f">Last sync problem: '+esc(Cloud.err.slice(0,90))+'</span>':''}</div>
   <div class="list" style="margin-top:8px">${Cloud.member.role!=='guest'?`<button class="it" id="cPeople" style="width:100%;text-align:left;background:none;border:0;color:inherit;font:inherit"><div style="font-size:22px;width:30px">👥</div><div style="flex:1"><b>Owners & guests</b><br><small>${esc(Cloud.owners+' owner'+(Cloud.owners==1?'':'s')+(Cloud.guests?' · '+Cloud.guests+' guest'+(Cloud.guests==1?'':'s'):''))}${Cloud.member.role==='admin'?' · you can remove people':''}</small></div><small>›</small></button>`:''}<div class="it"><div><b>New sighting alerts</b><br><small>Pops up when someone else marks a sighting</small></div><button class="sm ${alertOn?'':'red'}" id="cAlert">${alertOn?'On':'Off'}</button></div>
   <div class="it"><div><b>Alert sound</b><br><small>Plays a bing with each alert</small></div><button class="sm ${alertSound?'':'red'}" id="cSound">${alertSound?'On':'Off'}</button></div>
   ${'Notification' in window&&Notification.permission!=='granted'?`<div class="it"><div><b>Phone notifications</b><br><small>Also alert you while the app is in the background</small></div><button class="sm" id="cNotif">Turn on</button></div>`:''}
   <div class="it"><div><b>Share rhino sightings</b><br><small>Off keeps rhino locations on this phone only</small></div><button class="sm ${shareRhino?'':'red'}" id="cRhino">${shareRhino?'On':'Off'}</button></div></div>
-  <div class="row"><button class="btn pri" id="cSync">Sync now</button><button class="btn red" id="cLeave">Leave</button></div>`,()=>{
+  <div class="row"><button class="btn pri" id="cSync">Sync now</button><button class="btn red" id="cLeave">Sign out</button></div>`,()=>{
     if($('cPeople'))$('cPeople').onclick=()=>guestSheet();
     $('cAlert').onclick=()=>{alertOn=!alertOn;LS.set('alertOn',alertOn);cloudSheet()};
     $('cSound').onclick=()=>{alertSound=!alertSound;LS.set('alertSound',alertSound);if(alertSound)bing();cloudSheet()};
     if($('cNotif'))$('cNotif').onclick=async()=>{try{const r=await Notification.requestPermission();toast(r==='granted'?'Notifications on':'Notifications are blocked. Allow them in Settings.',3500)}catch(e){toast('This phone needs the app added to the Home Screen first',3500)}cloudSheet()};
     $('cRhino').onclick=()=>{shareRhino=!shareRhino;LS.set('shareRhino',shareRhino);cloudSheet()};
     $('cSync').onclick=async()=>{if(!navigator.onLine){toast('No signal right now. It syncs by itself when signal comes back.');return}$('cSync').textContent='Syncing...';await sync();cloudSheet();toast(Cloud.err?'Sync failed, will retry':'Up to date')};
-    $('cLeave').onclick=async()=>{try{if(LS_.on)await api('/rest/v1/live_locs?user_id=eq.'+Cloud.sess.uid,{method:'DELETE'})}catch(e){}LS_.on=false;rtStop();Object.values(liveMk).forEach(m=>m.remove());liveMk={};LIVE={};Cloud.member=null;Cloud.outbox=[];Cloud.remote={sightings:[],reports:[]};saveCloud();refreshOverlays();closeSheet();$('gOut').classList.add('hide');showGate()};
+    $('cLeave').onclick=()=>signOutSheet();
   });
 }
 function toggleRec(){

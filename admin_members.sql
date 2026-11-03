@@ -188,5 +188,15 @@ begin
 end $$;
 grant execute on function public.set_member_role(uuid, text) to authenticated;
 
+-- anyone: sign out = take yourself off the map completely (you disappear from the owners/guests list)
+create or replace function public.leave_reserve()
+returns void language plpgsql security definer set search_path = public as $$
+begin
+  if auth.uid() is null then return; end if;
+  begin delete from public.live_locs where user_id = auth.uid(); exception when undefined_table then null; end;
+  delete from public.members where user_id = auth.uid();
+end $$;
+grant execute on function public.leave_reserve() to authenticated;
+
 -- your codes:
 select upper(invite_code) as "OWNER CODE", 'ADMIN' || upper(replace(invite_code, ' ', '')) as "ADMIN CODE (max 4 people)" from private.config;
