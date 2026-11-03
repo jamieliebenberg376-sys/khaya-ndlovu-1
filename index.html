@@ -89,6 +89,10 @@ body.drivecam #roadCard{display:none!important}body.drivecam #junc{top:calc(var(
 #redMode{position:fixed;top:0;left:0;right:0;height:var(--app-h);z-index:3000;pointer-events:none;background:#ff1a00;mix-blend-mode:multiply;display:none}body.red #redMode{display:block}body.red{filter:brightness(.85)}
 .heatChips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.heatChips .chip{padding:6px 10px;font-size:13px}
 .dsum .big{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:10px}.dsum .big div{background:rgba(127,127,127,.09);border-radius:12px;padding:10px;text-align:center;font-size:11.5px;color:var(--sub)}.dsum .big b{display:block;font-size:19px;color:#202124}body.night .dsum .big b{color:#e8eaed}
+#speed.over{background:#d93025!important;color:#fff!important;animation:spdpulse 1s ease-in-out infinite}#speed.over small{color:#fff!important}@keyframes spdpulse{50%{transform:scale(1.08)}}
+#speed .lim{position:absolute;top:-8px;right:-8px;width:26px;height:26px;border-radius:50%;background:#fff;border:3px solid #d93025;color:#202124;font:800 11px/20px system-ui;text-align:center;display:none}#speed.inres .lim{display:block}
+#spdBar{position:fixed;left:50%;top:calc(var(--safe-t) + 78px);transform:translate(-50%,-30px);opacity:0;z-index:31;background:#d93025;color:#fff;font-weight:800;padding:10px 18px;border-radius:22px;box-shadow:0 4px 14px rgba(0,0,0,.3);transition:all .3s;pointer-events:none;white-space:nowrap;font-size:15px}#spdBar.on{opacity:1;transform:translate(-50%,0)}
+.annb{white-space:pre-wrap;font-size:16px;line-height:1.5;background:rgba(127,127,127,.09);border-radius:14px;padding:14px;margin-top:12px;word-wrap:break-word}
 .prof{background:rgba(127,127,127,.09);border-radius:14px;padding:12px 14px;margin-top:14px}.prof>b{display:block;font-size:15.5px}.prof>small{display:block;color:var(--sub);font-size:12px;margin:2px 0 4px}.prof .pr{display:flex;gap:10px;align-items:flex-start;padding:6px 0;font-size:14px;font-weight:600}.prof .pr span{font-size:17px;width:22px;text-align:center}.prof .pr small{display:block;color:var(--sub);font-weight:500;font-size:11.5px}
 .fab.wx{flex-direction:column;gap:0;line-height:1}.fab.wx .we{font-size:20px}.fab.wx b{font-size:12.5px;color:#202124;margin-top:1px}body.night .fab.wx b{color:#e8eaed}.fab.wx.storm{box-shadow:0 0 0 3px #f9ab00,0 2px 8px rgba(0,0,0,.22)}
 .wxm{background:rgba(255,255,255,.94);color:#202124;border-radius:14px;padding:3px 8px 3px 5px;font:700 13px/1.1 system-ui,-apple-system,sans-serif;box-shadow:0 1px 5px rgba(0,0,0,.25);display:flex;align-items:center;gap:4px;white-space:nowrap;cursor:pointer}.wxm span{font-size:16px}.wxm small{font-weight:600;color:#5f6368;font-size:10.5px;display:block}
@@ -285,7 +289,7 @@ body.drive #nav .dist{font-size:24px}body.drive #nav .ins{font-size:32px}body.dr
 
 <div id="scrim"></div>
 <div id="sheet"><div class="grab"></div><div id="sheetBody"></div></div>
-<div id="sbFade"></div><div id="redMode"></div><div id="toast"></div><div id="ping"><div class="pe" id="pingE"></div><div><b id="pingT"></b><small id="pingS"></small></div><span class="px" id="pingX">✕</span></div>
+<div id="sbFade"></div><div id="spdBar">🐢 Slow down · 40 km/h limit</div><div id="redMode"></div><div id="toast"></div><div id="ping"><div class="pe" id="pingE"></div><div><b id="pingT"></b><small id="pingS"></small></div><span class="px" id="pingX">✕</span></div>
 
 <script>/**
  * MapLibre GL JS
@@ -447,7 +451,7 @@ let minX=1e9,minY=1e9,maxX=-1e9,maxY=-1e9;B.forEach(([x,y])=>{minX=Math.min(minX
 const RES_BOUNDS=[[minX,minY],[maxX,maxY]];
 const outside={type:'Feature',geometry:{type:'Polygon',coordinates:[[[minX-.2,minY-.2],[maxX+.2,minY-.2],[maxX+.2,maxY+.2],[minX-.2,maxY+.2],[minX-.2,minY-.2]],B.slice().reverse()]}};
 let mode=LS.get('mode','map');
-let showFarms=LS.get('farms',false),showEst=LS.get('showEst',true),showHeat=LS.get('showHeat',false),heatWhat=LS.get('heatWhat','All'),redOn=LS.get('redOn',false);
+let speedWarn=LS.get('speedWarn',true),showFarms=LS.get('farms',false),showEst=LS.get('showEst',true),showHeat=LS.get('showHeat',false),heatWhat=LS.get('heatWhat','All'),redOn=LS.get('redOn',false);
 let theme=LS.get('theme','auto');      // auto | day | night
 let showHill=LS.get('hill',true);
 let driveMode=LS.get('drive','auto'); // auto | on | off
@@ -682,7 +686,7 @@ async function sync(){
       api('/rest/v1/reports?select=client_id,user_id,name,kind,note,road,lat,lng,created_at&resolved=is.false&expires_at=gt.'+now+'&order=created_at.desc&limit=400'),
       api('/rest/v1/members?select=user_id,role,expires_at').catch(()=>api('/rest/v1/members?select=user_id')),
       api('/rest/v1/map_data?select=version')]);
-    alertNew(s||[]);mergeLog(s||[]);if(!Cloud.noMiss)api('/rest/v1/animal_misses?select=client_id,user_id,name,what,lat,lng,created_at&created_at=gt.'+encodeURIComponent(new Date(Date.now()-864e5).toISOString())).then(x=>{Cloud.misses=x||[];refreshOverlays()}).catch(e=>{if(/404|PGRST20|does not exist|Could not find/.test(String(e.message||e)))Cloud.noMiss=true});if(Date.now()-LS.get('histT',0)>6*36e5){api('/rest/v1/sightings?select=client_id,what,lat,lng,created_at&created_at=gt.'+encodeURIComponent(new Date(Date.now()-365*864e5).toISOString())+'&order=created_at.desc&limit=5000').then(h=>{mergeLog(h||[]);LS.set('histT',Date.now());refreshOverlays()}).catch(()=>{})}
+    alertNew(s||[]);mergeLog(s||[]);loadAnn();if(!Cloud.noMiss)api('/rest/v1/animal_misses?select=client_id,user_id,name,what,lat,lng,created_at&created_at=gt.'+encodeURIComponent(new Date(Date.now()-864e5).toISOString())).then(x=>{Cloud.misses=x||[];refreshOverlays()}).catch(e=>{if(/404|PGRST20|does not exist|Could not find/.test(String(e.message||e)))Cloud.noMiss=true});if(Date.now()-LS.get('histT',0)>6*36e5){api('/rest/v1/sightings?select=client_id,what,lat,lng,created_at&created_at=gt.'+encodeURIComponent(new Date(Date.now()-365*864e5).toISOString())+'&order=created_at.desc&limit=5000').then(h=>{mergeLog(h||[]);LS.set('histT',Date.now());refreshOverlays()}).catch(()=>{})}
     Cloud.remote={sightings:s||[],reports:r||[]};{const now_=Date.now(),M=m||[];Cloud.owners=M.filter(x=>!x.role||x.role!=='guest').length;Cloud.guests=M.filter(x=>x.role==='guest'&&x.expires_at&&Date.parse(x.expires_at)>now_).length}Cloud.lastSync=Date.now();Cloud.err=null;saveCloud();
     if(md&&md[0]&&md[0].version>MAP_VERSION&&LS.get('mapVer',0)<md[0].version){const full=await api('/rest/v1/map_data?select=version,data');if(full&&full[0]){try{localStorage.setItem('kn_mapdata',JSON.stringify(full[0].data));LS.set('mapVer',full[0].version);toast('Map update downloaded. It shows next time you open the app.',4500)}catch(e){}}}
     refreshOverlays();
@@ -761,6 +765,45 @@ function wxSheet(name){if(!WX){toast(navigator.onLine?'Getting the weather...':'
 const fmtLeft=ms=>{const m=Math.round(ms/6e4);return m<60?m+' min':Math.floor(m/60)+' h '+(m%60)+' min'};
 $('wxBtn').onclick=()=>wxSheet();
 setInterval(()=>loadWx(),15*6e4);window.addEventListener('online',()=>loadWx());document.addEventListener('visibilitychange',()=>{if(!document.hidden)loadWx()});
+/* ============ speed warning: 40 km/h on the reserve ============ */
+const SPEED_LIMIT=40;let spdOverT=0,spdSaid=0,spdOn=false;
+function speedCheck(ll){const el=$('speed');const onRes=!!ll&&inReserve(ll);el.classList.toggle('inres',onRes&&speedWarn);
+  if(!el.querySelector('.lim')){const l=document.createElement('div');l.className='lim';l.textContent=SPEED_LIMIT;el.appendChild(l)}
+  const kmh=(speedS||0)*3.6,now=Date.now();
+  if(!speedWarn||!onRes){if(spdOn){spdOn=false;el.classList.remove('over');$('spdBar').classList.remove('on')}return}
+  if(kmh>SPEED_LIMIT+2){if(!spdOverT)spdOverT=now;if(now-spdOverT>2500&&!spdOn){spdOn=true;el.classList.add('over');$('spdBar').classList.add('on');try{navigator.vibrate&&navigator.vibrate([120,80,120])}catch(e){}
+      if(now-spdSaid>60000){spdSaid=now;if(voiceOn&&'speechSynthesis' in window)try{const u=new SpeechSynthesisUtterance('Slow down. The speed limit is '+SPEED_LIMIT);u.lang='en-ZA';speechSynthesis.speak(u)}catch(e){}}}}
+  else if(kmh<SPEED_LIMIT-1){spdOverT=0;if(spdOn){spdOn=false;el.classList.remove('over');$('spdBar').classList.remove('on')}}}
+/* ============ admin announcements ============ */
+let ANN=LS.get('ann',[]),annSeen=new Set(LS.get('annSeen',[]));
+async function loadAnn(){if(!Cloud.on||!Cloud.member||Cloud.noAnn||!navigator.onLine)return;
+  try{const r=await api('/rest/v1/announcements?select=client_id,name,body,created_at,expires_at&removed=is.false&order=created_at.desc&limit=20');
+    const now=Date.now(),prev=new Set(ANN.map(a=>a.client_id));ANN=(r||[]).filter(a=>!a.expires_at||Date.parse(a.expires_at)>now);LS.set('ann',ANN);
+    const fresh=ANN.filter(a=>!prev.has(a.client_id)&&!annSeen.has(a.client_id));if(fresh.length&&prev.size&&!document.hidden){bing()}
+    annPop()}catch(e){if(/^404|PGRST20|does not exist|Could not find/.test(String(e.message||e)))Cloud.noAnn=true}}
+function annPop(){const a=ANN.filter(x=>!annSeen.has(x.client_id)&&(!x.expires_at||Date.parse(x.expires_at)>Date.now())).sort((p,q)=>Date.parse(p.created_at)-Date.parse(q.created_at))[0];
+  if(!a||$('sheet').classList.contains('open')||!$('gate').classList.contains('hide')||needRole())return;
+  const left=ANN.filter(x=>!annSeen.has(x.client_id)).length-1;
+  openSheet(`<div style="text-align:center;padding-top:4px"><div style="font-size:40px">📢</div><h2 style="margin:4px 0 2px">Announcement</h2><div class="sub">From ${esc(a.name||'an admin')} · ${esc(ago(Date.parse(a.created_at)))}</div></div>
+  <div class="annb">${esc(a.body)}</div><button class="btn pri" id="annOk" style="width:100%;margin-top:14px">${left>0?'Next ('+left+' more)':'Got it'}</button>`,()=>{
+    $('annOk').onclick=()=>{annSeen.add(a.client_id);LS.set('annSeen',[...annSeen].slice(-200));closeSheet();setTimeout(annPop,400)}})}
+function annSheet(){const admin=Cloud.member&&Cloud.member.role==='admin';const now=Date.now();
+  openSheet(`<h2>📢 Announcements</h2>${admin?`<div class="sub">Write anything. Everyone sees it as a pop-up when they open the map.</div>
+   <textarea class="inp" id="annTxt" maxlength="1500" placeholder="e.g. Gate code changed to 4821. Firebreak burning on Bloubank Thursday, avoid Blok 3." style="height:110px;padding:12px;resize:vertical;font:inherit"></textarea>
+   <div class="sub" style="margin-top:10px">Show for</div><div class="gpres">${[['1 day',1],['3 days',3],['1 week',7],['Until removed',0]].map(([l,d],i)=>`<button class="chip${i==1?' sel':''}" data-ad="${d}">${l}</button>`).join('')}</div>
+   <button class="btn pri" id="annPost" style="width:100%;margin-top:12px">Post announcement</button>`:''}
+   <div class="sub" style="margin-top:16px"><b>${admin?'Live announcements':'Latest'}</b></div>
+   <div class="list">${ANN.length?ANN.map(a=>`<div class="it" style="align-items:flex-start"><div style="flex:1;min-width:0"><div style="white-space:pre-wrap;font-weight:600;word-wrap:break-word">${esc(a.body)}</div><small>${esc(a.name||'Admin')} · ${esc(ago(Date.parse(a.created_at)))}${a.expires_at?' · until '+esc(fmtExp(Date.parse(a.expires_at))):''}</small></div>${admin?`<button class="sm red" data-arm="${esc(a.client_id)}">Remove</button>`:''}</div>`).join(''):'<div class="it"><small>No announcements right now</small></div>'}</div>`,()=>{
+    if(!admin)return;let days=3;
+    document.querySelectorAll('[data-ad]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-ad]').forEach(x=>x.classList.remove('sel'));b.classList.add('sel');days=+b.dataset.ad});
+    $('annPost').onclick=async()=>{const t=$('annTxt').value.trim();if(!t){toast('Write something first');return}if(!navigator.onLine){toast('You need signal to post');return}
+      $('annPost').textContent='Posting...';$('annPost').disabled=true;const cid=cidNew();
+      try{await api('/rest/v1/announcements',{method:'POST',headers:{Prefer:'return=minimal'},body:JSON.stringify({client_id:cid,body:t,expires_at:days?new Date(Date.now()+days*864e5).toISOString():null})});
+        annSeen.add(cid);LS.set('annSeen',[...annSeen]);rtPing();await loadAnn();toast('Posted. Everyone will see it.',3000);annSheet()}
+      catch(e){toast(/^404|PGRST20|Could not find/.test(e.message)?'Run announcements.sql in Supabase first':/^403|row-level|42501/.test(e.message)?'Only admins can post':'Could not post: '+String(e.message).slice(0,60),4000);$('annPost').textContent='Post announcement';$('annPost').disabled=false}};
+    document.querySelectorAll('[data-arm]').forEach(b=>b.onclick=async()=>{if(b.dataset.sure!=='1'){b.dataset.sure='1';b.textContent='Sure?';return}
+      try{await api('/rest/v1/announcements?client_id=eq.'+encodeURIComponent(b.dataset.arm),{method:'PATCH',headers:{Prefer:'return=minimal'},body:'{"removed":true}'});rtPing();await loadAnn();toast('Removed')}catch(e){toast('Could not remove')}annSheet()})})}
+setTimeout(()=>{annPop()},6000);
 /* ============ live member dots ============ */
 let shareLoc=LS.get('shareLoc',false),LIVE={},liveMk={},LS_={on:false,lastSend:0,anchor:null,stillT:0,status:'',missing:false};
 const MATE_COLS=['#e8710a','#9334e6','#d01884','#188038','#e37400','#c5221f','#007b83','#795548','#b06000','#f4511e','#00897b'];
@@ -1077,7 +1120,7 @@ function handlePos(raw,acc,heading,speed,t){
   setTarget(ll,heading,t);
   if(heading!=null)meEl.querySelector('.cone').style.opacity=1;else meEl.querySelector('.cone').style.opacity=0;
   map.getSource('acc')&&map.getSource('acc').setData(circlePoly(ll,Math.min(me.acc,200)));
-  $('spd').textContent=Math.round((speedS||0)*3.6);
+  $('spd').textContent=Math.round((speedS||0)*3.6);speedCheck(ll);
   { const L=trail[trail.length-1];if(L&&dist(L,ll)>400)trail=[];if(!L||dist(L,ll)>8){trail.push([+ll[0].toFixed(6),+ll[1].toFixed(6)]);if(trail.length>1500)trail.shift();
      if(trail.length%5===0)try{localStorage.setItem('kn_trail',JSON.stringify({t:Date.now(),p:trail}))}catch(e){}
      if(mapReady&&trail.length>1)map.getSource('trail').setData({type:'Feature',geometry:{type:'LineString',coordinates:trail},properties:{}})}}
@@ -1204,6 +1247,7 @@ function closeSheet(){$('sheet').classList.remove('open');$('scrim').classList.r
 $('scrim').onclick=closeSheet;
 function layerSheet(){setTimeout(()=>{document.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{mode=b.dataset.mode;LS.set('mode',mode);applyMode();closeSheet()});const ft=$('farmTog');if(ft)ft.onclick=()=>{showFarms=!showFarms;LS.set('farms',showFarms);applyMode();openSheet(layerSheet())};
   document.querySelectorAll('[data-th]').forEach(b=>b.onclick=()=>{theme=b.dataset.th;LS.set('theme',theme);checkNight();applyMode();openSheet(layerSheet())});
+  $('spdTog').onclick=()=>{speedWarn=!speedWarn;LS.set('speedWarn',speedWarn);if(me)speedCheck(me.ll);openSheet(layerSheet())};
   $('redTog').onclick=()=>{setRed(!redOn);openSheet(layerSheet())};
   $('heatTog').onclick=()=>{showHeat=!showHeat;LS.set('showHeat',showHeat);applyMode();refreshOverlays();openSheet(layerSheet())};
   document.querySelectorAll('[data-hw]').forEach(b=>b.onclick=()=>{heatWhat=b.dataset.hw;LS.set('heatWhat',heatWhat);refreshOverlays();openSheet(layerSheet())});
@@ -1214,7 +1258,7 @@ function layerSheet(){setTimeout(()=>{document.querySelectorAll('[data-mode]').f
   $('trailClr').onclick=()=>{trail=[];try{localStorage.removeItem('kn_trail')}catch(e){}map.getSource('trail').setData(empty);toast('Trail cleared')}},0);
  return `<h2>Map style</h2><div class="sub">Satellite needs signal to load new areas. Areas you have viewed stay saved. Bloubank roads need a traverse booking.</div><div class="seg"><button data-mode="map" class="${mode==='map'?'sel':''}">Map</button><button data-mode="sat" class="${mode==='sat'?'sel':''}">Satellite</button></div><div class="sub" style="margin-top:14px"><b>Theme</b></div><div class="seg" style="margin-top:6px"><button data-th="auto" class="${theme==='auto'?'sel':''}">Auto</button><button data-th="day" class="${theme==='day'?'sel':''}">Day</button><button data-th="night" class="${theme==='night'?'sel':''}">Night</button></div>
 <div class="list" style="margin-top:10px">
-<div class="it"><div><b>Farm borders</b><br><small>Show the border and name of each farm</small></div><button class="sm ${showFarms?'':'red'}" id="farmTog">${showFarms?'On':'Off'}</button></div><div class="it"><div><b>Night drive (red screen)</b><br><small>Keeps your night vision and doesn't disturb animals</small></div><button class="sm ${redOn?'':'red'}" id="redTog">${redOn?'On':'Off'}</button></div><div class="it" style="flex-wrap:wrap"><div style="flex:1"><b>Sightings heatmap</b><br><small>Where animals are seen most, from every sighting</small></div><button class="sm ${showHeat?'':'red'}" id="heatTog">${showHeat?'On':'Off'}</button>${showHeat?`<div class="heatChips" style="width:100%">${['All',...ANIMALS.filter(a=>a!=='Other'&&a!=='Rhino')].map(a=>`<button class="chip${heatWhat===a?' sel':''}" data-hw="${a}">${a==='All'?'All animals':(EMO[a]||'')+' '+a}</button>`).join('')}</div>`:''}</div><div class="it"><div><b>Likely animal spots</b><br><small>Where animals are probably found when nobody has seen them for 24 h</small></div><button class="sm ${showEst?'':'red'}" id="estTog">${showEst?'On':'Off'}</button></div>
+<div class="it"><div><b>Farm borders</b><br><small>Show the border and name of each farm</small></div><button class="sm ${showFarms?'':'red'}" id="farmTog">${showFarms?'On':'Off'}</button></div><div class="it"><div><b>Speed warning</b><br><small>Red alert when you go over 40 km/h on the reserve</small></div><button class="sm ${speedWarn?'':'red'}" id="spdTog">${speedWarn?'On':'Off'}</button></div><div class="it"><div><b>Night drive (red screen)</b><br><small>Keeps your night vision and doesn't disturb animals</small></div><button class="sm ${redOn?'':'red'}" id="redTog">${redOn?'On':'Off'}</button></div><div class="it" style="flex-wrap:wrap"><div style="flex:1"><b>Sightings heatmap</b><br><small>Where animals are seen most, from every sighting</small></div><button class="sm ${showHeat?'':'red'}" id="heatTog">${showHeat?'On':'Off'}</button>${showHeat?`<div class="heatChips" style="width:100%">${['All',...ANIMALS.filter(a=>a!=='Other'&&a!=='Rhino')].map(a=>`<button class="chip${heatWhat===a?' sel':''}" data-hw="${a}">${a==='All'?'All animals':(EMO[a]||'')+' '+a}</button>`).join('')}</div>`:''}</div><div class="it"><div><b>Likely animal spots</b><br><small>Where animals are probably found when nobody has seen them for 24 h</small></div><button class="sm ${showEst?'':'red'}" id="estTog">${showEst?'On':'Off'}</button></div>
 <div class="it"><div><b>Terrain shading</b><br><small>Hills, ridges and riverbanks</small></div><button class="sm ${showHill?'':'red'}" id="hillTog">${showHill?'On':'Off'}</button></div>
 <div class="it"><div><b>3D tilt while driving</b><br><small>Leans the map back in heading-up and navigation</small></div><button class="sm ${tilt?'':'red'}" id="tiltTog">${tilt?'On':'Off'}</button></div>
 <div class="it"><div><b>Big text driving mode</b><br><small>${driveMode==='auto'?'Auto: turns on above 8 km/h':driveMode==='on'?'Always on':'Off'}</small></div><button class="sm" id="driveTog">${driveMode==='auto'?'Auto':driveMode==='on'?'On':'Off'}</button></div>
@@ -1414,6 +1458,7 @@ $('menuBtn').onclick=()=>{
   ${MI('mRec',recTrack?'<rect x="6" y="6" width="12" height="12" rx="2"/>':'<circle cx="12" cy="12" r="7"/>',recTrack?'Stop recording':'Record a drive','Saves your route so new roads can be added')}
   ${MI('mTracks','<path d="M4 19l5-14 6 10 5-6"/>','My drives',tracks.length+' saved')}
   ${MI('mSights','<circle cx="12" cy="12" r="3"/><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/>','Sightings & road reports',ns+' sightings · '+nr+' reports')}
+  ${Cloud.member?MI('mAnn','<path d="M3 11v2a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/>','Announcements',(Cloud.member.role==='admin'?'Post a message to everyone · ':'')+(ANN.length?ANN.length+' live':'None right now')):''}
   ${MI('mBest','<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>','Best time to drive','Sun, moon and when each animal is usually seen')}
   ${MI('mRed','<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>','Night drive (red screen)',redOn?'On · tap to turn off':'Off · for drives after dark')}
   ${MI('mCal','<circle cx="12" cy="12" r="8"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/>','Calibrate GPS',calib[0]||calib[1]?'Correction active':'If your dot sits next to the road')}
@@ -1429,6 +1474,7 @@ $('menuBtn').onclick=()=>{
     $('mRec').onclick=()=>{closeSheet();toggleRec()};
     $('mTracks').onclick=()=>openSheet(tracksSheet(),bindTracks);
     $('mBest').onclick=()=>bestSheet();
+    if($('mAnn'))$('mAnn').onclick=()=>{loadAnn();annSheet()};
     $('mRed').onclick=()=>{setRed(!redOn);closeSheet()};
     $('mSights').onclick=()=>openSheet(sightsSheet(),bindSights);
     $('mCal').onclick=()=>{closeSheet();startCal()};
@@ -1738,7 +1784,7 @@ function roleSheet(then){const m=Cloud.member;if(!m){then&&then();return}const r
    <div class="prof" style="margin-top:12px">${can.map(([i,a,b])=>`<div class="pr"><span>${i}</span><div>${a}<small>${b}</small></div></div>`).join('')}</div>
    ${r==='guest'?'<div class="sub" style="margin-top:10px;font-size:12.5px">You will be logged out automatically when your guest code ends.</div>':'<div class="sub" style="margin-top:10px;font-size:12.5px">Find this under Guest codes in the menu.</div>'}
    <button class="btn pri" id="roleOk" style="width:100%;margin-top:14px">Got it</button>`,()=>{
-    $('roleOk').onclick=()=>{LS.set('roleSeen',r);closeSheet();if(then)setTimeout(then,350)}});
+    $('roleOk').onclick=()=>{LS.set('roleSeen',r);closeSheet();setTimeout(()=>{if(then)then();else annPop()},350)}});
 }
 const needRole=()=>Cloud.member&&LS.get('roleSeen','')!==(Cloud.member.role||'owner');
 function afterGate(){if(needRole()){roleSheet(()=>afterGate2());return}afterGate2()}
