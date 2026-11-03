@@ -22,7 +22,11 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;paddin
 
 /* splash */
 #splash{position:fixed;inset:0;z-index:100;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .45s}
-#splash.out{opacity:0;pointer-events:none}
+#splash.out{opacity:0;pointer-events:none;transition:opacity .9s ease .35s}
+#splash .tag,#splash .bar,#gpsTxt{transition:opacity .25s,transform .25s}
+#splash.out .tag,#splash.out .bar,#splash.out #gpsTxt{opacity:0;transform:translateY(10px)}
+#splash.out .logo{animation:logoOut 1.15s cubic-bezier(.55,0,.2,1) forwards}
+@keyframes logoOut{0%{transform:scale(1);opacity:1}22%{transform:scale(1.07);opacity:1}100%{transform:translateY(-40vh) scale(.28);opacity:0}}
 #splash .logo{width:min(78vw,330px);margin-bottom:10px;animation:pop .6s ease-out}#splash .logo img{width:100%;display:block}
 #splash h1{margin:0;font-size:28px;font-weight:800;letter-spacing:.3px}
 #splash .tag{margin:4px 0 34px;color:var(--sub);font-size:14px;letter-spacing:.4px}
@@ -728,7 +732,7 @@ $('menuBtn').onclick=()=>{
 };
 function joinSheet(){
   if(!Cloud.on){openSheet(`<h2>Shared map</h2><div class="sub" style="line-height:1.5;margin-top:8px">The shared database isn't connected to this copy of the app yet. Everything still works and saves on this phone.</div>`);return}
-  openSheet(`<h2>Join the reserve map</h2><div class="sub" style="line-height:1.45;margin-top:6px">See other owners' sightings and road reports, and share yours. Needs signal once to join.</div><input class="inp" id="jName" placeholder="Your name, e.g. Jamie" maxlength="40"><input class="inp" id="jCode" placeholder="Invite code" autocapitalize="characters"><div class="row"><button class="btn" id="jSkip">Not now</button><button class="btn pri" id="jGo">Join</button></div>`,()=>{
+  openSheet(`<h2>Join the reserve map</h2><div class="sub" style="line-height:1.45;margin-top:6px">See other owners' sightings and road reports, and share yours. Needs signal once to join.</div><input class="inp" id="jName" placeholder="Your name, e.g. Thabo" maxlength="40"><input class="inp" id="jCode" placeholder="Invite code" autocapitalize="characters"><div class="row"><button class="btn" id="jSkip">Not now</button><button class="btn pri" id="jGo">Join</button></div>`,()=>{
     $('jSkip').onclick=()=>{LS.set('joinSkip',true);closeSheet()};
     $('jGo').onclick=async()=>{const n=$('jName').value.trim(),c=$('jCode').value.trim();if(!n||!c){toast('Enter your name and the invite code');return}
       if(!navigator.onLine){toast('You need signal to join. Try again near the lodge or gate.');return}
@@ -818,10 +822,13 @@ function bootWait(){
     if(el>maxWait){clearInterval(iv);setProg(100,gpsErr&&gpsErr.includes('denied')?'Location off, showing the reserve':'Still searching for GPS...');setTimeout(()=>finishBoot(false),500)}},120);
 }
 function finishBoot(fix){
-  LS.set('booted',true);$('splash').classList.add('out');
-  if(Cloud.member)sync();else if(Cloud.on&&!LS.get('joinSkip',false))setTimeout(joinSheet,1200);setTimeout(()=>$('splash').remove(),600);
-  if(fix&&inReserve(me.ll)){setFollow(1);map.easeTo({center:me.ll,zoom:16,duration:900})}
-  else{setFollow(0);if(fix)toast("You're outside the reserve, showing the whole map",3500)}
+  LS.set('booted',true);
+  // fly-in: start high over the reserve, slightly rotated, then sweep down
+  map.jumpTo({center:map.getCenter(),zoom:Math.max(11,map.getZoom()-1.2),bearing:-28});
+  $('splash').classList.add('out');
+  if(Cloud.member)sync();else if(Cloud.on&&!LS.get('joinSkip',false))setTimeout(joinSheet,1200);setTimeout(()=>{const sp=$('splash');if(sp)sp.remove()},1400);
+  if(fix&&inReserve(me.ll)){map.flyTo({center:me.ll,zoom:16,bearing:0,duration:2600,curve:1.6,essential:true});setTimeout(()=>setFollow(1),2700)}
+  else{setFollow(0);map.fitBounds(RES_BOUNDS,{padding:40,bearing:0,duration:2200});if(fix)toast("You're outside the reserve, showing the whole map",3500)}
   // when first fix comes later, jump to it if inside
   if(!fix){const iv=setInterval(()=>{if(gotFirst){clearInterval(iv);if(inReserve(me.ll)){setFollow(1);map.easeTo({center:me.ll,zoom:16,duration:900})}}},500)}
 }
