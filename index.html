@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Khaya Ndlovu">
 <meta name="theme-color" content="#ffffff">
 <title>Khaya Ndlovu Map</title>
@@ -17,6 +17,7 @@
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Roboto,"Segoe UI",sans-serif;color:var(--ink);background:#f4f2ee}
 #map{position:fixed;inset:0}
+#sbFade{position:fixed;left:0;right:0;top:0;height:calc(var(--safe-t) + 14px);z-index:8;pointer-events:none;background:linear-gradient(rgba(0,0,0,.38),rgba(0,0,0,.18) 60%,rgba(0,0,0,0))}
 button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;padding:0}
 .hide{display:none!important}
 
@@ -275,7 +276,7 @@ body.drive #nav .dist{font-size:24px}body.drive #nav .ins{font-size:32px}body.dr
 
 <div id="scrim"></div>
 <div id="sheet"><div class="grab"></div><div id="sheetBody"></div></div>
-<div id="toast"></div><div id="ping"><div class="pe" id="pingE"></div><div><b id="pingT"></b><small id="pingS"></small></div><span class="px" id="pingX">✕</span></div>
+<div id="sbFade"></div><div id="toast"></div><div id="ping"><div class="pe" id="pingE"></div><div><b id="pingT"></b><small id="pingS"></small></div><span class="px" id="pingX">✕</span></div>
 
 <script>/**
  * MapLibre GL JS
