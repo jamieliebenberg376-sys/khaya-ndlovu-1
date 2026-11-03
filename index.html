@@ -80,6 +80,10 @@ body.drivecam #roadCard{display:none!important}body.drivecam #junc{top:calc(var(
 
 /* fab */
 #fabs{position:fixed;right:10px;bottom:calc(var(--safe-b) - var(--bfix) + 22px);z-index:9;display:flex;flex-direction:column;gap:10px}
+.mate{width:34px;height:34px;position:relative;cursor:pointer}.mate .md{position:absolute;left:8px;top:8px;width:18px;height:18px;border-radius:50%;border:3px solid #fff;box-shadow:0 1px 6px rgba(0,0,0,.45);box-sizing:border-box}
+.mate .ma{position:absolute;left:0;top:0;width:34px;height:34px;transition:transform .8s linear}.mate .ma svg{width:34px;height:34px}
+.mate .mn{position:absolute;top:33px;left:50%;transform:translateX(-50%);white-space:nowrap;font:700 11.5px/1.2 system-ui,-apple-system,sans-serif;color:#fff;padding:2px 7px;border-radius:9px;box-shadow:0 1px 4px rgba(0,0,0,.3)}
+.mate .mn small{font-weight:600;opacity:.9}.mate.old{opacity:.55}.mate.view .md{animation:mpulse 1.8s ease-out infinite}@keyframes mpulse{0%{box-shadow:0 0 0 0 rgba(255,255,255,.7),0 1px 6px rgba(0,0,0,.45)}100%{box-shadow:0 0 0 14px rgba(255,255,255,0),0 1px 6px rgba(0,0,0,.45)}}
 .prof{background:rgba(127,127,127,.09);border-radius:14px;padding:12px 14px;margin-top:14px}.prof>b{display:block;font-size:15.5px}.prof>small{display:block;color:var(--sub);font-size:12px;margin:2px 0 4px}.prof .pr{display:flex;gap:10px;align-items:flex-start;padding:6px 0;font-size:14px;font-weight:600}.prof .pr span{font-size:17px;width:22px;text-align:center}.prof .pr small{display:block;color:var(--sub);font-weight:500;font-size:11.5px}
 .fab.wx{flex-direction:column;gap:0;line-height:1}.fab.wx .we{font-size:20px}.fab.wx b{font-size:12.5px;color:#202124;margin-top:1px}body.night .fab.wx b{color:#e8eaed}.fab.wx.storm{box-shadow:0 0 0 3px #f9ab00,0 2px 8px rgba(0,0,0,.22)}
 .wxm{background:rgba(255,255,255,.94);color:#202124;border-radius:14px;padding:3px 8px 3px 5px;font:700 13px/1.1 system-ui,-apple-system,sans-serif;box-shadow:0 1px 5px rgba(0,0,0,.25);display:flex;align-items:center;gap:4px;white-space:nowrap;cursor:pointer}.wxm span{font-size:16px}.wxm small{font-weight:600;color:#5f6368;font-size:10.5px;display:block}
@@ -680,15 +684,17 @@ async function rtConnect(){if(!Cloud.on||!Cloud.member||!navigator.onLine||RT.ws
   let ws;try{ws=new WebSocket(SUPA.url.replace(/^http/,'ws')+'/realtime/v1/websocket?apikey='+encodeURIComponent(SUPA.key)+'&vsn=1.0.0')}catch(e){return}
   RT.ws=ws;
   ws.onopen=()=>{rtSend('phx_join',{config:{broadcast:{self:false,ack:false},presence:{key:''},postgres_changes:[],private:false},access_token:Cloud.sess.access_token});
+    rtSend('phx_join',{config:{broadcast:{self:false},presence:{key:''},postgres_changes:[{event:'*',schema:'public',table:'live_locs'}],private:false},access_token:Cloud.sess.access_token},'realtime:kn-live');
     clearInterval(RT.hb);RT.hb=setInterval(()=>rtSend('heartbeat',{},'phoenix'),25000)};
   ws.onmessage=e=>{let m;try{m=JSON.parse(e.data)}catch(x){return}
     if(m.event==='phx_reply'&&m.topic===RT.topic&&m.payload&&m.payload.status==='ok'&&!RT.ok){RT.ok=true;RT.back=1000;sync()}
+    else if(m.event==='postgres_changes'&&m.topic==='realtime:kn-live'){const d=m.payload&&m.payload.data;if(d)liveRow(d.type==='DELETE'?null:d.record,d.old_record)}
     else if(m.event==='broadcast'&&m.payload&&m.payload.event==='changed'){clearTimeout(RT.d);RT.d=setTimeout(()=>sync(),400)}
     else if(m.event==='phx_error'||m.event==='phx_close')try{ws.close()}catch(x){}};
   ws.onclose=()=>{clearInterval(RT.hb);RT.ws=null;RT.ok=false;if(Cloud.member&&navigator.onLine){setTimeout(rtConnect,RT.back);RT.back=Math.min(RT.back*2,60000)}};
   ws.onerror=()=>{try{ws.close()}catch(x){}}}
 function rtPing(){rtSend('broadcast',{type:'broadcast',event:'changed',payload:{t:Date.now()}})}
-function rtToken(){if(RT.ok&&Cloud.sess)rtSend('access_token',{access_token:Cloud.sess.access_token})}
+function rtToken(){if(RT.ok&&Cloud.sess){rtSend('access_token',{access_token:Cloud.sess.access_token});rtSend('access_token',{access_token:Cloud.sess.access_token},'realtime:kn-live')}}
 function rtStop(){const w=RT.ws;RT.ws=null;RT.ok=false;clearInterval(RT.hb);if(w)try{w.onclose=null;w.close()}catch(e){}}
 window.addEventListener('online',()=>rtConnect());window.addEventListener('offline',()=>rtStop());
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){if(!RT.ws)rtConnect()}});
@@ -740,6 +746,54 @@ function wxSheet(name){if(!WX){toast(navigator.onLine?'Getting the weather...':'
 const fmtLeft=ms=>{const m=Math.round(ms/6e4);return m<60?m+' min':Math.floor(m/60)+' h '+(m%60)+' min'};
 $('wxBtn').onclick=()=>wxSheet();
 setInterval(()=>loadWx(),15*6e4);window.addEventListener('online',()=>loadWx());document.addEventListener('visibilitychange',()=>{if(!document.hidden)loadWx()});
+/* ============ live member dots ============ */
+let shareLoc=LS.get('shareLoc',true),LIVE={},liveMk={},LS_={on:false,lastSend:0,anchor:null,stillT:0,status:'',missing:false};
+const MATE_COLS=['#e8710a','#9334e6','#d01884','#188038','#e37400','#c5221f','#007b83','#795548','#b06000','#f4511e','#00897b'];
+function mateCol(uid){let h=0;for(const ch of String(uid))h=(h*31+ch.charCodeAt(0))>>>0;return MATE_COLS[h%MATE_COLS.length]}
+/* what my phone shares: only on the reserve, not at home, and only while moving or stopped at a sighting */
+function myLiveState(){
+  if(!shareLoc||!Cloud.on||!Cloud.member||!me||sim||calMode)return null;
+  if(Date.now()-me.t>45000||me.acc>120)return null;
+  if(!inReserve(me.ll))return null;
+  if(home&&dist(home.ll,me.ll)<200)return null;
+  const now=Date.now();
+  if(!LS_.anchor||dist(LS_.anchor,me.ll)>30||(me.speed||0)>1.5){LS_.anchor=me.ll;LS_.stillT=now}
+  const still=now-LS_.stillT;
+  const near=allSights().filter(x=>!(x.what==='Rhino'&&!shareRhino)&&dist(x.ll,me.ll)<180).sort((a,b)=>dist(a.ll,me.ll)-dist(b.ll,me.ll))[0];
+  if(still>180000&&!near)return null;
+  const e=nearestEdge(me.ll,60),road=e?ROADS[e.e.road].properties.name:null;
+  const st=near&&still>20000?'viewing:'+near.what:(me.speed||0)>1.5?'driving'+(road?':'+road:''):'stopped'+(road?':'+road:'');
+  return {st}}
+async function liveTick(){
+  const want=myLiveState(),now=Date.now();
+  if(!navigator.onLine||!Cloud.sess||LS_.missing)return;
+  try{
+    if(want){if(now-LS_.lastSend<8000&&want.st===LS_.status)return;
+      LS_.lastSend=now;LS_.status=want.st;LS_.on=true;
+      await api('/rest/v1/live_locs?on_conflict=user_id',{method:'POST',headers:{Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify({user_id:Cloud.sess.uid,name:Cloud.member.name,lat:+me.ll[1].toFixed(6),lng:+me.ll[0].toFixed(6),heading:me.heading==null?null:Math.round(me.heading),speed:+(me.speed||0).toFixed(1),status:want.st})})}
+    else if(LS_.on){LS_.on=false;LS_.status='';await api('/rest/v1/live_locs?user_id=eq.'+Cloud.sess.uid,{method:'DELETE',headers:{Prefer:'return=minimal'}})}
+  }catch(e){if(/404|PGRST20|relation|does not exist|Could not find/.test(String(e.message||e)))LS_.missing=true}}
+async function livePull(){if(!Cloud.on||!Cloud.member||!navigator.onLine||document.hidden||LS_.missing)return;
+  try{const rows=await api('/rest/v1/live_locs?select=user_id,name,lat,lng,heading,speed,status,updated_at&updated_at=gt.'+encodeURIComponent(new Date(Date.now()-150000).toISOString()));
+    LIVE={};(rows||[]).forEach(r=>{LIVE[r.user_id]=r});renderLive()}catch(e){if(/404|PGRST20|relation|does not exist|Could not find/.test(String(e.message||e)))LS_.missing=true}}
+function liveRow(rec,old){if(rec)LIVE[rec.user_id]=rec;else if(old&&old.user_id)delete LIVE[old.user_id];renderLive()}
+function liveTxt(r){const [k,v]=(r.status||'').split(/:(.*)/);const sp=Math.round((r.speed||0)*3.6);
+  return k==='viewing'?'viewing the '+v+' sighting':k==='driving'?(sp?sp+' km/h':'driving')+(v?' on '+v:''):'stopped'+(v?' on '+v:'')}
+function renderLive(){if(!mapReady)return;const me_=Cloud.sess&&Cloud.sess.uid,now=Date.now(),keep=new Set();
+  Object.values(LIVE).forEach(r=>{if(r.user_id===me_)return;const age=now-Date.parse(r.updated_at);if(age>150000)return;keep.add(r.user_id);
+    let m=liveMk[r.user_id];const col=mateCol(r.user_id),view=(r.status||'').startsWith('viewing');
+    if(!m){const el=document.createElement('div');el.className='mate';el.innerHTML='<div class="ma"><svg viewBox="0 0 34 34"><path d="M17 1l6 9h-12z" fill="'+col+'" stroke="#fff" stroke-width="1.5"/></svg></div><div class="md" style="background:'+col+'"></div><div class="mn" style="background:'+col+'"></div>';
+      el.onclick=e=>{e.stopPropagation();const x=LIVE[r.user_id];if(x)mateSheet(x)};m=liveMk[r.user_id]=new maplibregl.Marker({element:el,rotationAlignment:'map'}).setLngLat([r.lng,r.lat]).addTo(map)}
+    else m.setLngLat([r.lng,r.lat]);
+    const el=m.getElement(),moving=(r.speed||0)>1.5&&r.heading!=null;
+    el.querySelector('.ma').style.display=moving?'':'none';if(moving)el.querySelector('.ma').style.transform='rotate('+r.heading+'deg)';
+    el.querySelector('.mn').innerHTML=esc(r.name||'Member')+(view?' <small>👀 '+esc((r.status||'').split(':')[1]||'')+'</small>':'');
+    el.classList.toggle('old',age>60000);el.classList.toggle('view',view)});
+  Object.keys(liveMk).forEach(id=>{if(!keep.has(id)){liveMk[id].remove();delete liveMk[id]}})}
+function mateSheet(r){const ll=[r.lng,r.lat],d=me?fmtD(dist(me.ll,ll)):'';
+  openSheet(`<h2><span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:${mateCol(r.user_id)};margin-right:8px;vertical-align:1px"></span>${esc(r.name||'Member')}</h2><div class="sub">${esc(liveTxt(r))} · updated ${esc(ago(Date.parse(r.updated_at)))}${d?' · '+d+' from you':''}</div><div class="row"><button class="btn pri" id="mGo">Go to them</button></div>`,()=>{$('mGo').onclick=()=>{closeSheet();startNav({kind:'pin',name:r.name||'Member',ll})}})}
+setInterval(liveTick,4000);setInterval(livePull,12000);setInterval(renderLive,15000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){livePull();liveTick()}});
 /* ============ new sighting alerts ============ */
 let pingQ=[],pingOn=false,actx=null,alertSound=LS.get('alertSound',true),alertOn=LS.get('alertOn',true);
 function unlockAudio(){try{if(!actx)actx=new (window.AudioContext||window.webkitAudioContext)();if(actx.state==='suspended')actx.resume()}catch(e){}}
@@ -766,7 +820,7 @@ function nextPing(){const x=pingQ.shift(),el=$('ping');if(!x){pingOn=false;el.cl
 let expT=0;
 function armExpiry(){clearTimeout(expT);const m=Cloud.member;if(!m||!m.exp)return;const d=m.exp-Date.now();
   if(d<=0){logOut('expired');return}expT=setTimeout(()=>logOut('expired'),Math.min(d,2147e6))}
-function logOut(why){if(!Cloud.member)return;clearTimeout(expT);rtStop();
+function logOut(why){if(!Cloud.member)return;clearTimeout(expT);rtStop();Object.values(liveMk).forEach(m=>m.remove());liveMk={};LIVE={};
   Cloud.member=null;Cloud.outbox=[];Cloud.remote={sightings:[],reports:[]};saveCloud();
   try{if(nav)endNav()}catch(e){}try{closeSheet()}catch(e){}refreshOverlays();
   const o=$('gOut');o.innerHTML='You have been logged out<small>'+(why==='expired'?'Your guest code has expired. Ask an owner for a new one.':why==='revoked'?'An owner ended your guest code.':'Your access to the map was removed.')+'</small>';o.classList.remove('hide');
@@ -1257,14 +1311,16 @@ function cloudSheet(){
   <div class="list" style="margin-top:8px"><div class="it"><div><b>New sighting alerts</b><br><small>Pops up when someone else marks a sighting</small></div><button class="sm ${alertOn?'':'red'}" id="cAlert">${alertOn?'On':'Off'}</button></div>
   <div class="it"><div><b>Alert sound</b><br><small>Plays a bing with each alert</small></div><button class="sm ${alertSound?'':'red'}" id="cSound">${alertSound?'On':'Off'}</button></div>
   ${'Notification' in window&&Notification.permission!=='granted'?`<div class="it"><div><b>Phone notifications</b><br><small>Also alert you while the app is in the background</small></div><button class="sm" id="cNotif">Turn on</button></div>`:''}
+  <div class="it"><div><b>Show me to other members</b><br><small>Only on the reserve, never at home, and hidden after 3 min stopped (unless at a sighting)</small></div><button class="sm ${shareLoc?'':'red'}" id="cLoc">${shareLoc?'On':'Off'}</button></div>
   <div class="it"><div><b>Share rhino sightings</b><br><small>Off keeps rhino locations on this phone only</small></div><button class="sm ${shareRhino?'':'red'}" id="cRhino">${shareRhino?'On':'Off'}</button></div></div>
   <div class="row"><button class="btn pri" id="cSync">Sync now</button><button class="btn red" id="cLeave">Leave</button></div>`,()=>{
+    $('cLoc').onclick=()=>{shareLoc=!shareLoc;LS.set('shareLoc',shareLoc);if(!shareLoc)liveTick();cloudSheet()};
     $('cAlert').onclick=()=>{alertOn=!alertOn;LS.set('alertOn',alertOn);cloudSheet()};
     $('cSound').onclick=()=>{alertSound=!alertSound;LS.set('alertSound',alertSound);if(alertSound)bing();cloudSheet()};
     if($('cNotif'))$('cNotif').onclick=async()=>{try{const r=await Notification.requestPermission();toast(r==='granted'?'Notifications on':'Notifications are blocked. Allow them in Settings.',3500)}catch(e){toast('This phone needs the app added to the Home Screen first',3500)}cloudSheet()};
     $('cRhino').onclick=()=>{shareRhino=!shareRhino;LS.set('shareRhino',shareRhino);cloudSheet()};
     $('cSync').onclick=async()=>{if(!navigator.onLine){toast('No signal right now. It syncs by itself when signal comes back.');return}$('cSync').textContent='Syncing...';await sync();cloudSheet();toast(Cloud.err?'Sync failed, will retry':'Up to date')};
-    $('cLeave').onclick=()=>{rtStop();Cloud.member=null;Cloud.outbox=[];Cloud.remote={sightings:[],reports:[]};saveCloud();refreshOverlays();closeSheet();$('gOut').classList.add('hide');showGate()};
+    $('cLeave').onclick=async()=>{try{if(LS_.on)await api('/rest/v1/live_locs?user_id=eq.'+Cloud.sess.uid,{method:'DELETE'})}catch(e){}LS_.on=false;rtStop();Object.values(liveMk).forEach(m=>m.remove());liveMk={};LIVE={};Cloud.member=null;Cloud.outbox=[];Cloud.remote={sightings:[],reports:[]};saveCloud();refreshOverlays();closeSheet();$('gOut').classList.add('hide');showGate()};
   });
 }
 function toggleRec(){
