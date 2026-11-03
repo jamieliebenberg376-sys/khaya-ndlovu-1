@@ -79,6 +79,12 @@ body.drivecam #roadCard{display:none!important}body.drivecam #junc{top:calc(var(
 
 /* fab */
 #fabs{position:fixed;right:10px;bottom:calc(var(--safe-b) + 22px);z-index:9;display:flex;flex-direction:column;gap:10px}
+.fab.wx{flex-direction:column;gap:0;line-height:1}.fab.wx .we{font-size:20px}.fab.wx b{font-size:12.5px;color:#202124;margin-top:1px}body.night .fab.wx b{color:#e8eaed}.fab.wx.storm{box-shadow:0 0 0 3px #f9ab00,0 2px 8px rgba(0,0,0,.22)}
+.wxm{background:rgba(255,255,255,.94);color:#202124;border-radius:14px;padding:3px 8px 3px 5px;font:700 13px/1.1 system-ui,-apple-system,sans-serif;box-shadow:0 1px 5px rgba(0,0,0,.25);display:flex;align-items:center;gap:4px;white-space:nowrap;cursor:pointer}.wxm span{font-size:16px}.wxm small{font-weight:600;color:#5f6368;font-size:10.5px;display:block}
+body.night .wxm{background:rgba(32,34,38,.92);color:#e8eaed}body.night .wxm small{color:#bdc1c6}body.drivecam .wxm,body.navon .wxm{display:none}
+.wxh{display:flex;gap:6px;overflow-x:auto;padding:8px 0 4px;margin:0 -2px;scrollbar-width:none}.wxh::-webkit-scrollbar{display:none}.wxh div{flex:0 0 52px;text-align:center;background:rgba(127,127,127,.09);border-radius:12px;padding:7px 0;font-size:12px}.wxh div b{display:block;font-size:14px;margin-top:2px}.wxh div span{font-size:19px;display:block;margin:3px 0}.wxh div i{font-style:normal;color:#1a73e8;font-size:11px;font-weight:700}
+.wxtop{display:flex;align-items:center;gap:14px;margin-top:8px}.wxtop .big{font-size:52px;line-height:1}.wxtop .t{font-size:40px;font-weight:700;line-height:1}.wxgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:10px}.wxgrid div{background:rgba(127,127,127,.09);border-radius:12px;padding:8px;font-size:11.5px;color:var(--sub)}.wxgrid b{display:block;font-size:15px;color:var(--ink)}body.night .wxgrid b{color:#e8eaed}
+.wxwarn{background:#fef7e0;color:#8a4b00;border-radius:12px;padding:10px 12px;margin-top:10px;font-weight:600;font-size:13.5px}body.night .wxwarn{background:#3d2e00;color:#fdd663}
 .fab{width:50px;height:50px;border-radius:25px;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.22);display:flex;align-items:center;justify-content:center}
 .fab svg{width:24px;height:24px}
 .fab.on{color:var(--blue)}
@@ -256,6 +262,7 @@ body.drive #nav .dist{font-size:24px}body.drive #nav .ins{font-size:32px}body.dr
 <div id="speed"><b id="spd">0</b><small>km/h</small></div>
 <div id="rec" class="hide">REC <span id="recInfo"></span></div>
 <div id="fabs">
+  <button class="fab wx hide" id="wxBtn" aria-label="Weather"><span class="we" id="wxE">⛅</span><b id="wxT">--°</b></button>
   <button class="fab" id="compass" aria-label="North up"><svg viewBox="0 0 24 24" id="compassSvg"><path d="M12 2l4 10h-8z" fill="#d93025"/><path d="M12 22l-4-10h8z" fill="#9aa0a6"/></svg></button>
   <button class="fab" id="layerBtn" aria-label="Map style"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/></svg></button>
   <button class="fab" id="pinBtn" aria-label="Add sighting"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
@@ -647,11 +654,50 @@ setInterval(()=>sync(),60000);
 /* guest access: server says if your code is still valid; the end date is also kept on the phone so it logs out with no signal */
 async function checkStatus(){
   let st;try{st=await api('/rest/v1/rpc/my_status',{method:'POST',body:'{}'})}catch(e){if(/404|PGRST202|Could not find/.test(String(e.message||e)))return false;throw e}
-  if(!st)return false;
+  if(!st||typeof st!=='object'||Array.isArray(st)||!('member' in st))return false;
   if(!st.member||!st.active){logOut(st.member?(st.expires_at&&Date.parse(st.expires_at)<=Date.now()+1000?'expired':'revoked'):'removed');return true}
   const exp=st.expires_at?Date.parse(st.expires_at):null;
   if(Cloud.member.role!==st.role||Cloud.member.exp!==exp){Cloud.member.role=st.role;Cloud.member.exp=exp;saveCloud();armExpiry()}
   return false}
+/* ============ weather (Open-Meteo, free, no key) ============ */
+const WX_AREAS=[['Khaya Ndlovu',-24.3852,30.9648],['Leadwood',-24.4056,30.9145],['Blok 1',-24.428,30.9354],['Blok 2',-24.4393,30.9121],['Blok 3',-24.4578,30.9196],['Blok 4',-24.4516,30.9467]];
+const WMO=c=>c===0?['☀️','Clear']:c<=1?['🌤️','Mostly clear']:c===2?['⛅','Partly cloudy']:c===3?['☁️','Cloudy']:c<=48?['🌫️','Fog']:c<=57?['🌦️','Drizzle']:c<=65?['🌧️','Rain']:c<=67?['🌧️','Freezing rain']:c<=77?['🌨️','Snow']:c<=82?['🌦️','Showers']:c<=86?['🌨️','Snow showers']:['⛈️','Thunderstorm'];
+const wxIcon=(c,day)=>!day&&c<=2?(c===0?'🌙':'☁️'):WMO(c)[0];
+const DIRS=['N','NE','E','SE','S','SW','W','NW'],wdir=d=>DIRS[Math.round(d/45)%8];
+let WX=LS.get('wx',null),wxMk=[];
+async function loadWx(force){
+  if(!navigator.onLine)return renderWx();
+  if(!force&&WX&&Date.now()-WX.t<12*6e4)return renderWx();
+  const la=WX_AREAS.map(a=>a[1]).join(','),lo=WX_AREAS.map(a=>a[2]).join(',');
+  const u='https://api.open-meteo.com/v1/forecast?latitude='+la+'&longitude='+lo+'&current=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,is_day,wind_speed_10m,wind_direction_10m,wind_gusts_10m,precipitation,cloud_cover&hourly=temperature_2m,weather_code,precipitation_probability,is_day&daily=temperature_2m_max,temperature_2m_min,sunrise,sunset,uv_index_max,precipitation_probability_max,precipitation_sum&timezone=Africa%2FJohannesburg&forecast_days=2&wind_speed_unit=kmh';
+  try{const r=await fetch(u);if(!r.ok)throw 0;let j=await r.json();if(!Array.isArray(j))j=[j];
+    WX={t:Date.now(),a:j.map((x,i)=>({n:WX_AREAS[i][0],ll:[WX_AREAS[i][2],WX_AREAS[i][1]],c:x.current,h:x.hourly,d:x.daily}))};LS.set('wx',WX)}catch(e){}
+  renderWx()}
+function wxNear(){if(!WX)return null;const p=me?me.ll:map.getCenter().toArray();return WX.a.reduce((b,a)=>dist(a.ll,p)<dist(b.ll,p)?a:b)}
+function wxStorm(a){if(!a||!a.h)return false;const now=Date.now();return a.h.time.some((t,i)=>{const d=Date.parse(t)-now;return d>-36e5&&d<3*36e5&&a.h.weather_code[i]>=95})}
+function renderWx(){if(!WX)return;const a=wxNear(),btn=$('wxBtn');btn.classList.remove('hide');
+  $('wxE').textContent=wxIcon(a.c.weather_code,a.c.is_day);$('wxT').textContent=Math.round(a.c.temperature_2m)+'°';btn.classList.toggle('storm',WX.a.some(wxStorm));
+  if(!mapReady)return;wxMk.forEach(m=>m.remove());wxMk=WX.a.map(x=>{const el=document.createElement('div');el.className='wxm';
+    el.innerHTML='<span>'+wxIcon(x.c.weather_code,x.c.is_day)+'</span><div>'+Math.round(x.c.temperature_2m)+'°<small>'+esc(x.n)+'</small></div>';
+    el.onclick=e=>{e.stopPropagation();wxSheet(x.n)};return new maplibregl.Marker({element:el}).setLngLat(x.ll).addTo(map)});wxZoom()}
+function wxZoom(){const z=map.getZoom(),show=z<14.6;wxMk.forEach(m=>m.getElement().style.visibility=show?'':'hidden')}
+function wxSheet(name){if(!WX){toast(navigator.onLine?'Getting the weather...':'No weather yet. It loads when you have signal.');loadWx(true);return}
+  const a=WX.a.find(x=>x.n===name)||wxNear(),c=a.c,d=a.d,[ic,txt]=WMO(c.weather_code),age=Date.now()-WX.t;
+  const now=Date.now(),hrs=a.h.time.map((t,i)=>({t:Date.parse(t),i})).filter(x=>x.t>now-36e5).slice(0,13);
+  const hm=t=>new Date(t).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  const storm=WX.a.filter(wxStorm).map(x=>x.n);
+  openSheet(`<h2>Weather · ${esc(a.n)}</h2><div class="sub">${age<20*6e4?'Live':'Last updated '+ago(WX.t)+(navigator.onLine?'':' (no signal)')}</div>
+  ${storm.length?`<div class="wxwarn">⛈️ Thunderstorms possible in the next 3 hours: ${esc(storm.join(', '))}. Watch the drifts and low crossings.</div>`:''}
+  <div class="wxtop"><span class="big">${wxIcon(c.weather_code,c.is_day)}</span><div><div class="t">${Math.round(c.temperature_2m)}°</div><div class="sub">${txt} · feels ${Math.round(c.apparent_temperature)}°</div></div><div style="margin-left:auto;text-align:right" class="sub"><b style="font-size:17px">${Math.round(d.temperature_2m_max[0])}°</b> / ${Math.round(d.temperature_2m_min[0])}°<br>today</div></div>
+  <div class="wxgrid"><div>Wind<b>${Math.round(c.wind_speed_10m)} km/h ${wdir(c.wind_direction_10m)}</b>gusts ${Math.round(c.wind_gusts_10m)}</div><div>Rain today<b>${d.precipitation_probability_max[0]??0}%</b>${(d.precipitation_sum[0]||0).toFixed(1)} mm</div><div>Humidity<b>${c.relative_humidity_2m}%</b>cloud ${c.cloud_cover}%</div>
+  <div>Sunrise<b>${hm(d.sunrise[0])}</b>&nbsp;</div><div>Sunset<b>${hm(d.sunset[0])}</b>${Date.parse(d.sunset[0])>now?fmtLeft(Date.parse(d.sunset[0])-now)+' left':'&nbsp;'}</div><div>UV max<b>${Math.round(d.uv_index_max[0]||0)}</b>${(d.uv_index_max[0]||0)>=8?'very high':(d.uv_index_max[0]||0)>=6?'high':'ok'}</div></div>
+  <div class="sub" style="margin-top:14px"><b>Next hours</b></div><div class="wxh">${hrs.map(({t,i},k)=>`<div>${k?new Date(t).getHours()+':00':'Now'}<span>${wxIcon(a.h.weather_code[i],a.h.is_day[i])}</span><b>${Math.round(a.h.temperature_2m[i])}°</b><i>${a.h.precipitation_probability[i]?a.h.precipitation_probability[i]+'%':'&nbsp;'}</i></div>`).join('')}</div>
+  <div class="sub" style="margin-top:12px"><b>Each area right now</b></div><div class="list">${WX.a.map(x=>`<div class="it" data-wx="${esc(x.n)}"><div style="font-size:24px;width:32px">${wxIcon(x.c.weather_code,x.c.is_day)}</div><div style="flex:1"><b>${esc(x.n)}</b><br><small>${WMO(x.c.weather_code)[1]} · wind ${Math.round(x.c.wind_speed_10m)} km/h ${wdir(x.c.wind_direction_10m)}</small></div><b style="font-size:18px">${Math.round(x.c.temperature_2m)}°</b></div>`).join('')}</div>
+  <div class="sub" style="margin-top:10px;font-size:11.5px">Forecast from Open-Meteo. Updates every 15 minutes with signal.</div>`,()=>{
+    document.querySelectorAll('[data-wx]').forEach(e=>e.onclick=()=>wxSheet(e.dataset.wx))})}
+const fmtLeft=ms=>{const m=Math.round(ms/6e4);return m<60?m+' min':Math.floor(m/60)+' h '+(m%60)+' min'};
+$('wxBtn').onclick=()=>wxSheet();
+setInterval(()=>loadWx(),15*6e4);window.addEventListener('online',()=>loadWx());document.addEventListener('visibilitychange',()=>{if(!document.hidden)loadWx()});
 /* ============ new sighting alerts ============ */
 let pingQ=[],pingOn=false,actx=null,alertSound=LS.get('alertSound',true),alertOn=LS.get('alertOn',true);
 function unlockAudio(){try{if(!actx)actx=new (window.AudioContext||window.webkitAudioContext)();if(actx.state==='suspended')actx.resume()}catch(e){}}
@@ -934,12 +980,12 @@ function startNav(x){
   nav={target:x,ll:target,r,...b,stepI:0,startT:Date.now()};
   const warn=allReports().filter(rp=>projectOnRoute(b.segs,rp.ll).d<45);if(warn.length)setTimeout(()=>toast('Heads up: '+warn.map(w=>w.kind+(w.road?' on '+w.road:'')).join(', ')+' on your route',5000),900);
   closeSheet();curRoad=null;map.getSource('cur').setData(empty);
-  $('nav').classList.remove('hide');$('navBottom').classList.remove('hide');$('top').classList.add('hide');$('roadCard').classList.add('hide');
+  document.body.classList.add('navon');$('nav').classList.remove('hide');$('navBottom').classList.remove('hide');$('top').classList.add('hide');$('roadCard').classList.add('hide');
   $('fabs').style.bottom='calc(var(--safe-b) + 100px)';$('speed').style.bottom='calc(var(--safe-b) + 100px)';
   setFollow(2);
   applyDrive();spoken.clear();say('Starting route to '+x.name);navTick();
 }
-function endNav(msg){nav=null;$('junc').classList.add('hide');$('junc').style.top='';spoken.clear();if(window.speechSynthesis)speechSynthesis.cancel();setTimeout(applyDrive,0);map.getSource('route').setData(empty);$('nav').classList.add('hide');$('navBottom').classList.add('hide');$('top').classList.remove('hide');$('fabs').style.bottom='';$('speed').style.bottom='';if(msg)toast(msg,3500);setFollow(me?1:0);updateRoad()}
+function endNav(msg){nav=null;document.body.classList.remove('navon');$('junc').classList.add('hide');$('junc').style.top='';spoken.clear();if(window.speechSynthesis)speechSynthesis.cancel();setTimeout(applyDrive,0);map.getSource('route').setData(empty);$('nav').classList.add('hide');$('navBottom').classList.add('hide');$('top').classList.remove('hide');$('fabs').style.bottom='';$('speed').style.bottom='';if(msg)toast(msg,3500);setFollow(me?1:0);updateRoad()}
 $('navEnd').onclick=()=>endNav();
 const ARROWS={straight:'M12 3l6 7h-4v11h-4V10H6z',left:'M4 10l7-6v4h5a4 4 0 0 1 4 4v9h-4v-9h-5v4z',right:'M20 10l-7-6v4H8a4 4 0 0 0-4 4v9h4v-9h5v4z','slight-left':'M6 4h8l-3 3 6 6v8h-4v-6.5L8 9l-2 2z','slight-right':'M18 4h-8l3 3-6 6v8h4v-6.5L16 9l2 2z','sharp-left':'M5 15l3-8 2 3.5 6 3.5V21h-4v-5.5L8 13l-1 3z','sharp-right':'M19 15l-3-8-2 3.5-6 3.5V21h4v-5.5l4-2.5 1 3z',arrive:'M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z',depart:'M12 3l6 7h-4v11h-4V10H6z'};
 function navTick(){
@@ -1315,7 +1361,7 @@ window.addEventListener('offline',()=>$('offPill')&&$('offPill').classList.remov
 let mapReady=false,prog=0;
 function setProg(p,t){prog=Math.max(prog,p);$('barFill').style.width=prog+'%';if(t)$('gpsTxt').textContent=t}
 setProg(15,'Loading map...');
-map.on('load',()=>{mapReady=true;setTimeout(()=>document.querySelectorAll('.maplibregl-compact-show').forEach(e=>e.classList.remove('maplibregl-compact-show')),50);checkNight();applyMode();if(trail.length>1)map.getSource('trail').setData({type:'Feature',geometry:{type:'LineString',coordinates:trail},properties:{}});setInterval(checkNight,60000);setTimeout(precacheTerrain,8000);refreshOverlays();setProg(55,'Finding satellites...');
+map.on('load',()=>{mapReady=true;setTimeout(()=>document.querySelectorAll('.maplibregl-compact-show').forEach(e=>e.classList.remove('maplibregl-compact-show')),50);checkNight();applyMode();if(trail.length>1)map.getSource('trail').setData({type:'Feature',geometry:{type:'LineString',coordinates:trail},properties:{}});setInterval(checkNight,60000);setTimeout(precacheTerrain,8000);refreshOverlays();loadWx();map.on('zoom',wxZoom);setProg(55,'Finding satellites...');
   const r=LS.get('rec',null);if(r){recTrack=r;$('rec').classList.remove('hide');$('recInfo').textContent=fmtD(r.len)}
   startGPS();bootWait();if(!navigator.onLine)$('offPill').classList.remove('hide');try{$('sunTxt').textContent=sunLine()}catch(e){}});
 function bootWait(){
