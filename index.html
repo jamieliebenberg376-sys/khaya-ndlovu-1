@@ -1764,7 +1764,7 @@ function showGate(){const g=$('gate');g.classList.remove('hide');
     if(!n||!c){err.textContent=!n?'Please enter your name':'Please enter the invite code';bad();return}
     if(!navigator.onLine){err.textContent='You need signal the first time you open the map';bad();return}
     $('gGo').textContent='Checking...';$('gGo').disabled=true;
-    let ok=false;try{ok=await joinReserve(n,c)}catch(x){err.textContent='Could not check the code, try again with better signal';bad();$('gGo').textContent='Open map';$('gGo').disabled=false;return}
+    let ok=false;try{ok=await joinReserve(n,c)}catch(x){err.textContent=/timeout|Failed to fetch|NetworkError|Load failed/i.test(String(x.message||x))?'Could not check the code, try again with better signal':'Could not check the code (map server error). Tell an admin.';console.warn('join failed',x);bad();$('gGo').textContent='Open map';$('gGo').disabled=false;return}
     $('gGo').textContent='Open map';$('gGo').disabled=false;
     if(ok!==true){err.textContent=ok==='expired'?'That guest code has expired':ok==='revoked'?'That guest code was cancelled':ok==='full'?'The admin code is already used by 4 people':ok==='used'?'That invite has already been used':'Oops, that code is wrong';$('gCode').classList.add('bad');$('gCode').select();bad();return}
     err.classList.remove('on');$('gOut').classList.add('hide');g.classList.add('ok');toast('Welcome, '+n+'!',2500);

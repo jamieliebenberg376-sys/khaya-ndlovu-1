@@ -26,6 +26,7 @@ grant execute on function public.is_admin() to authenticated;
 -- join with: ADMIN code, owner code, an owner/admin invite, or a guest code
 create or replace function public.join_core(code text, display_name text)
 returns json language plpgsql security definer set search_path = public, private as $$
+#variable_conflict use_column
 declare
   c text := upper(replace(trim(code), ' ', ''));
   nm text := left(coalesce(nullif(trim(display_name), ''), 'Member'), 40);
@@ -68,7 +69,7 @@ begin
     on conflict (user_id) do update set name = excluded.name, last_seen = now(), expires_at = null, code = excluded.code,
       invited_by = excluded.invited_by,
       role = case when members.role = 'admin' then 'admin' else excluded.role end;
-    update public.guest_codes set uses = uses + 1 where code = g.code and coalesce(cur.code, '') <> g.code;
+    update public.guest_codes gc set uses = gc.uses + 1 where gc.code = g.code and coalesce(cur.code, '') <> g.code;
     return json_build_object('ok', true, 'role', (select role from public.members where user_id = auth.uid()), 'expires_at', null);
   end if;
 
@@ -80,7 +81,7 @@ begin
     code = case when members.role in ('owner', 'admin') then members.code else excluded.code end,
     invited_by = case when members.role in ('owner', 'admin') then members.invited_by else excluded.invited_by end,
     expires_at = case when members.role in ('owner', 'admin') then members.expires_at else excluded.expires_at end;
-  update public.guest_codes set uses = uses + 1 where code = g.code;
+  update public.guest_codes gc set uses = gc.uses + 1 where gc.code = g.code;
   return json_build_object('ok', true, 'role', (select role from public.members where user_id = auth.uid()),
                            'expires_at', (select expires_at from public.members where user_id = auth.uid()));
 end $$;
@@ -126,7 +127,7 @@ begin
   if k = 'guest' and p_expires <= now() then raise exception 'expiry must be in the future'; end if;
   loop
     select string_agg(substr(abc, 1 + floor(random() * length(abc))::int, 1), '') into c from generate_series(1, 6);
-    exit when not exists (select 1 from public.guest_codes where code = c);
+    exit when not exists (select 1 from public.guest_codes gc where gc.code = c);
     tries := tries + 1; if tries > 20 then raise exception 'try again'; end if;
   end loop;
   insert into public.guest_codes (code, label, created_by, created_by_name, expires_at, kind)
