@@ -1,0 +1,34 @@
+# Keeps the free Supabase database awake (it pauses after 7 quiet days), runs the daily cleanup,
+# and every Sunday saves an encrypted backup into backups/. Only KHAYA-BACKUP-PRIVATE-KEY.asc can open them.
+name: Keep map awake and back it up
+on:
+  schedule:
+    - cron: '23 3 * * *'   # every day 05:23 South African time
+  workflow_dispatch: {}
+permissions:
+  contents: write
+env:
+  URL: https://fumilqahcpgkmprlxtzo.supabase.co
+  KEY: sb_publishable_zVeyOjAzpgCbsE8lIqqrfQ_0lxDnrXg   # publishable key, already public inside the app
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Wake the database and run the daily cleanup
+        run: |
+          curl -sS -m 60 -X POST "$URL/rest/v1/rpc/kn_daily" -H "apikey: $KEY" -H "Content-Type: application/json" -d '{}'; echo
+      - name: Weekly encrypted backup (Sundays, or when run by hand)
+        run: |
+          if [ "$(date -u +%u)" != "7" ] && [ "${{ github.event_name }}" != "workflow_dispatch" ]; then echo "Not Sunday, no backup today"; exit 0; fi
+          mkdir -p backups
+          curl -sS -m 180 -X POST "$URL/rest/v1/rpc/kn_backup" -H "apikey: $KEY" -H "Content-Type: application/json" -d '{}' -o r.json
+          B=$(jq -r . r.json 2>/dev/null || true)
+          if [[ "$B" != -----BEGIN* ]]; then echo "No backup made: $(head -c 300 r.json)"; exit 0; fi
+          printf '%s\n' "$B" > "backups/$(date -u +%F).asc"
+          ls -1 backups/*.asc | sort | head -n -12 | xargs -r git rm -q
+          git config user.name "kn-backup-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add backups
+          git commit -qm "Weekly encrypted backup $(date -u +%F)" || exit 0
+          git push -q

@@ -311,6 +311,7 @@ begin
   select * into m from public.members where user_id = h.user_id;
   if not found then return json_build_object('ok', false, 'reason', 'gone'); end if;
   if m.role = 'guest' and m.expires_at is not null and m.expires_at <= now() then return json_build_object('ok', false, 'reason', 'expired'); end if;
+  perform set_config('kn.handover', '1', true);
   insert into public.members (user_id, name, role, code, expires_at, last_seen, invited_by, last_login)
   values (me, m.name, m.role, m.code, m.expires_at, now(), m.invited_by, now())
   on conflict (user_id) do update set name = excluded.name, role = excluded.role, code = excluded.code,
@@ -322,6 +323,7 @@ begin
   begin delete from public.live_locs where user_id = h.user_id; exception when others then null; end;
   delete from public.members where user_id = h.user_id;
   update public.handover set used_at = now() where token = h.token;
+  perform set_config('kn.handover', '', true);
   return json_build_object('ok', true, 'role', m.role, 'expires_at', m.expires_at, 'name', m.name);
 end $$;
 grant execute on function public.use_handover(text) to authenticated;

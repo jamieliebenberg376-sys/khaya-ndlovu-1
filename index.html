@@ -452,6 +452,7 @@ body.looking #nav .jx{display:none!important}
 #nav .tx .ins{white-space:normal!important;display:-webkit-box!important;-webkit-line-clamp:2!important;-webkit-box-orient:vertical;font-size:20px!important}
 .jx .jd{width:84px;height:78px}.jx .jg{grid-template-columns:1fr 84px 1fr}
 body.navon #recenter{color:#ffc23d!important;background:rgba(14,18,13,.92)!important;border:1px solid rgba(255,194,61,.4)!important}body.navon #recenter svg{color:#ffc23d!important}
+.tsum{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 4px}.tsc{display:inline-flex;align-items:center;gap:5px;padding:4px 10px 4px 4px;border-radius:16px;background:rgba(127,127,127,.12);font-size:13.5px}.tsc b{font-weight:800}
 </style>
 </head>
 <body>
@@ -979,7 +980,7 @@ async function sync(){
   try{
     const pushed=Cloud.outbox.length>0;
     while(Cloud.outbox.length){const o=Cloud.outbox[0];
-      if(o.op==='add'){const post=row=>api('/rest/v1/'+o.t+'?on_conflict=client_id',{method:'POST',headers:{Prefer:'resolution=ignore-duplicates,return=minimal'},body:JSON.stringify(row)});try{await post(o.row)}catch(e){const m=String(e.message);if(o.t==='sightings'&&/^400/.test(m)&&('photo' in o.row||'still' in o.row)){const r2={...o.row};delete r2.photo;delete r2.still;await post(r2)}else if(!((o.t==='animal_misses'||o.t==='sos')&&/^(404|400)/.test(m)))throw e}}
+      if(o.op==='add'){const post=row=>api('/rest/v1/'+o.t+'?on_conflict=client_id',{method:'POST',headers:{Prefer:'resolution=ignore-duplicates,return=minimal'},body:JSON.stringify(row)});try{await post(o.row)}catch(e){const m=String(e.message);if(/kn_reject/.test(m)){const why=/outside/.test(m)?'it was outside the reserve':'too many were sent in a short time';toast((o.t==='reports'?'A road report':'A sighting')+' was not shared: '+why,4500)}else if(o.t==='sightings'&&/^400/.test(m)&&('photo' in o.row||'still' in o.row)){const r2={...o.row};delete r2.photo;delete r2.still;await post(r2)}else if(!((o.t==='animal_misses'||o.t==='sos')&&/^(404|400)/.test(m)))throw e}}
       else if(o.op==='photo'){await uploadPhoto(o.cid)}
       else if(o.op==='sosupd'){try{await api('/rest/v1/sos?client_id=eq.'+encodeURIComponent(o.cid),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({...o.body,updated_at:new Date().toISOString()})})}catch(e){if(!/^(404|400)/.test(String(e.message)))throw e}}
       else if(o.op==='sosresolve'){try{await rpc('sos_resolve',{p_cid:o.cid})}catch(e){if(!/^(404|400)/.test(String(e.message)))throw e}}
@@ -991,10 +992,10 @@ async function sync(){
     const now=encodeURIComponent(new Date().toISOString());
     const [s,r,m,md]=await Promise.all([
       api('/rest/v1/sightings?select=client_id,user_id,name,what,note,lat,lng,created_at'+(Cloud.noExtra?'':',photo,still')+'&expires_at=gt.'+now+'&order=created_at.desc&limit=400').catch(e=>{if(!Cloud.noExtra&&/^400/.test(String(e.message))){Cloud.noExtra=true;return api('/rest/v1/sightings?select=client_id,user_id,name,what,note,lat,lng,created_at&expires_at=gt.'+now+'&order=created_at.desc&limit=400')}throw e}),
-      api('/rest/v1/reports?select=client_id,user_id,name,kind,note,road,lat,lng,created_at&resolved=is.false&expires_at=gt.'+now+'&order=created_at.desc&limit=400'),
+      api('/rest/v1/reports?select=client_id,user_id,name,kind,note,road,lat,lng,created_at'+(Cloud.noVotes?'':',confirms,confirmed_at')+'&resolved=is.false&expires_at=gt.'+now+'&order=created_at.desc&limit=400').catch(e=>{if(!Cloud.noVotes&&/^400/.test(String(e.message))){Cloud.noVotes=true;return api('/rest/v1/reports?select=client_id,user_id,name,kind,note,road,lat,lng,created_at&resolved=is.false&expires_at=gt.'+now+'&order=created_at.desc&limit=400')}throw e}),
       api('/rest/v1/members?select=user_id,role,expires_at').catch(()=>api('/rest/v1/members?select=user_id')),
       api('/rest/v1/map_data?select=version')]);
-    alertNew(s||[]);mergeLog(s||[]);loadAnn();loadSos();if(!Cloud.noMiss)api('/rest/v1/animal_misses?select=client_id,user_id,name,what,lat,lng,created_at&created_at=gt.'+encodeURIComponent(new Date(Date.now()-864e5).toISOString())).then(x=>{Cloud.misses=x||[];refreshOverlays()}).catch(e=>{if(/404|PGRST20|does not exist|Could not find/.test(String(e.message||e)))Cloud.noMiss=true});if(Date.now()-LS.get('histT',0)>6*36e5){api('/rest/v1/sightings?select=client_id,what,lat,lng,created_at&created_at=gt.'+encodeURIComponent(new Date(Date.now()-365*864e5).toISOString())+'&order=created_at.desc&limit=5000').then(h=>{mergeLog(h||[]);LS.set('histT',Date.now());refreshOverlays()}).catch(()=>{})}
+    alertNew(s||[]);mergeLog(s||[]);backgroundJobs();loadAnn();loadSos();if(!Cloud.noMiss)api('/rest/v1/animal_misses?select=client_id,user_id,name,what,lat,lng,created_at&created_at=gt.'+encodeURIComponent(new Date(Date.now()-864e5).toISOString())).then(x=>{Cloud.misses=x||[];refreshOverlays()}).catch(e=>{if(/404|PGRST20|does not exist|Could not find/.test(String(e.message||e)))Cloud.noMiss=true});if(Date.now()-LS.get('histT',0)>6*36e5){api('/rest/v1/sightings?select=client_id,what,lat,lng,created_at&created_at=gt.'+encodeURIComponent(new Date(Date.now()-365*864e5).toISOString())+'&order=created_at.desc&limit=5000').then(h=>{mergeLog(h||[]);LS.set('histT',Date.now());refreshOverlays()}).catch(()=>{})}
     Cloud.remote={sightings:s||[],reports:r||[]};{const now_=Date.now(),M=m||[];Cloud.owners=M.filter(x=>!x.role||x.role!=='guest').length;Cloud.guests=M.filter(x=>x.role==='guest'&&x.expires_at&&Date.parse(x.expires_at)>now_).length}Cloud.lastSync=Date.now();Cloud.err=null;saveCloud();
     if(md&&md[0]&&md[0].version>MAP_VERSION&&LS.get('mapVer',0)<md[0].version){const full=await api('/rest/v1/map_data?select=version,data');if(full&&full[0]){try{localStorage.setItem('kn_mapdata',JSON.stringify(full[0].data));LS.set('mapVer',full[0].version);toast('Map update downloaded. It shows next time you open the app.',4500)}catch(e){}}}
     refreshOverlays();
@@ -1223,8 +1224,9 @@ function alertWhatSheet(){const cur=new Set(alertWhat||ANIMALS);
 /* ============ today's feed ============ */
 function feedSheet(prefix){const t0=new Date();t0.setHours(0,0,0,0);const raw=rawSights().filter(x=>x.t>=+t0);const heads=allSights();
   const S=raw.filter(x=>!x.still).sort((a,b)=>b.t-a.t),still=raw.filter(x=>x.still);const R_=allReports().filter(r=>r.t>=+t0);
-  const sp=new Set(S.map(x=>x.what));
-  openSheet(`${prefix||''}<h2>Today on the reserve</h2><div class="sub">${S.length} sighting${S.length==1?'':'s'} · ${sp.size} kind${sp.size==1?'':'s'} of animal${R_.length?' · '+R_.length+' road report'+(R_.length==1?'':'s'):''}</div>
+  const sp=new Set(S.map(x=>x.what));const cnt={};S.forEach(x=>cnt[x.what]=(cnt[x.what]||0)+1);
+  const PL=(w,n)=>n===1||/^(Buffalo|Kudu|Other)$/.test(w)?w:w+'s';const tsum=Object.entries(cnt).sort((a,b)=>b[1]-a[1]).map(([w,n])=>`<span class="tsc">${AN(w,22)}<b>${n}</b> ${esc(PL(w,n).toLowerCase())}</span>`).join('');
+  openSheet(`${prefix||''}<h2>Today on the reserve</h2><div class="sub">${S.length} sighting${S.length==1?'':'s'} · ${sp.size} kind${sp.size==1?'':'s'} of animal${R_.length?' · '+R_.length+' road report'+(R_.length==1?'':'s'):''}</div>${tsum?`<div class="tsum">${tsum}</div>`:''}
    <div id="feedL" style="margin-top:6px">${S.length?S.map(x=>{const e=nearestEdge(x.ll,150),road=e?ROADS[e.e.road].properties.name:null,conf=still.filter(q=>q.what===x.what&&dist(q.ll,x.ll)<120&&q.t>x.t).length,h=heads.find(q=>(q.chain||[q]).some(c=>c.cid===x.cid));
       return `<div class="feedc" data-fc="${x.cid}"><div class="fe">${AN(x.what,40)}</div><div style="flex:1;min-width:0"><b>${esc(x.what)}</b>${h&&h.cid!==x.cid&&!(h.chain||[]).slice(-1)[0].still?' <span class="tag x">moved on</span>':''}<small>${esc(x.by)} · ${new Date(x.t).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}${road?' · '+esc(road):''}${me?' · '+fmtD(dist(me.ll,x.ll))+' away':''}</small>${x.note?`<small style="color:inherit">“${esc(x.note)}”</small>`:''}${conf?`<small>${LI('eye',13)} confirmed still there ${conf}×</small>`:''}</div>${x.photo?`<img class="fi" data-ph="${x.cid}" alt="">`:''}</div>`}).join(''):'<div class="it"><small>Nothing spotted yet today. Be the first: tap the map or +.</small></div>'}</div>
    ${R_.length?`<div class="sub" style="margin-top:14px"><b>Road reports today</b></div><div class="list">${R_.map(r=>`<div class="it"><div><b>${esc(r.kind)}</b><br><small>${esc(r.by)} · ${new Date(r.t).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}${r.road?' · '+esc(r.road):''}</small></div></div>`).join('')}</div>`:''}`,()=>{
@@ -1440,9 +1442,20 @@ const fmtDur=h=>h<1?Math.round(h*60)+' min':h<10&&h%1>.1?Math.floor(h)+' h '+Mat
 function moveTxt(s){if(!s.prev)return '';const km=dist(s.prev.ll,s.ll);if(km<80)return 'still here, first seen '+lastSeen(s.chain[0].t);return 'moved '+fmtD(km)+' in '+fmtDur((s.t-s.prev.t)/36e5)}
 /* ---- behaviour profile per animal, learned from every sighting ever shared ---- */
 let SLOG=LS.get('slog',[]),profCache={};
-function logSight(cid,what,ll,t){if(SLOG.some(x=>x[0]===cid))return;SLOG.push([cid,what,+ll[0].toFixed(5),+ll[1].toFixed(5),t]);if(SLOG.length>6000)SLOG=SLOG.slice(-6000);profCache={};LS.set('slog',SLOG)}
+function logSight(cid,what,ll,t){if(SLOG.some(x=>x[0]===cid))return;SLOG.push([cid,what,+ll[0].toFixed(5),+ll[1].toFixed(5),t]);if(SLOG.length>12000)SLOG=SLOG.slice(-12000);profCache={};LS.set('slog',SLOG)}
+/* behind the scenes, at most every few hours: the whole reserve's sighting history (profiles, best time and likely spots learn from it),
+   tidy up photos of sightings that are gone, and nudge the daily cleanup */
+async function backgroundJobs(){if(!Cloud.member||!navigator.onLine)return;const now=Date.now();
+  if(!Cloud.noHist&&now-LS.get('histT',0)>3*36e5){LS.set('histT',now);
+    try{const since=LS.get('histSince',null);const rows=await rpc('sight_history',{p_since:since?new Date(since-864e5).toISOString():null});
+      if(Array.isArray(rows)&&rows.length){mergeLog(rows);LS.set('histSince',Math.max(...rows.map(r=>Date.parse(r.created_at))));estCache.k='';refreshOverlays()}}
+    catch(e){if(/404|PGRST202|Could not find/.test(String(e.message)))Cloud.noHist=true}}
+  if(now-LS.get('dailyT',0)>20*36e5){LS.set('dailyT',now);
+    try{await rpc('kn_daily',{})}catch(e){}
+    try{const names=await rpc('orphan_photos',{});if(Array.isArray(names)&&names.length){await ensureSession();
+      await fetch(SUPA.url+'/storage/v1/object/sightings',{method:'DELETE',headers:{apikey:SUPA.key,Authorization:'Bearer '+Cloud.sess.access_token,'Content-Type':'application/json'},body:JSON.stringify({prefixes:names})})}}catch(e){}}}
 function mergeLog(rows){let ch=0;const have=new Set(SLOG.map(x=>x[0]));rows.forEach(x=>{if(have.has(x.client_id)||x.still)return;have.add(x.client_id);SLOG.push([x.client_id,x.what,+(+x.lng).toFixed(5),+(+x.lat).toFixed(5),Date.parse(x.created_at)]);ch=1});
-  if(ch){SLOG.sort((a,b)=>a[4]-b[4]);if(SLOG.length>6000)SLOG=SLOG.slice(-6000);profCache={};LS.set('slog',SLOG)}}
+  if(ch){SLOG.sort((a,b)=>a[4]-b[4]);if(SLOG.length>12000)SLOG=SLOG.slice(-12000);profCache={};LS.set('slog',SLOG)}}
 const med=a=>{if(!a.length)return null;const b=[...a].sort((x,y)=>x-y),m=b.length>>1;return b.length%2?b[m]:(b[m-1]+b[m])/2};
 const PERIODS=[['early morning',5,8],['morning',8,11],['midday',11,14],['afternoon',14,17],['evening',17,20],['night',20,29]];
 function inRing(p,r){let c=false;for(let i=0,j=r.length-1;i<r.length;j=i++){const [xi,yi]=r[i],[xj,yj]=r[j];if((yi>p[1])!==(yj>p[1])&&p[0]<(xj-xi)*(p[1]-yi)/(yj-yi)+xi)c=!c}return c}
@@ -1508,10 +1521,11 @@ function profileHtml(what){if(what==='Other')return '';const p=animalProfile(wha
   {const lr=estLearn(what);if(what!=='Rhino')L.push([LI('map',20),'Likely spots',lr.ready?'On. Shows where to look when not seen for 24 h':'Learning, '+Math.max(0,EST_MIN_DAYS-lr.days)+' more day'+(EST_MIN_DAYS-lr.days==1?'':'s')+(lr.n<EST_MIN_N?' and '+(EST_MIN_N-lr.n)+' more sightings':'')+' needed']);else L.push([LI('shield',20),'Likely spots','Never shown for rhinos, to keep them safe'])}
   L.push([LI('bulb',20),'Sighting stays fresh for',fmtDur(p.stayH)+', then fades out by 24 h']);
   return `<div class="prof"><b>${EMO[what]||''} ${esc(what)} profile</b><small>${p.n<5?'Still learning · ':''}${p.n} sighting${p.n==1?'':'s'} over ${p.days} day${p.days==1?'':'s'}</small>${L.map(([i,a,b])=>`<div class="pr"><span>${i}</span><div><small>${a}</small>${esc(b)}</div></div>`).join('')}</div>`}
+const confTxt=r=>r.confirms?' · confirmed by '+(r.confirms+1)+' people'+(r.confAt?', last '+ago(r.confAt):''):'';
 function allReports(){
   const mine=new Set(reports.map(r=>r.cid));
   const out=reports.filter(r=>Date.now()-r.t<REPORT_TTL).map(r=>({...r,mine:true,by:'You'}));
-  (Cloud.remote.reports||[]).forEach(x=>{if(mine.has(x.client_id))return;out.push({cid:x.client_id,kind:x.kind,note:x.note,road:x.road,ll:[x.lng,x.lat],t:Date.parse(x.created_at),by:x.name||'Owner',mine:Cloud.sess&&x.user_id===Cloud.sess.uid})});
+  (Cloud.remote.reports||[]).forEach(x=>{if(mine.has(x.client_id))return;out.push({cid:x.client_id,kind:x.kind,note:x.note,road:x.road,ll:[x.lng,x.lat],t:Date.parse(x.created_at),by:x.name||'Owner',mine:Cloud.sess&&x.user_id===Cloud.sess.uid,confirms:x.confirms||0,confAt:x.confirmed_at?Date.parse(x.confirmed_at):null})});
   return out.sort((a,b)=>b.t-a.t);
 }
 let blockedNodes=new Set();
@@ -1741,7 +1755,7 @@ function searchItems(){
   roadNames.forEach(n=>items.push({kind:'road',name:n,sub:farmOf(n)+' road · '+fmtD(roadLen(n))+' long',road:n}));
   DATA.pois.features.forEach(f=>items.push({kind:f.properties.kind,name:f.properties.name,sub:{gate:'Gate',water:'Dam / waterhole',picnic:'Picnic spot',view:'Viewpoint',hide:'Bird hide',lodge:'Lodge',home:'House'}[f.properties.kind]||'',ll:f.geometry.coordinates}));
   allSights().forEach(s=>items.push(sightPlace(s)));
-  allReports().forEach(r=>items.push({kind:'report',name:r.kind,sub:'Road report · '+ago(r.t)+' · '+r.by+(r.road?' · '+r.road:''),ll:r.ll,cid:r.cid,mine:r.mine}));
+  allReports().forEach(r=>items.push({kind:'report',name:r.kind,sub:'Road report · '+ago(r.t)+' · '+r.by+(r.road?' · '+r.road:'')+confTxt(r),ll:r.ll,cid:r.cid,mine:r.mine}));
   return items;
 }
 function itemLL(it){if(it.ll)return it.ll;const p=me?me.ll:null;return p?nearestOnRoad(it.road,p).q:roadMid(it.road)}
@@ -1798,12 +1812,13 @@ function showPlace(x){
   if(follow)setFollow(0);
   const d=me?fmtD(dist(me.ll,ll))+' straight line':'';
   const r=me?route(me.ll,ll):null;
-  const extra=(x.kind==='sight'&&(x.mine||isAdm()))?`<button class="btn red" id="delS">Delete</button>`:x.kind==='report'?`<button class="btn red" id="resR">Road is clear</button>`:'';
+  const extra=(x.kind==='sight'&&(x.mine||isAdm()))?`<button class="btn red" id="delS">Delete</button>`:x.kind==='report'?`${x.mine?'':'<button class="btn" id="stillR">Still there</button>'}<button class="btn red" id="resR">Road is clear</button>`:'';
   openSheet(`<h2>${esc(x.name)}</h2><div class="sub">${esc(x.sub||'')}${d?' · '+d:''}${r?' · '+fmtD(r.len)+' by road':''}</div><div class="row"><button class="btn pri" id="goBtn"><svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M12 2l8 20-8-5-8 5z"/></svg>Go</button>${extra}</div>${x.kind==='sight'?sightExtrasHtml(x):''}${x.kind==='sight'?profileHtml(x.name):''}`,()=>{
     $('goBtn').onclick=()=>{closeSheet();startNav(x)};
     if(x.kind==='sight')bindSightExtras(x);
     if($('delS'))$('delS').onclick=async()=>{if(!x.mine){if($('delS').dataset.sure!=='1'){$('delS').dataset.sure='1';$('delS').textContent='Tap again to delete';return}if(await adminDelete([x.cid]))closeSheet();return}delSight(x.cid);closeSheet();toast('Sighting deleted')};
-    if($('resR'))$('resR').onclick=()=>{resolveReport(x.cid);closeSheet();toast('Marked as clear')}
+    if($('resR'))$('resR').onclick=()=>{closeSheet();voteReport(x,false)};
+    if($('stillR'))$('stillR').onclick=()=>{closeSheet();voteReport(x,true)}
   });
 }
 
@@ -1890,8 +1905,17 @@ let calMode=false;
 const ANIMALS=['Lion','Leopard','Elephant','Rhino','Cheetah','Wild dog','Hippo','Buffalo','Hyena','Giraffe','Zebra','Kudu','Other'];
 function delSight(cid){const i=sights.findIndex(s=>s.cid===cid);if(i>-1){sights.splice(i,1);LS.set('sights',sights)}
   Cloud.remote.sightings=(Cloud.remote.sightings||[]).filter(x=>x.client_id!==cid);queue({op:'del',t:'sightings',id:cid});refreshOverlays()}
-function resolveReport(cid){const i=reports.findIndex(r=>r.cid===cid);if(i>-1){reports.splice(i,1);LS.set('reports',reports)}
-  Cloud.remote.reports=(Cloud.remote.reports||[]).filter(x=>x.client_id!==cid);queue({op:'resolve',id:cid});refreshOverlays()}
+/* road reports: "Still there" confirms it, "Road is clear" from the reporter/admin clears it; from others it takes 2 people */
+async function voteReport(x,still){
+  if(x.mine&&!still){resolveReport(x.cid);toast('Marked as clear');return}
+  if(!Cloud.member||!navigator.onLine){if(!still){resolveReport(x.cid);toast('Marked as clear')}else toast('You need signal to confirm');return}
+  try{const r=await rpc('vote_report',{p_cid:x.cid,p_still:still});
+    if(r&&r.resolved){resolveReport(x.cid,true);toast(still?'Thanks':'Road marked as clear');return}
+    const rr=(Cloud.remote.reports||[]).find(q=>q.client_id===x.cid);if(rr){rr.confirms=r.confirms;if(still)rr.confirmed_at=new Date().toISOString()}
+    toast(still?'Thanks, confirmed. '+(r.confirms>1?r.confirms+' people say':'You say')+' it is still there':'Thanks. One more person saying it is clear removes it',3500);refreshOverlays()}
+  catch(e){if(/404|PGRST202|Could not find/.test(String(e.message))){if(!still){resolveReport(x.cid);toast('Marked as clear')}}else toast('Could not send, try again with better signal')}}
+function resolveReport(cid,server){const i=reports.findIndex(r=>r.cid===cid);if(i>-1){reports.splice(i,1);LS.set('reports',reports)}
+  Cloud.remote.reports=(Cloud.remote.reports||[]).filter(x=>x.client_id!==cid);if(!server)queue({op:'resolve',id:cid});refreshOverlays()}
 var tapMk=null;
 function dropPin(ll){if(!tapMk){const el=document.createElement('div');el.innerHTML='<svg class="tapmk" viewBox="0 0 30 40"><path d="M15 39C15 39 2 23 2 14a13 13 0 0 1 26 0c0 9-13 25-13 25z" fill="#ea4335" stroke="#fff" stroke-width="2"/><circle cx="15" cy="14" r="5" fill="#fff"/></svg>';tapMk=new maplibregl.Marker({element:el,anchor:'bottom'})}tapMk.setLngLat(ll).addTo(map)}
 function clearPin(){if(tapMk)tapMk.remove()}
@@ -1917,7 +1941,7 @@ function addSheet(tab,at){
 }
 $('pinBtn').onclick=()=>addSheet('sight');
 map.on('click','sights',e=>{const s=allSights().find(x=>x.cid===e.features[0].properties.cid);if(s)showPlace(sightPlace(s))});
-map.on('click','reports',e=>{const r=allReports().find(x=>x.cid===e.features[0].properties.cid);if(r)showPlace({kind:'report',name:r.kind,sub:'Road report · '+ago(r.t)+' · '+r.by+(r.road?' · '+r.road:'')+(r.note?' · '+r.note:''),ll:r.ll,cid:r.cid,mine:r.mine})});
+map.on('click','reports',e=>{const r=allReports().find(x=>x.cid===e.features[0].properties.cid);if(r)showPlace({kind:'report',name:r.kind,sub:'Road report · '+ago(r.t)+' · '+r.by+(r.road?' · '+r.road:'')+confTxt(r)+(r.note?' · '+r.note:''),ll:r.ll,cid:r.cid,mine:r.mine})});
 map.on('click','est-fill',e=>{if(map.queryRenderedFeatures(e.point,{layers:['sights','reports','poi','home']}).length)return;const id=e.features[0].properties.id,x=estimates().find(q=>q.id===id);if(x){e.preventDefault&&e.preventDefault();e.originalEvent&&(e.originalEvent._est=1);estSheet(x)}});
 map.on('click','poi',e=>{const f=e.features[0];showPlace({kind:f.properties.kind,name:f.properties.name,sub:'',ll:f.geometry.coordinates})});
 map.on('click',e=>{const f=map.queryRenderedFeatures(e.point,{layers:['sights','reports','poi','home','est-fill']});if(f.length)return;
@@ -2125,10 +2149,21 @@ async function membersSheet(){
   openSheet(`<h2>Owners & guests</h2><div class="sub">${O.length} owner${O.length==1?'':'s'} · ${G.length} guest${G.length==1?'':'s'}${admin?' · as admin you can remove people':''}</div>
    <div class="sub" style="margin-top:14px"><b>Owners</b></div><div class="gw">${O.map(row).join('')||'<div class="gg"><small>No owners</small></div>'}</div>
    <div class="sub" style="margin-top:14px"><b>Guests</b></div><div class="gw">${G.map(row).join('')||'<div class="gg"><small>No guests on the map right now. Expired guests are removed automatically.</small></div>'}</div>
-   <button class="btn" id="mBack" style="width:100%;margin-top:14px">Back</button>`,()=>{
-    $('mBack').onclick=()=>cloudSheet();
+   ${admin?'<button class="btn" id="mAct" style="width:100%;margin-top:14px">'+LI('clock',18)+' Activity log</button>':''}<button class="btn" id="mBack" style="width:100%;margin-top:10px">Back</button>`,()=>{
+    $('mBack').onclick=()=>cloudSheet();if($('mAct'))$('mAct').onclick=()=>activitySheet();
     document.querySelectorAll('[data-rm]').forEach(b=>b.onclick=async()=>{if(b.dataset.sure!=='1'){b.dataset.sure='1';b.textContent='Sure?';return}
       b.textContent='...';try{await rpc('remove_member',{p_user:b.dataset.rm});toast((b.dataset.n||'They')+' was removed and will be logged out',3500)}catch(e){toast('Could not remove: '+String(e.message||e).slice(0,60))}membersSheet()})})}
+/* ============ activity log (admins): codes, joins, removals, gate arrivals, SOS ============ */
+async function activitySheet(){if(!navigator.onLine){toast('You need signal to see the activity log');return}
+  openSheet('<h2>Activity log</h2><div class="list"><div class="it"><small>Loading...</small></div></div>');
+  let L;try{L=await rpc('list_activity',{p_limit:200})}catch(e){openSheet(`<h2>Activity log</h2><div class="sub" style="line-height:1.45">${/404|PGRST202|Could not find/.test(e.message)?'This needs the backend.sql update in Supabase first.':'Could not load it. Try again with better signal.'}</div><button class="btn" id="aBack" style="width:100%;margin-top:14px">Back</button>`,()=>$('aBack').onclick=()=>membersSheet());return}
+  const IC={code:['ticket','#b06000'],join:['users','#188038'],role:['shield','#c5221f'],remove:['x','#c5221f'],leave:['x','#5f6368'],end:['clock','#5f6368'],sos:['sos','#d93025'],gate:['car','#188038'],gateout:['car','#5f6368'],road:['alert','#e37400'],delete:['x','#c5221f'],news:['mega','#7b1fa2']};
+  const day=t=>{const d=new Date(t),n=new Date();const y=new Date();y.setDate(n.getDate()-1);return d.toDateString()===n.toDateString()?'Today':d.toDateString()===y.toDateString()?'Yesterday':d.toLocaleDateString([],{weekday:'short',day:'numeric',month:'short'})};
+  let last='',h='';(L||[]).forEach(a=>{const t=Date.parse(a.at),dd=day(t);if(dd!==last){h+=(last?'</div>':'')+`<div class="msec" style="margin-top:12px">${dd}</div><div class="list sgroup">`;last=dd}
+    const [ic,col]=IC[a.kind]||['clock','#5f6368'];const txt=/^[A-Z]/.test(a.detail)?a.detail:(a.who||'Someone')+' '+a.detail;
+    h+=`<div class="it" style="gap:12px"><span style="flex:none;width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;background:${col}">${LI(ic,18)}</span><div style="flex:1;min-width:0"><b style="font-weight:600">${esc(txt)}</b><br><small>${new Date(t).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</small></div></div>`});
+  if(last)h+='</div>';
+  openSheet(`<h2>Activity log</h2><div class="sub">Codes, people joining and leaving, cars at the gates, SOS and road reports. Kept for a year.</div>${h||'<div class="sub" style="margin-top:12px">Nothing yet. It starts recording from now.</div>'}<button class="btn" id="aBack" style="width:100%;margin-top:14px">Back</button>`,()=>$('aBack').onclick=()=>membersSheet())}
 /* ============ sign out: takes you off the map and out of the people list ============ */
 function signOutSheet(){const m=Cloud.member;if(!m)return;
   openSheet(`<h2>Sign out?</h2><div class="sub" style="line-height:1.45">You'll be taken off the map completely:</div>
