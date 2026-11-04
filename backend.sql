@@ -310,6 +310,22 @@ begin
 end $$;
 grant execute on function public.live_trails(double precision) to authenticated;
 
+
+-- ---------- REQUIRED APP UPDATE ----------
+-- An admin can require everyone to update. Phones running an older version are asked to update before they can use the map.
+alter table private.config add column if not exists min_build int not null default 0;
+create or replace function public.app_min_build()
+returns int language sql stable security definer set search_path = public, private as $$ select coalesce((select min_build from private.config limit 1), 0) $$;
+grant execute on function public.app_min_build() to anon, authenticated;
+create or replace function public.set_min_build(p_build int)
+returns void language plpgsql security definer set search_path = public, private as $$
+begin
+  if not public.is_admin() then raise exception 'admins only'; end if;
+  update private.config set min_build = greatest(0, p_build);
+  perform public.kn_log('update', 'asked everyone to update to version ' || p_build);
+end $$;
+grant execute on function public.set_min_build(int) to authenticated;
+
 -- ---------- NIGHTLY CLEANUP ----------
 create or replace function public.kn_cleanup()
 returns json language plpgsql security definer set search_path = public, private as $$
@@ -503,6 +519,13 @@ begin
     perform set_config('request.jwt.claims', json_build_object('sub', a)::text, true); perform set_config('request.jwt.claim.sub', a::text, true);
     r := public.live_trails(2);
     out := out || array['Other members see the route a car has driven', case when json_array_length(r) = 1 and json_array_length(r->0->'pts') = 2 then 'PASS' else 'FAIL ' || r::text end];
+    -- required update
+    perform public.set_min_build(60);
+    out := out || array['Admins can require everyone to update', case when public.app_min_build() = 60 then 'PASS' else 'FAIL' end];
+    perform set_config('request.jwt.claims', json_build_object('sub', g)::text, true); perform set_config('request.jwt.claim.sub', g::text, true);
+    begin perform public.set_min_build(1); out := out || array['Guests cannot require an update', 'FAIL'];
+    exception when others then out := out || array['Guests cannot require an update', 'PASS']; end;
+    perform set_config('request.jwt.claims', json_build_object('sub', a)::text, true); perform set_config('request.jwt.claim.sub', a::text, true);
     -- backup
     b := public.kn_backup_build();
     out := out || array['Encrypted backup works', case when b like '-----BEGIN PGP MESSAGE-----%' then 'PASS (' || length(b) || ' characters, locked)' else 'FAIL' end];
