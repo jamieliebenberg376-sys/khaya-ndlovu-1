@@ -15,6 +15,38 @@ alter table public.members add column if not exists invited_by text;
 alter table public.members add column if not exists last_login timestamptz;
 alter table public.members add column if not exists home_lat double precision;
 alter table public.members add column if not exists home_lng double precision;
+alter table public.members add column if not exists locked boolean not null default false;
+
+-- ---------- protected account: can never be removed, demoted or changed by anyone in the app ----------
+-- The lock lives on the membership, so it moves with you when you reinstall (handover).
+create or replace function public.kn_trg_locked()
+returns trigger language plpgsql as $$
+begin
+  if coalesce(current_setting('kn.handover', true), '') = '1' or coalesce(current_setting('kn.lockadmin', true), '') = '1' then
+    return case when tg_op = 'DELETE' then old else new end;
+  end if;
+  if tg_op = 'DELETE' then
+    if old.locked then raise exception 'This account is protected and cannot be removed'; end if;
+    return old;
+  end if;
+  if old.locked then
+    if new.role is distinct from 'admin' or not new.locked or new.expires_at is not null then
+      raise exception 'This account is protected and its role cannot be changed';
+    end if;
+  elsif new.locked then
+    new.locked := false;  -- nobody can lock an account from the app
+  end if;
+  return new;
+end $$;
+drop trigger if exists kn_locked on public.members;
+create trigger kn_locked before update or delete on public.members for each row execute function public.kn_trg_locked();
+
+do $$ begin
+  perform set_config('kn.lockadmin', '1', true);
+  update public.members set locked = true, role = 'admin', expires_at = null, code = null
+   where user_id = '9fb4d097-87d6-4cec-9f5b-c60eca08a23d';
+  perform set_config('kn.lockadmin', '', true);
+end $$;
 
 create table if not exists public.guest_codes (
   code text primary key,
@@ -63,7 +95,7 @@ begin
 
   -- master admin code: max 4 admins
   if c = 'ADMIN' || owner_code then
-    if coalesce(cur.role, '') <> 'admin' and (select count(*) from public.members where role = 'admin') >= 4 then
+    if coalesce(cur.role, '') <> 'admin' and (select count(*) from public.members where role = 'admin' and not locked) >= 4 then
       return json_build_object('ok', false, 'reason', 'full');
     end if;
     insert into public.members (user_id, name, role, code, expires_at, last_seen, invited_by)
@@ -139,7 +171,7 @@ begin
   if not found then return json_build_object('member', false, 'active', false); end if;
   update public.members set last_seen = now() where user_id = auth.uid() and (last_seen is null or last_seen < now() - interval '2 minutes');
   if m.role in ('owner', 'admin') then
-    return json_build_object('member', true, 'role', m.role, 'expires_at', null, 'active', true,
+    return json_build_object('member', true, 'role', m.role, 'expires_at', null, 'active', true, 'locked', m.locked,
       'home', case when m.home_lat is null then null else json_build_object('lat', m.home_lat, 'lng', m.home_lng) end);
   end if;
   -- guests use the home of the owner who made their code
@@ -218,7 +250,7 @@ begin
            case when public.is_admin() or m.user_id = auth.uid() then m.last_seen end as last_seen,
            case when public.is_admin() or m.user_id = auth.uid() then m.last_login end as last_login,
            case when m.role = 'guest' then m.expires_at end as expires_at, m.code,
-           m.user_id = auth.uid() as me,
+           m.user_id = auth.uid() as me, m.locked,
            g.label as code_label,
            coalesce(m.invited_by, g.created_by_name) as added_by,
            case m.role when 'admin' then 0 when 'owner' then 1 else 2 end as role_order
@@ -234,6 +266,7 @@ returns void language plpgsql security definer set search_path = public as $$
 begin
   if not public.is_admin() then raise exception 'admins only'; end if;
   if p_user = auth.uid() then raise exception 'you cannot remove yourself'; end if;
+  if exists (select 1 from public.members where user_id = p_user and locked) then raise exception 'This account is protected and cannot be removed'; end if;
   begin delete from public.live_locs where user_id = p_user; exception when undefined_table then null; end;
   delete from public.members where user_id = p_user;
 end $$;
@@ -247,6 +280,7 @@ begin
   if not public.is_admin() then raise exception 'admins only'; end if;
   if p_role not in ('owner', 'admin') then raise exception 'bad role'; end if;
   if p_user = auth.uid() then raise exception 'you cannot change yourself'; end if;
+  if exists (select 1 from public.members where user_id = p_user and locked) then raise exception 'This account is protected and its role cannot be changed'; end if;
   update public.members set role = p_role, expires_at = null
    where user_id = p_user and role in ('owner', 'admin');
 end $$;
@@ -259,6 +293,7 @@ returns void language plpgsql security definer set search_path = public as $$
 begin
   if auth.uid() is null then return; end if;
   begin delete from public.live_locs where user_id = auth.uid(); exception when undefined_table then null; end;
+  if exists (select 1 from public.members where user_id = auth.uid() and locked) then return; end if;
   delete from public.members where user_id = auth.uid();
 end $$;
 grant execute on function public.leave_reserve() to authenticated;
@@ -330,11 +365,11 @@ begin
   if not found then return json_build_object('ok', false, 'reason', 'gone'); end if;
   if m.role = 'guest' and m.expires_at is not null and m.expires_at <= now() then return json_build_object('ok', false, 'reason', 'expired'); end if;
   perform set_config('kn.handover', '1', true);
-  insert into public.members (user_id, name, role, code, expires_at, last_seen, invited_by, last_login, home_lat, home_lng)
-  values (me, m.name, m.role, m.code, m.expires_at, now(), m.invited_by, now(), m.home_lat, m.home_lng)
+  insert into public.members (user_id, name, role, code, expires_at, last_seen, invited_by, last_login, home_lat, home_lng, locked)
+  values (me, m.name, m.role, m.code, m.expires_at, now(), m.invited_by, now(), m.home_lat, m.home_lng, m.locked)
   on conflict (user_id) do update set name = excluded.name, role = excluded.role, code = excluded.code,
     expires_at = excluded.expires_at, invited_by = excluded.invited_by, last_seen = now(), last_login = now(),
-    home_lat = excluded.home_lat, home_lng = excluded.home_lng;
+    home_lat = excluded.home_lat, home_lng = excluded.home_lng, locked = excluded.locked;
   -- bring their sightings, reports and drives along, then retire the Safari login
   begin update public.sightings set user_id = me where user_id = h.user_id; exception when others then null; end;
   begin update public.reports set user_id = me where user_id = h.user_id; exception when others then null; end;
