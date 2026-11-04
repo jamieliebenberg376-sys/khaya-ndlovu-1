@@ -577,6 +577,40 @@ body.night .rpw{background:rgba(255,170,40,.1);box-shadow:inset 0 0 0 1px rgba(2
 .arv{text-align:center;padding-top:4px}.arv small{display:block;font-size:11px;font-weight:800;letter-spacing:1.6px;text-transform:uppercase;color:var(--goldD);margin-top:10px}.arv h2{margin:2px 0 0;font-size:24px}
 .arvi{display:inline-flex;width:72px;height:72px;border-radius:50%;align-items:center;justify-content:center;background:linear-gradient(160deg,#2f6f4c,#1c4631);color:#ffd36b;box-shadow:0 10px 24px rgba(28,70,49,.3),0 0 0 6px rgba(47,111,76,.12)}
 body.night .arv small{color:#ffcf66}
+
+/* full road names everywhere, wrap instead of "..." */
+.jr2 span{display:block!important;overflow:visible!important;-webkit-line-clamp:unset!important;white-space:normal!important;word-break:normal;overflow-wrap:anywhere}
+.js{white-space:normal!important;overflow:visible!important;text-overflow:clip!important;max-width:150px!important;line-height:1.2;margin-bottom:2px!important}
+#nav .tx .ins{display:block!important;-webkit-line-clamp:unset!important;white-space:normal!important;overflow:visible!important;text-overflow:clip!important}
+body.navon #roadPill{white-space:normal!important;overflow:visible!important;text-overflow:clip!important;text-align:center;line-height:1.2;border-radius:18px!important}
+#peek .pk b,#peek .pk small,.rph b{white-space:normal!important;overflow:visible!important;text-overflow:clip!important}
+#junc .jr{white-space:normal}
+
+/* signal pill */
+#offPill.np{display:flex;align-items:center;gap:8px;top:calc(var(--safe-t) + 112px);padding:8px 14px 8px 12px;border-radius:999px;font:700 13px system-ui,-apple-system,sans-serif;color:#fff;background:rgba(16,22,15,.88);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);box-shadow:0 8px 22px rgba(0,0,0,.28);border:1px solid rgba(255,255,255,.1);opacity:1;white-space:nowrap;animation:npin .35s ease}
+#offPill.np.weak{color:#ffcf66;border-color:rgba(255,194,61,.35)}#offPill.np.weak span{color:#fff}
+#offPill.np.off{color:#ff8a80;border-color:rgba(255,120,100,.35)}#offPill.np.off span{color:#fff}
+#offPill.np.ok{color:#8fe0b0;border-color:rgba(120,220,160,.35)}#offPill.np.ok span{color:#fff}
+#offPill.np.hide{display:none}
+body.navon #offPill.np{top:auto;bottom:calc(var(--bb) + 170px)}
+@keyframes npin{from{opacity:0;transform:translate(-50%,-6px)}to{opacity:1;transform:translate(-50%,0)}}
+/* sighting timer + outside notice */
+.btn.wait{background:linear-gradient(180deg,#8a8f86,#6d7268)!important;box-shadow:none!important;opacity:.95}
+.cdn{display:flex;align-items:center;gap:6px;justify-content:center;font-size:12.5px;color:var(--sub);margin:8px 0 -2px}.cdn.hide{display:none}
+.arvi.warn{background:linear-gradient(160deg,#d98a14,#9a5c00);color:#fff;box-shadow:0 10px 24px rgba(154,92,0,.3),0 0 0 6px rgba(217,138,20,.14)}
+
+.permd{margin:12px 0 2px;border-radius:14px;background:linear-gradient(160deg,#faf6ee,#f3ecdf);box-shadow:inset 0 0 0 1px var(--hair)}
+.permd summary{list-style:none;display:flex;align-items:center;justify-content:space-between;padding:11px 14px;font-weight:700;font-size:14px;color:var(--brand);cursor:pointer}
+.permd summary::-webkit-details-marker{display:none}.permd[open] summary .li{transform:rotate(180deg)}.permd .prof{margin:0;background:transparent!important;box-shadow:none;padding-top:0}
+body.night .permd{background:rgba(255,255,255,.05)}body.night .permd summary{color:#ffcf66}
+.prof.perm{margin-top:10px}
+.stn{width:24px!important;height:24px;border-radius:50%;background:var(--brand);color:#ffd36b!important;font:800 12.5px/24px system-ui!important;text-align:center;flex:none}
+.prof .pr span.stn{color:#ffd36b!important;background:var(--brand)!important}body.night .prof .pr span.stn{color:#1d1406!important;background:#ffcf66!important}
+#sheet{overflow-x:hidden!important;overflow-y:auto!important;touch-action:pan-y}
+#sheetBody{max-width:100%;overflow-x:hidden}#sheetBody *{max-width:100%;box-sizing:border-box}#sheetBody svg.li{max-width:none}
+.inp{max-width:100%;box-sizing:border-box}input[type=datetime-local]{min-width:0;width:100%;-webkit-appearance:none;appearance:none}
+.pass .pf .pfr{color:rgba(255,255,255,.55)!important;font-weight:600!important}
+#offPill.np{left:12px!important;transform:none!important;max-width:calc(100% - 82px);animation:npin2 .35s ease}@keyframes npin2{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}body.navon #offPill.np{left:50%!important;transform:translateX(-50%)!important;animation:none}
 </style>
 </head>
 <body>
@@ -851,6 +885,7 @@ function route(from,to){
   return {pts,rds:rds.slice(1),len:D[T],start:s,end:t};
 }
 function turnWord(delta){const a=Math.abs(delta),side=delta>0?'right':'left';if(a<25)return['straight','Continue'];if(a<55)return['slight-'+side,'Bear '+side];if(a<130)return[side,'Turn '+side];return['sharp-'+side,'Sharp '+side]}
+let NODEK=null;
 function buildSteps(r){
   const segs=[];let cum=0;
   for(let i=0;i<r.pts.length-1;i++){const L=dist(r.pts[i],r.pts[i+1]);segs.push({a:r.pts[i],b:r.pts[i+1],L,cum,road:ROADS[r.rds[i]].properties.name});cum+=L}
@@ -868,8 +903,19 @@ function buildSteps(r){
       const k=nm+'|'+Math.round(t/40);if(seen.has(k))continue;seen.add(k);list.push({name:nm,turn:t,take:nm===st.road&&Math.abs(t-d)<35})}
     if(!list.some(x=>x.take))list.push({name:st.road,turn:d,take:true});
     list.sort((a,b)=>a.turn-b.turn);st.junc=list});
+  // every junction along the route (also the ones you drive straight through), for the junction preview
+  if(!NODEK){NODEK=new Map();nodes.forEach((n,k)=>NODEK.set(n[0].toFixed(6)+','+n[1].toFixed(6),k))}
+  const juncs=[];
+  for(let i=1;i<r.pts.length-1;i++){const ni=NODEK.get(r.pts[i][0].toFixed(6)+','+r.pts[i][1].toFixed(6));if(ni==null||!adj[ni]||adj[ni].length<3)continue;
+    const at=segs[i]?segs[i].cum:null;if(at==null||at<15||cum-at<10)continue;
+    const bin=bAt(at,-1),bout=bAt(at,1);const myRoad=segs[i].road;const list=[],seen=new Set();
+    for(const o of adj[ni]){const nm=ROADS[o.road].properties.name;const t=((bearing(nodes[ni],nodes[o.to])-bin+540)%360)-180;if(Math.abs(t)>160)continue;
+      const k=nm+'|'+Math.round(t/40);if(seen.has(k))continue;seen.add(k);list.push({name:nm,turn:t,take:Math.abs(((bearing(nodes[ni],nodes[o.to])-bout+540)%360)-180)<30})}
+    if(list.length<2)continue;if(!list.some(x=>x.take))list.push({name:myRoad,turn:((bout-bin+540)%360)-180,take:true});
+    if(list.filter(x=>x.take).length>1){let best=null;list.forEach(x=>{if(x.take&&(!best||Math.abs(x.turn-(((bout-bin+540)%360)-180))<Math.abs(best.turn-(((bout-bin+540)%360)-180))))best=x});list.forEach(x=>x.take=x===best)}
+    list.sort((a,b)=>a.turn-b.turn);if(juncs.length&&at-juncs[juncs.length-1].at<12)continue;juncs.push({at,junc:list,road:myRoad})}
   // merge tiny steps (<30m) into next
-  return {segs,steps,total:cum};
+  return {segs,steps,total:cum,juncs};
 }
 function pointAt(segs,along){for(const s of segs){if(along<=s.cum+s.L){const t=s.L?(along-s.cum)/s.L:0;return[s.a[0]+(s.b[0]-s.a[0])*t,s.a[1]+(s.b[1]-s.a[1])*t]}}const l=segs[segs.length-1];return l?l.b:[0,0]}
 function projectOnRoute(segs,p){let best=null;for(const s of segs){const pr=projSeg(p,s.a,s.b);if(!best||pr.d<best.d)best={d:pr.d,along:s.cum+pr.t*s.L,q:pr.q}}return best}
@@ -1073,10 +1119,26 @@ async function ensureSession(){
   if(Cloud.sess){try{setSess(await authCall('token?grant_type=refresh_token',{refresh_token:Cloud.sess.refresh_token}));return}catch(e){if(Cloud.member)throw e}}
   setSess(await authCall('signup',{}));
 }
+/* ============ signal indicator: weak signal / offline / back online ============ */
+const NET={st:'ok',fails:0,slow:0,lastOk:0,shown:'',hideT:0};
+function netMark(ok,ms){if(ok){NET.lastOk=Date.now();NET.fails=0;NET.slow=ms>6000?NET.slow+1:Math.max(0,NET.slow-1)}else NET.fails++;netEval()}
+function netEval(){const ec=navigator.connection&&navigator.connection.effectiveType;
+  const st=!navigator.onLine?'off':(NET.fails>=2||NET.slow>=2||ec==='slow-2g'||ec==='2g')?'weak':'ok';
+  if(st===NET.st)return;const was=NET.st;NET.st=st;const el=$('offPill');if(!el)return;clearTimeout(NET.hideT);
+  const bars=n=>`<svg viewBox="0 0 20 14" width="18" height="13">${[0,1,2,3].map(i=>`<rect x="${i*5}" y="${10-i*3}" width="3.2" height="${4+i*3}" rx="1" fill="${i<n?'currentColor':'rgba(255,255,255,.25)'}"/>`).join('')}</svg>`;
+  if(st==='off'){el.className='np off';el.innerHTML=bars(0)+'<span>No signal · map saved on phone</span>'}
+  else if(st==='weak'){el.className='np weak';el.innerHTML=bars(1)+'<span>Weak signal · map works offline</span>'}
+  else{if(was==='ok')return;el.className='np ok';el.innerHTML=bars(4)+'<span>Back online · syncing</span>';NET.hideT=setTimeout(()=>el.classList.add('hide'),2600);if(Cloud.member)setTimeout(sync,300)}}
+window.addEventListener('online',()=>{NET.fails=0;NET.slow=0;netEval()});window.addEventListener('offline',netEval);
+try{navigator.connection&&navigator.connection.addEventListener('change',netEval)}catch(e){}
+// a tiny check every 40 s while the map is open, so weak signal is noticed even when nothing is syncing
+setInterval(async()=>{if(document.hidden||!SUPA.url||!navigator.onLine)return;if(Date.now()-NET.lastOk<35000&&NET.st==='ok')return;
+  const ac=new AbortController(),to=setTimeout(()=>ac.abort(),8000),t0=performance.now();
+  try{const r=await fetch(SUPA.url+'/rest/v1/map_data?select=version&limit=1',{headers:{apikey:SUPA.key},signal:ac.signal,cache:'no-store'});clearTimeout(to);netMark(r.status<500,performance.now()-t0)}catch(e){clearTimeout(to);netMark(false)}},40000);
 async function api(path,opt={},retry=true){
   await ensureSession();
-  const ac=new AbortController(),to=setTimeout(()=>ac.abort(),opt.timeout||20000);let r;
-  try{r=await fetch(SUPA.url+path,{...opt,signal:ac.signal,headers:{apikey:SUPA.key,Authorization:'Bearer '+Cloud.sess.access_token,'Content-Type':'application/json',...(opt.headers||{})}})}catch(e){clearTimeout(to);throw new Error(e.name==='AbortError'?'timeout: weak signal':String(e.message||e))}clearTimeout(to);
+  const ac=new AbortController(),to=setTimeout(()=>ac.abort(),opt.timeout||20000);let r;const t0=performance.now();
+  try{r=await fetch(SUPA.url+path,{...opt,signal:ac.signal,headers:{apikey:SUPA.key,Authorization:'Bearer '+Cloud.sess.access_token,'Content-Type':'application/json',...(opt.headers||{})}})}catch(e){clearTimeout(to);netMark(false);throw new Error(e.name==='AbortError'?'timeout: weak signal':String(e.message||e))}clearTimeout(to);netMark(true,performance.now()-t0);
   if(r.status===401&&retry){Cloud.sess.expires_at=0;return api(path,opt,false)}
   const t=await r.text();if(!r.ok)throw new Error(r.status+': '+t.slice(0,160));return t?JSON.parse(t):null;
 }
@@ -1157,6 +1219,7 @@ async function checkStatus(){
   if(!st||typeof st!=='object'||Array.isArray(st)||!('member' in st))return false;
   if(!st.member||!st.active){logOut(st.member?(st.expires_at&&Date.parse(st.expires_at)<=Date.now()+1000?'expired':'revoked'):'removed');return true}
   const exp=st.expires_at?Date.parse(st.expires_at):null;
+  try{syncHome(st)}catch(e){}
   if(Cloud.member.role!==st.role||Cloud.member.exp!==exp){const ch=Cloud.member.role!==st.role;Cloud.member.role=st.role;Cloud.member.exp=exp;saveCloud();armExpiry();if(ch&&needRole()&&!$('sheet').classList.contains('open'))roleSheet()}
   return false}
 /* ============ weather (Open-Meteo, free, no key) ============ */
@@ -1720,26 +1783,34 @@ function setTarget(ll,heading,t){
   const ne=nearestEdge(ll,25,curRoad);
   if(ne&&ne.d<20&&(speedS||0)>1.2){tgt=ne.q;const rb=bearing(nodes[ne.e.a],nodes[ne.e.b]);const h0=heading!=null?heading:anim.toHd;hd=Math.abs(((rb-h0+540)%360)-180)<90?rb:(rb+180)%360;
     if(heading!=null&&Math.abs(((hd-heading+540)%360)-180)>60)hd=heading}
-  const now=performance.now();const gap=anim.lastFix?Math.min(1600,Math.max(300,now-anim.lastFix)):1000;anim.lastFix=now;
-  anim.from=anim.pos?anim.pos.slice():tgt;anim.fromHd=anim.hd;anim.to=tgt;anim.toHd=hd!=null?hd:anim.hd;anim.t0=now;anim.dur=gap*1.05;
+  const now=performance.now();anim.lastFix=now;anim.fixT=now;anim.v=Math.min(35,speedS||0);
+  anim.to=tgt;anim.toHd=hd!=null?hd:(anim.toHd||0);
+  anim.routeHd=null;if(nav&&nav.segs&&(speedS||0)>1.2){try{const pr=projectOnRoute(nav.segs,tgt);if(pr.d<40)anim.routeHd=bearing(pointAt(nav.segs,pr.along),pointAt(nav.segs,Math.min(nav.total,pr.along+35)))}catch(e){}}if(!anim.pos){anim.pos=tgt.slice();anim.hd=anim.toHd;anim.camHd=anim.toHd}
   if(me)me.disp=tgt;
 }
 const camState={zoom:null};
+/* smooth camera: the arrow glides between GPS fixes (no stop-start hops) and the map turns slowly and steadily (no shaking) */
 function camTick(){
   requestAnimationFrame(camTick);
-  if(!anim.to)return;
-  const k=Math.min(1,(performance.now()-anim.t0)/anim.dur);
-  anim.pos=[anim.from[0]+(anim.to[0]-anim.from[0])*k,anim.from[1]+(anim.to[1]-anim.from[1])*k];
+  if(!anim.to||!anim.pos)return;
+  const now=performance.now(),dt=Math.min(.1,Math.max(0,(now-(anim.lastT||now))/1000));anim.lastT=now;
   const stopped=(speedS||0)<1.4;
-  if(stopped&&compassHd!=null&&follow===2)anim.toHd=compassHd,anim.fromHd=anim.hd;
-  anim.hd=angLerp(anim.fromHd,anim.toHd,Math.min(1,k*1.4));
+  if(stopped&&compassHd!=null&&follow===2)anim.toHd=compassHd;
+  // where the car is now: last fix, carried forward along its heading until the next fix arrives
+  let pred=anim.to;const ex=Math.min(1.25,(now-anim.fixT)/1000);
+  if(!stopped&&anim.v>1.2&&ex>0){const a=anim.toHd*Math.PI/180,d=anim.v*ex;pred=[anim.to[0]+Math.sin(a)*d/(111320*Math.cos(anim.to[1]*Math.PI/180)),anim.to[1]+Math.cos(a)*d/110540]}
+  if(dist(anim.pos,pred)>120)anim.pos=pred.slice();
+  else{const kp=1-Math.exp(-dt/0.2);anim.pos=[anim.pos[0]+(pred[0]-anim.pos[0])*kp,anim.pos[1]+(pred[1]-anim.pos[1])*kp]}
+  anim.hd=angLerp(anim.hd,anim.toHd,1-Math.exp(-dt/0.22));
+  if(anim.camHd==null)anim.camHd=anim.hd;
+  anim.camHd=angLerp(anim.camHd,anim.routeHd!=null&&!stopped?anim.routeHd:anim.toHd,1-Math.exp(-dt/1.15));
   meMk.setLngLat(anim.pos);meMk.setRotation(anim.hd);
   const driving=follow===2;meEl.classList.toggle('nav',driving||!!nav);
   if(driving&&!userMoving){
-    const kmh=(speedS||0)*3.6;const zt=kmh>45?16.4:kmh>25?16.9:17.4;camState.zoom=camState.zoom==null?map.getZoom():camState.zoom+(zt-camState.zoom)*0.03;
-    const p=tilt?60:0;
-    map.jumpTo({center:anim.pos,bearing:anim.hd,pitch:map.getPitch()+(p-map.getPitch())*0.08,zoom:camState.zoom,padding:{top:Math.round(innerHeight*0.42),bottom:0,left:0,right:0}});
-  }
+    const kmh=(speedS||0)*3.6;const zt=kmh>45?16.4:kmh>25?16.9:17.4;const kz=1-Math.exp(-dt/1.8);camState.zoom=camState.zoom==null?map.getZoom():camState.zoom+(zt-camState.zoom)*kz;
+    const p=tilt?60:0,pt=map.getPitch();
+    map.jumpTo({center:anim.pos,bearing:anim.camHd,pitch:Math.abs(p-pt)<.05?p:pt+(p-pt)*(1-Math.exp(-dt/0.6)),zoom:camState.zoom,padding:{top:Math.round(innerHeight*0.42),bottom:0,left:0,right:0}});
+  }else anim.camHd=driving?anim.camHd:map.getBearing();
 }
 let userMoving=false;
 map.on('movestart',e=>{if(e.originalEvent)userMoving=true});map.on('moveend',()=>{userMoving=false});
@@ -1779,15 +1850,16 @@ function jxSvg(list){const C=[50,56],R=40;const pt=t=>{const a=t*Math.PI/180;ret
 function showJx(st,dd,idx){const el=$('navJx');if(!el)return;
   const stage=!st||!st.junc||st.junc.length<2?0:dd<=55?3:dd<=260?2:dd<=520?1:0;
   if(!stage){if(jxKey){el.innerHTML='';$('nav').classList.remove('jxon');jxKey=''}return}
-  const key=idx+':'+stage;if(key===jxKey)return;jxKey=key;
+  const key=idx+':'+stage+':'+Math.round(dd/50);if(key===jxKey)return;const pop=!jxKey.startsWith(idx+':'+stage+':');jxKey=key;
   const lab=r=>`<div class="jl${r.take?' take':''}">${esc(r.name)}</div>`;
   const L=st.junc.filter(r=>r.turn<-22),Rr=st.junc.filter(r=>r.turn>22).reverse(),S=st.junc.filter(r=>Math.abs(r.turn)<=22);
   const ar=d=>`<svg viewBox="0 0 24 24" class="ja"><path fill="currentColor" d="${d<0?ARROWS.left:d>0?ARROWS.right:ARROWS.straight}"/></svg>`;
-  el.innerHTML=`<div class="jh">${stage===3?'Turn now':'In '+(stage===2?'250 m':'500 m')}</div>
+  const tk=st.junc.find(r=>r.take),straight=!tk||Math.abs(tk.turn)<=22;
+  el.innerHTML=`<div class="jh">${stage===3?(straight?'Junction · keep straight':'Turn now'):'Junction in '+fmtD(Math.max(10,Math.round(dd/10)*10))+(straight?' · keep straight':'')}</div>
    <div class="jg"><div class="jc l">${L.map(r=>`<div class="jr2${r.take?' take':''}">${ar(-1)}<span>${esc(r.name)}</span></div>`).join('')}</div>
    <div class="jm">${S.map(r=>`<div class="js${r.take?' take':''}">${esc(r.name)}</div>`).join('')}${jxSvg(st.junc)}</div>
    <div class="jc r">${Rr.map(r=>`<div class="jr2${r.take?' take':''}">${ar(1)}<span>${esc(r.name)}</span></div>`).join('')}</div></div>`;
-  $('nav').classList.add('jxon');el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop')}
+  $('nav').classList.add('jxon');if(pop){el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop')}}
 function showNavJunction(st,dd,idx){const el=$('junc');if(!st||!st.junc){el.classList.add('hide');return}
   const stage=dd<=55?3:dd<=260?2:dd<=520?1:0;const key=idx+':'+stage;const now=Date.now();
   if(stage===0){if(navPop.until<now)el.classList.add('hide');return}
@@ -1826,7 +1898,7 @@ const LOC_ICONS=['<circle cx="12" cy="12" r="7" fill="none" stroke="#5f6368" str
  '<path d="M12 2l7 19-7-4-7 4z" fill="#1a73e8"/>'];
 function setFollow(f){const was=follow;follow=f;if(f)ovOn=false;document.body.classList.toggle('looking',f===0);$('locSvg').innerHTML=LOC_ICONS[f];camState.zoom=null;
   $('recenter').classList.toggle('hide',!(f===0&&me&&((speedS||0)*3.6>5||nav||was===2)));
-  if(f===2&&was!==2&&me){const kmh=(speedS||0)*3.6;map.easeTo({center:anim.pos||me.ll,bearing:anim.hd||0,pitch:tilt?60:0,zoom:kmh>25?16.9:17.4,padding:{top:Math.round(innerHeight*0.42),bottom:0,left:0,right:0},duration:900});camState.zoom=kmh>25?16.9:17.4;userMoving=true;setTimeout(()=>userMoving=false,950)}
+  if(f===2&&was!==2&&me){const kmh=(speedS||0)*3.6;anim.camHd=anim.hd||0;map.easeTo({center:anim.pos||me.ll,bearing:anim.hd||0,pitch:tilt?60:0,zoom:kmh>25?16.9:17.4,padding:{top:Math.round(innerHeight*0.42),bottom:0,left:0,right:0},duration:900});camState.zoom=kmh>25?16.9:17.4;userMoving=true;setTimeout(()=>userMoving=false,950)}
   if(f===1&&!nav){map.easeTo({bearing:0,pitch:0,padding:{top:0,bottom:0,left:0,right:0},duration:500})}
   if(f===1)moveCam();wantWake(f===2||!!nav);updatePill()}
 $('recenter').onclick=()=>setFollow(2);
@@ -1909,6 +1981,10 @@ function syncPeek(){try{const m=Cloud.member;
 setInterval(syncPeek,1000);
 /* ============ my home point: each person sets their own ============ */
 function homeSheet(){
+  if(!canHome()){const d=home&&me?fmtD(dist(me.ll,home.ll)):'';
+    openSheet(home?`<h2>Home</h2><div class="sub">The home of ${esc(home.by||'your host')}, who invited you${d?' · '+d+' from you':''}</div>
+      <button class="btn pri" id="hGo" style="width:100%;margin-top:12px">${LI('home',18)} Take me home</button><div class="sub" style="margin-top:12px;font-size:12.5px">Only owners can set or change a home point.</div>`
+     :`<h2>Home</h2><div class="sub" style="line-height:1.45">Your host hasn't set their home point yet. Once they do, the house button takes you straight there.</div>`,()=>{if($('hGo'))$('hGo').onclick=()=>{closeSheet();startNav({kind:'home',name:'Home',ll:home.ll})}});return}
   const d=home&&me?fmtD(dist(me.ll,home.ll)):'';
   openSheet(home?`<h2>Home</h2><div class="sub">Your own home point, saved on this phone${d?' · '+d+' from you':''}</div>
     <button class="btn pri" id="hGo" style="width:100%;margin-top:12px"><svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M12 2l8 20-8-5-8 5z"/></svg>Take me home</button>
@@ -1920,8 +1996,15 @@ function homeSheet(){
     if($('hGo'))$('hGo').onclick=()=>{closeSheet();startNav({kind:'home',name:'Home',ll:home.ll})};
     $('hHere').onclick=()=>{if(!me){toast(gpsErr||'Waiting for GPS. Try Pick on map instead.');return}setHome(me.ll)};
     $('hPick').onclick=()=>{closeSheet();pickHome()};
-    if($('hDel'))$('hDel').onclick=()=>{if($('hDel').dataset.sure!=='1'){$('hDel').dataset.sure='1';$('hDel').textContent='Tap again to remove';return}home=null;LS.set('home',null);refreshOverlays();closeSheet();toast('Home removed')}})}
-function setHome(ll){home={ll:[+ll[0].toFixed(6),+ll[1].toFixed(6)],t:Date.now()};LS.set('home',home);refreshOverlays();closeSheet();endCal();
+    if($('hDel'))$('hDel').onclick=()=>{if($('hDel').dataset.sure!=='1'){$('hDel').dataset.sure='1';$('hDel').textContent='Tap again to remove';return}home=null;LS.set('home',null);pushHome();refreshOverlays();closeSheet();toast('Home removed')}})}
+const canHome=()=>!Cloud.on||!Cloud.member||Cloud.member.role!=='guest';
+function syncHome(st){const h=st.home;
+  if(Cloud.member.role==='guest'){const nh=h?{ll:[+(+h.lng).toFixed(6),+(+h.lat).toFixed(6)],t:Date.now(),by:h.by||'your host',locked:true}:null;
+    if(JSON.stringify(nh&&nh.ll)!==JSON.stringify(home&&home.ll)||(home&&!home.locked)!==!!(nh===null&&home)){home=nh;LS.set('home',home);refreshOverlays()}return}
+  if(h&&(!home||home.locked)){home={ll:[+(+h.lng).toFixed(6),+(+h.lat).toFixed(6)],t:Date.now()};LS.set('home',home);refreshOverlays()}
+  else if(!h&&home&&!home.locked&&!LS.get('homePushed',false)){rpc('set_my_home',{p_lat:home.ll[1],p_lng:home.ll[0]}).then(()=>LS.set('homePushed',true)).catch(()=>{})}}
+function pushHome(){if(!Cloud.member||Cloud.member.role==='guest'||!navigator.onLine)return;rpc('set_my_home',{p_lat:home?home.ll[1]:null,p_lng:home?home.ll[0]:null}).then(()=>LS.set('homePushed',true)).catch(()=>{})}
+function setHome(ll){if(!canHome()){toast('Only owners can set a home point');return}home={ll:[+ll[0].toFixed(6),+ll[1].toFixed(6)],t:Date.now()};LS.set('home',home);pushHome();refreshOverlays();closeSheet();endCal();
   const e=nearestEdge(home.ll,150);toast('Home saved'+(e?' near '+ROADS[e.e.road].properties.name:'')+'. Tap the house button to get back here.',3500)}
 function pickHome(){setFollow(0);
   map.easeTo({center:home?home.ll:me?me.ll:map.getCenter(),zoom:Math.max(map.getZoom(),16.5),bearing:0,pitch:0,duration:600});
@@ -2023,7 +2106,8 @@ function navTick(){
   const nx=i>=0?nav.steps[i+1]:null;const tr=$('navThenRow');
   if(i>=0){tr.style.display='';$('nav').classList.add('then-on');if(nx){$('navThenArr').innerHTML=`<path fill="#fff" d="${ARROWS[nx.icon||'straight']}"/>`;$('navThen').textContent=''}else{$('navThenArr').innerHTML=`<path fill="#fff" d="${ARROWS.arrive}"/>`;$('navThen').textContent=''}}
   else{tr.style.display='none';$('nav').classList.remove('then-on')}
-  if(i>=0){speakStep(i,dd,txt);showJx(nav.steps[i],dd,i)}else showJx(null);
+  if(i>=0)speakStep(i,dd,txt);
+  {const J=nav.juncs||[];const ji=J.findIndex(q=>q.at>along+3);if(ji>=0)showJx(J[ji],J[ji].at-along,ji);else showJx(null)}
   const kmh=me.speed*3.6;const v=(kmh>5?Math.max(10,Math.min(40,kmh)):18)/3.6;
   const eta=new Date(Date.now()+left/v*1000);
   $('navEta').textContent=fmtT(left/v);
@@ -2077,20 +2161,37 @@ function resolveReport(cid,server){const i=reports.findIndex(r=>r.cid===cid);if(
 var tapMk=null;
 function dropPin(ll){if(!tapMk){const el=document.createElement('div');el.innerHTML='<svg class="tapmk" viewBox="0 0 30 40"><path d="M15 39C15 39 2 23 2 14a13 13 0 0 1 26 0c0 9-13 25-13 25z" fill="#ea4335" stroke="#fff" stroke-width="2"/><circle cx="15" cy="14" r="5" fill="#fff"/></svg>';tapMk=new maplibregl.Marker({element:el,anchor:'bottom'})}tapMk.setLngLat(ll).addTo(map)}
 function clearPin(){if(tapMk)tapMk.remove()}
+/* sightings and road reports only inside the reserve (or on a mapped traverse road) */
+function inArea(ll){return inReserve(ll)||!!nearestEdge(ll,250)}
+function fromBoundary(ll){let m=1e9;for(const p of B)m=Math.min(m,dist(p,ll));return m}
+/* a short wait between sightings (and a cap per few minutes) keeps the map accurate */
+const COOL={sight:{gap:20000,n:10,win:300000},report:{gap:20000,n:8,win:600000}};
+function cooldown(tab){const c=COOL[tab==='report'?'report':'sight'],now=Date.now();
+  const ts=(tab==='report'?reports:sights).filter(x=>!x.still).map(x=>x.t).sort((a,b)=>b-a);
+  let w=ts.length?c.gap-(now-ts[0]):0;const rec=ts.filter(t=>now-t<c.win);if(rec.length>=c.n)w=Math.max(w,rec[c.n-1]+c.win-now);return Math.max(0,w)}
+const fmtCd=ms=>{const s=Math.ceil(ms/1000);return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')};
+function outsideSheet(ll,mine){const d=fromBoundary(ll);
+  openSheet(`<div class="arv"><div class="arvi warn">${LI('alert',30)}</div><small>Outside the reserve</small><h2>${mine?"You're outside the reserve":"Can't add it here"}</h2></div>
+   <div class="sub" style="text-align:center;line-height:1.5;margin-top:8px">Sightings and road reports can only be added inside Khaya Ndlovu${d<5e4?'. '+(mine?'You are':'That spot is')+' '+fmtD(d)+' from the boundary':''}.${mine?' Tap a spot on the map inside the reserve to add one there.':''}</div>
+   <button class="btn pri" id="oOk" style="width:100%;margin-top:16px">OK</button>`,()=>$('oOk').onclick=closeSheet)}
 function addSheet(tab,at){
   const ll=at||(me?me.ll:map.getCenter().toArray());let pick=null;
+  if(!inArea(ll)){if(at){toast("That spot is outside the reserve. Sightings can only be added inside it.",3500)}else outsideSheet(ll,!!me);return}
   const near=nearestEdge(ll,at?60:120);const road=near?ROADS[near.e.road].properties.name:null;
   const away=at&&me?route(me.ll,ll):null;
   const where=at?'Where you tapped'+(road?' on '+road:'')+(away?' · '+fmtD(away.len)+' away by road':me?' · '+fmtD(dist(me.ll,ll))+' away':''):me?'At your current location'+(road?' on '+road:''):'No GPS yet, pinned at the centre of the map';
   const shared=Cloud.on&&Cloud.member;
   const opts=tab==='report'?REPORT_KINDS:ANIMALS;
-  openSheet(`<h2>${tab==='report'?'Report a road problem':'Add a sighting'}</h2><div class="seg" style="margin-top:12px"><button data-tab="sight" class="${tab!=='report'?'sel':''}">Sighting</button><button data-tab="report" class="${tab==='report'?'sel':''}">Road report</button></div><div class="sub" style="margin-top:12px">${esc(where)}</div><div class="chips grid">${opts.map(a=>`<button class="chip" data-a="${a}">${(EMO[a]||'')+' '+a}</button>`).join('')}</div><input class="inp" id="sNote" placeholder="${tab==='report'?'Note (optional), e.g. drift is 50 cm deep':'Note (optional), e.g. 2 males under tree'}">${tab!=='report'?`<label class="phbtn" id="phLbl"><input type="file" accept="image/*" id="sPhoto" hidden><span id="phTxt">${LI('cam',20)} Add a photo</span><img id="phPrev" class="hide"></label>`:''}<div class="sub" id="shareNote" style="margin-top:10px;font-size:12.5px">${shared?(tab==='report'?'Shared with all owners for 5 days. Navigation avoids blocked roads.':'Shared with everyone for 24 hours.'):'Saved on this phone only.'}</div><div class="sticky-save">${at?`<div class="row" style="margin:0"><button class="btn" id="sGo"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l8 20-8-5-8 5z"/></svg>Go now</button><button class="btn pri" id="sSave">Save</button></div>`:`<button class="btn pri" id="sSave" style="width:100%">Save</button>`}</div>`,()=>{
+  openSheet(`<h2>${tab==='report'?'Report a road problem':'Add a sighting'}</h2><div class="seg" style="margin-top:12px"><button data-tab="sight" class="${tab!=='report'?'sel':''}">Sighting</button><button data-tab="report" class="${tab==='report'?'sel':''}">Road report</button></div><div class="sub" style="margin-top:12px">${esc(where)}</div><div class="chips grid">${opts.map(a=>`<button class="chip" data-a="${a}">${(EMO[a]||'')+' '+a}</button>`).join('')}</div><input class="inp" id="sNote" placeholder="${tab==='report'?'Note (optional), e.g. drift is 50 cm deep':'Note (optional), e.g. 2 males under tree'}">${tab!=='report'?`<label class="phbtn" id="phLbl"><input type="file" accept="image/*" id="sPhoto" hidden><span id="phTxt">${LI('cam',20)} Add a photo</span><img id="phPrev" class="hide"></label>`:''}<div class="sub" id="shareNote" style="margin-top:10px;font-size:12.5px">${shared?(tab==='report'?'Shared with all owners for 5 days. Navigation avoids blocked roads.':'Shared with everyone for 24 hours.'):'Saved on this phone only.'}</div><div class="cdn hide" id="cdNote">${LI('timer',15)} One ${tab==='report'?'report':'sighting'} every 20 seconds keeps the map accurate</div><div class="sticky-save">${at?`<div class="row" style="margin:0"><button class="btn" id="sGo"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l8 20-8-5-8 5z"/></svg>Go now</button><button class="btn pri" id="sSave">Save</button></div>`:`<button class="btn pri" id="sSave" style="width:100%">Save</button>`}</div>`,()=>{
     document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>addSheet(b.dataset.tab,at));
     let phBlob=null;if($('sPhoto'))$('sPhoto').onchange=async e=>{const f=e.target.files&&e.target.files[0];if(!f)return;$('phTxt').textContent='Preparing photo...';try{phBlob=await shrinkPhoto(f);$('phPrev').src=URL.createObjectURL(phBlob);$('phPrev').classList.remove('hide');$('phTxt').innerHTML=LI('cam',20)+' Photo added · tap to change'}catch(x){phBlob=null;$('phTxt').textContent='Could not read that photo, try another'}};
     if(at){dropPin(ll);$('sGo').onclick=()=>{clearPin();startNav({kind:'pin',name:road||'Dropped pin',ll})}}
+    {const sb=$('sSave'),orig=sb.innerHTML;const cd=()=>{if(!document.body.contains(sb)||!$('sheet').classList.contains('open')){clearInterval(iv);return}const w=cooldown(tab);
+      if(w>0){sb.disabled=true;sb.classList.add('wait');sb.innerHTML=LI('timer',18)+' Next one in '+fmtCd(w);$('cdNote')&&$('cdNote').classList.remove('hide')}
+      else if(sb.classList.contains('wait')){sb.disabled=false;sb.classList.remove('wait');sb.innerHTML=orig;$('cdNote')&&$('cdNote').classList.add('hide')}};const iv=setInterval(cd,500);cd()}
     document.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{document.querySelectorAll('.chip').forEach(x=>x.classList.remove('sel'));c.classList.add('sel');pick=c.dataset.a;
       if(shared&&tab!=='report')$('shareNote').textContent=(pick==='Rhino'&&!shareRhino)?'Rhino sightings stay on this phone only, to keep rhinos safe. You can change this in Shared map settings.':'Shared with everyone for 24 hours.'});
-    $('sSave').onclick=()=>{if(!pick){toast(tab==='report'?'Tap the problem first':'Tap what you saw first');const g=document.querySelector('.chips.grid');if(g){g.animate([{transform:'translateX(0)'},{transform:'translateX(-6px)'},{transform:'translateX(6px)'},{transform:'translateX(0)'}],{duration:280})}return}
+    $('sSave').onclick=()=>{if(cooldown(tab)>0)return;if(!pick){toast(tab==='report'?'Tap the problem first':'Tap what you saw first');const g=document.querySelector('.chips.grid');if(g){g.animate([{transform:'translateX(0)'},{transform:'translateX(-6px)'},{transform:'translateX(6px)'},{transform:'translateX(0)'}],{duration:280})}return}
       const note=$('sNote').value.trim(),cid=cidNew(),t=Date.now();
       if(tab==='report'){const r={cid,kind:pick,note,road,ll,t};reports.unshift(r);LS.set('reports',reports);queue({op:'add',t:'reports',row:reportRow(r)});toast(pick+' reported'+(road?' on '+road:''))}
       else{const sg={cid,what:pick,note,ll,t,photo:!!phBlob};sights.unshift(sg);LS.set('sights',sights);logSight(cid,pick,ll,t);const share=!(pick==='Rhino'&&!shareRhino);if(phBlob){photoPut(cid,phBlob).then(()=>{if(share)queue({op:'photo',cid})})}if(share)queue({op:'add',t:'sightings',row:sightRow(sg)});toast(pick+' saved'+(phBlob?' with photo':''))}
@@ -2124,7 +2225,7 @@ $('menuBtn').onclick=()=>{
     ${TILE('tSight',LI('binoc',24),'Sightings',today?today+' today':now?now+' on the map':'None yet',today||'','','#e37400')}
     ${TILE('tRec',LI(recTrack?'stop':'rec',24),recTrack?'Stop drive':'Record drive',recTrack?fmtD(recTrack.len)+' so far':'Save your route','',recTrack?'rec':'','#d93025')}
     ${TILE('tBest',wx?wxIcon(wx.c.weather_code,wx.c.is_day,30):LI('sun',24),'Best time',wx?Math.round(wx.c.temperature_2m)+'° · sun & moon':'Sun, moon, animals','','',wx?'#5b8def':'#f9ab00')}
-    ${m?TILE('tHome',LI('home',24),'Home',home?'Take me home':'Set your home','','','#188038'):TILE('tJoin',LI('key',24),'Join','Enter your code','','','#188038')}
+    ${m?TILE('tHome',LI('home',24),'Home',home?'Take me home':canHome()?'Set your home':'Not set yet','','','#188038'):TILE('tJoin',LI('key',24),'Join','Enter your code','','','#188038')}
     ${owner?TILE('tPeople',LI('users',24),'People','Codes & members','','','#7b1fa2'):TILE('tAnn',LI('mega',24),'News',ANN.length?ANN.length+' live':'Nothing new',unread||'','','#7b1fa2')}
     ${TILE('tDrives',LI('route',24),'My drives',tracks.length?tracks.length+' saved':'Summaries','','','#00796b')}
    </div>
@@ -2160,7 +2261,7 @@ function settingsSheet(){const m=Cloud.member;const notif='Notification' in wind
    <div class="msec">Appearance</div><div class="seg" style="margin:0 0 8px">${th('auto','Auto')}${th('day','Light')}${th('night','Dark')}</div><div class="sub" style="margin:-2px 2px 10px;font-size:12.5px">Auto goes dark at sunset and light again at sunrise</div>
    <div class="list sgroup">${TG('sRedAuto','Red screen every night','Keeps your night vision. On after sunset, off at sunrise',redAuto)}${TG('sRed','Red screen now','',redOn)}</div>
    ${m?`<div class="msec">Alerts</div><div class="list sgroup">${TG('sAlert','New sighting alerts','Pop-up when someone else marks a sighting',alertOn)}${LK('sAW','Which animals alert me','',esc(alertWhatTxt()))}${TG('sSound','Alert sound','A bing with each alert',alertSound)}${notif?LK('sNotif','Phone notifications','Also alert you while the app is in the background','Turn on'):''}</div>`:''}
-   <div class="msec">Location</div><div class="list sgroup">${m?LK('sLive','Share live location','',shareLoc?'On':'Off'):''}${LK('sHome','Home point','',home?'Set':'Not set')}${LK('sCal','Calibrate GPS','If your dot sits next to the road',calib[0]||calib[1]?'Active':'')}</div>
+   <div class="msec">Location</div><div class="list sgroup">${m?LK('sLive','Share live location','',shareLoc?'On':'Off'):''}${LK('sHome','Home point','',home?'Set':'Not set')}${LK('sCal','Calibrate GPS','If your dot sits next to the road',calib[0]||calib[1]?'Active':'')}${isIOS?LK('sLoc','Stop the location question','If the map asks for your location every time',''):''}</div>
    <div class="msec">Driving</div><div class="list sgroup">${TG('sSpd','Speed warning','Red alert over 40 km/h on the reserve',speedWarn)}${TG('sVoice','Voice directions','Spoken turn-by-turn while navigating',voiceOn)}</div>
    ${m?`<div class="msec">Privacy</div><div class="list sgroup">${TG('sRhino','Share rhino sightings','Off keeps rhino locations on this phone only',shareRhino)}</div>`:''}
    <div class="msec">Map data</div><div class="list sgroup">${LK('sOff','Offline map','',esc(offlineStatus()))}</div>
@@ -2177,11 +2278,15 @@ function settingsSheet(){const m=Cloud.member;const notif='Notification' in wind
     if($('sNotif'))$('sNotif').onclick=async()=>{try{const r=await Notification.requestPermission();toast(r==='granted'?'Notifications on':'Notifications are blocked. Allow them in Settings.',3500)}catch(e){toast('Add the app to your Home Screen first',3500)}settingsSheet()};
     if($('sLive'))$('sLive').onclick=()=>liveSheet();
     $('sHome').onclick=()=>homeSheet();
-    $('sCal').onclick=()=>{closeSheet();startCal()};
+    $('sCal').onclick=()=>{closeSheet();startCal()};if($('sLoc'))$('sLoc').onclick=()=>locHelp();
     document.querySelectorAll('#sheetBody [data-th]').forEach(b=>b.onclick=()=>{theme=b.dataset.th;LS.set('theme',theme);checkNight();applyMode();settingsSheet()});
     $('sOff').onclick=()=>offlineSheet(false);
     if($('sSync'))$('sSync').onclick=async()=>{if(!navigator.onLine){toast('No signal right now. It syncs by itself when signal comes back.');return}toast('Syncing...');await sync();settingsSheet();toast(Cloud.err?'Sync failed, will retry':'Up to date')};
     if($('sOut'))$('sOut').onclick=()=>signOutSheet()})}
+function locHelp(){const st=(n,t,d)=>`<div class="pr"><span class="stn">${n}</span><div>${t}<small>${d}</small></div></div>`;
+  openSheet(`<h2>Stop the location question</h2><div class="sub" style="line-height:1.45">iPhone asks websites for your location each time unless you allow it once in Settings. Do these two steps and it will not ask again.</div>
+   <div class="prof perm">${st(1,'Settings › Privacy & Security › Location Services','Scroll to Safari Websites and choose While Using the App')}${st(2,'Settings › Apps › Safari › Location','Choose Allow')}${st(3,'Open the map again','It finds you straight away from now on')}</div>
+   <button class="btn pri" id="lhOk" style="width:100%;margin-top:14px">Got it</button>`,()=>$('lhOk').onclick=closeSheet)}
 /* ============ sightings hub: Today · On the map · Animals ============ */
 function hubSeg(tab){return `<div class="seg" style="margin:2px 0 12px">${[['today','Today'],['map','On the map'],['animals','Animals']].map(([k,l])=>`<button data-hub="${k}" class="${tab===k?'sel':''}">${l}</button>`).join('')}</div>`}
 function bindHub(){document.querySelectorAll('[data-hub]').forEach(b=>b.onclick=()=>sightHub(b.dataset.hub))}
@@ -2209,7 +2314,7 @@ async function guestSheet(){
   const admin=Cloud.member.role==='admin',owner=Cloud.member.role!=='guest';let kind='guest';
   openSheet(`<h2>Guest codes</h2><div class="sub" style="line-height:1.45" id="gIntro">Give a visitor a code. Each code is for one person and works once. When the end date comes, they are logged out.</div>
   ${owner?`<div class="seg" style="margin-top:12px" id="gKind"><button data-k="guest" class="sel">Guest</button><button data-k="owner">Owner</button>${admin?'<button data-k="admin">Admin</button>':''}</div>`:''}
-  <input class="inp" id="gLabel" placeholder="Who is it for? e.g. Smith family" maxlength="40">
+  <details class="permd"><summary><span id="gPermsT">What a guest can do</span>${LI('down',16)}</summary><div id="gPerms">${permsHtml('guest')}</div></details><input class="inp" id="gLabel" placeholder="Who is it for? e.g. Smith family" maxlength="40">
   <div id="gWhen"><div class="gpres">${[['Today',0],['3 days',2],['1 week',6],['1 month',29]].map(([l,d],i)=>`<button class="chip${i==1?' sel':''}" data-d="${d}">${l}</button>`).join('')}</div>
   <div class="sub" style="margin-top:12px">Ends</div><input class="inp" id="gExp" type="datetime-local" style="margin-top:4px"></div>
   <button class="btn pri" id="gMake" style="width:100%;margin-top:12px">Create guest code</button>
@@ -2223,6 +2328,7 @@ async function guestSheet(){
     document.querySelectorAll('#gKind [data-k]').forEach(b=>b.onclick=()=>{kind=b.dataset.k;document.querySelectorAll('#gKind [data-k]').forEach(x=>x.classList.toggle('sel',x===b));
       $('gWhen').style.display=kind==='guest'?'':'none';$('gMake').textContent='Create '+kind+(kind==='guest'?' code':' invite');
       $('gLabel').placeholder=kind==='guest'?'Who is it for? e.g. Smith family':'Their name, e.g. Michael';
+      if($('gPerms')){$('gPerms').innerHTML=permsHtml(kind);$('gPermsT').textContent='What '+(kind==='admin'?'an admin':'a'+(kind==='owner'?'n owner':' guest'))+' can do'}
       $('gIntro').textContent=kind==='guest'?'Give a visitor a code. Each code is for one person and works once. When the end date comes, they are logged out.':'A one-time invite for a new '+kind+'. Their access never expires unless an admin removes them. The invite itself works for 14 days.'});
     $('gSet').onclick=()=>cloudSheet();
     $('gMake').onclick=async()=>{const t=new Date(ex.value);if(kind==='guest'&&(!ex.value||isNaN(t)||t<=new Date())){toast('Pick an end date in the future');return}
@@ -2248,8 +2354,12 @@ async function loadPeople(){const el=$('gPeople');if(!el)return;let L;
    <div class="sub" style="margin-top:14px"><b>Guests</b> · ${G.length}</div><div class="gw">${G.map(row).join('')||'<div class="gg"><small>No guests on the map right now. Guests disappear from here when their code ends.</small></div>'}</div>`;
   el.querySelectorAll('[data-rm]').forEach(b=>b.onclick=async()=>{if(b.dataset.sure!=='1'){b.dataset.sure='1';b.textContent='Sure?';return}
     b.textContent='...';try{await rpc('remove_member',{p_user:b.dataset.rm});toast((b.dataset.n||'They')+' was removed and will be logged out',3500)}catch(e){toast('Could not remove: '+String(e.message||e).slice(0,60))}loadPeople()});
-  el.querySelectorAll('[data-role]').forEach(b=>b.onclick=async()=>{if(b.dataset.sure!=='1'){b.dataset.sure='1';b.textContent='Sure?';return}
-    b.textContent='...';try{await rpc('set_member_role',{p_user:b.dataset.u,p_role:b.dataset.role});toast((b.dataset.n||'They')+' is now '+(b.dataset.role==='admin'?'an admin':'an owner'),3000)}catch(e){toast(/404|PGRST202|Could not find/.test(e.message)?'Run the latest admin_members.sql first':'Could not change: '+String(e.message||e).slice(0,60))}loadPeople()})}
+  el.querySelectorAll('[data-role]').forEach(b=>b.onclick=()=>roleConfirm(b.dataset.u,b.dataset.n||'They',b.dataset.role))}
+function roleConfirm(uid,name,role){const up=role==='admin';
+  openSheet(`<h2>${up?'Make '+esc(name)+' an admin?':'Make '+esc(name)+' an owner?'}</h2><div class="sub">${up?esc(name)+' will be able to do everything below, as well as everything owners can do.':esc(name)+' will no longer be an admin. As an owner they can still do the following.'}</div>
+   ${permsHtml(role)}<div class="row" style="margin-top:14px"><button class="btn" id="rcNo">Cancel</button><button class="btn pri" id="rcGo">${up?LI('shield',18)+' Make admin':'Make owner'}</button></div>`,()=>{
+    $('rcNo').onclick=()=>guestSheet();
+    $('rcGo').onclick=async()=>{$('rcGo').textContent='...';try{await rpc('set_member_role',{p_user:uid,p_role:role});toast(name+' is now '+(up?'an admin':'an owner')+'. They will see what they can do next time they open the map.',4000)}catch(e){toast(/404|PGRST202|Could not find/.test(e.message)?'Run the latest admin_members.sql first':'Could not change: '+String(e.message||e).slice(0,60))}guestSheet()}})}
 const fmtDay=t=>new Date(t).toLocaleString([],{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
 function left(t){const m=Math.max(0,(t-Date.now())/6e4);if(m<60)return Math.ceil(m)+' min';const h=m/60;if(h<24)return Math.round(h)+(Math.round(h)==1?' hour':' hours');return Math.round(h/24)+' days'}
 function span(a,b){const d=Math.round((b-a)/864e5);return d<1?'under a day':d+(d==1?' day':' days')+' total'}
@@ -2271,7 +2381,7 @@ function passCard(m){const r=m.role||'owner',id='KN-'+(hash32((m.uid||'')+m.name
   return `<div class="pass p-${r}"><div class="ph"><span class="pl">${LI('paw',15)} Khaya Ndlovu</span><span class="tag t-${r}">${ROLE_NM[r]||'Member'}</span></div>
    <div class="pn">${esc(m.name||'Member')}</div><div class="pr2">Game drive map · ${r==='guest'?'Guest pass':'Reserve '+(r==='admin'?'admin':'owner')}</div>
    <div class="pm"><div><small>Access</small><b>${r==='guest'&&m.exp?'Until '+esc(fmtExp(m.exp)):'Never expires'}</b></div><div><small>Pass</small><b class="mono">${id}</b></div></div>
-   <div class="pf">${barcode(id,200,26)}<span>${LI('shield',13)} Verified member</span></div></div>`}
+   <div class="pf"><span>${LI('shield',13)} Verified member</span><span class="pfr">${r==='guest'?'Guest of the reserve':'Khaya Ndlovu Safari Manor'}</span></div></div>`}
 function ticketCard(G){const k=G.kind||'guest';
   return `<div class="tix t-k-${k}"><div class="tl"><span class="tk">${k==='guest'?'Guest':k==='admin'?'Admin':'Owner'}<br>pass</span><span class="tp">${LI('paw',16)}</span></div>
    <div class="tr"><small>${G.label?esc(G.label):'Khaya Ndlovu game drive map'}</small><b class="mono">${esc(G.code)}</b>
@@ -2434,7 +2544,7 @@ function startDemo(){
   const b=buildSteps(r);let along=0;const v=6.5;
   sim={iv:0};toast('Demo: driving from Main Gate to Home',2500);
   const step=()=>{along+=v;if(along>b.total+30){clearInterval(sim.iv);sim=null;toast('Demo finished');return}
-    const p=pointAt(b.segs,Math.min(along,b.total));const p2=pointAt(b.segs,Math.min(along+8,b.total));
+    const p=pointAt(b.segs,Math.min(along,b.total));const p2=pointAt(b.segs,Math.min(along+22,b.total));
     handlePos([p[0]-calib[0],p[1]-calib[1]],6,bearing(p,p2),v,Date.now())};
   step();
   setTimeout(()=>{beginNav({kind:'home',name:'Home',ll:homeLL()})},300);
@@ -2521,15 +2631,38 @@ function showGate(){const g=$('gate');g.classList.remove('hide');
   $('gCode').oninput=()=>{$('gCode').classList.remove('bad');$('gErr').classList.remove('on')};$('gName').oninput=()=>$('gName').classList.remove('bad');
 }
 /* ============ "your role" popup: shown once whenever you get a role (or it changes) ============ */
+/* everything each role can do (shown on the pass, on invites and when changing someone's role) */
+const PERMS={
+ guest:[['map','The full reserve map','Satellite and road map, offline download, search and turn-by-turn navigation with junction previews'],
+  ['binoc','Sightings','See every sighting live, add your own with a photo, tap Still here, and get alerts for the animals you choose'],
+  ['alert','Road reports','Warn others about washed-out, muddy or blocked roads, and confirm or clear reports'],
+  ['sos','SOS','Send an emergency alert to everyone on the map and see who is on the way'],
+  ['live','Live location','Others see your car while you drive on the reserve. You can turn it off any time'],
+  ['home','Your host\'s home','The house button takes you to the home of the owner who invited you'],
+  ['rec','Drives','Record your drives and get a summary and share card'],
+  ['clock','Access ends by itself','You are logged out automatically when your code ends']],
+ owner:[['home','Set your home point','Your guests get it automatically, so the house button takes them to you'],
+  ['ticket','Guest codes','One code per person, for as long as you choose. Send it as a pass on WhatsApp or SMS'],
+  ['key','Owner invites','Invite another owner with a one-time code'],
+  ['users','Owners and guests','See everyone on the map, who invited who and when each guest\'s access ends'],
+  ['x','Cancel or extend codes','End a guest\'s access early or give them more time'],
+  ['binoc','Everything guests can do','Map, navigation, sightings, road reports, SOS, live location and drives'],
+  ['inf','Never expires','Your access stays until an admin removes it']],
+ admin:[['shield','Manage people','Make owners into admins (or back) and remove anyone from the map'],
+  ['mail','Admin and owner invites','One-time codes for new admins and owners'],
+  ['clock','Activity log','Codes made, people joining and leaving, cars at the gates, SOS and road reports'],
+  ['eye','Sign-in times','When each person last signed in and was last active'],
+  ['mega','News','Post announcements that everyone sees'],
+  ['x','Delete any sighting','Remove wrong or fake sightings for everyone'],
+  ['ticket','Everything owners can do','Home point, guest codes, owner invites and the people list'],
+  ['inf','Never expires','Up to 4 people can use the admin code']]};
+const permsHtml=r=>`<div class="prof perm">${(PERMS[r]||[]).map(([i,a,b])=>`<div class="pr"><span>${LI(i,20)}</span><div>${a}<small>${b}</small></div></div>`).join('')}</div>`;
 function roleSheet(then){const m=Cloud.member;if(!m){then&&then();return}const r=m.role||'owner';
-  const can={
-    guest:[[LI('map',20),'Use the full map','Roads, satellite, offline download and turn-by-turn navigation'],[LI('binoc',20),'See and add sightings','Share what you spot and get alerts when others do'],[LI('alert',20),'Road reports','Warn others about washed-out or blocked roads'],[LI('live',20),'Live location is on','Others see your dot while you drive on the reserve. Turn it off any time in the menu']],
-    owner:[[LI('ticket',20),'Make guest codes and owner invites','Give visitors access until a date you choose, or invite another owner'],[LI('users',20),'See everyone on the map','All owners and guests, who invited who, and when guest codes end'],[LI('binoc',20),'Sightings, reports and alerts','Everything guests can do, shared with all members'],[LI('inf',20),'Never expires','Your owner access stays until an admin removes it']],
-    admin:[[LI('shield',20),'Manage people','Remove anyone, and make owners into admins (or back)'],[LI('mail',20),'Owner and admin invites','One-time codes for new owners or admins'],[LI('clock',20),'See activity','When each person last signed in and was last active'],[LI('ticket',20),'Everything owners can do','Guest codes, the people list, sightings and alerts']]}[r]||[];
+  const can=PERMS[r]||[];
   const nm={guest:'Guest',owner:'Owner',admin:'Admin'}[r]||'Member';
   openSheet(`<h2 style="margin-bottom:2px">Welcome, ${esc((m.name||'').split(' ')[0])}</h2><div class="sub">You're ${r==='admin'?'an':'a'} ${nm.toLowerCase()} on the Khaya Ndlovu map. This is your pass.</div>${passCard(m)}
    <div class="msec" style="margin-top:16px">What you can do</div>
-   <div class="prof" style="margin-top:12px">${can.map(([i,a,b])=>`<div class="pr"><span>${i}</span><div>${a}<small>${b}</small></div></div>`).join('')}</div>
+   ${permsHtml(r)}
    ${r==='guest'?'<div class="sub" style="margin-top:10px;font-size:12.5px">You will be logged out automatically when your guest code ends.</div>':'<div class="sub" style="margin-top:10px;font-size:12.5px">Find this under People in the menu.</div>'}
    <button class="btn pri" id="roleOk" style="width:100%;margin-top:14px">Open the map</button>`,()=>{
     $('roleOk').onclick=()=>{LS.set('roleSeen',r);closeSheet();setTimeout(()=>{if(then)then();else annPop()},350)}});
@@ -2594,15 +2727,14 @@ function offlineSheet(first){
         setTimeout(()=>{if(first&&$('sheet').classList.contains('open'))closeSheet()},1800)}
       else{b.disabled=false;b.textContent='Try again';const t=$('dlTxt');if(t)t.textContent='Only '+r.n+' of '+r.total+' parts downloaded. The signal may have dropped, tap Try again.'}}});
 }
-window.addEventListener('online',()=>$('offPill')&&$('offPill').classList.add('hide'));
-window.addEventListener('offline',()=>$('offPill')&&$('offPill').classList.remove('hide'));
+
 /* ============ boot ============ */
 let mapReady=false,prog=0;
 function setProg(p,t){prog=Math.max(prog,p);$('barFill').style.width=prog+'%';if(t)$('gpsTxt').textContent=t}
 setProg(15,'Loading map...');
 map.on('load',()=>{mapReady=true;setTimeout(()=>document.querySelectorAll('.maplibregl-compact-show').forEach(e=>e.classList.remove('maplibregl-compact-show')),50);checkNight();applyMode();if(trail.length>1)map.getSource('trail').setData({type:'Feature',geometry:{type:'LineString',coordinates:trail},properties:{}});setInterval(checkNight,60000);setTimeout(precacheTerrain,8000);sights.forEach(x=>logSight(x.cid,x.what,x.ll,x.t));refreshOverlays();loadWx();map.on('zoom',wxZoom);setProg(55,'Finding satellites...');
   const r=LS.get('rec',null);if(r){recTrack=r;$('rec').classList.remove('hide');$('recInfo').textContent=fmtD(r.len)}
-  startGPS();bootWait();if(!navigator.onLine)$('offPill').classList.remove('hide');try{$('sunTxt').textContent=sunLine()}catch(e){}});
+  startGPS();bootWait();netEval();try{$('sunTxt').textContent=sunLine()}catch(e){}});
 function bootWait(){
   const t0=Date.now();const maxWait=LS.get('booted',false)?3500:6000;
   const iv=setInterval(()=>{const el=Date.now()-t0;

@@ -13,6 +13,8 @@ alter table public.members add column if not exists expires_at timestamptz;
 alter table public.members add column if not exists last_seen timestamptz;
 alter table public.members add column if not exists invited_by text;
 alter table public.members add column if not exists last_login timestamptz;
+alter table public.members add column if not exists home_lat double precision;
+alter table public.members add column if not exists home_lng double precision;
 
 create table if not exists public.guest_codes (
   code text primary key,
@@ -93,6 +95,9 @@ begin
       invited_by = excluded.invited_by,
       role = case when members.role = 'admin' then 'admin' else excluded.role end;
     update public.guest_codes gc set uses = gc.uses + 1 where gc.code = g.code and coalesce(cur.code, '') <> g.code;
+    -- a new owner starts with the home of the person who invited them (they can change it)
+    update public.members m set home_lat = h.home_lat, home_lng = h.home_lng
+      from public.members h where m.user_id = auth.uid() and m.home_lat is null and h.user_id = g.created_by and h.home_lat is not null;
     return json_build_object('ok', true, 'role', (select role from public.members where user_id = auth.uid()), 'expires_at', null);
   end if;
 
@@ -128,19 +133,32 @@ drop function if exists public.my_status();
 create function public.my_status()
 returns json language plpgsql volatile security definer set search_path = public as $$
 #variable_conflict use_column
-declare m public.members;
+declare m public.members; hl double precision; hg double precision; hn text;
 begin
   select * into m from public.members where user_id = auth.uid();
   if not found then return json_build_object('member', false, 'active', false); end if;
   update public.members set last_seen = now() where user_id = auth.uid() and (last_seen is null or last_seen < now() - interval '2 minutes');
   if m.role in ('owner', 'admin') then
-    return json_build_object('member', true, 'role', m.role, 'expires_at', null, 'active', true);
+    return json_build_object('member', true, 'role', m.role, 'expires_at', null, 'active', true,
+      'home', case when m.home_lat is null then null else json_build_object('lat', m.home_lat, 'lng', m.home_lng) end);
   end if;
+  -- guests use the home of the owner who made their code
+  select h.home_lat, h.home_lng, h.name into hl, hg, hn from public.guest_codes g join public.members h on h.user_id = g.created_by where g.code = m.code;
   return json_build_object('member', true, 'role', m.role, 'expires_at', m.expires_at,
+    'home', case when hl is null then null else json_build_object('lat', hl, 'lng', hg, 'by', hn) end,
     'active', (m.expires_at is null or m.expires_at > now())
               and not exists (select 1 from public.guest_codes g where g.code = m.code and g.revoked));
 end $$;
 grant execute on function public.my_status() to authenticated;
+
+-- owners and admins save their home point (their guests use it automatically). Pass nulls to remove it.
+create or replace function public.set_my_home(p_lat double precision, p_lng double precision)
+returns void language plpgsql security definer set search_path = public as $$
+begin
+  if not public.is_owner() then raise exception 'owners only'; end if;
+  update public.members set home_lat = p_lat, home_lng = p_lng where user_id = auth.uid();
+end $$;
+grant execute on function public.set_my_home(double precision, double precision) to authenticated;
 
 -- make a code: owners make guest codes and one-time owner invites; admins can also make admin invites
 create or replace function public.create_code(p_label text, p_expires timestamptz, p_kind text)
@@ -312,10 +330,11 @@ begin
   if not found then return json_build_object('ok', false, 'reason', 'gone'); end if;
   if m.role = 'guest' and m.expires_at is not null and m.expires_at <= now() then return json_build_object('ok', false, 'reason', 'expired'); end if;
   perform set_config('kn.handover', '1', true);
-  insert into public.members (user_id, name, role, code, expires_at, last_seen, invited_by, last_login)
-  values (me, m.name, m.role, m.code, m.expires_at, now(), m.invited_by, now())
+  insert into public.members (user_id, name, role, code, expires_at, last_seen, invited_by, last_login, home_lat, home_lng)
+  values (me, m.name, m.role, m.code, m.expires_at, now(), m.invited_by, now(), m.home_lat, m.home_lng)
   on conflict (user_id) do update set name = excluded.name, role = excluded.role, code = excluded.code,
-    expires_at = excluded.expires_at, invited_by = excluded.invited_by, last_seen = now(), last_login = now();
+    expires_at = excluded.expires_at, invited_by = excluded.invited_by, last_seen = now(), last_login = now(),
+    home_lat = excluded.home_lat, home_lng = excluded.home_lng;
   -- bring their sightings, reports and drives along, then retire the Safari login
   begin update public.sightings set user_id = me where user_id = h.user_id; exception when others then null; end;
   begin update public.reports set user_id = me where user_id = h.user_id; exception when others then null; end;
@@ -396,6 +415,17 @@ begin
     perform set_config('request.jwt.claim.sub', h2::text, true); perform set_config('request.jwt.claims', json_build_object('sub', h2)::text, true);
     r := public.use_handover(tk);
     out := out || array['Admin handover keeps admin', case when (r->>'ok')::boolean and r->>'role' = 'admin' then 'PASS' else 'FAIL ' || r::text end];
+    -- home points
+    perform set_config('request.jwt.claim.sub', o::text, true); perform set_config('request.jwt.claims', json_build_object('sub', o)::text, true);
+    perform public.set_my_home(-24.38, 30.96);
+    c_oguest := public.create_code('home test', now() + interval '1 day', 'guest');
+    perform set_config('request.jwt.claim.sub', h1::text, true); perform set_config('request.jwt.claims', json_build_object('sub', h1)::text, true);
+    delete from public.members where user_id = h1;
+    r := public.join_reserve2(c_oguest, 'Home guest');
+    r := public.my_status();
+    out := out || array['Guest gets the home of the owner who invited them', case when (r->'home'->>'lat')::float = -24.38 and r->'home'->>'by' = 'Test owner' then 'PASS' else 'FAIL ' || r::text end];
+    begin perform public.set_my_home(-24.1, 30.1); out := out || array['Guests cannot set a home point', 'FAIL'];
+    exception when others then out := out || array['Guests cannot set a home point', 'PASS']; end;
     r := public.join_reserve2('WRONG9', 'x');
     out := out || array['Wrong code is refused', case when not (r->>'ok')::boolean and r->>'reason' = 'wrong' then 'PASS' else 'FAIL ' || r::text end];
     raise exception 'kn_selftest_rollback';
