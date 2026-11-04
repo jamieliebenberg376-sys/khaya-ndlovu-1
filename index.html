@@ -611,6 +611,35 @@ body.night .permd{background:rgba(255,255,255,.05)}body.night .permd summary{col
 .inp{max-width:100%;box-sizing:border-box}input[type=datetime-local]{min-width:0;width:100%;-webkit-appearance:none;appearance:none}
 .pass .pf .pfr{color:rgba(255,255,255,.55)!important;font-weight:600!important}
 #offPill.np{left:12px!important;transform:none!important;max-width:calc(100% - 82px);animation:npin2 .35s ease}@keyframes npin2{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}body.navon #offPill.np{left:50%!important;transform:translateX(-50%)!important;animation:none}
+
+/* sighting header */
+.shd{display:flex;gap:14px;align-items:flex-start;padding-top:4px}
+.sth{position:relative;flex:none;width:96px;height:96px;border-radius:18px;overflow:hidden;padding:0;border:0;background:linear-gradient(160deg,var(--sandA),var(--sandB));box-shadow:0 6px 16px rgba(60,40,10,.16),inset 0 0 0 1px var(--hair);display:flex;align-items:center;justify-content:center}
+.sth img{width:100%;height:100%;object-fit:cover;display:block;opacity:0;transition:opacity .3s}.sth.ok img{opacity:1}
+.sth.wait:after{content:'Photo loading';position:absolute;inset:auto 0 8px;text-align:center;font:700 10px system-ui;color:var(--sub)}
+.sth .stc{position:absolute;top:6px;left:6px;min-width:20px;height:20px;padding:0 6px;border-radius:10px;background:rgba(0,0,0,.6);color:#fff;font:800 11px/20px system-ui;text-align:center}
+.sth .stz{position:absolute;right:6px;bottom:6px;width:24px;height:24px;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;display:flex;align-items:center;justify-content:center}
+.sth.none{box-shadow:inset 0 0 0 1px var(--hair)}
+.sti{flex:1;min-width:0}
+.stt{display:flex;align-items:center;flex-wrap:wrap;gap:4px}.stt b{font-size:24px;font-weight:800;letter-spacing:-.4px;line-height:1.1}.stt .tag{margin-left:4px}
+.stl{display:flex;align-items:flex-start;gap:7px;font-size:13.5px;color:var(--sub);margin-top:5px;line-height:1.3}.stl .li{color:var(--goldD);flex:none;margin-top:1px}.stl b{color:var(--ink);font-weight:700}
+.stl.ok,.stl.ok .li{color:#1d5236}
+.stq{margin-top:12px;padding:10px 14px;border-radius:14px;background:linear-gradient(160deg,#faf6ee,#f3ecdf);box-shadow:inset 0 0 0 1px var(--hair);font-size:14.5px;font-style:italic;color:#4a3a22}
+body.night .sth{background:rgba(255,255,255,.06);box-shadow:0 6px 16px rgba(0,0,0,.4),inset 0 0 0 1px rgba(255,255,255,.08)}
+body.night .stl .li{color:#ffcf66}body.night .stl b{color:#fff}body.night .stl.ok,body.night .stl.ok .li{color:#93d9b0}body.night .stq{background:rgba(255,255,255,.05);color:#e8dcc4}
+.sphotos{gap:8px!important;margin-top:4px!important}.sphotos img{width:72px!important;height:72px!important;border-radius:14px!important;box-shadow:inset 0 0 0 1px var(--hair)}
+/* feed thumbnails */
+.feedc .fth{position:relative;flex:none;width:58px;height:58px;border-radius:14px;overflow:hidden;padding:0;border:0;background:linear-gradient(160deg,var(--sandA),var(--sandB));box-shadow:0 3px 10px rgba(60,40,10,.14)}
+.feedc .fth img{width:100%;height:100%;object-fit:cover;display:block;opacity:0;transition:opacity .3s}.feedc .fth.ok img{opacity:1}
+.feedc .fth .fb{position:absolute;right:3px;bottom:3px;display:flex;border-radius:50%;box-shadow:0 0 0 2px #fff}
+/* photo viewer */
+#lbox{position:fixed;inset:0;z-index:200;background:rgba(6,9,6,.94);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s}
+#lbox.on{opacity:1;pointer-events:auto}
+#lbox img{max-width:100%;max-height:calc(var(--app-h,100vh) - 160px);object-fit:contain;transform:scale(.96);transition:transform .25s}#lbox.on img{transform:none}
+#lbox .lbx{position:absolute;top:calc(var(--safe-t) + 12px);right:14px;width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.12);color:#fff;display:flex;align-items:center;justify-content:center}
+#lbox .lbc{position:absolute;left:16px;right:16px;bottom:calc(var(--safe-b) + 20px);display:flex;justify-content:space-between;gap:10px;color:rgba(255,255,255,.85);font:600 14px system-ui}#lbox .lbc b{color:#ffd36b}
+#lbox .lbn{position:absolute;top:50%;margin-top:-26px;width:44px;height:52px;border-radius:14px;background:rgba(255,255,255,.1);color:#fff;font-size:30px;line-height:52px}#lbox .lbn.l{left:8px}#lbox .lbn.r{right:8px}
+#lbox{background:rgba(5,8,5,.97);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
 </style>
 </head>
 <body>
@@ -1415,9 +1444,9 @@ function feedSheet(prefix){const t0=new Date();t0.setHours(0,0,0,0);const raw=ra
   const PL=(w,n)=>n===1||/^(Buffalo|Kudu|Other)$/.test(w)?w:w+'s';const tsum=Object.entries(cnt).sort((a,b)=>b[1]-a[1]).map(([w,n])=>`<span class="tsc">${AN(w,22)}<b>${n}</b> ${esc(PL(w,n).toLowerCase())}</span>`).join('');
   openSheet(`${prefix||''}<h2>Today on the reserve</h2><div class="sub">${S.length} sighting${S.length==1?'':'s'} · ${sp.size} kind${sp.size==1?'':'s'} of animal${R_.length?' · '+R_.length+' road report'+(R_.length==1?'':'s'):''}</div>${tsum?`<div class="tsum">${tsum}</div>`:''}
    <div id="feedL" style="margin-top:6px">${S.length?S.map(x=>{const e=nearestEdge(x.ll,150),road=e?ROADS[e.e.road].properties.name:null,conf=still.filter(q=>q.what===x.what&&dist(q.ll,x.ll)<120&&q.t>x.t).length,h=heads.find(q=>(q.chain||[q]).some(c=>c.cid===x.cid));
-      return `<div class="feedc" data-fc="${x.cid}"><div class="fe">${AN(x.what,40)}</div><div style="flex:1;min-width:0"><b>${esc(x.what)}</b>${h&&h.cid!==x.cid&&!(h.chain||[]).slice(-1)[0].still?' <span class="tag t-off">Moved on</span>':''}<small>${esc(x.by)} · ${new Date(x.t).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}${road?' · '+esc(road):''}${me?' · '+fmtD(dist(me.ll,x.ll))+' away':''}</small>${x.note?`<small style="color:inherit">“${esc(x.note)}”</small>`:''}${conf?`<small>${LI('eye',13)} confirmed still there ${conf}×</small>`:''}</div>${x.photo?`<img class="fi" data-ph="${x.cid}" alt="">`:''}</div>`}).join(''):'<div class="it"><small>Nothing spotted yet today. Be the first: tap the map or +.</small></div>'}</div>
-   ${R_.length?`<div class="sub" style="margin-top:14px"><b>Road reports today</b></div><div class="list">${R_.map(r=>`<div class="it"><div><b>${esc(r.kind)}</b><br><small>${esc(r.by)} · ${new Date(r.t).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}${r.road?' · '+esc(r.road):''}</small></div></div>`).join('')}</div>`:''}`,()=>{
-    bindHub();document.querySelectorAll('[data-ph]').forEach(async im=>{const u=await photoURL(im.dataset.ph);if(u)im.src=u;else im.remove()});
+      return `<div class="feedc" data-fc="${x.cid}">${x.photo?`<button class="fth" data-ph="${x.cid}" data-cap="${esc(x.what+' · '+x.by+' · '+new Date(x.t).toTimeString().slice(0,5))}"><img alt=""><span class="fb">${AN(x.what,20)}</span></button>`:`<div class="fe">${AN(x.what,40)}</div>`}<div style="flex:1;min-width:0"><b>${esc(x.what)}</b>${h&&h.cid!==x.cid&&!(h.chain||[]).slice(-1)[0].still?' <span class="tag t-off">Moved on</span>':''}<small>${esc(x.by)} · ${new Date(x.t).toTimeString().slice(0,5)}${road?' · '+esc(road):''}${me?' · '+fmtD(dist(me.ll,x.ll))+' away':''}</small>${x.note?`<small style="color:inherit">“${esc(x.note)}”</small>`:''}${conf?`<small>${LI('eye',13)} confirmed still there ${conf}×</small>`:''}</div></div>`}).join(''):'<div class="it"><small>Nothing spotted yet today. Be the first: tap the map or +.</small></div>'}</div>
+   ${R_.length?`<div class="sub" style="margin-top:14px"><b>Road reports today</b></div><div class="list">${R_.map(r=>`<div class="it"><div><b>${esc(r.kind)}</b><br><small>${esc(r.by)} · ${new Date(r.t).toTimeString().slice(0,5)}${r.road?' · '+esc(r.road):''}</small></div></div>`).join('')}</div>`:''}`,()=>{
+    bindHub();document.querySelectorAll('.fth[data-ph]').forEach(async b=>{const im=b.querySelector('img');b.onclick=e=>{e.stopPropagation();lightbox([b.dataset.ph],0,b.dataset.cap)};const u=await photoURL(b.dataset.ph);if(u){im.src=u;b.classList.add('ok')}else b.classList.add('wait')});
     document.querySelectorAll('[data-fc]').forEach(c=>c.onclick=()=>{const cid=c.dataset.fc,h=allSights().find(q=>(q.chain||[q]).some(z=>z.cid===cid));if(h)showPlace(sightPlace(h));else{const x=rawSights().find(z=>z.cid===cid);if(x){setFollow(0);map.easeTo({center:x.ll,zoom:15.5});closeSheet()}}})})}
 /* ============ live member dots ============ */
 let shareLoc=LS.get('shareLoc',true),LIVE={},liveMk={},LS_={on:false,lastSend:0,anchor:null,stillT:0,status:'',missing:false};
@@ -1543,11 +1572,34 @@ async function photoURL(cid){if(PURL[cid])return PURL[cid];let b=await photoGet(
   if(!b&&Cloud.sess&&navigator.onLine){try{await ensureSession();const r=await fetch(SUPA.url+'/storage/v1/object/authenticated/sightings/'+cid+'.jpg',{headers:{apikey:SUPA.key,Authorization:'Bearer '+Cloud.sess.access_token}});if(r.ok){b=await r.blob();photoPut(cid,b).catch(()=>{})}}catch(e){}}
   return b?(PURL[cid]=URL.createObjectURL(b)):null}
 function sightExtrasHtml(x){const near=me&&dist(me.ll,x.ll)<400;
-  return `${x.photos&&x.photos.length?`<img class="sphoto" id="sPh" alt=""><div class="sphotos" id="sPhs"></div>`:''}
+  return `${x.photos&&x.photos.length>1?`<div class="msec" style="margin-top:14px">Photos · ${x.photos.length}</div><div class="sphotos" id="sPhs"></div>`:''}
   <div class="row" style="margin-top:10px"><button class="btn" id="stillBtn" style="${near?'':'opacity:.55'}">${LI('eye',18)} Still here</button><label class="btn" style="${near?'':'opacity:.55'};display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer"><input type="file" accept="image/*" id="sAddPh" hidden>${LI('cam',18)} Add photo</label></div><div class="sub" style="font-size:12px;text-align:center;margin-top:4px">${near?'Tap if you can see it right now. Keeps the sighting fresh for everyone.':'Get within 400 m to confirm it or add a photo'}</div>`}
+/* sighting header: small photo, then what it is, who spotted it, when and where */
+function sightHead(x,dm,rm){const n=(x.photos||[]).length,age=Date.now()-x.t;
+  const hhmm=t=>{const d=new Date(t),td=new Date();const tm=d.toTimeString().slice(0,5);return d.toDateString()===td.toDateString()?tm:(new Date(Date.now()-864e5).toDateString()===d.toDateString()?'Yesterday '+tm:d.toLocaleDateString([],{weekday:'short'})+' '+tm)};
+  const e=nearestEdge(x.ll,150),road=e?ROADS[e.e.road].properties.name:(farmAt(x.ll)||'');
+  const tag=age<2*36e5?'<span class="tag t-ok">Fresh</span>':age<12*36e5?'<span class="tag t-warn">Earlier today</span>':'<span class="tag t-off">Older</span>';
+  const when=x.t0&&x.t-x.t0>6e4?'Seen '+hhmm(x.t0)+', last seen '+lastSeen(x.t):'Seen '+hhmm(x.t)+' · '+lastSeen(x.t);
+  return `<div class="shd">${n?`<button class="sth" id="sThumb" aria-label="Open photo"><img id="sThumbImg" alt="">${n>1?`<span class="stc">${n}</span>`:''}<span class="stz">${LI('eye',13)}</span></button>`:`<div class="sth none">${AN(x.name,62)}</div>`}
+   <div class="sti"><div class="stt"><b>${esc(x.name)}</b>${tag}</div>
+    <div class="stl">${LI('users',15)}<span>Spotted by <b>${esc(x.by||'someone')}</b></span></div>
+    <div class="stl">${LI('clock',15)}<span>${esc(when)}</span></div>
+    <div class="stl">${LI('pin',15)}<span>${esc([road,dm!=null?fmtD(dm)+' away':'',rm?fmtD(rm)+' by road':''].filter(Boolean).join(' · '))}</span></div>
+    ${x.stillN?`<div class="stl ok">${LI('eye',15)}<span>Confirmed still here ${x.stillN}×</span></div>`:''}${x.moved?`<div class="stl">${LI('paw',15)}<span>${esc(x.moved)}</span></div>`:''}</div></div>
+   ${x.note?`<div class="stq">“${esc(x.note)}”</div>`:''}`}
+/* full screen photo viewer: tap to close, swipe or arrows for more */
+function lightbox(list,i,cap){let lb=$('lbox');if(!lb){lb=document.createElement('div');lb.id='lbox';document.body.appendChild(lb)}
+  let k=i;const draw=async()=>{lb.innerHTML=`<button class="lbx" aria-label="Close">${LI('x',22)}</button><img alt=""><div class="lbc"><span>${esc(cap)}</span>${list.length>1?`<b>${k+1} / ${list.length}</b>`:''}</div>${list.length>1?`<button class="lbn l" aria-label="Previous">‹</button><button class="lbn r" aria-label="Next">›</button>`:''}`;
+    const im=lb.querySelector('img'),u=await photoURL(list[k]);if(u)im.src=u;
+    lb.querySelector('.lbx').onclick=close;lb.querySelectorAll('.lbn').forEach(b=>b.onclick=e=>{e.stopPropagation();k=(k+(b.classList.contains('r')?1:-1)+list.length)%list.length;draw()});im.onclick=e=>e.stopPropagation()};
+  const close=()=>{lb.classList.remove('on');setTimeout(()=>{lb.innerHTML=''},250)};
+  lb.onclick=close;let x0=null;lb.ontouchstart=e=>{x0=e.touches[0].clientX};lb.ontouchend=e=>{if(x0==null||list.length<2)return;const dx=e.changedTouches[0].clientX-x0;x0=null;if(Math.abs(dx)>50){k=(k+(dx<0?1:-1)+list.length)%list.length;draw()}};
+  draw();requestAnimationFrame(()=>lb.classList.add('on'))}
 function bindSightExtras(x){
-  if(x.photos&&x.photos.length){const big=$('sPh'),row=$('sPhs');const show=async c=>{const u=await photoURL(c);if(u&&big)big.src=u;else if(big)big.alt=navigator.onLine?'Photo still uploading':'Photo loads when you have signal'};
-    show(x.photos[x.photos.length-1]);if(x.photos.length>1)x.photos.slice().reverse().forEach(async c=>{const u=await photoURL(c);if(!u||!row)return;const im=document.createElement('img');im.src=u;im.onclick=()=>big.src=u;row.appendChild(im)})}
+  if(x.photos&&x.photos.length){const list=x.photos.slice().reverse(),cap=x.name+' · '+(x.by||'')+' · '+new Date(x.t).toTimeString().slice(0,5);
+    const th=$('sThumbImg');photoURL(list[0]).then(u=>{if(u&&th){th.src=u;th.parentNode.classList.add('ok')}else if(th)th.parentNode.classList.add('wait')});
+    if($('sThumb'))$('sThumb').onclick=()=>lightbox(list,0,cap);
+    const row=$('sPhs');if(row)list.forEach((c,i)=>{const im=document.createElement('img');im.alt='';row.appendChild(im);photoURL(c).then(u=>{if(u)im.src=u;else im.remove()});im.onclick=()=>lightbox(list,i,cap)})}
   $('sAddPh').onclick=e=>{if(!me||dist(me.ll,x.ll)>400){e.preventDefault();toast('Get within 400 m of the sighting to add a photo',3000)}};
   $('sAddPh').onchange=async e=>{const f=e.target.files&&e.target.files[0];if(!f)return;toast('Adding photo...');let b;try{b=await shrinkPhoto(f)}catch(z){toast('Could not read that photo');return}
     const cid=cidNew(),t=Date.now(),sg={cid,what:x.name,note:'',ll:x.ll.slice(),t,still:true,photo:true};await photoPut(cid,b);sights.unshift(sg);LS.set('sights',sights);
@@ -1697,7 +1749,7 @@ function estSheet(e){const d=me?dist(me.ll,e.ll):null,p=animalProfile(e.what),ne
       queue({op:'add',t:'animal_misses',row:{client_id:m.cid,what:m.what,lat:m.ll[1],lng:m.ll[0],created_at:iso(m.t)}});
       closeSheet();refreshOverlays();const left=estimates().filter(x=>x.what===e.what);toast(left.length?'Thanks. '+left.length+' other likely spot'+(left.length>1?'s':'')+' left for '+e.what.toLowerCase():'Thanks. No more likely spots for '+e.what.toLowerCase()+' right now',3500)}})}
 const sightSub=s=>'Last seen '+lastSeen(s.t)+' · '+s.by+(s.prev?' · '+moveTxt(s):'')+(s.note?' · '+s.note:'');
-const sightPlace=s=>({kind:'sight',name:s.what,sub:sightSub(s),ll:s.ll,cid:s.cid,mine:s.mine,photoCid:((s.chain||[s]).filter(c=>c.photo).pop()||{}).cid,photos:(s.chain||[s]).filter(c=>c.photo).map(c=>c.cid)});
+const sightPlace=s=>({kind:'sight',name:s.what,sub:sightSub(s),ll:s.ll,cid:s.cid,mine:s.mine,by:s.by,t:s.t,t0:(s.chain||[s])[0].t,note:s.note||((s.chain||[]).find(c=>c.note)||{}).note||'',stillN:(s.chain||[]).filter(c=>c.still).length,moved:s.prev&&dist(s.prev.ll,s.ll)>=80?moveTxt(s):'',photoCid:((s.chain||[s]).filter(c=>c.photo).pop()||{}).cid,photos:(s.chain||[s]).filter(c=>c.photo).map(c=>c.cid)});
 function profileHtml(what){if(what==='Other')return '';const p=animalProfile(what);
   if(!p.n)return `<div class="prof"><b>${EMO[what]||''} ${esc(what)} profile</b><small>No ${esc(what.toLowerCase())} sightings yet. The app learns how they move as people mark them.</small></div>`;
   const L=[];
@@ -2020,7 +2072,7 @@ function showPlace(x){
   const d=me?fmtD(dist(me.ll,ll))+' straight line':'';
   const r=me?route(me.ll,ll):null;
   const extra=(x.kind==='sight'&&(x.mine||isAdm()))?`<button class="btn red" id="delS">Delete</button>`:x.kind==='report'?`${x.mine?'':'<button class="btn" id="stillR">Still there</button>'}<button class="btn red" id="resR">Road is clear</button>`:'';
-  openSheet(`<h2>${esc(x.name)}</h2><div class="sub">${esc(x.sub||'')}${d?' · '+d:''}${r?' · '+fmtD(r.len)+' by road':''}</div><div class="row"><button class="btn pri" id="goBtn"><svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M12 2l8 20-8-5-8 5z"/></svg>Go</button>${extra}</div>${x.kind==='sight'?sightExtrasHtml(x):''}${x.kind==='sight'?profileHtml(x.name):''}`,()=>{
+  openSheet(`${x.kind==='sight'?sightHead(x,me?dist(me.ll,ll):null,r?r.len:null):`<h2>${esc(x.name)}</h2><div class="sub">${esc(x.sub||'')}${d?' · '+d:''}${r?' · '+fmtD(r.len)+' by road':''}</div>`}<div class="row"><button class="btn pri" id="goBtn"><svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M12 2l8 20-8-5-8 5z"/></svg>Go</button>${extra}</div>${x.kind==='sight'?sightExtrasHtml(x):''}${x.kind==='sight'?profileHtml(x.name):''}`,()=>{
     $('goBtn').onclick=()=>{closeSheet();startNav(x)};
     if(x.kind==='sight')bindSightExtras(x);
     if($('delS'))$('delS').onclick=async()=>{if(!x.mine){if($('delS').dataset.sure!=='1'){$('delS').dataset.sure='1';$('delS').textContent='Tap again to delete';return}if(await adminDelete([x.cid]))closeSheet();return}delSight(x.cid);closeSheet();toast('Sighting deleted')};
