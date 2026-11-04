@@ -96,7 +96,8 @@ begin
     return json_build_object('ok', true, 'role', (select role from public.members where user_id = auth.uid()), 'expires_at', null);
   end if;
 
-  -- guest code
+  -- guest code: one-time, like an owner invite (the same person can sign back in with it)
+  if g.uses >= 1 and coalesce(cur.code, '') <> g.code then return json_build_object('ok', false, 'reason', 'used'); end if;
   insert into public.members (user_id, name, role, code, expires_at, last_seen, invited_by)
   values (auth.uid(), left(coalesce(nullif(trim(display_name), ''), 'Guest'), 40), 'guest', g.code, g.expires_at, now(), g.created_by_name)
   on conflict (user_id) do update set name = excluded.name, last_seen = now(),
@@ -104,7 +105,7 @@ begin
     code = case when members.role in ('owner', 'admin') then members.code else excluded.code end,
     invited_by = case when members.role in ('owner', 'admin') then members.invited_by else excluded.invited_by end,
     expires_at = case when members.role in ('owner', 'admin') then members.expires_at else excluded.expires_at end;
-  update public.guest_codes gc set uses = gc.uses + 1 where gc.code = g.code;
+  update public.guest_codes gc set uses = gc.uses + 1 where gc.code = g.code and coalesce(cur.code, '') <> g.code;
   return json_build_object('ok', true, 'role', (select role from public.members where user_id = auth.uid()),
                            'expires_at', (select expires_at from public.members where user_id = auth.uid()));
 end $$;
@@ -267,17 +268,75 @@ begin
 end $$;
 grant execute on function public.extend_guest_code(text, timestamptz) to authenticated;
 
+-- ---------- HANDOVER: stay signed in when you add the map to your Home Screen ----------
+-- On iPhone the Home Screen app can't see the Safari login. After signing in, Safari gets a one-time pass in its link;
+-- the Home Screen icon opens with that pass and takes over the same membership. Each pass works once.
+create table if not exists public.handover (
+  token text primary key,
+  user_id uuid not null references auth.users(id) on delete cascade,
+  created_at timestamptz not null default now(),
+  used_at timestamptz
+);
+alter table public.handover enable row level security;
+revoke all on public.handover from anon, authenticated;
+
+create or replace function public.make_handover()
+returns text language plpgsql security definer set search_path = public as $$
+#variable_conflict use_column
+declare t text;
+begin
+  if auth.uid() is null or not exists (select 1 from public.members where user_id = auth.uid()) then return null; end if;
+  select h.token into t from public.handover h where h.user_id = auth.uid() and h.used_at is null and h.created_at > now() - interval '30 days' limit 1;
+  if t is not null then return t; end if;
+  t := upper(left(md5(random()::text || clock_timestamp()::text || auth.uid()::text), 10) || left(md5(random()::text || auth.uid()::text), 10));
+  insert into public.handover (token, user_id) values (t, auth.uid());
+  return t;
+end $$;
+grant execute on function public.make_handover() to authenticated;
+
+create or replace function public.use_handover(p_token text)
+returns json language plpgsql security definer set search_path = public as $$
+#variable_conflict use_column
+declare h public.handover; m public.members; me uuid := auth.uid();
+begin
+  if me is null then raise exception 'not signed in'; end if;
+  select * into h from public.handover where token = upper(trim(p_token)) for update;
+  if not found then return json_build_object('ok', false, 'reason', 'wrong'); end if;
+  if h.user_id = me then
+    select * into m from public.members where user_id = me;
+    if found then return json_build_object('ok', true, 'role', m.role, 'expires_at', m.expires_at, 'name', m.name); end if;
+  end if;
+  if h.used_at is not null then return json_build_object('ok', false, 'reason', 'used'); end if;
+  if h.created_at < now() - interval '30 days' then return json_build_object('ok', false, 'reason', 'expired'); end if;
+  select * into m from public.members where user_id = h.user_id;
+  if not found then return json_build_object('ok', false, 'reason', 'gone'); end if;
+  if m.role = 'guest' and m.expires_at is not null and m.expires_at <= now() then return json_build_object('ok', false, 'reason', 'expired'); end if;
+  insert into public.members (user_id, name, role, code, expires_at, last_seen, invited_by, last_login)
+  values (me, m.name, m.role, m.code, m.expires_at, now(), m.invited_by, now())
+  on conflict (user_id) do update set name = excluded.name, role = excluded.role, code = excluded.code,
+    expires_at = excluded.expires_at, invited_by = excluded.invited_by, last_seen = now(), last_login = now();
+  -- bring their sightings, reports and drives along, then retire the Safari login
+  begin update public.sightings set user_id = me where user_id = h.user_id; exception when others then null; end;
+  begin update public.reports set user_id = me where user_id = h.user_id; exception when others then null; end;
+  begin update public.drives set user_id = me where user_id = h.user_id; exception when others then null; end;
+  begin delete from public.live_locs where user_id = h.user_id; exception when others then null; end;
+  delete from public.members where user_id = h.user_id;
+  update public.handover set used_at = now() where token = h.token;
+  return json_build_object('ok', true, 'role', m.role, 'expires_at', m.expires_at, 'name', m.name);
+end $$;
+grant execute on function public.use_handover(text) to authenticated;
+
 -- ---------- SELF-TEST: tries every kind of code inside your database, then undoes everything ----------
 create or replace function public.kn_selftest()
 returns table(test text, result text) language plpgsql security definer set search_path = public, auth as $$
 #variable_conflict use_column
 declare
-  a uuid := gen_random_uuid(); o uuid := gen_random_uuid(); g1 uuid := gen_random_uuid(); o2 uuid := gen_random_uuid(); ad2 uuid := gen_random_uuid(); g2 uuid := gen_random_uuid();
+  a uuid := gen_random_uuid(); o uuid := gen_random_uuid(); g1 uuid := gen_random_uuid(); o2 uuid := gen_random_uuid(); ad2 uuid := gen_random_uuid(); g2 uuid := gen_random_uuid(); h1 uuid := gen_random_uuid(); h2 uuid := gen_random_uuid(); tk text;
   oc text; r json; c_guest text; c_owner text; c_admin text; c_oguest text; c_oowner text; out text[] := '{}';
 begin
   select 'ADMIN' || upper(replace(invite_code, ' ', '')) into oc from private.config limit 1;
   begin
-    insert into auth.users (id) values (a), (o), (g1), (o2), (ad2), (g2);
+    insert into auth.users (id) values (a), (o), (g1), (o2), (ad2), (g2), (h1), (h2);
     -- admin joins with the admin code
     perform set_config('request.jwt.claim.sub', a::text, true); perform set_config('request.jwt.claims', json_build_object('sub', a)::text, true);
     r := public.join_reserve2(lower(oc), 'Test admin');
@@ -315,6 +374,26 @@ begin
     perform set_config('request.jwt.claim.sub', g2::text, true); perform set_config('request.jwt.claims', json_build_object('sub', g2)::text, true);
     r := public.join_reserve2(c_owner, 'Someone else');
     out := out || array['Used invite is refused', case when not (r->>'ok')::boolean then 'PASS' else 'FAIL ' || r::text end];
+    r := public.join_reserve2(c_guest, 'Someone else');
+    out := out || array['Used guest code is refused for someone new', case when not (r->>'ok')::boolean and r->>'reason' = 'used' then 'PASS' else 'FAIL ' || r::text end];
+    -- the guest signs back in with their own code (same login): still works
+    perform set_config('request.jwt.claim.sub', g1::text, true); perform set_config('request.jwt.claims', json_build_object('sub', g1)::text, true);
+    r := public.join_reserve2(c_guest, 'Test guest');
+    out := out || array['Same guest can sign back in', case when (r->>'ok')::boolean then 'PASS' else 'FAIL ' || r::text end];
+    -- handover: guest in Safari makes a pass, the Home Screen app (new login) uses it
+    tk := public.make_handover();
+    perform set_config('request.jwt.claim.sub', h1::text, true); perform set_config('request.jwt.claims', json_build_object('sub', h1)::text, true);
+    r := public.use_handover(tk);
+    out := out || array['Home Screen app stays signed in (handover)', case when (r->>'ok')::boolean and r->>'role' = 'guest'
+      and exists (select 1 from public.members where user_id = h1) and not exists (select 1 from public.members where user_id = g1) then 'PASS' else 'FAIL ' || r::text end];
+    perform set_config('request.jwt.claim.sub', h2::text, true); perform set_config('request.jwt.claims', json_build_object('sub', h2)::text, true);
+    r := public.use_handover(tk);
+    out := out || array['Handover pass works only once', case when not (r->>'ok')::boolean then 'PASS' else 'FAIL ' || r::text end];
+    perform set_config('request.jwt.claim.sub', a::text, true); perform set_config('request.jwt.claims', json_build_object('sub', a)::text, true);
+    tk := public.make_handover();
+    perform set_config('request.jwt.claim.sub', h2::text, true); perform set_config('request.jwt.claims', json_build_object('sub', h2)::text, true);
+    r := public.use_handover(tk);
+    out := out || array['Admin handover keeps admin', case when (r->>'ok')::boolean and r->>'role' = 'admin' then 'PASS' else 'FAIL ' || r::text end];
     r := public.join_reserve2('WRONG9', 'x');
     out := out || array['Wrong code is refused', case when not (r->>'ok')::boolean and r->>'reason' = 'wrong' then 'PASS' else 'FAIL ' || r::text end];
     raise exception 'kn_selftest_rollback';
