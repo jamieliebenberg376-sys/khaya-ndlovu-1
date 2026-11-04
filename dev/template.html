@@ -933,7 +933,7 @@ const AF={
 // ---------- tally ----------
 'Lion, leopard, elephant, buffalo and rhino, all in one day':'Leeu, luiperd, olifant, buffel en renoster, alles op een dag',
 // ---------- misc ----------
-'Khaya Ndlovu Map':'Khaya Ndlovu-kaart','Khaya Ndlovu Game Drive Map':'Khaya Ndlovu-wildritkaart','Thanks!':'Dankie!','Where you tapped':'Waar jy getik het','Set':'Gestel','Moved on':'Het aanbeweeg','Not here':'Nie hier nie','Tap to change':'Tik om te verander','Breakdown':'Onklaar','Flat tyre':'Pap band','Stuck':'Vas','Medical':'Medies','Animal danger':'Gevaarlike dier','Accident':'Ongeluk','Out of fuel':'Brandstof op','Washed out':'Weggespoel','Blocked by animal':'Deur dier versper','Fallen tree':'Omgevalle boom','Muddy':'Modderig','Deep water':'Diep water','GPS locked (±5 m)':'GPS vas (±5 m)',
+'Khaya Ndlovu Map':'Khaya Ndlovu-kaart','Khaya Ndlovu Game Drive Map':'Khaya Ndlovu-wildritkaart','Thanks!':'Dankie!','Where you tapped':'Waar jy getik het','Set':'Gestel','Reinstall now':'Herinstalleer nou','It opens in Chrome, already signed in as you':'Dit maak in Chrome oop, reeds as jy aangeteken','It opens in Safari, already signed in as you':'Dit maak in Safari oop, reeds as jy aangeteken','Press and hold it on your Home screen, then Remove or Uninstall':'Druk en hou dit op jou Tuisskerm, dan Verwyder of Deïnstalleer','In Chrome tap ⋮, then Add to Home screen':'Tik in Chrome op ⋮, dan Voeg by Tuisskerm',"You get your own link with your name and access already in it. Open it, add the map to your Home Screen again and you're signed in straight away. Your old copy is removed once you open the new one.":'Jy kry jou eie skakel met jou naam en toegang reeds daarin. Maak dit oop, voeg die kaart weer by jou Tuisskerm en jy is dadelik aangeteken. Jou ou kopie word verwyder sodra jy die nuwe een oopmaak.','Add it again':'Voeg dit weer by','Moved on':'Het aanbeweeg','Not here':'Nie hier nie','Tap to change':'Tik om te verander','Breakdown':'Onklaar','Flat tyre':'Pap band','Stuck':'Vas','Medical':'Medies','Animal danger':'Gevaarlike dier','Accident':'Ongeluk','Out of fuel':'Brandstof op','Washed out':'Weggespoel','Blocked by animal':'Deur dier versper','Fallen tree':'Omgevalle boom','Muddy':'Modderig','Deep water':'Diep water','GPS locked (±5 m)':'GPS vas (±5 m)',
 };
 // full-string patterns
 const _a=x=>ANAF[x]||x,_al=x=>(ANAF[x]||x).toLowerCase(),_r=x=>RKAF[x]||x;
@@ -1463,7 +1463,8 @@ function annPop(){const a=ANN.filter(x=>!annSeen.has(x.client_id)&&(!x.expires_a
   if(!a||$('sheet').classList.contains('open')||!$('gate').classList.contains('hide')||needRole())return;
   const left=ANN.filter(x=>!annSeen.has(x.client_id)).length-1;
   openSheet(`<div style="text-align:center;padding-top:4px"><div style="color:var(--blue)">${LI('mega',40)}</div><h2 style="margin:4px 0 2px">Announcement</h2><div class="sub">From ${esc(a.name||'an admin')} · ${esc(ago(Date.parse(a.created_at)))}</div></div>
-  <div class="annb">${esc(a.body)}</div><button class="btn pri" id="annOk" style="width:100%;margin-top:14px">${left>0?'Next ('+left+' more)':'Got it'}</button>`,()=>{
+  <div class="annb">${esc(a.body)}</div>${/^upd-/.test(a.client_id)&&Cloud.member?'<button class="btn pri" id="annRe" style="width:100%;margin-top:14px">'+LI('route',18)+' Reinstall now</button><div id="annSteps"></div>':''}<button class="btn${/^upd-/.test(a.client_id)&&Cloud.member?'':' pri'}" id="annOk" style="width:100%;margin-top:14px">${left>0?'Next ('+left+' more)':'Got it'}</button>`,()=>{
+    if($('annRe'))$('annRe').onclick=()=>{$('annRe').classList.add('hide');reinstall('annSteps')};
     $('annOk').onclick=()=>{annSeen.add(a.client_id);LS.set('annSeen',[...annSeen].slice(-200));closeSheet();setTimeout(annPop,400)}})}
 function annSheet(){const admin=Cloud.member&&Cloud.member.role==='admin';const now=Date.now();
   openSheet(`<h2>Announcements</h2>${admin?`<div class="sub">Write anything. Everyone sees it as a pop-up when they open the map.</div>
@@ -2624,22 +2625,24 @@ function oldCount(L){if(!VERS)return 0;const need=Math.max(UPD.min||0,APP_BUILD)
 async function remindUpdate(){try{if((UPD.min||0)<APP_BUILD)await rpc('set_min_build',{p_build:APP_BUILD});else await rpc('announce_update');rtPing();toast('Update reminder sent. Only people on an old version see it.',4000)}catch(e){toast(errTxt(e),6000)}}
 function updateWall(){if(nav||sim){clearTimeout(UPD.t);UPD.t=setTimeout(updateWall,30000);return}
   let w=$('updWall');if(!w){w=document.createElement('div');w.id='updWall';document.body.appendChild(w)}
-  const tries=LS.get('updTries',0),ios=isIOS&&isStandalone(),viaSafari=ios&&Cloud.member;
+  const tries=LS.get('updTries',0),viaSafari=!!Cloud.member;
   w.innerHTML=`<div class="uw"><div class="glogo">${(document.querySelector('#gate .glogo')||{}).innerHTML||''}</div>
    <div class="uwc"><div class="arvi">${LI('down',30)}</div><h2>A big update is ready</h2>
    <div class="sub">The map has been improved. Update now to keep sightings, routes and alerts working with everyone else.</div>
    <div class="uwv">You have version ${APP_BUILD} · newest is ${UPD.min}</div>
-   ${viaSafari?`<div class="sub" style="margin-top:10px">It opens in Safari, you add it to your Home Screen again and you're signed in straight away. Your old copy is removed after that.</div><button class="btn pri" id="uwSafari">${LI('route',18)} Update now</button><div id="uwSteps"></div><button class="uwl" id="uwGo">Try updating here instead</button>`:`<button class="btn pri" id="uwGo">${LI('down',18)} Update now</button>`}
+   ${viaSafari?`<div class="sub" style="margin-top:10px">You get your own link with your name and access already in it. Open it, add the map to your Home Screen again and you're signed in straight away. Your old copy is removed once you open the new one.</div><button class="btn pri" id="uwSafari">${LI('route',18)} Update now</button><div id="uwSteps"></div><button class="uwl" id="uwGo">Try updating here instead</button>`:`<button class="btn pri" id="uwGo">${LI('down',18)} Update now</button>`}
    ${!viaSafari&&tries>=1?`<div class="uwr"><b>Still on the old version?</b><small>Reinstall the app. You stay signed in with your own ${Cloud.member?esc(ROLE_NM[Cloud.member.role]||'member').toLowerCase():''} access.</small><button class="btn" id="uwRe">${LI('route',18)} Reinstall the app</button><div id="uwSteps"></div></div>`:''}</div></div>`;
   $('uwGo').onclick=doUpdate;if($('uwRe'))$('uwRe').onclick=reinstall;if($('uwSafari'))$('uwSafari').onclick=()=>{$('uwSafari').classList.add('hide');reinstall()}}
 async function doUpdate(){$('uwGo').textContent='Updating...';LS.set('updTries',LS.get('updTries',0)+1);
   try{const regs=navigator.serviceWorker?await navigator.serviceWorker.getRegistrations():[];for(const r of regs)await r.unregister()}catch(e){}
   try{for(const k of await caches.keys())if(k!=='kn-tiles')await caches.delete(k)}catch(e){}
   location.replace(location.pathname+'?fresh='+Date.now())}
-async function reinstall(){const el=$('uwSteps');el.innerHTML='<small>Making your sign-in link...</small>';
+async function reinstall(elId){const el=$(elId||'uwSteps');if(!el)return;el.innerHTML='<small>Making your sign-in link...</small>';
   let t=null;try{if(Cloud.member&&navigator.onLine)t=await rpc('make_handover',{})}catch(e){}if(t)LS.set('movedT',Date.now());
-  const url=location.origin+'/?'+(t?'resume='+encodeURIComponent(t)+'&':'')+'fresh='+Date.now();
-  el.innerHTML=`<div class="prof perm">${[['1','Open the new link','It opens in Safari, already signed in'],['2','Delete the old map icon','Press and hold it on your Home Screen, then Remove App'],['3','Add it again','In Safari tap Share, then Add to Home Screen']].map(([n,a,b])=>`<div class="pr"><span class="stn">${n}</span><div>${a}<small>${b}</small></div></div>`).join('')}</div>
+  const nm=Cloud.member&&Cloud.member.name?'n='+encodeURIComponent(Cloud.member.name)+'&':'';
+  const url=location.origin+'/?'+(t?'resume='+encodeURIComponent(t)+'&':'')+nm+'fresh='+Date.now();
+  const and=/Android/i.test(navigator.userAgent);
+  el.innerHTML=`<div class="prof perm">${[['1','Open the new link',and?'It opens in Chrome, already signed in as you':'It opens in Safari, already signed in as you'],['2','Delete the old map icon',and?'Press and hold it on your Home screen, then Remove or Uninstall':'Press and hold it on your Home Screen, then Remove App'],['3','Add it again',and?'In Chrome tap ⋮, then Add to Home screen':'In Safari tap Share, then Add to Home Screen']].map(([n,a,b])=>`<div class="pr"><span class="stn">${n}</span><div>${a}<small>${b}</small></div></div>`).join('')}</div>
    <a class="btn pri" href="${url}" target="_blank" rel="noopener" style="text-decoration:none;margin-top:10px">${LI('route',18)} Open the new link</a>${t?'':'<small style="display:block;margin-top:6px">No sign-in link right now (you need signal). You can still sign in with your code.</small>'}`}
 function updAdminSheet(){openSheet(`<h2>Require an update</h2><div class="sub" style="line-height:1.45">Everyone on an older version than ${APP_BUILD} gets an "Update needed" screen and must update before they can use the map. SOS keeps working, and nobody is stopped in the middle of a drive. Everyone on an old version also gets a news message asking them to update, even very old copies of the app.</div>
    <div class="rpm" style="margin-top:12px"><div><b class="g">${APP_BUILD}</b><small>Newest</small></div><div><b>${UPD.min||'-'}</b><small>Required now</small></div></div>
@@ -3160,6 +3163,7 @@ function roleSheet(then){const m=Cloud.member;if(!m){then&&then();return}const r
 const needRole=()=>Cloud.member&&LS.get('roleSeen','')!==(Cloud.member.role||'owner');
 function afterGate(){if(needRole()){roleSheet(()=>afterGate2());return}afterGate2()}
 function afterGate2(){if(!LS.get('onboarded',false)||!LS.get('offline',null))setTimeout(()=>offlineSheet(!LS.get('onboarded',false)),400)}
+{const n=new URLSearchParams(location.search).get('n');if(n&&$('gName')&&!$('gName').value)$('gName').value=n.slice(0,40)}
 {const q=new URLSearchParams(location.search).get('guest');if(q){try{history.replaceState(null,'',location.pathname)}catch(e){}if(needGate()){$('gCode').value=q.toUpperCase().slice(0,12);setTimeout(()=>{try{$('gName').focus()}catch(e){}},600)}}}
 /* iPhone Home Screen apps can't see the Safari login. After signing in, the Safari link carries a one-time pass (?resume=),
    so the icon made with Add to Home Screen opens already signed in as the same person. */

@@ -347,9 +347,9 @@ begin
   update public.announcements set removed = true where for_old_build is not null and not removed;
   insert into public.announcements (client_id, body, expires_at, for_old_build)
   values ('upd-' || b || '-' || left(md5(random()::text || clock_timestamp()::text), 12),
-    'Please update the map. A new version is out and your phone still has the old one, so you may miss sightings and alerts. ' ||
-    'Close the map completely (swipe it away) and open it again where you have good signal, it updates by itself. ' ||
-    'On iPhone, if it still looks the same after that: open the map, tap Update now and follow the steps. You stay signed in.',
+    'A new version of the map is out and your phone still has the old one, so you may miss sightings and alerts. ' ||
+    'Tap Reinstall now below. You get your own link with your name and access already in it: open it, delete the old map icon, ' ||
+    'then add the map to your Home Screen again. You are signed in straight away and your old copy is removed.',
     now() + interval '14 days', b);
   select count(*) into n from public.members where coalesce(app_build, 0) < b and (role <> 'guest' or expires_at > now());
   return n;

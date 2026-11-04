@@ -1209,9 +1209,9 @@ begin
   update public.announcements set removed = true where for_old_build is not null and not removed;
   insert into public.announcements (client_id, body, expires_at, for_old_build)
   values ('upd-' || b || '-' || left(md5(random()::text || clock_timestamp()::text), 12),
-    'Please update the map. A new version is out and your phone still has the old one, so you may miss sightings and alerts. ' ||
-    'Close the map completely (swipe it away) and open it again where you have good signal, it updates by itself. ' ||
-    'On iPhone, if it still looks the same after that: open the map, tap Update now and follow the steps. You stay signed in.',
+    'A new version of the map is out and your phone still has the old one, so you may miss sightings and alerts. ' ||
+    'Tap Reinstall now below. You get your own link with your name and access already in it: open it, delete the old map icon, ' ||
+    'then add the map to your Home Screen again. You are signed in straight away and your old copy is removed.',
     now() + interval '14 days', b);
   select count(*) into n from public.members where coalesce(app_build, 0) < b and (role <> 'guest' or expires_at > now());
   return n;
@@ -1592,7 +1592,7 @@ notify pgrst, 'reload schema';
 
 
 -- =====================================================================
--- PUSH THE UPDATE (version 70)
+-- PUSH THE UPDATE (version 71)
 -- =====================================================================
 
 alter table private.config add column if not exists min_build int not null default 0;
@@ -1631,9 +1631,9 @@ begin
   update public.announcements set removed = true where for_old_build is not null and not removed;
   insert into public.announcements (client_id, body, expires_at, for_old_build)
   values ('upd-' || b || '-' || left(md5(random()::text || clock_timestamp()::text), 12),
-    'Please update the map. A new version is out and your phone still has the old one, so you may miss sightings and alerts. ' ||
-    'Close the map completely (swipe it away) and open it again where you have good signal, it updates by itself. ' ||
-    'On iPhone, if it still looks the same after that: open the map, tap Update now and follow the steps. You stay signed in.',
+    'A new version of the map is out and your phone still has the old one, so you may miss sightings and alerts. ' ||
+    'Tap Reinstall now below. You get your own link with your name and access already in it: open it, delete the old map icon, ' ||
+    'then add the map to your Home Screen again. You are signed in straight away and your old copy is removed.',
     now() + interval '14 days', b);
   select count(*) into n from public.members where coalesce(app_build, 0) < b and (role <> 'guest' or expires_at > now());
   return n;
@@ -1650,8 +1650,8 @@ begin
 end $$;
 grant execute on function public.set_min_build(int) to authenticated;
 
--- push it now: require version 70 and post the news (as the first admin, so it shows who sent it)
-update private.config set min_build = 70;
+-- push it now: require version 71 and post the news (as the first admin, so it shows who sent it)
+update private.config set min_build = 71;
 do $$
 declare adm uuid := (select user_id from public.members where role = 'admin' order by joined_at limit 1);
 begin
@@ -1669,7 +1669,7 @@ select 'Tables: members, sightings, reports, drives, news, SOS, live location, p
   case when (select count(*) from information_schema.tables where table_schema = 'public' and table_name in ('members','sightings','reports','drives','announcements','sos','live_locs','animal_misses','places','road_closures','private_notes')) = 11 then 'YES' else 'NO' end as result
 union all select 'Codes and logins self-test', case when (select count(*) from public.kn_selftest() where result not like 'PASS%') = 0 then 'YES' else 'NO: ' || (select string_agg(test, ', ') from public.kn_selftest() where result not like 'PASS%') end
 union all select 'Backend self-test', case when (select count(*) from public.kn_backend_selftest() where result not like 'PASS%') = 0 then 'YES' else 'NO: ' || (select string_agg(test, ', ') from public.kn_backend_selftest() where result not like 'PASS%') end
-union all select 'Everyone must be on version 70', case when (select min_build from private.config limit 1) = 70 then 'YES' else 'NO' end
-union all select 'Update news posted (only old versions see it)', case when exists (select 1 from public.announcements where for_old_build = 70 and not removed) then 'YES' else 'NO' end
+union all select 'Everyone must be on version 71', case when (select min_build from private.config limit 1) = 71 then 'YES' else 'NO' end
+union all select 'Update news posted (only old versions see it)', case when exists (select 1 from public.announcements where for_old_build = 71 and not removed) then 'YES' else 'NO' end
 union all select 'Your owner code (unchanged)', (select upper(invite_code) from private.config limit 1)
-union all select 'People who still need to update', (select count(*)::text from public.members where coalesce(app_build, 0) < 70 and (role <> 'guest' or expires_at > now()));
+union all select 'People who still need to update', (select count(*)::text from public.members where coalesce(app_build, 0) < 71 and (role <> 'guest' or expires_at > now()));
