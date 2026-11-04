@@ -1394,7 +1394,7 @@ window.addEventListener('online',()=>rtConnect());window.addEventListener('offli
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){if(!RT.ws)rtConnect()}});
 setTimeout(rtConnect,1500);setInterval(()=>{if(mapReady)refreshOverlays()},60000);
 /* guest access: server says if your code is still valid; the end date is also kept on the phone so it logs out with no signal */
-async function checkStatus(){
+async function checkStatus(){if(Cloud.resuming)return false;
   let st;try{st=await api('/rest/v1/rpc/my_status',{method:'POST',body:'{}'})}catch(e){if(/404|PGRST202|Could not find/.test(String(e.message||e)))return false;throw e}
   if(!st||typeof st!=='object'||Array.isArray(st)||!('member' in st))return false;
   if(!st.member||!st.active){logOut(st.member?(st.expires_at&&Date.parse(st.expires_at)<=Date.now()+1000?'expired':'revoked'):'removed');return true}
@@ -3178,15 +3178,25 @@ async function armHandover(){if(!Cloud.on||!Cloud.member||!isIOS||isStandalone()
   const q=new URLSearchParams(location.search);if(q.get('code')||q.get('error'))return;
   try{let t=LS.get('hoTok','');if(!t){t=await rpc('make_handover',{});if(!t||typeof t!=='string')return;LS.set('hoTok',t)}
     if(q.get('resume')!==t)history.replaceState(null,'',location.pathname+'?resume='+encodeURIComponent(t))}catch(e){console.warn('handover',e)}}
+async function softResume(t){Cloud.resuming=true;LS.set('usedTok',t);
+  try{await ensureSession();const r=await rpc('use_handover',{p_token:t});
+    if(r&&r.ok){Cloud.member={name:r.name||'Member',uid:Cloud.sess.uid,t:Date.now(),role:r.role||'owner',exp:r.expires_at?Date.parse(r.expires_at):null};
+      LS.set('hoTok','');LS.set('movedT',0);LS.set('roleSeen',Cloud.member.role);saveCloud();try{history.replaceState(null,'',location.pathname)}catch(e){}
+      toast('Welcome back, '+Cloud.member.name+'! You are signed in.',3000)}}catch(e){}
+  Cloud.resuming=false;armExpiry();setTimeout(armHandover,2500);setTimeout(sync,300);setTimeout(rtConnect,800)}
 async function tryResume(t){const fail=msg=>{showGate();if(msg){$('gErr').textContent=msg;$('gErr').classList.add('on')}};
   if(!navigator.onLine){fail('Open the map with signal once to finish signing in');return}
   try{await ensureSession();const r=await rpc('use_handover',{p_token:t});
     if(r&&r.ok){Cloud.member={name:r.name||'Member',uid:Cloud.sess.uid,t:Date.now(),role:r.role||'owner',exp:r.expires_at?Date.parse(r.expires_at):null};
+      LS.set('hoTok','');LS.set('movedT',0);LS.set('usedTok',t);try{history.replaceState(null,'',location.pathname)}catch(e){}setTimeout(armHandover,2500);
       LS.set('roleSeen',Cloud.member.role);saveCloud();sync();armExpiry();setTimeout(rtConnect,500);toast('Welcome back, '+Cloud.member.name+'! You are signed in.',3000);setTimeout(afterGate2,1200);return}
     fail(r&&r.reason==='used'?'That sign-in link was already used. Enter your code to sign in':r&&r.reason==='expired'?'Your access has ended':'Please sign in with your name and code')}
   catch(e){fail(/timeout|Failed to fetch|NetworkError|Load failed/i.test(String(e.message||e))?'Weak signal. Close the map and open it again to finish signing in':'Please sign in with your name and code')}}
 {const rt=new URLSearchParams(location.search).get('resume');
-if(needGate()&&rt)tryResume(rt);
+// a sign-in link always wins, even if this browser still remembers an older login (Safari keeps the one from the first install)
+const fresh=rt&&rt!==LS.get('hoTok','')&&rt!==LS.get('usedTok','');
+if(rt&&needGate())tryResume(rt);
+else if(fresh&&Cloud.member)softResume(rt);
 else if(needGate())showGate();else{armExpiry();setTimeout(armHandover,3000);setTimeout(()=>{if(needRole()&&!$('sheet').classList.contains('open'))roleSheet()},4200)}}
 
 /* ============ offline download ============ */
