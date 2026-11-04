@@ -654,6 +654,21 @@ body.night .osg{background:rgba(255,255,255,.06);color:#ffcf66}body.night .osg.s
 .phpin.ok .ppc img{opacity:1}.phpin .ppf{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
 .phpin .ppb{position:absolute;right:-4px;top:30px;display:flex;border-radius:50%;box-shadow:0 0 0 2px #fff}
 .phpin i{position:absolute;left:50%;bottom:0;width:12px;height:12px;margin-left:-6px;background:#fff;transform:rotate(45deg);border-radius:0 0 3px 0;z-index:-1}
+
+/* "Still there?" prompt */
+#stillQ{position:fixed;left:10px;right:10px;top:calc(var(--safe-t) + 112px);z-index:30;display:flex;align-items:center;gap:10px;padding:10px 10px 14px 10px;border-radius:20px;overflow:hidden;
+  background:linear-gradient(135deg,rgba(32,42,30,.97),rgba(14,18,13,.98));border:1px solid rgba(255,194,61,.3);box-shadow:0 14px 36px rgba(0,0,0,.4);color:#fff;
+  transform:translateY(-14px) scale(.98);opacity:0;pointer-events:none;transition:transform .3s cubic-bezier(.2,.8,.2,1),opacity .25s}
+#stillQ.on{transform:none;opacity:1;pointer-events:auto}
+#stillQ .sqi{flex:none;display:flex}
+#stillQ .sqt{flex:1;min-width:0}#stillQ .sqt b{display:block;font-size:16.5px;font-weight:800;letter-spacing:-.2px}#stillQ .sqt small{display:block;font-size:12.5px;color:rgba(255,255,255,.65);margin-top:2px}
+#stillQ button{flex:none;height:44px;padding:0 16px;border-radius:14px;font:800 15px system-ui,-apple-system,sans-serif}
+#stillQ .sqn{background:rgba(255,255,255,.1);color:#fff}
+#stillQ .sqy{background:linear-gradient(160deg,#ffd36b,#f2a516);color:#1d1406;box-shadow:0 6px 14px rgba(242,165,22,.35)}
+#stillQ .sqb{position:absolute;left:0;bottom:0;height:3px;width:100%;background:linear-gradient(90deg,#f2a516,#ffd36b);transform-origin:left}
+#stillQ.on .sqb{animation:sqbar 8s linear forwards}
+@keyframes sqbar{from{transform:scaleX(1)}to{transform:scaleX(0)}}
+body.red #stillQ{background:#1a0606!important}
 </style>
 </head>
 <body>
@@ -1631,9 +1646,29 @@ function bindSightExtras(x){
   $('sAddPh').onchange=async e=>{const f=e.target.files&&e.target.files[0];if(!f)return;toast('Adding photo...');let b;try{b=await shrinkPhoto(f)}catch(z){toast('Could not read that photo');return}
     const cid=cidNew(),t=Date.now(),sg={cid,what:x.name,note:'',ll:x.ll.slice(),t,still:true,photo:true};await photoPut(cid,b);sights.unshift(sg);LS.set('sights',sights);
     const share=!(x.name==='Rhino'&&!shareRhino);if(share){queue({op:'add',t:'sightings',row:sightRow(sg)});queue({op:'photo',cid})}refreshOverlays();showPlace(sightPlace(allSights().find(q=>q.cid===cid)||sg));toast('Photo added'+(navigator.onLine?'':'. It uploads when you have signal'),3000)};
-  $('stillBtn').onclick=()=>{if(!me||dist(me.ll,x.ll)>400){toast('Get within 400 m of the sighting first',3000);return}
-    const cid=cidNew(),t=Date.now(),sg={cid,what:x.name,note:'',ll:x.ll.slice(),t,still:true};sights.unshift(sg);LS.set('sights',sights);
-    if(!(x.name==='Rhino'&&!shareRhino))queue({op:'add',t:'sightings',row:sightRow(sg)});refreshOverlays();closeSheet();toast('Thanks! '+x.name+' marked as still here')}}
+  $('stillBtn').onclick=()=>{if(!me||dist(me.ll,x.ll)>400){toast('Get within 400 m of the sighting first',3000);return}confirmStill(x.name,x.ll);closeSheet();toast('Thanks! '+x.name+' marked as still here')}}
+function confirmStill(what,ll){const cid=cidNew(),t=Date.now(),sg={cid,what,note:'',ll:ll.slice(),t,still:true};sights.unshift(sg);LS.set('sights',sights);
+  if(!(what==='Rhino'&&!shareRhino))queue({op:'add',t:'sightings',row:sightRow(sg)});refreshOverlays()}
+function reportGone(what,ll){const m={cid:cidNew(),what,ll:ll.slice(),t:Date.now(),by:'You'};MYMISS.push(m);MYMISS=MYMISS.filter(x=>Date.now()-x.t<864e5);LS.set('mymiss',MYMISS);try{estCache.k=''}catch(e){}
+  queue({op:'add',t:'animal_misses',row:{client_id:m.cid,what:m.what,lat:m.ll[1],lng:m.ll[0],created_at:new Date(m.t).toISOString()}});refreshOverlays()}
+/* Waze style: drive past someone's sighting and the map asks "Still there?". It closes by itself after a few seconds. */
+const SQ={asked:LS.get('sqAsked',{}),last:0,cur:null,t:null};
+function sqKey(s){return ((s.chain||[s])[0]||s).cid}
+function missedAfter(s){const L=[...(Cloud.misses||[]).map(x=>({ll:[x.lng,x.lat],t:Date.parse(x.created_at),what:x.what})),...MYMISS];return L.some(m=>m.what===s.what&&m.t>s.t&&dist(m.ll,s.ll)<200)}
+function stillAsk(){if(!me||SQ.cur||Date.now()-SQ.last<45000)return;if($('sheet').classList.contains('open')||calMode)return;
+  const now=Date.now();Object.keys(SQ.asked).forEach(k=>{if(now-SQ.asked[k]>864e5)delete SQ.asked[k]});
+  const c=allSights().filter(s=>!s.mine&&!SQ.asked[sqKey(s)]&&now-s.t<12*36e5&&now-s.t>2*6e4&&dist(me.ll,s.ll)<120&&!(s.what==='Rhino'&&!shareRhino)&&!missedAfter(s)).sort((a,b)=>dist(me.ll,a.ll)-dist(me.ll,b.ll))[0];
+  if(!c)return;SQ.cur=c;SQ.last=now;SQ.asked[sqKey(c)]=now;LS.set('sqAsked',SQ.asked);
+  let el=$('stillQ');if(!el){el=document.createElement('div');el.id='stillQ';document.body.appendChild(el)}
+  el.innerHTML=`<div class="sqi">${AN(c.what,40)}</div><div class="sqt"><b>${esc(c.what)} still there?</b><small>${esc(c.by||'Someone')} · seen ${lastSeen(c.t)}</small></div><button class="sqn" id="sqNo">No</button><button class="sqy" id="sqYes">Yes</button><i class="sqb"></i>`;
+  const top=nav&&!$('nav').classList.contains('hide')?$('nav').getBoundingClientRect().bottom+10:null;el.style.top=top?top+'px':'';
+  el.classList.remove('on');void el.offsetWidth;el.classList.add('on');try{navigator.vibrate&&navigator.vibrate(30)}catch(e){}
+  if(nav)say('Is the '+c.what.toLowerCase()+' still there?','sq'+sqKey(c));
+  const done=msg=>{clearTimeout(SQ.t);el.classList.remove('on');SQ.cur=null;if(msg)toast(msg,2500)};
+  $('sqYes').onclick=()=>{confirmStill(c.what,c.ll);done('Thanks! '+c.what+' marked as still here')};
+  $('sqNo').onclick=()=>{reportGone(c.what,c.ll);done("Thanks, noted that it's gone")};
+  SQ.t=setTimeout(()=>done(),8000)}
+setInterval(stillAsk,3000);
 /* ============ sightings heatmap ============ */
 function heatData(){const now=Date.now();return {type:'FeatureCollection',features:SLOG.filter(x=>x[1]!=='Rhino'&&x[1]!=='Other'&&(heatWhat==='All'||x[1]===heatWhat)).map(x=>({type:'Feature',properties:{w:Math.max(.25,Math.exp(-(now-x[4])/(120*864e5)))},geometry:{type:'Point',coordinates:[x[2],x[3]]}}))}}
 /* ============ night drive red screen ============ */
@@ -1800,7 +1835,7 @@ function updateBlocked(){blockedNodes=new Set();allReports().filter(r=>BLOCKING.
 function refreshOverlays(){
   map.getSource('home').setData(home?{type:'Feature',geometry:{type:'Point',coordinates:home.ll},properties:{}}:empty);
   const AS=allSights();
-  map.getSource('sights').setData({type:'FeatureCollection',features:AS.map(s=>({type:'Feature',properties:{cid:s.cid,what:ANI[s.what]?s.what:'Other',op:sightOp(s),iop:(s.chain||[s]).some(c=>c.photo)?0:sightOp(s),label:s.what+'\n'+(new Date(s.t).toDateString()===new Date().toDateString()?'Last seen '+lastSeen(s.t):'Last seen here '+lastSeen(s.t))},geometry:{type:'Point',coordinates:s.ll}}))});
+  map.getSource('sights').setData({type:'FeatureCollection',features:AS.map(s=>({type:'Feature',properties:{cid:s.cid,what:ANI[s.what]?s.what:'Other',op:sightOp(s)*(missedAfter(s)?.5:1),iop:(s.chain||[s]).some(c=>c.photo)?0:sightOp(s)*(missedAfter(s)?.5:1),label:s.what+'\n'+(new Date(s.t).toDateString()===new Date().toDateString()?'Last seen '+lastSeen(s.t):'Last seen here '+lastSeen(s.t))},geometry:{type:'Point',coordinates:s.ll}}))});
   try{photoPins(AS)}catch(e){console.warn('photo pins',e)}
   map.getSource('heat').setData(showHeat?heatData():empty);
   const ES=estimates();map.getSource('est').setData({type:'FeatureCollection',features:ES.map(e=>({type:'Feature',properties:{id:e.id,col:e.col},geometry:circlePoly(e.ll,e.r).geometry||circlePoly(e.ll,e.r)}))});
