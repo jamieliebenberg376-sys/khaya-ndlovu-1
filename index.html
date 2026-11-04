@@ -646,6 +646,14 @@ body.night .stl .li{color:#ffcf66}body.night .stl b{color:#fff}body.night .stl.o
 .osg{height:30px;padding:0 11px;border-radius:15px;font:600 13px system-ui,-apple-system,sans-serif;background:var(--sandA);color:var(--brand);box-shadow:inset 0 0 0 1px var(--hair)}
 .osg.sel{background:var(--brand);color:#fff}
 body.night .osg{background:rgba(255,255,255,.06);color:#ffcf66}body.night .osg.sel{background:#ffcf66;color:#1d1406}
+
+/* photo pins */
+.phpin{position:relative;width:52px;height:62px;cursor:pointer;transform:scale(var(--ppk,1));transform-origin:50% 100%;filter:drop-shadow(0 4px 8px rgba(0,0,0,.35))}
+.phpin .ppc{position:absolute;left:2px;top:0;width:48px;height:48px;border-radius:50%;overflow:hidden;background:#fff;box-shadow:0 0 0 3px #fff,0 0 0 4.5px rgba(31,77,54,.55)}
+.phpin .ppc img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .3s}
+.phpin.ok .ppc img{opacity:1}.phpin .ppf{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+.phpin .ppb{position:absolute;right:-4px;top:30px;display:flex;border-radius:50%;box-shadow:0 0 0 2px #fff}
+.phpin i{position:absolute;left:50%;bottom:0;width:12px;height:12px;margin-left:-6px;background:#fff;transform:rotate(45deg);border-radius:0 0 3px 0;z-index:-1}
 </style>
 </head>
 <body>
@@ -1040,7 +1048,7 @@ function style(){return{version:8,glyphs:'local://{fontstack}/{range}',
   {id:'spath',type:'line',source:'spath',layout:{'line-cap':'round'},paint:{'line-color':'#f57c00','line-width':['interpolate',['linear'],['zoom'],12,2,16,3.5],'line-dasharray':[1.2,1.6],'line-opacity':['get','op']}},
   {id:'spath-arrow',type:'symbol',source:'spath',layout:{'symbol-placement':'line','symbol-spacing':70,'icon-image':'sarrow','icon-size':['interpolate',['linear'],['zoom'],12,.45,16,.7],'icon-allow-overlap':true,'icon-rotation-alignment':'map'},paint:{'icon-opacity':['get','op']}},
   {id:'spath-start',type:'circle',source:'sprev',paint:{'circle-radius':4,'circle-color':'#fff','circle-stroke-color':'#f57c00','circle-stroke-width':2,'circle-opacity':['*',['get','op'],.8],'circle-stroke-opacity':['*',['get','op'],.8]}},
-  {id:'sights',type:'symbol',source:'sights',layout:{'icon-image':['concat','an-',['get','what']],'icon-anchor':'bottom','icon-size':['interpolate',['linear'],['zoom'],11,.36,14,.5,17,.62],'icon-allow-overlap':true,'text-field':['get','label'],'text-font':['Sans Bold'],'text-size':12,'text-line-height':1.15,'text-offset':[0,.35],'text-anchor':'top','text-optional':true},paint:{'text-color':'#b45309','text-halo-color':'#fff','text-halo-width':1.8,'icon-opacity':['get','op'],'text-opacity':['get','op']}},
+  {id:'sights',type:'symbol',source:'sights',layout:{'icon-image':['concat','an-',['get','what']],'icon-anchor':'bottom','icon-size':['interpolate',['linear'],['zoom'],11,.36,14,.5,17,.62],'icon-allow-overlap':true,'text-field':['get','label'],'text-font':['Sans Bold'],'text-size':12,'text-line-height':1.15,'text-offset':[0,.35],'text-anchor':'top','text-optional':true},paint:{'text-color':'#b45309','text-halo-color':'#fff','text-halo-width':1.8,'icon-opacity':['get','iop'],'text-opacity':['get','op']}},
   {id:'reports',type:'symbol',source:'reports',layout:{'icon-image':'report','icon-size':['interpolate',['linear'],['zoom'],12,.5,15,.72],'icon-allow-overlap':true,'text-field':['get','label'],'text-font':['Sans Bold'],'text-size':12,'text-offset':[0,1.3],'text-anchor':'top','text-optional':true},paint:{'text-color':'#c5221f','text-halo-color':'#fff','text-halo-width':1.8}}
  ]}}
 const CALLOUT={id:'road-callout',type:'symbol',source:'roads',minzoom:12,layout:{visibility:'none','symbol-placement':'line-center','text-field':['get','name'],'text-font':['Sans Bold'],'text-size':14,'text-rotation-alignment':'viewport','text-pitch-alignment':'viewport','icon-image':'pill','icon-text-fit':'both','icon-text-fit-padding':[3,9,3,9],'icon-rotation-alignment':'viewport','icon-pitch-alignment':'viewport','text-padding':10,'symbol-sort-key':['-',0,['get','len']],'text-max-width':12},paint:{'text-color':'#202124'}};
@@ -1581,6 +1589,19 @@ function sightExtrasHtml(x){const near=me&&dist(me.ll,x.ll)<400;
   return `${x.photos&&x.photos.length>1?`<div class="msec" style="margin-top:14px">Photos · ${x.photos.length}</div><div class="sphotos" id="sPhs"></div>`:''}
   <div class="row" style="margin-top:10px"><button class="btn" id="stillBtn" style="${near?'':'opacity:.55'}">${LI('eye',18)} Still here</button><label class="btn" style="${near?'':'opacity:.55'};display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer"><input type="file" accept="image/*" id="sAddPh" hidden>${LI('cam',18)} Add photo</label></div><div class="sub" style="font-size:12px;text-align:center;margin-top:4px">${near?'Tap if you can see it right now. Keeps the sighting fresh for everyone.':'Get within 400 m to confirm it or add a photo'}</div>`}
 /* sighting header: small photo, then what it is, who spotted it, when and where */
+/* sightings with a photo: the photo itself is the pin, with the animal badge in the corner */
+const PPIN={};
+function photoPins(AS){const keep=new Set();
+  AS.forEach(s=>{const ph=(s.chain||[s]).filter(c=>c.photo).pop();if(!ph)return;keep.add(s.cid);let m=PPIN[s.cid];
+    if(!m||m.ph!==ph.cid){if(m)m.mk.remove();const el=document.createElement('div');el.className='phpin';
+      el.innerHTML=`<div class="ppc"><span class="ppf">${AN(s.what,30)}</span><img alt=""></div><span class="ppb">${AN(s.what,18)}</span><i></i>`;
+      const im=el.querySelector('img');photoURL(ph.cid).then(u=>{if(u){im.src=u;im.onload=()=>el.classList.add('ok')}});
+      el.onclick=e=>{e.stopPropagation();const h=allSights().find(q=>q.cid===s.cid)||s;showPlace(sightPlace(h))};
+      m=PPIN[s.cid]={ph:ph.cid,el,mk:new maplibregl.Marker({element:el,anchor:'bottom'}).setLngLat(s.ll).addTo(map)}}
+    else m.mk.setLngLat(s.ll);m.el.style.opacity=Math.max(.35,sightOp(s))});
+  Object.keys(PPIN).forEach(k=>{if(!keep.has(k)){PPIN[k].mk.remove();delete PPIN[k]}});ppZoom()}
+function ppZoom(){const z=map.getZoom(),k=z<=11?.55:z>=16?1:.55+(z-11)/5*.45;document.documentElement.style.setProperty('--ppk',k.toFixed(3))}
+map.on('zoom',ppZoom);
 function sightHead(x,dm,rm){const n=(x.photos||[]).length,age=Date.now()-x.t;
   const hhmm=t=>{const d=new Date(t),td=new Date();const tm=d.toTimeString().slice(0,5);return d.toDateString()===td.toDateString()?tm:(new Date(Date.now()-864e5).toDateString()===d.toDateString()?'Yesterday '+tm:d.toLocaleDateString([],{weekday:'short'})+' '+tm)};
   const e=nearestEdge(x.ll,150),road=e?ROADS[e.e.road].properties.name:(farmAt(x.ll)||'');
@@ -1779,7 +1800,8 @@ function updateBlocked(){blockedNodes=new Set();allReports().filter(r=>BLOCKING.
 function refreshOverlays(){
   map.getSource('home').setData(home?{type:'Feature',geometry:{type:'Point',coordinates:home.ll},properties:{}}:empty);
   const AS=allSights();
-  map.getSource('sights').setData({type:'FeatureCollection',features:AS.map(s=>({type:'Feature',properties:{cid:s.cid,what:ANI[s.what]?s.what:'Other',op:sightOp(s),label:s.what+'\n'+(new Date(s.t).toDateString()===new Date().toDateString()?'Last seen '+lastSeen(s.t):'Last seen here '+lastSeen(s.t))},geometry:{type:'Point',coordinates:s.ll}}))});
+  map.getSource('sights').setData({type:'FeatureCollection',features:AS.map(s=>({type:'Feature',properties:{cid:s.cid,what:ANI[s.what]?s.what:'Other',op:sightOp(s),iop:(s.chain||[s]).some(c=>c.photo)?0:sightOp(s),label:s.what+'\n'+(new Date(s.t).toDateString()===new Date().toDateString()?'Last seen '+lastSeen(s.t):'Last seen here '+lastSeen(s.t))},geometry:{type:'Point',coordinates:s.ll}}))});
+  try{photoPins(AS)}catch(e){console.warn('photo pins',e)}
   map.getSource('heat').setData(showHeat?heatData():empty);
   const ES=estimates();map.getSource('est').setData({type:'FeatureCollection',features:ES.map(e=>({type:'Feature',properties:{id:e.id,col:e.col},geometry:circlePoly(e.ll,e.r).geometry||circlePoly(e.ll,e.r)}))});
   map.getSource('estpt').setData({type:'FeatureCollection',features:ES.map(e=>({type:'Feature',properties:{id:e.id,col:e.col,label:e.what+'?\n'+e.pct+'% likely'},geometry:{type:'Point',coordinates:e.ll}}))});
@@ -1882,7 +1904,7 @@ function updateRoad(){
   const card=$('roadCard');card.classList.toggle('hide',!!nav);
   if(!ne){curRoad=null;map.getSource('cur').setData(empty);
     $('rn').textContent=inReserve(me.ll)?'Off road':'Outside the reserve';
-    const any=nearestEdge(me.ll);$('rs').textContent=any?fmtD(any.d)+' from '+ROADS[any.e.road].properties.name:'';return}
+    const any=nearestEdge(me.ll);$('rs').textContent=!any?'':any.d>3000?fmtD(fromBoundary(me.ll))+' from Khaya Ndlovu':fmtD(any.d)+' from '+ROADS[any.e.road].properties.name;return}
   const name=ROADS[ne.e.road].properties.name;
   if(ne.d>40){curRoad=null;map.getSource('cur').setData(empty);$('rn').textContent=inReserve(me.ll)?'Off road':'Outside the reserve';$('rs').textContent=fmtD(ne.d)+' from '+name;return}
   if(name!==curRoad){curRoad=name;map.getSource('cur').setData({type:'FeatureCollection',features:ROADS.filter(f=>f.properties.name===name)})}
