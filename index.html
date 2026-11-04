@@ -90,7 +90,7 @@ body.drivecam #roadCard{display:none!important}body.drivecam #junc{top:calc(var(
 body.red #sheet,body.red #search,body.red #roadCard,body.red .fab,body.red #speed,body.red #navBottom,body.red #junc,body.red #calBar,body.red #results,body.red #ping{background:#1a0606!important;color:#fff!important}
 body.red #sheet *,body.red #roadCard *,body.red #navBottom *,body.red #ping *{color:#fff}body.red #sheet,body.red #roadCard,body.red #navBottom,body.red #search input{font-weight:600}
 body.red .sub,body.red small,body.red #sheet small{color:#ffd6d6!important}body.red .btn.pri,body.red .chip.sel,body.red .seg .sel{background:#b71c1c!important;color:#fff!important}body.red .btn:not(.pri){background:#3a1010!important;color:#fff!important}
-body.red #nav{background:#7f0000!important}body.red .fab svg,body.red #search svg{color:#ff8a80;stroke:#ff8a80}body.red .prof,body.red .gw,body.red .wxgrid div{background:rgba(255,80,80,.12)!important}
+body.red .fab svg,body.red #search svg{color:#ff8a80;stroke:#ff8a80}body.red .prof,body.red .gw,body.red .wxgrid div{background:rgba(255,80,80,.12)!important}
 .heatChips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.heatChips .chip{padding:6px 10px;font-size:13px}
 .dsum .big{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:10px}.dsum .big div{background:rgba(127,127,127,.09);border-radius:12px;padding:10px;text-align:center;font-size:11.5px;color:var(--sub)}.dsum .big b{display:block;font-size:19px;color:#202124}body.night .dsum .big b{color:#e8eaed}
 #speed.over{background:#d93025!important;color:#fff!important;animation:spdpulse 1s ease-in-out infinite}#speed.over small{color:#fff!important}@keyframes spdpulse{50%{transform:scale(1.08)}}
@@ -111,6 +111,8 @@ body.navon #sosBtn{bottom:calc(var(--safe-b) - var(--bfix) + 180px)}
 .sosChips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:12px}.sosChips button{border:0;border-radius:18px;padding:10px 14px;background:rgba(255,255,255,.18);color:#fff;font:600 15px system-ui,-apple-system,sans-serif}.sosChips button.sel{background:#fff;color:#b71c1c}
 .sosIn textarea{width:100%;box-sizing:border-box;border-radius:14px;border:0;padding:12px;font:16px system-ui,-apple-system,sans-serif;margin-top:12px;height:84px;resize:none}
 .sosCo{font:700 18px ui-monospace,Menlo,monospace;background:rgba(0,0,0,.25);border-radius:12px;padding:10px;margin-top:10px;user-select:all;-webkit-user-select:all}
+#sosRx{position:fixed;left:10px;right:10px;top:calc(var(--safe-t) + 8px);z-index:97;background:#d93025;color:#fff;border-radius:16px;padding:10px 12px;box-shadow:0 0 0 3px #fff,0 6px 20px rgba(0,0,0,.45);font-weight:800;display:flex;align-items:center;gap:10px;max-width:520px;margin:0 auto;animation:rxpulse 1.6s ease-in-out infinite}#sosRx small{display:block;font-weight:600;opacity:.95;font-size:12.5px}#sosRx button{background:#fff;color:#b71c1c;border:0;border-radius:14px;padding:9px 11px;font-weight:800;flex:none;font-size:13.5px}#sosRx .rxi{font-size:24px}#sosRx .rxt{flex:1;min-width:0;cursor:pointer}@keyframes rxpulse{50%{box-shadow:0 0 0 3px #fff,0 0 22px 6px rgba(217,48,37,.85)}}
+body.sosrx #sosBar{top:calc(var(--safe-t) + 78px)}
 #sosBar{position:fixed;left:10px;right:10px;top:calc(var(--safe-t) + 8px);z-index:95;background:#d93025;color:#fff;border-radius:16px;padding:10px 14px;box-shadow:0 4px 16px rgba(0,0,0,.35);font-weight:700;display:flex;align-items:center;gap:10px;max-width:520px;margin:0 auto}#sosBar small{display:block;font-weight:500;opacity:.92}#sosBar button{margin-left:auto;background:#fff;color:#b71c1c;border:0;border-radius:14px;padding:8px 12px;font-weight:800;flex:none}
 .sosMk{width:46px;height:46px;position:relative}.sosMk .r{position:absolute;inset:0;border-radius:50%;background:rgba(217,48,37,.45);animation:sosring 1.4s ease-out infinite}.sosMk .d{position:absolute;left:11px;top:11px;width:24px;height:24px;border-radius:50%;background:#d93025;border:3px solid #fff;box-sizing:border-box;color:#fff;font:900 9px/18px system-ui;text-align:center}
 .sosMk .n{position:absolute;top:44px;left:50%;transform:translateX(-50%);background:#d93025;color:#fff;font:800 11.5px system-ui;padding:2px 7px;border-radius:9px;white-space:nowrap}@keyframes sosring{from{transform:scale(.5);opacity:1}to{transform:scale(1.6);opacity:0}}
@@ -315,7 +317,7 @@ body.drive #nav .dist{font-size:24px}body.drive #nav .ins{font-size:32px}body.dr
 <div id="sbFade"></div>
 <button id="sosBtn" class="hide" aria-label="SOS">SOS</button>
 <div id="sosOv" class="hide"><div class="sosIn" id="sosIn"></div></div>
-<div id="sosBar" class="hide"></div><div id="spdBar">🐢 Slow down · 40 km/h limit</div><div id="redMode"></div><div id="toast"></div><div id="ping"><div class="pe" id="pingE"></div><div><b id="pingT"></b><small id="pingS"></small></div><span class="px" id="pingX">✕</span></div>
+<div id="sosBar" class="hide"></div><div id="sosRx" class="hide"></div><div id="spdBar">🐢 Slow down · 40 km/h limit</div><div id="redMode"></div><div id="toast"></div><div id="ping"><div class="pe" id="pingE"></div><div><b id="pingT"></b><small id="pingS"></small></div><span class="px" id="pingX">✕</span></div>
 
 <script>/**
  * MapLibre GL JS
@@ -837,16 +839,17 @@ let SOS=LS.get('sosMine',null),SOSALL=[],sosAck=new Set(LS.get('sosAck',[])),sos
 const coordTxt=ll=>ll[1].toFixed(5)+', '+ll[0].toFixed(5);
 const gmap=ll=>'https://maps.google.com/?q='+ll[1].toFixed(6)+','+ll[0].toFixed(6);
 const compass=b=>['north','north-east','east','south-east','south','south-west','west','north-west'][Math.round(((b%360)+360)%360/45)%8];
+function sosBeep(f,ms,n){try{unlockAudio();const t=actx.currentTime;for(let i=0;i<(n||1);i++){const o=actx.createOscillator(),g=actx.createGain(),st=t+i*(ms/1000+.08);o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(0,st);g.gain.linearRampToValueAtTime(.4,st+.01);g.gain.setValueAtTime(.4,st+ms/1000-.03);g.gain.linearRampToValueAtTime(0,st+ms/1000);o.connect(g).connect(actx.destination);o.start(st);o.stop(st+ms/1000+.02)}}catch(e){}}
 function sosSay(t){try{if('speechSynthesis' in window){speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='en-ZA';u.rate=1.05;speechSynthesis.speak(u)}}catch(e){}}
 function sosOv(html,alarm){const o=$('sosOv');$('sosIn').innerHTML=html;o.classList.remove('hide');o.classList.toggle('alarm',!!alarm)}
 function sosClose(){$('sosOv').classList.add('hide');$('sosOv').classList.remove('alarm');clearInterval(sosT);sirenStop()}
 function sosStart(){if(!Cloud.member){toast('Join the map first');return}if(SOS&&!SOS.resolved){sosActiveSheet();return}
   unlockAudio();let n=3;const tick=()=>{if(n===0){clearInterval(sosT);sosSlide();return}
     sosOv(`<h1>🆘 SOS</h1><div class="sosNum">${n}</div><p>Sending your exact location to everyone on the map</p><button class="sosBtnW w" id="sosCancel">Cancel</button>`);
-    $('sosCancel').onclick=()=>{sosClose();speechSynthesis&&speechSynthesis.cancel();toast('SOS cancelled')};
-    sosSay(n===3?'S O S in 3':String(n));try{navigator.vibrate&&navigator.vibrate(180)}catch(e){}n--};
+    $('sosCancel').onclick=()=>{sosClose();toast('SOS cancelled')};
+    sosBeep(n===3?520:n===2?700:940,220);try{navigator.vibrate&&navigator.vibrate(180)}catch(e){}n--};
   tick();sosT=setInterval(tick,1000)}
-function sosSlide(){sosSay('Swipe to send');
+function sosSlide(){sosBeep(1250,120,2);
   sosOv(`<h1>🆘 Send SOS?</h1><p>${me?'Your location: '+esc(coordTxt(me.ll)):'Waiting for GPS. Your last known spot will be sent.'}</p>
    <div class="slide" id="sl"><div class="fill" id="slF"></div><div class="lbl">Swipe to send SOS  ›››</div><div class="th" id="slT">›</div></div>
    <button class="sosBtnW g" id="sosCancel">Cancel</button>`);
@@ -861,7 +864,7 @@ function sosSlide(){sosSay('Swipe to send');
 async function sosSend(){const ll=me?me.ll:(lastPos?lastPos.ll:map.getCenter().toArray());
   SOS={cid:cidNew(),ll,acc:me?Math.round(me.acc):null,t:Date.now(),note:'',resolved:false,responders:[]};LS.set('sosMine',SOS);
   const row={client_id:SOS.cid,lat:+ll[1].toFixed(6),lng:+ll[0].toFixed(6),acc:SOS.acc,created_at:iso(SOS.t)};
-  (async()=>{try{if(!navigator.onLine)throw 0;await api('/rest/v1/sos',{method:'POST',headers:{Prefer:'return=minimal'},body:JSON.stringify(row),timeout:12000});rtPing();loadSos()}catch(e){queue({op:'add',t:'sos',row})}})();sosSay('S O S sent. Everyone on the map has been alerted.');LS_.lastSend=0;liveTick();
+  (async()=>{try{if(!navigator.onLine)throw 0;await api('/rest/v1/sos',{method:'POST',headers:{Prefer:'return=minimal'},body:JSON.stringify(row),timeout:12000});rtPing();loadSos()}catch(e){queue({op:'add',t:'sos',row})}})();sosBeep(1400,160,3);LS_.lastSend=0;liveTick();
   sosOv(`<h1>✅ SOS sent</h1><p>${navigator.onLine?'Everyone on the map has been alerted with your location.':'No signal right now. It sends by itself the moment you get signal.'}</p><div class="sosCo">${esc(coordTxt(ll))}</div>
    <p style="margin-top:16px"><b>What's happening?</b> (optional)</p>
    <div class="sosChips">${['🚗 Breakdown','🛞 Flat tyre','🪨 Stuck','🩹 Medical','🐘 Animal danger','💥 Accident','⛽ Out of fuel'].map(c=>`<button data-c="${c}">${c}</button>`).join('')}</div>
@@ -884,36 +887,44 @@ function sosActiveSheet(){const r=SOS.responders||[],smsBody='🆘 SOS from '+(C
    <button class="sosBtnW w" id="sosSafe2">✅ I'm safe now</button><button class="sosBtnW g" id="sosHide">Back to the map</button>`);
   $('sosSafe2').onclick=sosSafe;$('sosHide').onclick=()=>{sosClose();sosActiveBar()}}
 function sosSafe(){if(!SOS)return;const cid=SOS.cid;SOS.resolved=true;LS.set('sosMine',null);SOS=null;clearInterval(sosFollow.t);
-  (async()=>{try{await rpc('sos_resolve',{p_cid:cid});rtPing()}catch(e){queue({op:'sosresolve',cid})}})();sosClose();$('sosBar').classList.add('hide');sosSay('Glad you are safe');toast("Everyone has been told you're safe",3000)}
+  (async()=>{try{await rpc('sos_resolve',{p_cid:cid});rtPing()}catch(e){queue({op:'sosresolve',cid})}})();sosClose();$('sosBar').classList.add('hide');sosBeep(880,140,2);toast("Everyone has been told you're safe",3000)}
 /* receiving an SOS from someone else */
 function sirenStart(){sirenStop();try{unlockAudio();const o=actx.createOscillator(),g=actx.createGain();o.type='square';g.gain.value=.18;o.connect(g).connect(actx.destination);o.start();let hi=false;
-  siren={o,g,iv:setInterval(()=>{hi=!hi;o.frequency.setValueAtTime(hi?960:640,actx.currentTime)},450),to:setTimeout(sirenStop,30000)}}catch(e){}
-  try{navigator.vibrate&&navigator.vibrate([500,250,500,250,500,250,500])}catch(e){}}
+  siren={o,g,iv:setInterval(()=>{hi=!hi;o.frequency.setValueAtTime(hi?960:640,actx.currentTime)},250),to:setTimeout(sirenStop,2000)}}catch(e){}
+  try{navigator.vibrate&&navigator.vibrate([400,150,400,150,400])}catch(e){}}
 function sirenStop(){if(!siren)return;try{clearInterval(siren.iv);clearTimeout(siren.to);siren.o.stop()}catch(e){}siren=null}
-function sosAlarm(x){const ll=[x.lng,x.lat],d=me?dist(me.ll,ll):null,b=me?bearing(me.ll,ll):null,e=nearestEdge(ll,250),road=e?ROADS[e.e.road].properties.name:null,mine=Cloud.sess&&(x.responders||[]).some(r=>r.uid===Cloud.sess.uid);
+function sosAlarm(x,quiet){const ll=[x.lng,x.lat],d=me?dist(me.ll,ll):null,b=me?bearing(me.ll,ll):null,e=nearestEdge(ll,250),road=e?ROADS[e.e.road].properties.name:null,mine=Cloud.sess&&(x.responders||[]).some(r=>r.uid===Cloud.sess.uid);
   sosOv(`<h1>🆘 SOS</h1><p style="font-size:22px;font-weight:800">${esc(x.name||'A member')} needs help</p>
    ${x.note?`<p style="font-size:18px">“${esc(x.note)}”</p>`:'<p>No description yet</p>'}
    <p>${esc(ago(Date.parse(x.created_at)))}${road?' · on '+esc(road):''}${d!=null?'<br><b>'+fmtD(d)+' '+compass(b)+' of you</b>':''}</p><div class="sosCo">${esc(coordTxt(ll))}</div>
    ${(x.responders||[]).length?`<p>🚙 ${esc(x.responders.map(r=>r.name||'Someone').join(', '))} on the way</p>`:''}
-   <button class="sosBtnW w" id="sosGo">${mine?'Navigate there':"🚙 I'm on my way"}</button><button class="sosBtnW g" id="sosLook">Show on map</button><button class="sosBtnW g" id="sosMute">Silence alarm</button>`,true);
+   <button class="sosBtnW w" id="sosGo">${mine?'Navigate there':"🚙 I'm on my way"}</button><button class="sosBtnW g" id="sosLook">Show on map</button><button class="sosBtnW g" id="sosMute">Close</button><p style="font-size:13px;opacity:.85">The SOS stays pinned at the top of your screen until ${esc(x.name||'they')} is safe.</p>`,!quiet);
   const ack=()=>{sosAck.add(x.client_id);LS.set('sosAck',[...sosAck].slice(-50))};
   $('sosGo').onclick=async()=>{ack();sosClose();if(!mine){try{await rpc('sos_respond',{p_cid:x.client_id});rtPing()}catch(z){}}startNav({kind:'pin',name:'SOS: '+(x.name||'member'),ll})};
   $('sosLook').onclick=()=>{ack();sosClose();setFollow(0);map.easeTo({center:ll,zoom:16,duration:700})};
   $('sosMute').onclick=()=>{ack();sosClose()};
-  sirenStart();sosSay('S O S. '+(x.name||'A member')+' needs help'+(d!=null?', '+fmtD(d).replace('km',' kilometres').replace(' m',' metres')+' '+compass(b):''))}
+  if(!quiet)sirenStart()}
 async function loadSos(){if(!Cloud.on||!Cloud.member||Cloud.noSos||!navigator.onLine)return;
   try{const L=await api('/rest/v1/sos?select=client_id,user_id,name,lat,lng,note,created_at,updated_at,resolved,resolved_by,responders&created_at=gt.'+encodeURIComponent(new Date(Date.now()-12*36e5).toISOString())+'&order=created_at.desc&limit=20');
     const prev=SOSALL;SOSALL=L||[];const uid=Cloud.sess&&Cloud.sess.uid;
     if(SOS){const m=SOSALL.find(x=>x.client_id===SOS.cid);if(m){SOS.responders=m.responders||[];if(m.resolved){SOS=null;LS.set('sosMine',null)}LS.set('sosMine',SOS);sosActiveBar()}}
     SOSALL.forEach(x=>{if(x.user_id===uid)return;const was=prev.find(p=>p.client_id===x.client_id);
       if(x.resolved){if(was&&!was.resolved){toast('✅ '+(x.name||'They')+' is safe now',5000);if(!$('sosOv').classList.contains('hide'))sosClose()}return}
-      if(!sosAck.has(x.client_id)&&$('sosOv').classList.contains('hide'))sosAlarm(x)});
-    renderSos()}catch(e){if(/^404|PGRST20|does not exist|Could not find/.test(String(e.message||e)))Cloud.noSos=true}}
+      if(!sosAck.has(x.client_id)){sosAck.add(x.client_id);LS.set('sosAck',[...sosAck].slice(-50));sirenStart()}});
+    renderSos();renderSosRx()}catch(e){if(/^404|PGRST20|does not exist|Could not find/.test(String(e.message||e)))Cloud.noSos=true}}
 function renderSos(){if(!mapReady)return;const keep=new Set(),uid=Cloud.sess&&Cloud.sess.uid;
   SOSALL.filter(x=>!x.resolved&&x.user_id!==uid).forEach(x=>{keep.add(x.client_id);let m=sosMk[x.client_id];const ll=[x.lng,x.lat];
     if(!m){const el=document.createElement('div');el.className='sosMk';el.innerHTML='<div class="r"></div><div class="d">SOS</div><div class="n"></div>';el.onclick=ev=>{ev.stopPropagation();const y=SOSALL.find(q=>q.client_id===x.client_id);if(y)sosAlarm(y)};m=sosMk[x.client_id]=new maplibregl.Marker({element:el}).setLngLat(ll).addTo(map)}
     else m.setLngLat(ll);m.getElement().querySelector('.n').textContent='🆘 '+(x.name||'SOS')});
   Object.keys(sosMk).forEach(k=>{if(!keep.has(k)){sosMk[k].remove();delete sosMk[k]}})}
+function renderSosRx(){const uid=Cloud.sess&&Cloud.sess.uid,A=SOSALL.filter(x=>!x.resolved&&x.user_id!==uid),el=$('sosRx');
+  document.body.classList.toggle('sosrx',A.length>0);if(!A.length){el.classList.add('hide');return}
+  const x=A[0],ll=[x.lng,x.lat],d=me?dist(me.ll,ll):null,b=me?bearing(me.ll,ll):null,mine=Cloud.sess&&(x.responders||[]).some(r=>r.uid===Cloud.sess.uid),rs=(x.responders||[]).map(r=>r.name||'Someone');
+  el.innerHTML=`<span class="rxi">🆘</span><div class="rxt" id="rxOpen">${esc(x.name||'A member')} needs help${A.length>1?' (+'+(A.length-1)+' more)':''}<small>${[x.note,d!=null?fmtD(d)+' '+compass(b):null,rs.length?rs.join(', ')+' on the way':null].filter(Boolean).map(esc).join(' · ')||'Tap for details'}</small></div><button id="rxGo">${mine?'Go':"I'm coming"}</button>`;
+  el.classList.remove('hide');
+  $('rxOpen').onclick=()=>sosAlarm(x,true);
+  $('rxGo').onclick=async()=>{if(!mine){try{await rpc('sos_respond',{p_cid:x.client_id});rtPing();loadSos()}catch(z){}}startNav({kind:'pin',name:'SOS: '+(x.name||'member'),ll})}}
+setInterval(()=>{if(SOSALL.length)renderSosRx()},10000);
 $('sosBtn').onclick=()=>sosStart();
 setInterval(()=>{if(!document.hidden)loadSos()},15000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)loadSos()});
 setInterval(()=>{$('sosBtn').classList.toggle('hide',!Cloud.member);},2000);
@@ -1483,11 +1494,11 @@ function showPlace(x){
   if(follow)setFollow(0);
   const d=me?fmtD(dist(me.ll,ll))+' straight line':'';
   const r=me?route(me.ll,ll):null;
-  const extra=(x.kind==='sight'&&x.mine)?`<button class="btn red" id="delS">Delete</button>`:x.kind==='report'?`<button class="btn red" id="resR">Road is clear</button>`:'';
+  const extra=(x.kind==='sight'&&(x.mine||isAdm()))?`<button class="btn red" id="delS">Delete</button>`:x.kind==='report'?`<button class="btn red" id="resR">Road is clear</button>`:'';
   openSheet(`<h2>${esc(x.name)}</h2><div class="sub">${esc(x.sub||'')}${d?' · '+d:''}${r?' · '+fmtD(r.len)+' by road':''}</div><div class="row"><button class="btn pri" id="goBtn"><svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M12 2l8 20-8-5-8 5z"/></svg>Go</button>${extra}</div>${x.kind==='sight'?sightExtrasHtml(x):''}${x.kind==='sight'?profileHtml(x.name):''}`,()=>{
     $('goBtn').onclick=()=>{closeSheet();startNav(x)};
     if(x.kind==='sight')bindSightExtras(x);
-    if($('delS'))$('delS').onclick=()=>{delSight(x.cid);closeSheet();toast('Sighting deleted')};
+    if($('delS'))$('delS').onclick=async()=>{if(!x.mine){if($('delS').dataset.sure!=='1'){$('delS').dataset.sure='1';$('delS').textContent='Tap again to delete';return}if(await adminDelete([x.cid]))closeSheet();return}delSight(x.cid);closeSheet();toast('Sighting deleted')};
     if($('resR'))$('resR').onclick=()=>{resolveReport(x.cid);closeSheet();toast('Marked as clear')}
   });
 }
@@ -1817,15 +1828,27 @@ async function exportTrack(t){
 }
 function sightsSheet(){
   const S=allSights(),Rp=allReports();
-  const row=(x,kind)=>`<div class="it" style="${kind==='s'?'opacity:'+Math.max(.5,sightOp(x)):''}"><div><b>${kind==='s'?(EMO[x.what]||'')+' ':''}${esc(kind==='r'?x.kind:x.what)}</b><br><small>${kind==='s'?'Last seen '+lastSeen(x.t)+(x.prev?' · '+moveTxt(x):''):ago(x.t)} · ${esc(x.by)}${x.road?' · '+esc(x.road):''}${x.note?' · '+esc(x.note):''}</small></div><button class="sm" data-g="${kind}:${x.cid}">Go</button>${kind==='r'?`<button class="sm red" data-r="${x.cid}">Clear</button>`:x.mine?`<button class="sm red" data-d="${x.cid}">✕</button>`:''}</div>`;
-  return `<h2>Road reports</h2><div class="list">${Rp.map(x=>row(x,'r')).join('')||'<div class="it"><small>No road problems reported. Tap + then Road report to add one.</small></div>'}</div><h2 style="margin-top:18px">Sightings</h2><div class="list">${S.map(x=>row(x,'s')).join('')||'<div class="it"><small>No sightings in the last 24 hours. Tap the map or + to add one.</small></div>'}</div>${profilesHtml()}`}
+  const row=(x,kind)=>`<div class="it" style="${kind==='s'?'opacity:'+Math.max(.5,sightOp(x)):''}"><div><b>${kind==='s'?(EMO[x.what]||'')+' ':''}${esc(kind==='r'?x.kind:x.what)}</b><br><small>${kind==='s'?'Last seen '+lastSeen(x.t)+(x.prev?' · '+moveTxt(x):''):ago(x.t)} · ${esc(x.by)}${x.road?' · '+esc(x.road):''}${x.note?' · '+esc(x.note):''}</small></div><button class="sm" data-g="${kind}:${x.cid}">Go</button>${kind==='r'?`<button class="sm red" data-r="${x.cid}">Clear</button>`:(x.mine||isAdm())?`<button class="sm red" data-d="${x.cid}">✕</button>`:''}${kind==='s'&&isAdm()?`<input type="checkbox" class="admSel hide" data-sel="${x.cid}" style="width:22px;height:22px;margin-left:6px">`:''}</div>`;
+  return `<h2>Road reports</h2><div class="list">${Rp.map(x=>row(x,'r')).join('')||'<div class="it"><small>No road problems reported. Tap + then Road report to add one.</small></div>'}</div><div style="display:flex;align-items:center;margin-top:18px"><h2 style="margin:0">Sightings</h2>${isAdm()&&S.length?'<button class="sm" id="admSelBtn" style="margin-left:auto">Select</button>':''}</div>${isAdm()&&S.length?`<div id="admBar" class="hide" style="display:flex;gap:8px;margin-top:8px"><button class="btn" id="admAll" style="flex:1">Select all</button><button class="btn" id="admDel" style="flex:1;background:#d93025;color:#fff">Delete (0)</button></div>`:''}<div class="list">${S.map(x=>row(x,'s')).join('')||'<div class="it"><small>No sightings in the last 24 hours. Tap the map or + to add one.</small></div>'}</div>${profilesHtml()}`}
 function profilesHtml(){const seen=[...new Set(SLOG.map(x=>x[1]))].filter(w=>w!=='Other');if(!seen.length)return '';
   seen.sort((a,b)=>animalProfile(b).n-animalProfile(a).n);
   return `<h2 style="margin-top:18px">Animal profiles</h2><div class="sub">Learned from every sighting people have marked. Gets smarter over time.</div><div class="list">${seen.map(w=>{const p=animalProfile(w);return `<div class="it" data-prof="${esc(w)}"><div style="font-size:24px;width:32px">${EMO[w]||'📍'}</div><div style="flex:1"><b>${esc(w)}</b><br><small>${p.n} sighting${p.n==1?'':'s'}${p.period?' · mostly '+p.period:''}${p.area?' · '+esc(p.area):''}</small></div><small>›</small></div>`}).join('')}</div>`}
+const isAdm=()=>!!(Cloud.member&&Cloud.member.role==='admin');
+async function adminDelete(cids){if(!cids.length)return;const all=new Set();allSights().forEach(h=>{if((h.chain||[h]).some(c=>cids.includes(c.cid)))(h.chain||[h]).forEach(c=>all.add(c.cid))});cids.forEach(c=>all.add(c));const L=[...all];
+  try{await rpc('admin_delete_sightings',{p_cids:L});rtPing()}catch(e){toast(/404|PGRST202|Could not find/.test(e.message)?'Run admin_tools.sql in Supabase first':/admins only/.test(e.message)?'Only admins can delete other people\'s sightings':'Could not delete: '+String(e.message).slice(0,60),4000);return false}
+  sights=sights.filter(x=>!all.has(x.cid));LS.set('sights',sights);Cloud.remote.sightings=(Cloud.remote.sightings||[]).filter(x=>!all.has(x.client_id));SLOG=SLOG.filter(x=>!all.has(x[0]));LS.set('slog',SLOG);profCache={};estCache.k='';refreshOverlays();
+  toast(L.length+' sighting'+(L.length==1?'':'s')+' deleted for everyone',3000);return true}
 function bindSights(){
+  if($('admSelBtn')){const upd=()=>{const n=document.querySelectorAll('.admSel:checked').length;$('admDel').textContent='Delete ('+n+')'};
+    $('admSelBtn').onclick=()=>{const on=$('admBar').classList.toggle('hide');document.querySelectorAll('.admSel').forEach(c=>c.classList.toggle('hide',on));$('admSelBtn').textContent=on?'Select':'Done'};
+    document.querySelectorAll('.admSel').forEach(c=>c.onchange=upd);
+    $('admAll').onclick=()=>{const cs=[...document.querySelectorAll('.admSel')],all=cs.every(c=>c.checked);cs.forEach(c=>c.checked=!all);$('admAll').textContent=all?'Select all':'Select none';upd()};
+    $('admDel').onclick=async()=>{const L=[...document.querySelectorAll('.admSel:checked')].map(c=>c.dataset.sel);if(!L.length){toast('Tick the sightings to delete');return}
+      if($('admDel').dataset.sure!=='1'){$('admDel').dataset.sure='1';$('admDel').textContent='Tap again to delete '+L.length;return}
+      if(await adminDelete(L))openSheet(sightsSheet(),bindSights)}}
   document.querySelectorAll('[data-prof]').forEach(b=>b.onclick=()=>openSheet('<button class="sm" id="pBack" style="margin-bottom:6px">‹ Back</button>'+profileHtml(b.dataset.prof),()=>{$('pBack').onclick=()=>openSheet(sightsSheet(),bindSights)}));
   document.querySelectorAll('[data-g]').forEach(b=>b.onclick=()=>{const [k,c]=b.dataset.g.split(':');const x=(k==='r'?allReports():allSights()).find(y=>y.cid===c);if(!x)return;closeSheet();startNav({kind:k==='r'?'report':'sight',name:k==='r'?x.kind:x.what,ll:x.ll})});
-  document.querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>{delSight(b.dataset.d);openSheet(sightsSheet(),bindSights)});
+  document.querySelectorAll('[data-d]').forEach(b=>b.onclick=async()=>{const x=allSights().find(y=>y.cid===b.dataset.d);if(x&&!x.mine){if(b.dataset.sure!=='1'){b.dataset.sure='1';b.textContent='Sure?';return}if(await adminDelete([x.cid]))openSheet(sightsSheet(),bindSights);return}delSight(b.dataset.d);openSheet(sightsSheet(),bindSights)});
   document.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>{resolveReport(b.dataset.r);openSheet(sightsSheet(),bindSights)});
 }
 
