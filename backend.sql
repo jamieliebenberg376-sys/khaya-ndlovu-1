@@ -163,12 +163,15 @@ revoke all on public.sightings_log from anon, authenticated;
 
 create or replace function public.kn_trg_slog() returns trigger language plpgsql security definer set search_path = public as $$
 begin
+  begin
   if tg_op = 'INSERT' then
     insert into public.sightings_log (client_id, what, lat, lng, created_at, user_id, still)
-    values (new.client_id, new.what, new.lat, new.lng, new.created_at, new.user_id, coalesce(new.still, false)) on conflict (client_id) do nothing;
+    values (new.client_id, new.what, new.lat, new.lng, new.created_at, new.user_id, coalesce((to_jsonb(new)->>'still')::boolean, false)) on conflict (client_id) do nothing;
   elsif tg_op = 'DELETE' and not public.kn_flag('kn.cleanup') then
     delete from public.sightings_log where client_id = old.client_id;  -- deleted on purpose: forget it. Expired: keep it.
   end if;
+  exception when others then null;  -- the history must never stop a sighting from being shared
+  end;
   return null;
 end $$;
 drop trigger if exists kn_slog on public.sightings;

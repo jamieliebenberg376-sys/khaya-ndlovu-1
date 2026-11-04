@@ -1227,13 +1227,19 @@ async function sync(){
   Cloud.busy=true;Cloud.busyT=Date.now();Cloud.again=false;
   try{
     const pushed=Cloud.outbox.length>0;
+    if((Cloud.stuck||[]).length&&Date.now()-(Cloud.stuckT||0)>5*6e4){Cloud.stuckT=Date.now();Cloud.outbox.push(...Cloud.stuck);Cloud.stuck=[]}
     while(Cloud.outbox.length){const o=Cloud.outbox[0];
+      try{
       if(o.op==='add'){const post=row=>api('/rest/v1/'+o.t+'?on_conflict=client_id',{method:'POST',headers:{Prefer:'resolution=ignore-duplicates,return=minimal'},body:JSON.stringify(row)});try{await post(o.row)}catch(e){const m=String(e.message);if(/kn_reject/.test(m)){const why=/outside/.test(m)?'it was outside the reserve':'too many were sent in a short time';toast((o.t==='reports'?'A road report':'A sighting')+' was not shared: '+why,4500)}else if(o.t==='sightings'&&/^400/.test(m)&&('photo' in o.row||'still' in o.row)){const r2={...o.row};delete r2.photo;delete r2.still;await post(r2)}else if(!((o.t==='animal_misses'||o.t==='sos')&&/^(404|400)/.test(m)))throw e}}
       else if(o.op==='photo'){await uploadPhoto(o.cid)}
       else if(o.op==='sosupd'){try{await api('/rest/v1/sos?client_id=eq.'+encodeURIComponent(o.cid),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({...o.body,updated_at:new Date().toISOString()})})}catch(e){if(!/^(404|400)/.test(String(e.message)))throw e}}
       else if(o.op==='sosresolve'){try{await rpc('sos_resolve',{p_cid:o.cid})}catch(e){if(!/^(404|400)/.test(String(e.message)))throw e}}
       else if(o.op==='del')await api('/rest/v1/'+o.t+'?client_id=eq.'+encodeURIComponent(o.id),{method:'DELETE',headers:{Prefer:'return=minimal'}});
       else if(o.op==='resolve')await api('/rest/v1/reports?client_id=eq.'+encodeURIComponent(o.id),{method:'PATCH',headers:{Prefer:'return=minimal'},body:'{"resolved":true}'});
+      }catch(e){const m=String(e.message||e);
+        // no signal / timeout / server busy: stop and try again later. A refused item: set it aside so it never blocks the others.
+        if(!/^(400|403|404|409|413|415|422):/.test(m))throw e;
+        Cloud.outbox.shift();o.fails=(o.fails||0)+1;o.err=m.slice(0,160);if(o.fails<20){(Cloud.stuck=Cloud.stuck||[]).push(o);if(!Cloud.stuckT||Date.now()-Cloud.stuckT>5*6e4)Cloud.stuckT=Date.now()}Cloud.lastStuck=m.slice(0,160);saveCloud();console.warn('sync item refused',o.op,o.t,m);continue}
       Cloud.outbox.shift();saveCloud()}
     if(pushed)rtPing();
     if(await checkStatus())return;
@@ -2409,6 +2415,12 @@ $('menuBtn').onclick=()=>{
 };
 function helpSheet(){openSheet(`<h2>Help & install</h2><div class="sub" style="line-height:1.5;margin-top:10px"><b>iPhone:</b> open this page in Safari, tap Share, then <b>Add to Home Screen</b>.<br><b>Android:</b> open in Chrome, tap ⋮, then <b>Add to Home screen</b> or <b>Install app</b>.<br><br>Open it once with signal. After that the map, roads, search and navigation all work with no signal. GPS works anywhere, it doesn't need data.<br><br>Sightings and road reports you add without signal are saved and shared automatically once you have signal again.<br><br>Satellite photos load only where there's signal, and areas you have looked at stay saved.<br><br><b>Tips</b><br>Tap anywhere on the map to add a sighting there or drive to it.<br>Swipe a panel down to close it.<br>Hold the SOS button area in an emergency: it counts down, then you swipe to send.<br>Orange dashed roads are routes still to be checked on the ground.</div><div class="sub" style="font-size:11.5px;margin-top:16px;opacity:.8">Map imagery © Esri, Maxar, Earthstar Geographics · Terrain: Mapzen/AWS · Weather: Open-Meteo · Map engine: MapLibre</div>`)}
 /* ============ settings: every switch in one place ============ */
+function shareStatus(){const w=Cloud.outbox.length,st=(Cloud.stuck||[]).length;return st?st+' not shared yet · tap to see why':w?w+' waiting for signal':Cloud.lastSync?'Everything shared · synced '+ago(Cloud.lastSync):'Not synced yet'}
+function shareSheet(){const st=Cloud.stuck||[],w=Cloud.outbox.length;const nm=o=>o.op==='photo'?'Photo':o.t==='reports'?'Road report':o.t==='sightings'?(o.row&&o.row.still?'Still here':'Sighting')+(o.row&&o.row.what?' · '+o.row.what:''):(o.t||o.op);
+  openSheet(`<h2>Sharing status</h2><div class="sub">Everything you add is saved on your phone first, then shared with everyone when there is signal.</div>
+   <div class="rpm" style="margin-top:12px"><div><b class="g">${w}</b><small>Waiting</small></div><div><b>${st.length}</b><small>Refused</small></div><div><b>${Cloud.lastSync?new Date(Cloud.lastSync).toTimeString().slice(0,5):'-'}</b><small>Last sync</small></div></div>
+   ${st.length?`<div class="msec" style="margin-top:14px">Not shared yet</div><div class="list sgroup">${st.slice(0,8).map(o=>`<div class="it"><div style="min-width:0"><b>${esc(nm(o))}</b><br><small>${esc(o.err||'')}</small></div></div>`).join('')}</div><div class="sub" style="font-size:12.5px;margin-top:6px">These are tried again every few minutes. If it says something about the database, the latest SQL update in Supabase may be missing.</div>`:''}
+   <button class="btn pri" id="shGo" style="width:100%;margin-top:14px">Share now</button>`,()=>{$('shGo').onclick=async()=>{if(!navigator.onLine){toast('No signal right now');return}Cloud.stuckT=0;toast('Sharing...');await sync();shareSheet()}})}
 function settingsSheet(){const m=Cloud.member;const notif='Notification' in window&&Notification.permission!=='granted';
   const th=(k,l)=>`<button data-th="${k}" class="${theme===k?'sel':''}">${l}</button>`;
   openSheet(`<h2>Settings</h2>
@@ -2418,7 +2430,7 @@ function settingsSheet(){const m=Cloud.member;const notif='Notification' in wind
    <div class="msec">Location</div><div class="list sgroup">${m?LK('sLive','Share live location','',shareLoc?'On':'Off'):''}${LK('sHome','Home point','',home?'Set':'Not set')}${LK('sCal','Calibrate GPS','If your dot sits next to the road',calib[0]||calib[1]?'Active':'')}${isIOS?LK('sLoc','Stop the location question','If the map asks for your location every time',''):''}</div>
    <div class="msec">Driving</div><div class="list sgroup">${TG('sSpd','Speed warning','Red alert over 40 km/h on the reserve',speedWarn)}${TG('sVoice','Voice directions','Spoken turn-by-turn while navigating',voiceOn)}</div>
    ${m?`<div class="msec">Privacy</div><div class="list sgroup">${TG('sRhino','Share rhino sightings','Off keeps rhino locations on this phone only',shareRhino)}</div>`:''}
-   <div class="msec">Map data</div><div class="list sgroup">${LK('sOff','Offline map','',esc(offlineStatus()))}</div>
+   <div class="msec">Map data</div><div class="list sgroup">${LK('sOff','Offline map','',esc(offlineStatus()))}${m?LK('sShare','Sharing status',shareStatus(),''):''}</div>
    ${m?'<button class="mout" id="sOut">Sign out</button>':''}`,()=>{
     const tg=(id,fn)=>{const b=$(id);if(b)b.onclick=()=>{fn();b.classList.toggle('on')}};
     tg('sAlert',()=>{alertOn=!alertOn;LS.set('alertOn',alertOn)});
@@ -2434,7 +2446,7 @@ function settingsSheet(){const m=Cloud.member;const notif='Notification' in wind
     $('sHome').onclick=()=>homeSheet();
     $('sCal').onclick=()=>{closeSheet();startCal()};if($('sLoc'))$('sLoc').onclick=()=>locHelp();
     document.querySelectorAll('#sheetBody [data-th]').forEach(b=>b.onclick=()=>{theme=b.dataset.th;LS.set('theme',theme);checkNight();applyMode();settingsSheet()});
-    $('sOff').onclick=()=>offlineSheet(false);
+    $('sOff').onclick=()=>offlineSheet(false);if($('sShare'))$('sShare').onclick=()=>shareSheet();
     if($('sSync'))$('sSync').onclick=async()=>{if(!navigator.onLine){toast('No signal right now. It syncs by itself when signal comes back.');return}toast('Syncing...');await sync();settingsSheet();toast(Cloud.err?'Sync failed, will retry':'Up to date')};
     if($('sOut'))$('sOut').onclick=()=>signOutSheet()})}
 function locHelp(){const st=(n,t,d)=>`<div class="pr"><span class="stn">${n}</span><div>${t}<small>${d}</small></div></div>`;
