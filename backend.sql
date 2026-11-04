@@ -345,7 +345,7 @@ begin
   if coalesce(b, 0) = 0 then return 0; end if;
   update public.announcements set removed = true where for_old_build is not null and not removed;
   insert into public.announcements (client_id, body, expires_at, for_old_build)
-  values ('upd-' || b || '-' || floor(extract(epoch from now())),
+  values ('upd-' || b || '-' || left(md5(random()::text || clock_timestamp()::text), 12),
     'Please update the map. A new version is out and your phone still has the old one, so you may miss sightings and alerts. ' ||
     'Close the map completely (swipe it away) and open it again where you have good signal, it updates by itself. ' ||
     'On iPhone, if it still looks the same after that: open the map, tap Update now and follow the steps. You stay signed in.',
