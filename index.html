@@ -411,6 +411,7 @@ body.navon #rec{bottom:calc(var(--bb) + 214px);left:72px}
 body.red #navBottom .exit{background:#5a0f0b}
 #layerBtn.sm,#layerBtn.sm svg{color:var(--ink)!important}body.night #layerBtn.sm,body.night #layerBtn.sm svg{color:#e8eaed!important}body.red #layerBtn.sm svg{color:#ff8a80!important}
 body:has(#results:not(.hide)) #spot,body:has(#results:not(.hide)) #layerBtn.sm{display:none}
+body:not(.navon) #recenter{background:var(--glass);border:var(--gb);-webkit-backdrop-filter:blur(18px) saturate(1.7);backdrop-filter:blur(18px) saturate(1.7);color:var(--ink)}body:not(.navon) #recenter svg{color:#a8740c}body.night:not(.navon) #recenter{background:var(--glassN);border:var(--gbN);color:#e8eaed}body.night:not(.navon) #recenter svg{color:#ffc23d}
 </style>
 </head>
 <body>
@@ -429,10 +430,10 @@ body:has(#results:not(.hide)) #spot,body:has(#results:not(.hide)) #layerBtn.sm{d
 <button class="btn pri" id="gGo" type="submit">Open map</button><div class="err" id="gErr">Oops, that code is wrong</div></form></div><div class="lock"><svg class="li" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg> Ask an owner for a guest code</div><div class="credits">Map imagery © Esri, Maxar, Earthstar Geographics · Terrain: Mapzen/AWS · Weather: Open-Meteo · Map engine: MapLibre</div></div>
 <div id="top">
   <div id="search">
-    <span class="ib sic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg></span>
+    <button class="ib" id="menuBtn" aria-label="Menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
     <input id="q" placeholder="Search roads, gates, picnic spots" autocomplete="off" enterkeyhint="search">
     <button class="ib hide" id="clearQ" aria-label="Clear"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
-    <button class="ib av" id="menuBtn" aria-label="Menu"><span id="avI">?</span></button>
+    
   </div>
   <div id="chips"><button id="homeBtn" class="chip2" data-c="home"><i data-li="home"></i>Home</button><button class="chip2" data-c="sight"><i data-li="binoc"></i>Sightings</button><button class="chip2" data-c="Picnic spot"><i data-li="picnic"></i>Picnic</button><button class="chip2" data-c="Dam"><i data-li="drop"></i>Water</button><button class="chip2" data-c="Viewpoint"><i data-li="eye"></i>Viewpoints</button><button class="chip2" data-c="Gate"><i data-li="gate"></i>Gates</button></div>
   <div id="results" class="hide"></div>
@@ -460,7 +461,7 @@ body:has(#results:not(.hide)) #spot,body:has(#results:not(.hide)) #layerBtn.sm{d
 <div id="fabs">
   <button class="fab" id="compass" aria-label="North up"><svg viewBox="0 0 24 24" id="compassSvg"><path d="M12 2l4 10h-8z" fill="#d93025"/><path d="M12 22l-4-10h8z" fill="#9aa0a6"/></svg></button>
   <button class="fab" id="voiceBtn" aria-label="Voice"></button>
-  <button class="fab big" id="pinBtn" aria-label="Add sighting"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+  <button class="fab" id="pinBtn" aria-label="Add sighting"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
   <button class="fab" id="locBtn" aria-label="My location"><svg viewBox="0 0 24 24" id="locSvg"></svg></button>
 </div>
   <button class="fab sm" id="layerBtn" aria-label="Map style"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/></svg></button>
@@ -1706,7 +1707,7 @@ document.querySelectorAll('[data-li]').forEach(i=>i.outerHTML=LI(i.dataset.li,17
 document.querySelectorAll('#chips .chip2[data-c]').forEach(b=>{if(b.id==='homeBtn')return;b.onclick=()=>{const c=b.dataset.c;if(c==='sight'){sightHub();return}$('q').value=c;renderResults();$('results').scrollTop=0}});
 $('pkTap').onclick=()=>$('menuBtn').click();
 (()=>{let y0=null;const pk=$('peek');pk.addEventListener('touchstart',e=>{y0=e.touches[0].clientY},{passive:true});pk.addEventListener('touchend',e=>{if(y0!=null&&y0-e.changedTouches[0].clientY>30)$('menuBtn').click();y0=null},{passive:true})})();
-function syncPeek(){try{const m=Cloud.member;$('avI').textContent=((m&&m.name)||'?').trim().charAt(0).toUpperCase()||'?';
+function syncPeek(){try{const m=Cloud.member;
   const rc=$('roadCard');if(me&&rc){$('pkT').textContent=$('rn').textContent||'Khaya Ndlovu';$('pkS').textContent=$('rs').textContent||'Tap for sightings, drives and more'}}catch(e){}}
 setInterval(syncPeek,1000);
 /* ============ my home point: each person sets their own ============ */
