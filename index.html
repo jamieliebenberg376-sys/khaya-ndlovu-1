@@ -640,6 +640,12 @@ body.night .stl .li{color:#ffcf66}body.night .stl b{color:#fff}body.night .stl.o
 #lbox .lbc{position:absolute;left:16px;right:16px;bottom:calc(var(--safe-b) + 20px);display:flex;justify-content:space-between;gap:10px;color:rgba(255,255,255,.85);font:600 14px system-ui}#lbox .lbc b{color:#ffd36b}
 #lbox .lbn{position:absolute;top:50%;margin-top:-26px;width:44px;height:52px;border-radius:14px;background:rgba(255,255,255,.1);color:#fff;font-size:30px;line-height:52px}#lbox .lbn.l{left:8px}#lbox .lbn.r{right:8px}
 #lbox{background:rgba(5,8,5,.97);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+
+#otherBox .inp{margin-top:10px;border-color:#9fcbb0}
+.osug{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.osg{height:30px;padding:0 11px;border-radius:15px;font:600 13px system-ui,-apple-system,sans-serif;background:var(--sandA);color:var(--brand);box-shadow:inset 0 0 0 1px var(--hair)}
+.osg.sel{background:var(--brand);color:#fff}
+body.night .osg{background:rgba(255,255,255,.06);color:#ffcf66}body.night .osg.sel{background:#ffcf66;color:#1d1406}
 </style>
 </head>
 <body>
@@ -1060,7 +1066,7 @@ function drawIcon(kind){
 }
 function hatch(col,bg){const S=16,c=document.createElement('canvas');c.width=c.height=S;const x=c.getContext('2d');x.fillStyle=bg;x.fillRect(0,0,S,S);x.strokeStyle=col;x.lineWidth=2.2;x.lineCap='square';
   for(const o of[-S,0,S]){x.beginPath();x.moveTo(o,S);x.lineTo(o+S,0);x.stroke()}return x.getImageData(0,0,S,S)}
-map.on('styleimagemissing',e=>{if(e.id.startsWith('an-')){const k=e.id.slice(3);if(PIN_IMG[k]&&!map.hasImage(e.id))map.addImage(e.id,PIN_IMG[k],{pixelRatio:2});return}if(COLORS[e.id])map.addImage(e.id,drawIcon(e.id),{pixelRatio:2});
+map.on('styleimagemissing',e=>{if(e.id.startsWith('an-')){const k=e.id.slice(3),im=PIN_IMG[k]||PIN_IMG.Other;if(im&&!map.hasImage(e.id))map.addImage(e.id,im,{pixelRatio:2});return}if(COLORS[e.id])map.addImage(e.id,drawIcon(e.id),{pixelRatio:2});
   else if(e.id==='sarrow'){const c=document.createElement('canvas');c.width=c.height=32;const x=c.getContext('2d');x.fillStyle='#f57c00';x.strokeStyle='#fff';x.lineWidth=3;x.lineJoin='round';x.beginPath();x.moveTo(25,16);x.lineTo(8,6);x.lineTo(12,16);x.lineTo(8,26);x.closePath();x.stroke();x.fill();map.addImage('sarrow',x.getImageData(0,0,32,32),{pixelRatio:2})}
   else if(e.id==='hatch-red')map.addImage('hatch-red',hatch('rgba(217,48,37,.55)','rgba(217,48,37,.08)'),{pixelRatio:2});
   else if(e.id==='hatch')map.addImage('hatch',hatch('#4a90e2','rgba(178,214,245,.55)'),{pixelRatio:2});
@@ -1517,7 +1523,7 @@ function bing(){if(!alertSound)return;try{unlockAudio();const t=actx.currentTime
   try{navigator.vibrate&&navigator.vibrate([40,60,40])}catch(e){}}
 function alertNew(list){
   const seen=LS.get('seenT',0),uid=Cloud.sess&&Cloud.sess.uid;let top=seen;
-  const fresh=list.filter(x=>{const t=Date.parse(x.created_at);if(t>top)top=t;return t>seen&&x.user_id!==uid&&(!alertWhat||alertWhat.includes(x.what))});
+  const fresh=list.filter(x=>{const t=Date.parse(x.created_at);if(t>top)top=t;return t>seen&&x.user_id!==uid&&(!alertWhat||alertWhat.includes(ANIMALS.includes(x.what)?x.what:'Other'))});
   LS.set('seenT',Math.max(top,seen||Date.now()));
   if(!seen||!alertOn||!fresh.length)return;
   fresh.slice(0,3).reverse().forEach(x=>pingQ.push(x));
@@ -2196,6 +2202,9 @@ function updatePill(){const el=$('roadPill');const on=follow===2&&me&&!calMode;d
 let calMode=false;
 
 /* ============ sightings & road reports ============ */
+const OTHER_SUG=['Warthog','Impala','Wildebeest','Nyala','Waterbuck','Honey badger','Jackal','Baboon','Vervet monkey','Duiker','Steenbok','Bushbuck','Porcupine','Ostrich','Crocodile','Mongoose'];
+const otherSugs=()=>[...new Set([...LS.get('otherNames',[]),...OTHER_SUG])].slice(0,14);
+function otherName(v){v=String(v||'').trim().replace(/\s+/g,' ').slice(0,30);if(!v)return '';const k=ANIMALS.find(a=>a.toLowerCase()===v.toLowerCase());if(k)return k;return v.charAt(0).toUpperCase()+v.slice(1)}
 const ANIMALS=['Lion','Leopard','Elephant','Rhino','Cheetah','Wild dog','Hippo','Buffalo','Hyena','Giraffe','Zebra','Kudu','Other'];
 function delSight(cid){const i=sights.findIndex(s=>s.cid===cid);if(i>-1){sights.splice(i,1);LS.set('sights',sights)}
   Cloud.remote.sightings=(Cloud.remote.sightings||[]).filter(x=>x.client_id!==cid);queue({op:'del',t:'sightings',id:cid});refreshOverlays()}
@@ -2234,16 +2243,18 @@ function addSheet(tab,at){
   const where=at?'Where you tapped'+(road?' on '+road:'')+(away?' · '+fmtD(away.len)+' away by road':me?' · '+fmtD(dist(me.ll,ll))+' away':''):me?'At your current location'+(road?' on '+road:''):'No GPS yet, pinned at the centre of the map';
   const shared=Cloud.on&&Cloud.member;
   const opts=tab==='report'?REPORT_KINDS:ANIMALS;
-  openSheet(`<h2>${tab==='report'?'Report a road problem':'Add a sighting'}</h2><div class="seg" style="margin-top:12px"><button data-tab="sight" class="${tab!=='report'?'sel':''}">Sighting</button><button data-tab="report" class="${tab==='report'?'sel':''}">Road report</button></div><div class="sub" style="margin-top:12px">${esc(where)}</div><div class="chips grid">${opts.map(a=>`<button class="chip" data-a="${a}">${(EMO[a]||'')+' '+a}</button>`).join('')}</div><input class="inp" id="sNote" placeholder="${tab==='report'?'Note (optional), e.g. drift is 50 cm deep':'Note (optional), e.g. 2 males under tree'}">${tab!=='report'?`<label class="phbtn" id="phLbl"><input type="file" accept="image/*" id="sPhoto" hidden><span id="phTxt">${LI('cam',20)} Add a photo</span><img id="phPrev" class="hide"></label>`:''}<div class="sub" id="shareNote" style="margin-top:10px;font-size:12.5px">${shared?(tab==='report'?'Shared with all owners for 5 days. Navigation avoids blocked roads.':'Shared with everyone for 24 hours.'):'Saved on this phone only.'}</div><div class="cdn hide" id="cdNote">${LI('timer',15)} One ${tab==='report'?'report':'sighting'} every 20 seconds keeps the map accurate</div><div class="sticky-save">${at?`<div class="row" style="margin:0"><button class="btn" id="sGo"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l8 20-8-5-8 5z"/></svg>Go now</button><button class="btn pri" id="sSave">Save</button></div>`:`<button class="btn pri" id="sSave" style="width:100%">Save</button>`}</div>`,()=>{
+  openSheet(`<h2>${tab==='report'?'Report a road problem':'Add a sighting'}</h2><div class="seg" style="margin-top:12px"><button data-tab="sight" class="${tab!=='report'?'sel':''}">Sighting</button><button data-tab="report" class="${tab==='report'?'sel':''}">Road report</button></div><div class="sub" style="margin-top:12px">${esc(where)}</div><div class="chips grid">${opts.map(a=>`<button class="chip" data-a="${a}">${(EMO[a]||'')+' '+a}</button>`).join('')}</div>${tab!=='report'?`<div id="otherBox" class="hide"><input class="inp" id="sOther" placeholder="What did you see? e.g. Warthog" maxlength="30" autocapitalize="words"><div class="osug">${otherSugs().map(n=>`<button class="osg" data-o="${esc(n)}">${esc(n)}</button>`).join('')}</div></div>`:''}<input class="inp" id="sNote" placeholder="${tab==='report'?'Note (optional), e.g. drift is 50 cm deep':'Note (optional), e.g. 2 males under tree'}">${tab!=='report'?`<label class="phbtn" id="phLbl"><input type="file" accept="image/*" id="sPhoto" hidden><span id="phTxt">${LI('cam',20)} Add a photo</span><img id="phPrev" class="hide"></label>`:''}<div class="sub" id="shareNote" style="margin-top:10px;font-size:12.5px">${shared?(tab==='report'?'Shared with all owners for 5 days. Navigation avoids blocked roads.':'Shared with everyone for 24 hours.'):'Saved on this phone only.'}</div><div class="cdn hide" id="cdNote">${LI('timer',15)} One ${tab==='report'?'report':'sighting'} every 20 seconds keeps the map accurate</div><div class="sticky-save">${at?`<div class="row" style="margin:0"><button class="btn" id="sGo"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l8 20-8-5-8 5z"/></svg>Go now</button><button class="btn pri" id="sSave">Save</button></div>`:`<button class="btn pri" id="sSave" style="width:100%">Save</button>`}</div>`,()=>{
     document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>addSheet(b.dataset.tab,at));
     let phBlob=null;if($('sPhoto'))$('sPhoto').onchange=async e=>{const f=e.target.files&&e.target.files[0];if(!f)return;$('phTxt').textContent='Preparing photo...';try{phBlob=await shrinkPhoto(f);$('phPrev').src=URL.createObjectURL(phBlob);$('phPrev').classList.remove('hide');$('phTxt').innerHTML=LI('cam',20)+' Photo added · tap to change'}catch(x){phBlob=null;$('phTxt').textContent='Could not read that photo, try another'}};
     if(at){dropPin(ll);$('sGo').onclick=()=>{clearPin();startNav({kind:'pin',name:road||'Dropped pin',ll})}}
     {const sb=$('sSave'),orig=sb.innerHTML;const cd=()=>{if(!document.body.contains(sb)||!$('sheet').classList.contains('open')){clearInterval(iv);return}const w=cooldown(tab);
       if(w>0){sb.disabled=true;sb.classList.add('wait');sb.innerHTML=LI('timer',18)+' Next one in '+fmtCd(w);$('cdNote')&&$('cdNote').classList.remove('hide')}
       else if(sb.classList.contains('wait')){sb.disabled=false;sb.classList.remove('wait');sb.innerHTML=orig;$('cdNote')&&$('cdNote').classList.add('hide')}};const iv=setInterval(cd,500);cd()}
-    document.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{document.querySelectorAll('.chip').forEach(x=>x.classList.remove('sel'));c.classList.add('sel');pick=c.dataset.a;
+    document.querySelectorAll('.osg').forEach(b=>b.onclick=()=>{$('sOther').value=b.dataset.o;document.querySelectorAll('.osg').forEach(x=>x.classList.toggle('sel',x===b))});
+    document.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{document.querySelectorAll('.chip').forEach(x=>x.classList.remove('sel'));c.classList.add('sel');pick=c.dataset.a;if($('otherBox')){$('otherBox').classList.toggle('hide',pick!=='Other');if(pick==='Other')setTimeout(()=>$('sOther').focus(),60)}
       if(shared&&tab!=='report')$('shareNote').textContent=(pick==='Rhino'&&!shareRhino)?'Rhino sightings stay on this phone only, to keep rhinos safe. You can change this in Shared map settings.':'Shared with everyone for 24 hours.'});
     $('sSave').onclick=()=>{if(cooldown(tab)>0)return;if(!pick){toast(tab==='report'?'Tap the problem first':'Tap what you saw first');const g=document.querySelector('.chips.grid');if(g){g.animate([{transform:'translateX(0)'},{transform:'translateX(-6px)'},{transform:'translateX(6px)'},{transform:'translateX(0)'}],{duration:280})}return}
+      if(tab!=='report'&&pick==='Other'){const nm=otherName($('sOther').value);if(!nm){toast('Type what you saw, e.g. Warthog');$('sOther').focus();return}pick=nm;const L=[nm,...LS.get('otherNames',[]).filter(x=>x!==nm)].slice(0,6);LS.set('otherNames',L)}
       const note=$('sNote').value.trim(),cid=cidNew(),t=Date.now();
       if(tab==='report'){const r={cid,kind:pick,note,road,ll,t};reports.unshift(r);LS.set('reports',reports);queue({op:'add',t:'reports',row:reportRow(r)});toast(pick+' reported'+(road?' on '+road:''))}
       else{const sg={cid,what:pick,note,ll,t,photo:!!phBlob};sights.unshift(sg);LS.set('sights',sights);logSight(cid,pick,ll,t);const share=!(pick==='Rhino'&&!shareRhino);if(phBlob){photoPut(cid,phBlob).then(()=>{if(share)queue({op:'photo',cid})})}if(share)queue({op:'add',t:'sightings',row:sightRow(sg)});toast(pick+' saved'+(phBlob?' with photo':''))}
