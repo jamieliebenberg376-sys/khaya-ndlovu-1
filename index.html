@@ -450,7 +450,7 @@ const B=DATA.boundary.geometry.coordinates[0];
 let minX=1e9,minY=1e9,maxX=-1e9,maxY=-1e9;B.forEach(([x,y])=>{minX=Math.min(minX,x);maxX=Math.max(maxX,x);minY=Math.min(minY,y);maxY=Math.max(maxY,y)});
 const RES_BOUNDS=[[minX,minY],[maxX,maxY]];
 const outside={type:'Feature',geometry:{type:'Polygon',coordinates:[[[minX-.2,minY-.2],[maxX+.2,minY-.2],[maxX+.2,maxY+.2],[minX-.2,maxY+.2],[minX-.2,minY-.2]],B.slice().reverse()]}};
-let mode=LS.get('mode','map');
+let mode='sat'; /* always open on satellite; you can switch during the session */
 let speedWarn=LS.get('speedWarn',true),showFarms=LS.get('farms',false),showEst=LS.get('showEst',true),showHeat=LS.get('showHeat',false),heatWhat=LS.get('heatWhat','All'),redOn=LS.get('redOn',false);
 let theme=LS.get('theme','auto');      // auto | day | night
 let showHill=LS.get('hill',true);
