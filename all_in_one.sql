@@ -510,6 +510,7 @@ begin
   begin update public.reports set user_id = me where user_id = h.user_id; exception when others then null; end;
   begin update public.drives set user_id = me where user_id = h.user_id; exception when others then null; end;
   begin delete from public.live_locs where user_id = h.user_id; exception when others then null; end;
+  begin update public.private_notes set user_id = me where user_id = h.user_id; exception when others then null; end;
   delete from public.members where user_id = h.user_id;
   update public.handover set used_at = now() where token = h.token;
   perform set_config('kn.handover', '', true);
@@ -1026,8 +1027,9 @@ create or replace function public.kn_trg_slog() returns trigger language plpgsql
 begin
   begin
   if tg_op = 'INSERT' then
-    insert into public.sightings_log (client_id, what, lat, lng, created_at, user_id, still)
-    values (new.client_id, new.what, new.lat, new.lng, new.created_at, new.user_id, coalesce((to_jsonb(new)->>'still')::boolean, false)) on conflict (client_id) do nothing;
+    insert into public.sightings_log (client_id, what, lat, lng, created_at, user_id, still, photo, kill)
+    values (new.client_id, new.what, new.lat, new.lng, new.created_at, new.user_id, coalesce((to_jsonb(new)->>'still')::boolean, false),
+      coalesce((to_jsonb(new)->>'photo')::boolean, false), coalesce((to_jsonb(new)->>'kill')::boolean, false)) on conflict (client_id) do nothing;
   elsif tg_op = 'DELETE' and not public.kn_flag('kn.cleanup') then
     delete from public.sightings_log where client_id = old.client_id;  -- deleted on purpose: forget it. Expired: keep it.
   end if;
@@ -1231,6 +1233,129 @@ begin
 end $$;
 grant execute on function public.set_min_build(int) to authenticated;
 
+
+-- ---------- KILL FLAG (predators on a kill stay on the map longer) ----------
+alter table public.sightings add column if not exists kill boolean not null default false;
+alter table public.sightings_log add column if not exists photo boolean not null default false;
+alter table public.sightings_log add column if not exists kill boolean not null default false;
+
+-- ---------- PHOTO ALBUM (photos kept 30 days) ----------
+alter table private.config add column if not exists featured_photo text;
+create or replace function public.photo_album(p_days int default 30)
+returns json language plpgsql stable security definer set search_path = public, private as $$
+begin
+  if not public.is_member() then return '[]'::json; end if;
+  return coalesce((select json_agg(json_build_object('c', l.client_id, 'w', l.what, 'by', coalesce(m.name, 'Someone'), 't', l.created_at, 'lat', l.lat, 'lng', l.lng, 'k', l.kill) order by l.created_at desc)
+    from (select * from public.sightings_log where photo and created_at > now() - make_interval(days => least(greatest(p_days, 1), 30)) order by created_at desc limit 300) l
+    left join public.members m on m.user_id = l.user_id), '[]'::json);
+end $$;
+grant execute on function public.photo_album(int) to authenticated;
+create or replace function public.featured_photo()
+returns text language sql stable security definer set search_path = public, private as $$ select case when public.is_member() then (select featured_photo from private.config limit 1) end $$;
+grant execute on function public.featured_photo() to authenticated;
+create or replace function public.set_featured_photo(p_cid text)
+returns void language plpgsql security definer set search_path = public, private as $$
+begin
+  if not public.is_admin() then raise exception 'admins only'; end if;
+  update private.config set featured_photo = nullif(p_cid, '');
+  if coalesce(p_cid, '') <> '' then perform public.kn_log('photo', 'picked the photo of the week'); end if;
+end $$;
+grant execute on function public.set_featured_photo(text) to authenticated;
+
+-- ---------- PLACES (admins add, rename, move and remove places on the map) ----------
+create table if not exists public.places (
+  id text primary key,
+  base text,                      -- name of a built-in place this changes (null for a new place)
+  kind text not null default 'other',
+  name text not null,
+  note text,
+  lat double precision not null,
+  lng double precision not null,
+  removed boolean not null default false,
+  updated_at timestamptz not null default now(),
+  updated_by text
+);
+alter table public.places enable row level security;
+drop policy if exists pl_read on public.places;
+create policy pl_read on public.places for select to authenticated using (public.is_member());
+revoke insert, update, delete on public.places from anon, authenticated;
+grant select on public.places to authenticated;
+
+create or replace function public.save_place(p_id text, p_base text, p_kind text, p_name text, p_note text, p_lat double precision, p_lng double precision)
+returns void language plpgsql security definer set search_path = public as $$
+declare nm text := left(trim(coalesce(p_name, '')), 60); isnew boolean;
+begin
+  if not public.is_admin() then raise exception 'admins only'; end if;
+  if nm = '' then raise exception 'name needed'; end if;
+  if not public.kn_in_area(p_lat, p_lng) then raise exception 'outside the reserve'; end if;
+  isnew := not exists (select 1 from public.places where id = p_id);
+  insert into public.places (id, base, kind, name, note, lat, lng, removed, updated_at, updated_by)
+  values (p_id, nullif(p_base, ''), left(coalesce(p_kind, 'other'), 20), nm, left(nullif(trim(coalesce(p_note, '')), ''), 200), p_lat, p_lng, false, now(),
+          (select name from public.members where user_id = auth.uid()))
+  on conflict (id) do update set kind = excluded.kind, name = excluded.name, note = excluded.note, lat = excluded.lat, lng = excluded.lng,
+    removed = false, updated_at = now(), updated_by = excluded.updated_by;
+  perform public.kn_log('place', case when isnew and p_base is null then 'added the place ' when isnew then 'changed the place ' else 'changed the place ' end || nm);
+end $$;
+grant execute on function public.save_place(text, text, text, text, text, double precision, double precision) to authenticated;
+
+create or replace function public.delete_place(p_id text, p_base text, p_name text, p_lat double precision, p_lng double precision)
+returns void language plpgsql security definer set search_path = public as $$
+begin
+  if not public.is_admin() then raise exception 'admins only'; end if;
+  insert into public.places (id, base, kind, name, lat, lng, removed, updated_at, updated_by)
+  values (p_id, nullif(p_base, ''), 'other', coalesce(nullif(p_name, ''), 'Place'), p_lat, p_lng, true, now(), (select name from public.members where user_id = auth.uid()))
+  on conflict (id) do update set removed = true, updated_at = now(), updated_by = excluded.updated_by;
+  perform public.kn_log('place', 'removed the place ' || coalesce(p_name, ''));
+end $$;
+grant execute on function public.delete_place(text, text, text, double precision, double precision) to authenticated;
+
+-- ---------- CLOSED ROADS (navigation goes around them) ----------
+create table if not exists public.road_closures (
+  road text primary key,
+  reason text,
+  until timestamptz,
+  by_name text,
+  at timestamptz not null default now()
+);
+alter table public.road_closures enable row level security;
+drop policy if exists rc_read on public.road_closures;
+create policy rc_read on public.road_closures for select to authenticated using (public.is_member());
+revoke insert, update, delete on public.road_closures from anon, authenticated;
+grant select on public.road_closures to authenticated;
+
+create or replace function public.close_road(p_road text, p_reason text, p_until timestamptz)
+returns void language plpgsql security definer set search_path = public as $$
+begin
+  if not public.is_admin() then raise exception 'admins only'; end if;
+  insert into public.road_closures (road, reason, until, by_name, at) values (p_road, left(nullif(trim(coalesce(p_reason, '')), ''), 120), p_until,
+    (select name from public.members where user_id = auth.uid()), now())
+  on conflict (road) do update set reason = excluded.reason, until = excluded.until, by_name = excluded.by_name, at = now();
+  perform public.kn_log('road', 'closed ' || p_road || coalesce(' (' || nullif(trim(coalesce(p_reason, '')), '') || ')', ''));
+end $$;
+grant execute on function public.close_road(text, text, timestamptz) to authenticated;
+create or replace function public.reopen_road(p_road text)
+returns void language plpgsql security definer set search_path = public as $$
+begin
+  if not public.is_admin() then raise exception 'admins only'; end if;
+  delete from public.road_closures where road = p_road;
+  perform public.kn_log('road', 'reopened ' || p_road);
+end $$;
+grant execute on function public.reopen_road(text) to authenticated;
+
+-- ---------- PRIVATE NOTES (only you can see yours) ----------
+create table if not exists public.private_notes (
+  client_id text primary key,
+  user_id uuid not null default auth.uid() references auth.users(id) on delete cascade,
+  body text not null check (length(body) between 1 and 300),
+  lat double precision not null,
+  lng double precision not null,
+  created_at timestamptz not null default now()
+);
+alter table public.private_notes enable row level security;
+drop policy if exists pn_own on public.private_notes;
+create policy pn_own on public.private_notes for all to authenticated using (user_id = auth.uid()) with check (user_id = auth.uid());
+grant select, insert, update, delete on public.private_notes to authenticated;
+
 -- ---------- NIGHTLY CLEANUP ----------
 create or replace function public.kn_cleanup()
 returns json language plpgsql security definer set search_path = public, private as $$
@@ -1242,6 +1367,7 @@ begin
   begin delete from public.report_votes v where not exists (select 1 from public.reports r where r.client_id = v.report_cid); exception when others then null; end;
   begin delete from public.live_locs where updated_at < now() - interval '30 minutes'; get diagnostics n = row_count; out := out || jsonb_build_object('live', n); exception when others then null; end;
   begin delete from public.live_trail where at < now() - interval '3 hours'; exception when others then null; end;
+  begin delete from public.road_closures where until is not null and until < now() - interval '1 day'; exception when others then null; end;
   begin delete from public.handover where (used_at is not null and used_at < now() - interval '7 days') or created_at < now() - interval '60 days'; exception when others then null; end;
   begin delete from public.members where role = 'guest' and expires_at < now() - interval '3 days'; get diagnostics n = row_count; out := out || jsonb_build_object('guests', n); exception when others then null; end;
   begin delete from public.guest_codes g where g.expires_at < now() - interval '30 days' and not exists (select 1 from public.members m where m.code = g.code); exception when others then null; end;
@@ -1274,13 +1400,15 @@ returns json language plpgsql stable security definer set search_path = public, 
 begin
   if not public.is_member() then return '[]'::json; end if;
   return coalesce((select json_agg(o.name) from (select name from storage.objects
-    where bucket_id = 'sightings' and not exists (select 1 from public.sightings s where s.client_id || '.jpg' = storage.objects.name) limit 200) o), '[]'::json);
+    where bucket_id = 'sightings' and not exists (select 1 from public.sightings s where s.client_id || '.jpg' = storage.objects.name)
+      and not exists (select 1 from public.sightings_log l where l.client_id || '.jpg' = storage.objects.name and l.created_at > now() - interval '30 days') limit 200) o), '[]'::json);
 end $$;
 grant execute on function public.orphan_photos() to authenticated;
 do $$ begin
   drop policy if exists kn_photo_del on storage.objects;
   create policy kn_photo_del on storage.objects for delete to authenticated using (bucket_id = 'sightings' and public.is_member()
-    and (owner = auth.uid() or not exists (select 1 from public.sightings s where s.client_id || '.jpg' = name)));
+    and (owner = auth.uid() or (not exists (select 1 from public.sightings s where s.client_id || '.jpg' = name)
+      and not exists (select 1 from public.sightings_log l where l.client_id || '.jpg' = name and l.created_at > now() - interval '30 days'))));
 exception when others then null; end $$;
 
 -- ---------- ENCRYPTED BACKUP ----------
@@ -1289,7 +1417,7 @@ create or replace function public.kn_backup_build()
 returns text language plpgsql security definer set search_path = public, private, extensions as $$
 declare j jsonb := jsonb_build_object('made_at', now(), 'app', 'khaya-ndlovu-map'); part jsonb; t text;
 begin
-  foreach t in array array['members', 'guest_codes', 'sightings', 'sightings_log', 'reports', 'report_votes', 'drives', 'announcements', 'sos', 'animal_misses', 'activity_log', 'map_data'] loop
+  foreach t in array array['members', 'guest_codes', 'sightings', 'sightings_log', 'reports', 'report_votes', 'drives', 'announcements', 'sos', 'animal_misses', 'activity_log', 'map_data', 'places', 'road_closures', 'private_notes'] loop
     begin
       execute format('select coalesce(jsonb_agg(to_jsonb(x)), ''[]''::jsonb) from public.%I x', t) into part;
       j := j || jsonb_build_object(t, part);
@@ -1439,6 +1567,16 @@ begin
     begin perform public.set_min_build(1); out := out || array['Guests cannot require an update', 'FAIL'];
     exception when others then out := out || array['Guests cannot require an update', 'PASS']; end;
     perform set_config('request.jwt.claims', json_build_object('sub', a)::text, true); perform set_config('request.jwt.claim.sub', a::text, true);
+    -- places, closed roads, kill flag
+    perform set_config('request.jwt.claims', json_build_object('sub', a)::text, true); perform set_config('request.jwt.claim.sub', a::text, true);
+    perform public.save_place('pt-1', null, 'hide', 'New bird hide', 'Best early', -24.376, 30.962);
+    perform public.close_road('Hyena Road', 'Washed away', now() + interval '2 days');
+    out := out || array['Admins add places and close roads', case when exists (select 1 from public.places where id = 'pt-1' and not removed) and exists (select 1 from public.road_closures where road = 'Hyena Road') then 'PASS' else 'FAIL' end];
+    perform set_config('request.jwt.claims', json_build_object('sub', g)::text, true); perform set_config('request.jwt.claim.sub', g::text, true);
+    begin perform public.save_place('pt-2', null, 'hide', 'Guest place', '', -24.376, 30.962); out := out || array['Guests cannot change places', 'FAIL'];
+    exception when others then out := out || array['Guests cannot change places', 'PASS']; end;
+    insert into public.sightings (client_id, what, lat, lng, created_at, kill) values ('kt-kill', 'Lion', -24.377, 30.963, now() - interval '20 minutes', true);
+    out := out || array['Kill sightings are kept in the history', case when exists (select 1 from public.sightings_log where client_id = 'kt-kill' and kill) then 'PASS' else 'FAIL' end];
     -- backup
     b := public.kn_backup_build();
     out := out || array['Encrypted backup works', case when b like '-----BEGIN PGP MESSAGE-----%' then 'PASS (' || length(b) || ' characters, locked)' else 'FAIL' end];
@@ -1454,7 +1592,7 @@ notify pgrst, 'reload schema';
 
 
 -- =====================================================================
--- PUSH THE UPDATE (version 65)
+-- PUSH THE UPDATE (version 70)
 -- =====================================================================
 
 alter table private.config add column if not exists min_build int not null default 0;
@@ -1512,8 +1650,8 @@ begin
 end $$;
 grant execute on function public.set_min_build(int) to authenticated;
 
--- push it now: require version 65 and post the news (as the first admin, so it shows who sent it)
-update private.config set min_build = 65;
+-- push it now: require version 70 and post the news (as the first admin, so it shows who sent it)
+update private.config set min_build = 70;
 do $$
 declare adm uuid := (select user_id from public.members where role = 'admin' order by joined_at limit 1);
 begin
@@ -1527,11 +1665,11 @@ notify pgrst, 'reload schema';
 
 
 -- ===================== CHECK: every line should say YES =====================
-select 'Tables: members, sightings, reports, drives, news, SOS, live location' as "check",
-  case when (select count(*) from information_schema.tables where table_schema = 'public' and table_name in ('members','sightings','reports','drives','announcements','sos','live_locs','animal_misses')) = 8 then 'YES' else 'NO' end as result
+select 'Tables: members, sightings, reports, drives, news, SOS, live location, places, notes' as "check",
+  case when (select count(*) from information_schema.tables where table_schema = 'public' and table_name in ('members','sightings','reports','drives','announcements','sos','live_locs','animal_misses','places','road_closures','private_notes')) = 11 then 'YES' else 'NO' end as result
 union all select 'Codes and logins self-test', case when (select count(*) from public.kn_selftest() where result not like 'PASS%') = 0 then 'YES' else 'NO: ' || (select string_agg(test, ', ') from public.kn_selftest() where result not like 'PASS%') end
 union all select 'Backend self-test', case when (select count(*) from public.kn_backend_selftest() where result not like 'PASS%') = 0 then 'YES' else 'NO: ' || (select string_agg(test, ', ') from public.kn_backend_selftest() where result not like 'PASS%') end
-union all select 'Everyone must be on version 65', case when (select min_build from private.config limit 1) = 65 then 'YES' else 'NO' end
-union all select 'Update news posted (only old versions see it)', case when exists (select 1 from public.announcements where for_old_build = 65 and not removed) then 'YES' else 'NO' end
+union all select 'Everyone must be on version 70', case when (select min_build from private.config limit 1) = 70 then 'YES' else 'NO' end
+union all select 'Update news posted (only old versions see it)', case when exists (select 1 from public.announcements where for_old_build = 70 and not removed) then 'YES' else 'NO' end
 union all select 'Your owner code (unchanged)', (select upper(invite_code) from private.config limit 1)
-union all select 'People who still need to update', (select count(*)::text from public.members where coalesce(app_build, 0) < 65 and (role <> 'guest' or expires_at > now()));
+union all select 'People who still need to update', (select count(*)::text from public.members where coalesce(app_build, 0) < 70 and (role <> 'guest' or expires_at > now()));

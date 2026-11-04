@@ -340,6 +340,7 @@ begin
   begin update public.reports set user_id = me where user_id = h.user_id; exception when others then null; end;
   begin update public.drives set user_id = me where user_id = h.user_id; exception when others then null; end;
   begin delete from public.live_locs where user_id = h.user_id; exception when others then null; end;
+  begin update public.private_notes set user_id = me where user_id = h.user_id; exception when others then null; end;
   delete from public.members where user_id = h.user_id;
   update public.handover set used_at = now() where token = h.token;
   perform set_config('kn.handover', '', true);
