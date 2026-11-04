@@ -312,6 +312,49 @@ grant execute on function public.live_trails(double precision) to authenticated;
 
 
 -- ---------- REQUIRED APP UPDATE ----------
+-- which version of the app each person is running (phones report it when they open the map)
+alter table public.members add column if not exists app_build int;
+alter table public.members add column if not exists app_seen timestamptz;
+create or replace function public.report_build(p_build int)
+returns void language plpgsql security definer set search_path = public as $$
+begin update public.members set app_build = p_build, app_seen = now() where user_id = auth.uid(); end $$;
+grant execute on function public.report_build(int) to authenticated;
+
+create or replace function public.member_versions()
+returns json language plpgsql stable security definer set search_path = public, private as $$
+begin
+  if not public.is_owner() then return '[]'::json; end if;
+  return coalesce((select json_agg(json_build_object('u', user_id, 'v', app_build, 't', app_seen)) from public.members), '[]'::json);
+end $$;
+grant execute on function public.member_versions() to authenticated;
+
+-- news that only people on an old version can see (old apps show news too, so this reaches everyone)
+do $$ begin
+  alter table public.announcements add column if not exists for_old_build int;
+  drop policy if exists an_read on public.announcements;
+  create policy an_read on public.announcements for select to authenticated using (public.is_member() and (for_old_build is null or public.is_admin()
+    or coalesce((select m.app_build from public.members m where m.user_id = auth.uid()), 0) < for_old_build));
+exception when undefined_table then null; end $$;
+
+create or replace function public.announce_update()
+returns int language plpgsql security definer set search_path = public, private as $$
+declare b int; n int;
+begin
+  if not public.is_admin() then raise exception 'admins only'; end if;
+  select min_build into b from private.config limit 1;
+  if coalesce(b, 0) = 0 then return 0; end if;
+  update public.announcements set removed = true where for_old_build is not null and not removed;
+  insert into public.announcements (client_id, body, expires_at, for_old_build)
+  values ('upd-' || b || '-' || floor(extract(epoch from now())),
+    'Please update the map. A new version is out and your phone still has the old one, so you may miss sightings and alerts. ' ||
+    'Close the map completely (swipe it away) and open it again where you have good signal, it updates by itself. ' ||
+    'On iPhone, if it still looks the same after that: open the map, tap Update now and follow the steps. You stay signed in.',
+    now() + interval '14 days', b);
+  select count(*) into n from public.members where coalesce(app_build, 0) < b and (role <> 'guest' or expires_at > now());
+  return n;
+end $$;
+grant execute on function public.announce_update() to authenticated;
+
 -- An admin can require everyone to update. Phones running an older version are asked to update before they can use the map.
 alter table private.config add column if not exists min_build int not null default 0;
 create or replace function public.app_min_build()
@@ -323,6 +366,7 @@ begin
   if not public.is_admin() then raise exception 'admins only'; end if;
   update private.config set min_build = greatest(0, p_build);
   perform public.kn_log('update', 'asked everyone to update to version ' || p_build);
+  perform public.announce_update();
 end $$;
 grant execute on function public.set_min_build(int) to authenticated;
 
@@ -519,9 +563,17 @@ begin
     perform set_config('request.jwt.claims', json_build_object('sub', a)::text, true); perform set_config('request.jwt.claim.sub', a::text, true);
     r := public.live_trails(2);
     out := out || array['Other members see the route a car has driven', case when json_array_length(r) = 1 and json_array_length(r->0->'pts') = 2 then 'PASS' else 'FAIL ' || r::text end];
+    -- versions + targeted news
+    perform set_config('request.jwt.claims', json_build_object('sub', g)::text, true); perform set_config('request.jwt.claim.sub', g::text, true);
+    perform public.report_build(50);
+    perform set_config('request.jwt.claims', json_build_object('sub', h)::text, true); perform set_config('request.jwt.claim.sub', h::text, true);
+    perform public.report_build(64);
+    perform set_config('request.jwt.claims', json_build_object('sub', a)::text, true); perform set_config('request.jwt.claim.sub', a::text, true);
     -- required update
     perform public.set_min_build(60);
     out := out || array['Admins can require everyone to update', case when public.app_min_build() = 60 then 'PASS' else 'FAIL' end];
+    out := out || array['Update news is posted automatically', case when exists (select 1 from public.announcements where for_old_build = 60 and not removed) then 'PASS' else 'FAIL' end];
+    perform set_config('request.jwt.claims', json_build_object('sub', a)::text, true); perform set_config('request.jwt.claim.sub', a::text, true);
     perform set_config('request.jwt.claims', json_build_object('sub', g)::text, true); perform set_config('request.jwt.claim.sub', g::text, true);
     begin perform public.set_min_build(1); out := out || array['Guests cannot require an update', 'FAIL'];
     exception when others then out := out || array['Guests cannot require an update', 'PASS']; end;
