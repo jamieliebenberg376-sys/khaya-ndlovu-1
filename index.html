@@ -334,6 +334,83 @@ body.navon #junc{background:rgba(14,18,13,.92);color:#fff;border:1px solid rgba(
 #speed{overflow:visible}#speed .ring{position:absolute;inset:-6px;width:calc(100% + 12px);height:calc(100% + 12px);transform:rotate(135deg);pointer-events:none}
 #speed .ring circle{fill:none;stroke-width:6;stroke-linecap:round;stroke-dasharray:207.4 276.5}#speed .ring .rt{stroke:rgba(127,127,127,.25)}#speed .ring .rv{stroke:#3ddc84;stroke-dashoffset:276.5;transition:stroke-dashoffset .6s,stroke .3s}
 body.navon #speed{background:rgba(14,18,13,.88);color:#fff;border-color:rgba(255,255,255,.1)}body.navon #speed small{color:rgba(255,255,255,.7)}
+
+/* ===== Layout v2: Google Maps style, uncluttered ===== */
+:root{--bb:calc(var(--safe-b) - var(--bfix))}
+#search .sic{display:flex;align-items:center;justify-content:center;width:40px;color:var(--sub);pointer-events:none}
+#search .sic svg{width:22px;height:22px}
+#search .av{width:38px;height:38px;border-radius:50%;background:linear-gradient(160deg,#ffd36b,#e39a12);color:#1d1406;font:800 17px/38px system-ui,-apple-system,sans-serif;text-align:center;flex:none;margin-right:1px;box-shadow:0 2px 6px rgba(0,0,0,.2)}
+#search .av span{display:block}
+#chips{display:flex;gap:8px;overflow-x:auto;margin:10px -10px 0;padding:0 10px 4px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+#chips::-webkit-scrollbar{display:none}
+.chip2{flex:none;display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 14px 0 11px;border-radius:18px;font:600 14.5px system-ui,-apple-system,sans-serif;color:var(--ink);background:var(--glass);border:var(--gb);-webkit-backdrop-filter:blur(18px) saturate(1.7);backdrop-filter:blur(18px) saturate(1.7);box-shadow:0 2px 8px rgba(0,0,0,.16);white-space:nowrap}
+.chip2:active{transform:scale(.96)}
+.chip2 .li{color:#a8740c}
+body.night .chip2{background:var(--glassN);border:var(--gbN);color:#e8eaed}body.night .chip2 .li{color:#ffc23d}
+body.red .chip2{background:#1a0606!important;color:#fff!important}body.red .chip2 .li{color:#ff8a80}
+#roadCard{display:none!important}
+#results{margin-top:8px}
+/* bottom bar (browse) */
+#peek{position:fixed;left:0;right:0;bottom:calc(0px - var(--bfix));z-index:10;display:flex;align-items:center;gap:12px;padding:16px 16px calc(var(--safe-b) + 12px);border-radius:24px 24px 0 0;background:var(--glass);border-top:var(--gb);-webkit-backdrop-filter:blur(20px) saturate(1.7);backdrop-filter:blur(20px) saturate(1.7);box-shadow:0 -6px 24px rgba(0,0,0,.18)}
+#peek .grab{position:absolute;top:6px;left:50%;width:36px;height:4px;margin-left:-18px;border-radius:2px;background:rgba(127,127,127,.45)}
+#peek .pk{flex:1;min-width:0;cursor:pointer}
+#peek .pk b{display:block;font-size:19px;font-weight:800;letter-spacing:-.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#peek .pk small{display:block;font-size:13.5px;color:var(--sub);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#peek .wxc{flex:none;display:flex;align-items:center;gap:6px;height:42px;padding:0 12px 0 8px;border-radius:14px;background:rgba(127,127,127,.12);font:700 15px system-ui,-apple-system,sans-serif;color:inherit}
+#peek .wxc .we{display:flex}#peek .wxc.storm{box-shadow:0 0 0 2px #f9ab00}
+#peek .wxc b{font-size:15px}
+body.night #peek{background:var(--glassN);border-top:var(--gbN);color:#e8eaed}
+body.red #peek{background:#1a0606!important;color:#fff!important}body.red #peek small{color:#ffb4ab!important}
+body.navon #peek{display:none}
+/* right controls (browse) */
+#layerBtn.sm{position:fixed;right:10px;top:calc(var(--safe-t) + 118px);z-index:9;width:44px;height:44px;border-radius:22px}
+#layerBtn.sm svg{width:21px;height:21px}
+body.navon #layerBtn.sm{display:none}
+#spot{top:calc(var(--safe-t) + 172px)}
+#spot .dot{width:44px;height:44px}
+#fabs{bottom:calc(var(--bb) + 96px);gap:12px;align-items:flex-end}
+#fabs .fab{width:50px;height:50px;border-radius:25px}
+#fabs .fab.big{width:58px;height:58px;border-radius:18px;background:linear-gradient(160deg,#ffd36b,#f2a516)!important;color:#1d1406!important;border:0!important;box-shadow:0 8px 20px rgba(242,165,22,.38),0 2px 6px rgba(0,0,0,.25)!important}
+#fabs .fab.big svg{width:28px;height:28px;color:#1d1406!important;stroke:#1d1406!important}
+#voiceBtn.fab{display:none}
+body.navon #voiceBtn.fab{display:flex;color:#ffc23d}#voiceBtn svg{width:24px;height:24px}
+body.navon #pinBtn,body.navon #locBtn{display:none}
+#compass{transition:opacity .25s}
+/* left controls */
+#sosBtn{left:12px;bottom:calc(var(--bb) + 100px);width:50px;height:50px}
+#speed{left:12px;bottom:calc(var(--bb) + 164px)}
+body:not(.navon) #speed:not(.mv):not(.over){display:none}
+#recenter{bottom:calc(var(--bb) + 100px)}
+#offPill{top:calc(var(--safe-t) + 116px)}
+#rec{left:74px;bottom:calc(var(--bb) + 108px)}
+/* ===== Navigation ===== */
+body.navon #junc{display:none!important}
+#nav .main{display:flex!important;align-items:center;gap:16px!important;padding:14px 18px 14px 14px!important;min-height:0!important;border-radius:24px!important}
+#nav.then-on .main{border-radius:24px 24px 24px 6px!important}
+#nav .lc{flex:none;display:flex;flex-direction:column;align-items:center;gap:5px;min-width:64px}
+#nav .arr{width:54px!important;height:54px!important;padding:8px!important;border-radius:17px!important}
+#nav .lc .dist{font-size:20px!important;font-weight:800;color:#ffc23d;letter-spacing:-.3px;white-space:nowrap;margin:0;line-height:1}
+#nav .ins{flex:1;min-width:0;font-size:27px!important;font-weight:700!important;line-height:1.12!important;letter-spacing:-.4px;margin:0!important;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+#nav .ins .pre{display:block;font-size:14px!important;font-weight:600!important;opacity:.6;letter-spacing:0;margin-bottom:1px;text-transform:lowercase}
+#nav .thenrow{margin-left:0!important;font-size:16px!important;padding:7px 14px 9px!important;gap:8px!important}
+#nav .thenrow svg{width:22px;height:22px}
+#navBottom{display:flex;align-items:center;gap:14px;padding:18px 18px calc(var(--safe-b) + 14px)!important;position:fixed}
+#navBottom .nprog{position:absolute;left:18px;right:18px;top:0;margin:0;max-width:none;height:3px;border-radius:0 0 3px 3px}
+#navBottom .mid{flex:1;text-align:left!important;min-width:0}
+#navBottom .eta{font-size:30px!important;line-height:1}
+#navBottom .meta{font-size:15.5px!important;margin-top:5px!important}
+#navBottom .exit{flex:none;height:50px;padding:0 26px;border-radius:25px;background:linear-gradient(160deg,#ef4b3f,#c5221f);color:#fff;font:800 17px system-ui,-apple-system,sans-serif;box-shadow:0 6px 16px rgba(197,34,31,.35)}
+body.navon #fabs{bottom:calc(var(--bb) + 112px)}
+body.navon #sosBtn{bottom:calc(var(--bb) + 206px)!important}
+body.navon #speed{bottom:calc(var(--bb) + 112px)}
+body.navon #roadPill{bottom:calc(var(--bb) + 114px)!important;font-size:15px!important;padding:9px 16px 9px 28px!important;max-width:calc(100% - 210px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-sizing:border-box}
+body:has(#recenter:not(.hide)) #roadPill{display:none!important}
+body.navon #recenter{bottom:calc(var(--bb) + 114px)!important}
+body.navon #spot:not(.docked){position:fixed;top:auto!important;right:13px;bottom:calc(var(--bb) + 236px)}
+body.navon #rec{bottom:calc(var(--bb) + 214px);left:72px}
+body.red #navBottom .exit{background:#5a0f0b}
+#layerBtn.sm,#layerBtn.sm svg{color:var(--ink)!important}body.night #layerBtn.sm,body.night #layerBtn.sm svg{color:#e8eaed!important}body.red #layerBtn.sm svg{color:#ff8a80!important}
+body:has(#results:not(.hide)) #spot,body:has(#results:not(.hide)) #layerBtn.sm{display:none}
 </style>
 </head>
 <body>
@@ -352,25 +429,26 @@ body.navon #speed{background:rgba(14,18,13,.88);color:#fff;border-color:rgba(255
 <button class="btn pri" id="gGo" type="submit">Open map</button><div class="err" id="gErr">Oops, that code is wrong</div></form></div><div class="lock"><svg class="li" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg> Ask an owner for a guest code</div><div class="credits">Map imagery © Esri, Maxar, Earthstar Geographics · Terrain: Mapzen/AWS · Weather: Open-Meteo · Map engine: MapLibre</div></div>
 <div id="top">
   <div id="search">
-    <button class="ib" id="menuBtn" aria-label="Menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+    <span class="ib sic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg></span>
     <input id="q" placeholder="Search roads, gates, picnic spots" autocomplete="off" enterkeyhint="search">
     <button class="ib hide" id="clearQ" aria-label="Clear"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
-    <button class="ib" id="homeBtn" aria-label="Go home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg></button>
+    <button class="ib av" id="menuBtn" aria-label="Menu"><span id="avI">?</span></button>
   </div>
+  <div id="chips"><button id="homeBtn" class="chip2" data-c="home"><i data-li="home"></i>Home</button><button class="chip2" data-c="sight"><i data-li="binoc"></i>Sightings</button><button class="chip2" data-c="Picnic spot"><i data-li="picnic"></i>Picnic</button><button class="chip2" data-c="Dam"><i data-li="drop"></i>Water</button><button class="chip2" data-c="Viewpoint"><i data-li="eye"></i>Viewpoints</button><button class="chip2" data-c="Gate"><i data-li="gate"></i>Gates</button></div>
   <div id="results" class="hide"></div>
   <div id="roadCard" class="hide"><span class="pin"></span><div style="min-width:0"><div class="rn" id="rn">-</div><div class="rs" id="rs"></div></div></div>
 </div>
 
 <div id="junc" class="hide"></div>
 <div id="nav" class="hide">
-  <div class="main"><svg class="arr" id="navArr" viewBox="0 0 24 24"></svg>
-  <div style="min-width:0"><div class="dist" id="navDist">-</div><div class="ins" id="navIns">-</div></div></div>
+  <div class="main"><div class="lc"><svg class="arr" id="navArr" viewBox="0 0 24 24"></svg><div class="dist" id="navDist">-</div></div>
+  <div class="ins" id="navIns">-</div></div>
   <div class="thenrow" id="navThenRow"><span>Then</span><svg id="navThenArr" viewBox="0 0 24 24"></svg><span id="navThen"></span></div>
 </div>
 <div id="navBottom" class="hide">
-  <button class="rb end" id="navEnd" aria-label="End"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
-  <div class="mid"><div class="eta" id="navEta">-</div><div class="meta" id="navMeta">-</div><div class="nprog"><i id="navProg"></i></div></div>
-  <button class="rb" id="voiceBtn" aria-label="Voice"></button>
+  <div class="nprog"><i id="navProg"></i></div>
+  <div class="mid"><div class="eta" id="navEta">-</div><div class="meta" id="navMeta">-</div></div>
+  <button class="exit" id="navEnd" aria-label="Exit">Exit</button>
 </div>
 <div id="roadPill" class="hide"></div>
 <div id="spot"><button class="dot" id="spDot" aria-label="Spotify"><svg viewBox="0 0 24 24" class="splogo"><circle cx="12" cy="12" r="12" fill="#1ed760"/><path d="M6.2 9.3c3.9-1.2 8.3-.8 11.7 1.1M6.9 12.4c3.2-.9 6.8-.6 9.6 1M7.6 15.3c2.6-.7 5.3-.5 7.5.8" stroke="#000" stroke-width="1.7" stroke-linecap="round" fill="none"/></svg></button><div class="card" id="spCard"><img class="art" id="spArt" alt=""><div class="meta"><div class="t" id="spT">Spotify</div><div class="a" id="spA"></div><div class="pb"><i id="spPb"></i></div><div class="ctl"><button id="spPrev" aria-label="Previous"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h2v14H6zM20 5v14L9 12z"/></svg></button><button class="pp" id="spPlay" aria-label="Play or pause"></button><button id="spNext" aria-label="Next"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg></button></div></div><div class="side"><svg viewBox="0 0 24 24" class="splogo"><circle cx="12" cy="12" r="12" fill="#1ed760"/><path d="M6.2 9.3c3.9-1.2 8.3-.8 11.7 1.1M6.9 12.4c3.2-.9 6.8-.6 9.6 1M7.6 15.3c2.6-.7 5.3-.5 7.5.8" stroke="#000" stroke-width="1.7" stroke-linecap="round" fill="none"/></svg><button class="mini" id="spMin" aria-label="Minimise"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 15l6-6 6 6"/></svg></button></div></div></div>
@@ -380,12 +458,13 @@ body.navon #speed{background:rgba(14,18,13,.88);color:#fff;border-color:rgba(255
 <div id="speed"><b id="spd">0</b><small>km/h</small></div>
 <div id="rec" class="hide">REC <span id="recInfo"></span></div>
 <div id="fabs">
-  <button class="fab wx hide" id="wxBtn" aria-label="Weather"><span class="we" id="wxE"></span><b id="wxT">--°</b></button>
   <button class="fab" id="compass" aria-label="North up"><svg viewBox="0 0 24 24" id="compassSvg"><path d="M12 2l4 10h-8z" fill="#d93025"/><path d="M12 22l-4-10h8z" fill="#9aa0a6"/></svg></button>
-  <button class="fab" id="layerBtn" aria-label="Map style"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/></svg></button>
-  <button class="fab" id="pinBtn" aria-label="Add sighting"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+  <button class="fab" id="voiceBtn" aria-label="Voice"></button>
+  <button class="fab big" id="pinBtn" aria-label="Add sighting"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
   <button class="fab" id="locBtn" aria-label="My location"><svg viewBox="0 0 24 24" id="locSvg"></svg></button>
 </div>
+  <button class="fab sm" id="layerBtn" aria-label="Map style"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/></svg></button>
+<div id="peek"><div class="grab"></div><div class="pk" id="pkTap"><b id="pkT">Khaya Ndlovu</b><small id="pkS">Tap for sightings, drives and more</small></div><button class="wxc hide" id="wxBtn" aria-label="Weather"><span class="we" id="wxE"></span><b id="wxT">--°</b></button></div>
 
 <svg id="cross" class="hide" viewBox="0 0 44 44"><circle cx="22" cy="22" r="9" fill="none" stroke="#d93025" stroke-width="2.5"/><path d="M22 0v14M22 30v14M0 22h14M30 22h14" stroke="#d93025" stroke-width="2.5"/></svg>
 <div id="calBar" class="hide"><p id="calTxt"></p><div class="row" style="margin-top:0"><button class="btn" id="calCancel">Cancel</button><button class="btn pri" id="calSave">Save</button></div></div>
@@ -472,7 +551,7 @@ try{const v=+localStorage.getItem('kn_mapVer')||0,d=localStorage.getItem('kn_map
 /* House No. 2 is not shown on the map (it is only used as the end point of the demo drive) */
 const HOUSE2=((DATA.pois.features.find(f=>f.properties.kind==='home')||{}).geometry||{}).coordinates||null;DATA.pois.features=DATA.pois.features.filter(f=>f.properties.kind!=='home');
 /* ============ Khaya Ndlovu icon set: animal badges, report badges, line icons, weather ============ */
-const LI_P={binoc:'<circle cx="6.5" cy="16" r="3.5"/><circle cx="17.5" cy="16" r="3.5"/><path d="M10 16h4M3.6 14.6 6 6.5h3l1.2 6.8M20.4 14.6 18 6.5h-3l-1.2 6.8M9.5 6.5V4.5h-2v2M16.5 6.5V4.5h-2v2"/>',
+const LI_P={picnic:'<path d="M4 9h16M6.5 9 4 19M17.5 9 20 19M3 14h18"/>',gate:'<path d="M4 21V5M20 21V5M4 8h16M4 13h16M8 8v5M12 8v5M16 8v5"/>',binoc:'<circle cx="6.5" cy="16" r="3.5"/><circle cx="17.5" cy="16" r="3.5"/><path d="M10 16h4M3.6 14.6 6 6.5h3l1.2 6.8M20.4 14.6 18 6.5h-3l-1.2 6.8M9.5 6.5V4.5h-2v2M16.5 6.5V4.5h-2v2"/>',
  rec:'<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3.8" fill="currentColor"/>',stop:'<rect x="6" y="6" width="12" height="12" rx="2.5" fill="currentColor"/>',
  sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
  home:'<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/>',users:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.6a3.5 3.5 0 0 1 0 6.8M18 14.2a6.5 6.5 0 0 1 3.5 5.8"/>',
@@ -1440,7 +1519,7 @@ function handlePos(raw,acc,heading,speed,t){
   setTarget(ll,heading,t);
   if(heading!=null)meEl.querySelector('.cone').style.opacity=1;else meEl.querySelector('.cone').style.opacity=0;
   map.getSource('acc')&&map.getSource('acc').setData(circlePoly(ll,Math.min(me.acc,200)));
-  $('spd').textContent=Math.round((speedS||0)*3.6);speedCheck(ll);
+  $('spd').textContent=Math.round((speedS||0)*3.6);$('speed').classList.toggle('mv',(speedS||0)*3.6>4);speedCheck(ll);
   { const L=trail[trail.length-1];if(L&&dist(L,ll)>400)trail=[];if(!L||dist(L,ll)>8){trail.push([+ll[0].toFixed(6),+ll[1].toFixed(6)]);if(trail.length>1500)trail.shift();
      if(trail.length%5===0)try{localStorage.setItem('kn_trail',JSON.stringify({t:Date.now(),p:trail}))}catch(e){}
      if(mapReady&&trail.length>1)map.getSource('trail').setData({type:'Feature',geometry:{type:'LineString',coordinates:trail},properties:{}})}}
@@ -1524,7 +1603,7 @@ function placeSpot(){const sp=$('spot');if(!sp)return;const playing=sp.classList
   if(sp.parentNode!==host){if(host===$('top'))host.insertBefore(sp,$('search').nextSibling);else host.appendChild(sp)}
   sp.classList.toggle('docked',playing&&navOn);sp.classList.toggle('wide',playing&&!navOn);
   $('nav').classList.toggle('spon',playing&&navOn);
-  sp.style.top=(!playing&&navOn)?($('nav').getBoundingClientRect().bottom+10)+'px':'';
+  sp.style.top='';
   if(navOn&&!$('junc').classList.contains('hide'))$('junc').style.top=($('nav').getBoundingClientRect().bottom+10)+'px'}
 setInterval(placeSpot,400);
 function showJunction(j){const el=$('junc');el.style.top='';if(nav)return;if(!j||j.d>150||j.d<8||!drivingNow&&driveMode!=='on'&&j.d>120){el.classList.add('hide');lastJ='';return}
@@ -1622,6 +1701,14 @@ $('q').addEventListener('blur',()=>setTimeout(()=>{if(document.activeElement!==$
 $('q').addEventListener('keydown',e=>{if(e.key==='Enter'){const b=$('results').querySelector('[data-i]');if(b)b.click()}});
 $('clearQ').onclick=()=>{$('q').value='';renderResults();$('q').focus()};
 $('homeBtn').onclick=()=>homeSheet();
+/* Google style browse layout: chips, avatar, bottom bar */
+document.querySelectorAll('[data-li]').forEach(i=>i.outerHTML=LI(i.dataset.li,17));
+document.querySelectorAll('#chips .chip2[data-c]').forEach(b=>{if(b.id==='homeBtn')return;b.onclick=()=>{const c=b.dataset.c;if(c==='sight'){sightHub();return}$('q').value=c;renderResults();$('results').scrollTop=0}});
+$('pkTap').onclick=()=>$('menuBtn').click();
+(()=>{let y0=null;const pk=$('peek');pk.addEventListener('touchstart',e=>{y0=e.touches[0].clientY},{passive:true});pk.addEventListener('touchend',e=>{if(y0!=null&&y0-e.changedTouches[0].clientY>30)$('menuBtn').click();y0=null},{passive:true})})();
+function syncPeek(){try{const m=Cloud.member;$('avI').textContent=((m&&m.name)||'?').trim().charAt(0).toUpperCase()||'?';
+  const rc=$('roadCard');if(me&&rc){$('pkT').textContent=$('rn').textContent||'Khaya Ndlovu';$('pkS').textContent=$('rs').textContent||'Tap for sightings, drives and more'}}catch(e){}}
+setInterval(syncPeek,1000);
 /* ============ my home point: each person sets their own ============ */
 function homeSheet(){
   const d=home&&me?fmtD(dist(me.ll,home.ll)):'';
