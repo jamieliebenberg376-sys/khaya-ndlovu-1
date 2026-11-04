@@ -1656,11 +1656,11 @@ const SQ={asked:LS.get('sqAsked',{}),last:0,cur:null,t:null};
 function sqKey(s){return ((s.chain||[s])[0]||s).cid}
 function missedAfter(s){const L=[...(Cloud.misses||[]).map(x=>({ll:[x.lng,x.lat],t:Date.parse(x.created_at),what:x.what})),...MYMISS];return L.some(m=>m.what===s.what&&m.t>s.t&&dist(m.ll,s.ll)<200)}
 function stillAsk(){if(!me||SQ.cur||Date.now()-SQ.last<45000)return;if($('sheet').classList.contains('open')||calMode)return;
-  const now=Date.now();Object.keys(SQ.asked).forEach(k=>{if(now-SQ.asked[k]>864e5)delete SQ.asked[k]});
-  const c=allSights().filter(s=>!s.mine&&!SQ.asked[sqKey(s)]&&now-s.t<12*36e5&&now-s.t>2*6e4&&dist(me.ll,s.ll)<120&&!(s.what==='Rhino'&&!shareRhino)&&!missedAfter(s)).sort((a,b)=>dist(me.ll,a.ll)-dist(me.ll,b.ll))[0];
+  const now=Date.now();Object.keys(SQ.asked).forEach(k=>{if(now-SQ.asked[k]>45*6e4)delete SQ.asked[k]});
+  const c=allSights().filter(s=>!SQ.asked[sqKey(s)]&&now-s.t<12*36e5&&now-s.t>(s.mine?15:2)*6e4&&dist(me.ll,s.ll)<120&&!(s.what==='Rhino'&&!shareRhino)&&!missedAfter(s)).sort((a,b)=>dist(me.ll,a.ll)-dist(me.ll,b.ll))[0];
   if(!c)return;SQ.cur=c;SQ.last=now;SQ.asked[sqKey(c)]=now;LS.set('sqAsked',SQ.asked);
   let el=$('stillQ');if(!el){el=document.createElement('div');el.id='stillQ';document.body.appendChild(el)}
-  el.innerHTML=`<div class="sqi">${AN(c.what,40)}</div><div class="sqt"><b>${esc(c.what)} still there?</b><small>${esc(c.by||'Someone')} · seen ${lastSeen(c.t)}</small></div><button class="sqn" id="sqNo">No</button><button class="sqy" id="sqYes">Yes</button><i class="sqb"></i>`;
+  el.innerHTML=`<div class="sqi">${AN(c.what,40)}</div><div class="sqt"><b>${esc(c.what)} still there?</b><small>${c.mine?'Your sighting':esc(c.by||'Someone')} · seen ${lastSeen(c.t)}</small></div><button class="sqn" id="sqNo">No</button><button class="sqy" id="sqYes">Yes</button><i class="sqb"></i>`;
   const top=nav&&!$('nav').classList.contains('hide')?$('nav').getBoundingClientRect().bottom+10:null;el.style.top=top?top+'px':'';
   el.classList.remove('on');void el.offsetWidth;el.classList.add('on');try{navigator.vibrate&&navigator.vibrate(30)}catch(e){}
   if(nav)say('Is the '+c.what.toLowerCase()+' still there?','sq'+sqKey(c));
