@@ -652,9 +652,8 @@ function queue(op){if(!Cloud.on||!Cloud.member)return;Cloud.outbox.push(op);save
 async function joinReserve(name,code){
   await ensureSession();
   let res;
-  try{res=await api('/rest/v1/rpc/join_reserve2',{method:'POST',body:JSON.stringify({code,display_name:name})})}
-  catch(e){if(!/404|PGRST202|Could not find/.test(String(e.message||e)))throw e;
-    const ok=await api('/rest/v1/rpc/join_reserve',{method:'POST',body:JSON.stringify({code,display_name:name})});res={ok:ok===true,role:'owner',expires_at:null}}
+  code=String(code||'').trim().replace(/\s+/g,'').toUpperCase();
+  res=await api('/rest/v1/rpc/join_reserve2',{method:'POST',body:JSON.stringify({code,display_name:name})});
   if(!res||!res.ok)return res&&res.reason||'wrong';
   Cloud.member={name,uid:Cloud.sess.uid,t:Date.now(),role:res.role||'owner',exp:res.expires_at?Date.parse(res.expires_at):null};
   sights.filter(s=>!(s.what==='Rhino'&&!shareRhino)&&Date.now()-s.t<SIGHT_TTL).forEach(s=>Cloud.outbox.push({op:'add',t:'sightings',row:sightRow(s)}));
@@ -1499,9 +1498,9 @@ const endOfDay=d=>{const x=new Date(Date.now()+d*864e5);x.setHours(23,59,0,0);re
 const dtLocal=d=>{const z=n=>String(n).padStart(2,'0');return d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate())+'T'+z(d.getHours())+':'+z(d.getMinutes())};
 async function guestSheet(){
   if(!navigator.onLine){toast('You need signal to manage guest codes');return}
-  const admin=Cloud.member.role==='admin';let kind='guest';
+  const admin=Cloud.member.role==='admin',owner=Cloud.member.role!=='guest';let kind='guest';
   openSheet(`<h2>Guest codes</h2><div class="sub" style="line-height:1.45" id="gIntro">Give a visitor a code. When the end date comes, everyone using that code is logged out.</div>
-  ${admin?`<div class="seg" style="margin-top:12px" id="gKind"><button data-k="guest" class="sel">Guest</button><button data-k="owner">Owner</button><button data-k="admin">Admin</button></div>`:''}
+  ${owner?`<div class="seg" style="margin-top:12px" id="gKind"><button data-k="guest" class="sel">Guest</button><button data-k="owner">Owner</button>${admin?'<button data-k="admin">Admin</button>':''}</div>`:''}
   <input class="inp" id="gLabel" placeholder="Who is it for? e.g. Smith family" maxlength="40">
   <div id="gWhen"><div class="gpres">${[['Today',0],['3 days',2],['1 week',6],['1 month',29]].map(([l,d],i)=>`<button class="chip${i==1?' sel':''}" data-d="${d}">${l}</button>`).join('')}</div>
   <div class="sub" style="margin-top:12px">Ends</div><input class="inp" id="gExp" type="datetime-local" style="margin-top:4px"></div>
@@ -1526,7 +1525,7 @@ async function guestSheet(){
         $('gNew').innerHTML=`<button class="gcode" id="gCodeBtn" style="width:100%;background:none;border:0">${esc(code)}<small style="display:block;font:600 12px system-ui;letter-spacing:0;color:var(--sub);margin-top:6px">Tap the code to send it</small></button><div class="sub" style="text-align:center">${kind==='guest'?'Works until '+esc(fmtExp(exp)):'One-time '+kind+' invite · never expires once used'}</div><button class="btn pri" id="gShare" style="width:100%;margin-top:10px">Send it</button>`;
         $('gCodeBtn').onclick=$('gShare').onclick=()=>sendGuest(G);
         $('gLabel').value='';loadGuests()}
-      catch(e){toast(/admins only/.test(e.message)?'Only admins can make owner or admin invites':/owners only/.test(e.message)?'Only owners can make guest codes':'Could not create the code: '+String(e.message||e).slice(0,70),4000)}
+      catch(e){toast(/admins only/.test(e.message)?'Only admins can make admin invites':/owners only/.test(e.message)?'Only owners can make guest codes':'Could not create the code: '+String(e.message||e).slice(0,70),4000)}
       $('gMake').textContent=btxt;$('gMake').disabled=false};
     loadGuests();loadPeople()});
 }
@@ -1776,7 +1775,7 @@ function showGate(){const g=$('gate');g.classList.remove('hide');
 function roleSheet(then){const m=Cloud.member;if(!m){then&&then();return}const r=m.role||'owner';
   const can={
     guest:[['🗺️','Use the full map','Roads, satellite, offline download and turn-by-turn navigation'],['🦁','See and add sightings','Share what you spot and get alerts when others do'],['🚧','Road reports','Warn others about washed-out or blocked roads'],['📍','Live location is on','Others see your dot while you drive on the reserve. Turn it off any time in the menu']],
-    owner:[['🎟️','Make guest codes','Give visitors access until a date you choose, and end it any time'],['👥','See everyone on the map','All owners and guests, who invited who, and when guest codes end'],['🦁','Sightings, reports and alerts','Everything guests can do, shared with all members'],['♾️','Never expires','Your owner access stays until an admin removes it']],
+    owner:[['🎟️','Make guest codes and owner invites','Give visitors access until a date you choose, or invite another owner'],['👥','See everyone on the map','All owners and guests, who invited who, and when guest codes end'],['🦁','Sightings, reports and alerts','Everything guests can do, shared with all members'],['♾️','Never expires','Your owner access stays until an admin removes it']],
     admin:[['🛡️','Manage people','Remove anyone, and make owners into admins (or back)'],['✉️','Owner and admin invites','One-time codes for new owners or admins'],['🕒','See activity','When each person last signed in and was last active'],['🎟️','Everything owners can do','Guest codes, the people list, sightings and alerts']]}[r]||[];
   const nm={guest:'Guest',owner:'Owner',admin:'Admin'}[r]||'Member';
   openSheet(`<div style="text-align:center;padding-top:6px"><div style="font-size:44px">${{guest:'🎟️',owner:'🔑',admin:'🛡️'}[r]||'✅'}</div><h2 style="margin:6px 0 2px">You're ${r==='admin'?'an':'a'} ${nm}</h2>
