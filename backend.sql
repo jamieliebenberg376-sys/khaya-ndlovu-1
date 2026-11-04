@@ -264,6 +264,49 @@ begin
 end $$;
 grant execute on function public.vote_report(text, boolean) to authenticated;
 
+
+-- ---------- LIVE ROUTES: where each car has driven in the last 3 hours ----------
+-- Filled automatically from live location. Phones never send location within 400 m of home (unless you marked a sighting there),
+-- so a route only starts 400 m from someone's house.
+create table if not exists public.live_trail (
+  id bigserial primary key,
+  user_id uuid not null references auth.users(id) on delete cascade,
+  name text,
+  lat double precision not null,
+  lng double precision not null,
+  at timestamptz not null default now()
+);
+create index if not exists live_trail_u on public.live_trail (user_id, at);
+alter table public.live_trail enable row level security;
+revoke all on public.live_trail from anon, authenticated;
+
+create or replace function public.kn_trg_trail() returns trigger language plpgsql security definer set search_path = public as $$
+declare l public.live_trail;
+begin
+  if coalesce(new.status, '') = 'sos' then null; end if;
+  select * into l from public.live_trail where user_id = new.user_id order by at desc limit 1;
+  if l.id is null or l.at < now() - interval '20 seconds'
+     or sqrt(power((new.lat - l.lat) * 111320, 2) + power((new.lng - l.lng) * 111320 * cos(radians(new.lat)), 2)) > 12 then
+    insert into public.live_trail (user_id, name, lat, lng) values (new.user_id, new.name, new.lat, new.lng);
+  end if;
+  return null;
+end $$;
+do $$ begin
+  drop trigger if exists kn_trail on public.live_locs;
+  create trigger kn_trail after insert or update on public.live_locs for each row execute function public.kn_trg_trail();
+exception when undefined_table then null; end $$;
+
+create or replace function public.live_trails(p_hours double precision default 2)
+returns json language plpgsql stable security definer set search_path = public as $$
+begin
+  if not public.is_member() then return '[]'::json; end if;
+  return coalesce((select json_agg(json_build_object('u', t.user_id, 'n', t.name, 'pts', t.pts)) from (
+    select user_id, max(name) as name, json_agg(json_build_array(round(lng::numeric, 6), round(lat::numeric, 6), floor(extract(epoch from at))) order by at) as pts
+    from public.live_trail where at > now() - make_interval(secs => least(greatest(p_hours, .1), 3) * 3600) and user_id <> auth.uid()
+    group by user_id) t), '[]'::json);
+end $$;
+grant execute on function public.live_trails(double precision) to authenticated;
+
 -- ---------- NIGHTLY CLEANUP ----------
 create or replace function public.kn_cleanup()
 returns json language plpgsql security definer set search_path = public, private as $$
@@ -274,6 +317,7 @@ begin
   begin delete from public.reports where expires_at < now() or (resolved and created_at < now() - interval '1 day'); get diagnostics n = row_count; out := out || jsonb_build_object('reports', n); exception when others then null; end;
   begin delete from public.report_votes v where not exists (select 1 from public.reports r where r.client_id = v.report_cid); exception when others then null; end;
   begin delete from public.live_locs where updated_at < now() - interval '30 minutes'; get diagnostics n = row_count; out := out || jsonb_build_object('live', n); exception when others then null; end;
+  begin delete from public.live_trail where at < now() - interval '3 hours'; exception when others then null; end;
   begin delete from public.handover where (used_at is not null and used_at < now() - interval '7 days') or created_at < now() - interval '60 days'; exception when others then null; end;
   begin delete from public.members where role = 'guest' and expires_at < now() - interval '3 days'; get diagnostics n = row_count; out := out || jsonb_build_object('guests', n); exception when others then null; end;
   begin delete from public.guest_codes g where g.expires_at < now() - interval '30 days' and not exists (select 1 from public.members m where m.code = g.code); exception when others then null; end;
@@ -449,6 +493,13 @@ begin
     perform set_config('request.jwt.claims', json_build_object('sub', g)::text, true); perform set_config('request.jwt.claim.sub', g::text, true);
     begin r := public.list_activity(20); out := out || array['Guests cannot read the activity log', 'FAIL'];
     exception when others then out := out || array['Guests cannot read the activity log', 'PASS']; end;
+    -- live routes
+    perform set_config('request.jwt.claims', json_build_object('sub', h)::text, true); perform set_config('request.jwt.claim.sub', h::text, true);
+    insert into public.live_locs (user_id, name, lat, lng, status) values (h, 'T Owner', -24.377, 30.963, 'driving');
+    update public.live_locs set lat = -24.378, lng = 30.964, updated_at = now() where user_id = h;
+    perform set_config('request.jwt.claims', json_build_object('sub', a)::text, true); perform set_config('request.jwt.claim.sub', a::text, true);
+    r := public.live_trails(2);
+    out := out || array['Other members see the route a car has driven', case when json_array_length(r) = 1 and json_array_length(r->0->'pts') = 2 then 'PASS' else 'FAIL ' || r::text end];
     -- backup
     b := public.kn_backup_build();
     out := out || array['Encrypted backup works', case when b like '-----BEGIN PGP MESSAGE-----%' then 'PASS (' || length(b) || ' characters, locked)' else 'FAIL' end];

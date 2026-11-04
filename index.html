@@ -669,6 +669,7 @@ body.night .osg{background:rgba(255,255,255,.06);color:#ffcf66}body.night .osg.s
 #stillQ.on .sqb{animation:sqbar 8s linear forwards}
 @keyframes sqbar{from{transform:scaleX(1)}to{transform:scaleX(0)}}
 body.red #stillQ{background:#1a0606!important}
+.mav2{flex:none;width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font:800 19px system-ui;box-shadow:0 0 0 3px #fff,0 4px 10px rgba(0,0,0,.2)}
 </style>
 </head>
 <body>
@@ -1009,6 +1010,7 @@ function style(){return{version:8,glyphs:'local://{fontstack}/{range}',
   pois:{type:'geojson',data:DATA.pois},
   cur:{type:'geojson',data:empty},
   route:{type:'geojson',data:empty},
+  trails:{type:'geojson',data:empty},
   tracks:{type:'geojson',data:empty},
   sights:{type:'geojson',data:empty},est:{type:'geojson',data:empty},redq:{type:'geojson',data:{type:'Feature',properties:{},geometry:{type:'Polygon',coordinates:[[[-179,-85],[179,-85],[179,85],[-179,85],[-179,-85]]]}}},heat:{type:'geojson',data:empty},estpt:{type:'geojson',data:empty},spath:{type:'geojson',data:empty},sprev:{type:'geojson',data:empty},
   reports:{type:'geojson',data:empty},
@@ -1063,6 +1065,8 @@ function style(){return{version:8,glyphs:'local://{fontstack}/{range}',
   {id:'spath',type:'line',source:'spath',layout:{'line-cap':'round'},paint:{'line-color':'#f57c00','line-width':['interpolate',['linear'],['zoom'],12,2,16,3.5],'line-dasharray':[1.2,1.6],'line-opacity':['get','op']}},
   {id:'spath-arrow',type:'symbol',source:'spath',layout:{'symbol-placement':'line','symbol-spacing':70,'icon-image':'sarrow','icon-size':['interpolate',['linear'],['zoom'],12,.45,16,.7],'icon-allow-overlap':true,'icon-rotation-alignment':'map'},paint:{'icon-opacity':['get','op']}},
   {id:'spath-start',type:'circle',source:'sprev',paint:{'circle-radius':4,'circle-color':'#fff','circle-stroke-color':'#f57c00','circle-stroke-width':2,'circle-opacity':['*',['get','op'],.8],'circle-stroke-opacity':['*',['get','op'],.8]}},
+  {id:'trail-case',type:'line',source:'trails',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#fff','line-width':['interpolate',['linear'],['zoom'],12,3,16,7],'line-opacity':['*',['get','op'],.7]}},
+  {id:'trail-line',type:'line',source:'trails',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':['get','col'],'line-width':['interpolate',['linear'],['zoom'],12,['case',['==',['get','sel'],1],3,1.8],16,['case',['==',['get','sel'],1],6,4]],'line-opacity':['get','op'],'line-dasharray':[1.6,.9]}},
   {id:'sights',type:'symbol',source:'sights',layout:{'icon-image':['concat','an-',['get','what']],'icon-anchor':'bottom','icon-size':['interpolate',['linear'],['zoom'],11,.36,14,.5,17,.62],'icon-allow-overlap':true,'text-field':['get','label'],'text-font':['Sans Bold'],'text-size':12,'text-line-height':1.15,'text-offset':[0,.35],'text-anchor':'top','text-optional':true},paint:{'text-color':'#b45309','text-halo-color':'#fff','text-halo-width':1.8,'icon-opacity':['get','iop'],'text-opacity':['get','op']}},
   {id:'reports',type:'symbol',source:'reports',layout:{'icon-image':'report','icon-size':['interpolate',['linear'],['zoom'],12,.5,15,.72],'icon-allow-overlap':true,'text-field':['get','label'],'text-font':['Sans Bold'],'text-size':12,'text-offset':[0,1.3],'text-anchor':'top','text-optional':true},paint:{'text-color':'#c5221f','text-halo-color':'#fff','text-halo-width':1.8}}
  ]}}
@@ -1216,7 +1220,7 @@ async function joinReserve(name,code){
 const iso=t=>new Date(t).toISOString();
 const sightRow=s=>({client_id:s.cid,what:s.what,note:s.note||null,lat:s.ll[1],lng:s.ll[0],created_at:iso(s.t),expires_at:iso(s.t+SIGHT_TTL),...(s.photo?{photo:true}:{}),...(s.still?{still:true}:{})});
 const reportRow=r=>({client_id:r.cid,kind:r.kind,note:r.note||null,road:r.road||null,lat:r.ll[1],lng:r.ll[0],created_at:iso(r.t),expires_at:iso(r.t+REPORT_TTL)});
-const driveRow=t=>({client_id:t.cid,title:t.name,len_m:Math.round(t.len),pts:t.pts,created_at:iso(t.t)});
+const driveRow=t=>({client_id:t.cid,title:t.name,len_m:Math.round(t.len),pts:trimHome(t.pts,t.t,t.end||Date.now()),created_at:iso(t.t)});
 async function sync(){
   if(!Cloud.on||!Cloud.member||!navigator.onLine)return;
   if(Cloud.busy&&Date.now()-Cloud.busyT<90000){Cloud.again=true;return}
@@ -1493,12 +1497,15 @@ function liveSheet(){const w=shareLoc?liveWhy():null;
     if($('lHome'))$('lHome').onclick=()=>homeSheet();
     $('lTog').onclick=()=>{if(!Cloud.member){toast('Join the shared map first');return}shareLoc=!shareLoc;LS.set('shareLoc',shareLoc);liveTick();toast(shareLoc?'Sharing your live location':'Stopped sharing');liveSheet()}})}
 /* what my phone shares: only on the reserve, not at home, and only while moving or stopped at a sighting */
+/* privacy: your route only starts 400 m from your house, unless you marked a sighting near home */
+function nearHomeSight(win,t0,t1){if(!home)return false;const now=Date.now();return sights.some(x=>!x.still&&dist(x.ll,home.ll)<400&&(t0!=null?x.t>=t0-6e4&&x.t<=t1+6e4:now-x.t<win))}
+function trimHome(pts,t0,t1){if(!home||!pts||!pts.length||nearHomeSight(0,t0,t1))return pts;return pts.filter(p=>dist(p,home.ll)>=400)}
 function myLiveState(){
   if(SOS&&!SOS.resolved&&Cloud.member&&me&&!sim)return {st:'sos'};
   if(!shareLoc||!Cloud.on||!Cloud.member||!me||sim||calMode)return null;
   if(Date.now()-me.t>45000||me.acc>120)return null;
   if(!inReserve(me.ll))return null;
-  if(home&&dist(home.ll,me.ll)<200)return null;
+  if(home&&dist(home.ll,me.ll)<400&&!nearHomeSight(30*6e4))return null;
   const now=Date.now();
   if(!LS_.anchor||dist(LS_.anchor,me.ll)>30||(me.speed||0)>1.5){LS_.anchor=me.ll;LS_.stillT=now}
   const still=now-LS_.stillT;
@@ -1518,12 +1525,31 @@ async function liveTick(){
   }catch(e){if(/404|PGRST20|relation|does not exist|Could not find/.test(String(e.message||e)))LS_.missing=true}}
 async function livePull(){if(!Cloud.on||!Cloud.member||!navigator.onLine||document.hidden||LS_.missing)return;
   try{const rows=await api('/rest/v1/live_locs?select=user_id,name,lat,lng,heading,speed,status,updated_at&updated_at=gt.'+encodeURIComponent(new Date(Date.now()-150000).toISOString()));
-    LIVE={};(rows||[]).forEach(r=>{LIVE[r.user_id]=r});renderLive()}catch(e){if(/404|PGRST20|relation|does not exist|Could not find/.test(String(e.message||e)))LS_.missing=true}}
+    const keepDemo={};Object.keys(LIVE).forEach(k=>{if(k.startsWith('demo'))keepDemo[k]=LIVE[k]});LIVE=keepDemo;(rows||[]).forEach(r=>{LIVE[r.user_id]=r});renderLive()}catch(e){if(/404|PGRST20|relation|does not exist|Could not find/.test(String(e.message||e)))LS_.missing=true}}
 function liveRow(rec,old){if(rec)LIVE[rec.user_id]=rec;else if(old&&old.user_id)delete LIVE[old.user_id];renderLive()}
 function liveTxt(r){const [k,v]=(r.status||'').split(/:(.*)/);const sp=Math.round((r.speed||0)*3.6);
   if(k==='sos')return 'needs help (SOS)';
   return k==='viewing'?'viewing the '+v+' sighting':k==='driving'?(sp?sp+' km/h':'driving')+(v?' on '+v:''):'stopped'+(v?' on '+v:'')}
+/* ============ live routes: the trail each car has driven (last 2 hours) ============ */
+let TRAILS={};
+function trailAdd(uid,name,ll,t){const T=TRAILS[uid]||(TRAILS[uid]={n:name,pts:[]});T.n=name||T.n;const L=T.pts[T.pts.length-1];if(!L||dist([L[0],L[1]],ll)>12)T.pts.push([ll[0],ll[1],Math.round(t/1000)])}
+async function pullTrails(){if(!Cloud.member||!navigator.onLine||Cloud.noTrail)return;
+  try{const L=await rpc('live_trails',{p_hours:2});const keep={};Object.keys(TRAILS).forEach(k=>{if(k.startsWith('demo'))keep[k]=TRAILS[k]});
+    (L||[]).forEach(x=>{keep[x.u]={n:x.n,pts:x.pts||[]}});TRAILS=keep;drawTrails()}catch(e){if(/404|PGRST202|Could not find/.test(String(e.message)))Cloud.noTrail=true}}
+setInterval(pullTrails,60000);setTimeout(pullTrails,6000);
+function drawTrails(){if(!mapReady||!map.getSource('trails'))return;const now=Date.now()/1000,me_=Cloud.sess&&Cloud.sess.uid;
+  const F=Object.entries(TRAILS).filter(([u,T])=>u!==me_&&T.pts.length>1&&now-T.pts[T.pts.length-1][2]<7200).map(([u,T])=>({type:'Feature',properties:{uid:u,col:mateCol(u),op:now-T.pts[T.pts.length-1][2]>900?.4:.85,sel:u===trailSel?1:0},geometry:{type:'LineString',coordinates:T.pts.map(p=>[p[0],p[1]])}}));
+  map.getSource('trails').setData({type:'FeatureCollection',features:F})}
+let trailSel=null;
+function trailInfo(uid){const T=TRAILS[uid];if(!T||T.pts.length<2)return null;let len=0;const roads=[];
+  for(let i=1;i<T.pts.length;i++)len+=dist([T.pts[i-1][0],T.pts[i-1][1]],[T.pts[i][0],T.pts[i][1]]);
+  T.pts.forEach((p,i)=>{if(i%3)return;const e=nearestEdge([p[0],p[1]],40);if(e){const n=ROADS[e.e.road].properties.name;if(roads[roads.length-1]!==n)roads.push(n)}});
+  return {len,mins:(T.pts[T.pts.length-1][2]-T.pts[0][2])/60,roads,start:T.pts[0][2]*1000}}
+function showTrail(uid){const T=TRAILS[uid];if(!T||T.pts.length<2)return;trailSel=uid;drawTrails();closeSheet();setFollow(0);try{map.setPadding({top:0,bottom:0,left:0,right:0})}catch(e){}setTimeout(()=>{if(trailSel===uid){trailSel=null;drawTrails()}},60000);
+  const b=new maplibregl.LngLatBounds([T.pts[0][0],T.pts[0][1]],[T.pts[0][0],T.pts[0][1]]);T.pts.forEach(p=>b.extend([p[0],p[1]]));
+  const top=nav?$('nav').getBoundingClientRect().bottom+30:140;map.fitBounds(b,{padding:{top,bottom:nav?200:170,left:50,right:70},maxZoom:16,bearing:0,pitch:0,duration:800})}
 function renderLive(){if(!mapReady)return;const me_=Cloud.sess&&Cloud.sess.uid,now=Date.now(),keep=new Set();
+  Object.values(LIVE).forEach(r=>{if(r.user_id!==me_&&now-Date.parse(r.updated_at)<150000)trailAdd(r.user_id,r.name,[r.lng,r.lat],Date.parse(r.updated_at))});drawTrails();
   Object.values(LIVE).forEach(r=>{if(r.user_id===me_)return;const age=now-Date.parse(r.updated_at);if(age>150000)return;keep.add(r.user_id);
     let m=liveMk[r.user_id];const col=mateCol(r.user_id),view=(r.status||'').startsWith('viewing');
     if(!m){const el=document.createElement('div');el.className='mate';el.innerHTML='<div class="ma"><svg viewBox="0 0 34 34"><path d="M17 1l6 9h-12z" fill="'+col+'" stroke="#fff" stroke-width="1.5"/></svg></div><div class="md" style="background:'+col+'"></div><div class="mn" style="background:'+col+'"></div>';
@@ -1534,8 +1560,15 @@ function renderLive(){if(!mapReady)return;const me_=Cloud.sess&&Cloud.sess.uid,n
     el.querySelector('.mn').innerHTML=esc(r.name||'Member')+(view?' <small>· '+esc((r.status||'').split(':')[1]||'')+'</small>':'');
     el.classList.toggle('old',age>60000);el.classList.toggle('view',view)});
   Object.keys(liveMk).forEach(id=>{if(!keep.has(id)){liveMk[id].remove();delete liveMk[id]}})}
-function mateSheet(r){const ll=[r.lng,r.lat],d=me?fmtD(dist(me.ll,ll)):'';
-  openSheet(`<h2><span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:${mateCol(r.user_id)};margin-right:8px;vertical-align:1px"></span>${esc(r.name||'Member')}</h2><div class="sub">${esc(liveTxt(r))} · updated ${esc(ago(Date.parse(r.updated_at)))}${d?' · '+d+' from you':''}</div><div class="row"><button class="btn pri" id="mGo">Go to them</button></div>`,()=>{$('mGo').onclick=()=>{closeSheet();startNav({kind:'pin',name:r.name||'Member',ll})}})}
+function mateSheet(r){const ll=r?[r.lng,r.lat]:null,uid=r.user_id,d=me&&ll?fmtD(dist(me.ll,ll)):'',ti=trailInfo(uid),col=mateCol(uid),live=r.updated_at&&Date.now()-Date.parse(r.updated_at)<150000;
+  openSheet(`<div class="rph"><span class="mav2" style="background:${col}">${esc((r.name||'?').trim()[0]||'?').toUpperCase()}</span><div style="min-width:0"><small>${live?'On the reserve now':'Earlier today'}</small><b>${esc(r.name||'Member')}</b></div></div>
+   <div class="sub" style="margin-top:6px">${live?esc(liveTxt(r))+' · updated '+esc(ago(Date.parse(r.updated_at))):'Last seen '+esc(ago(ti?ti.start+ti.mins*6e4:Date.now()))}${d?' · '+d+' from you':''}</div>
+   ${ti?`<div class="rpm"><div><b class="g">${fmtD(ti.len)}</b><small>Driven</small></div><div><b>${fmtT(ti.mins*60)}</b><small>Time</small></div><div><b>${new Date(ti.start).toTimeString().slice(0,5)}</b><small>Started</small></div></div>
+   ${ti.roads.length?`<div class="rpv">${LI('route',17)}<span>${ti.roads.slice(-6).map(esc).join(' <i>›</i> ')}</span></div>`:''}`:'<div class="sub" style="margin-top:10px">No route yet. It shows once they have driven a bit.</div>'}
+   <div class="sub" style="margin-top:10px;font-size:12px">Routes start 400 m from each person's house, to keep homes private.</div>
+   <div class="row" style="margin-top:12px">${ti?'<button class="btn" id="mRoute">'+LI('route',18)+' Show route</button>':''}${live?'<button class="btn pri" id="mGo">Go to them</button>':''}</div>`,()=>{
+    if($('mGo'))$('mGo').onclick=()=>{closeSheet();startNav({kind:'pin',name:r.name||'Member',ll})};
+    if($('mRoute'))$('mRoute').onclick=()=>{showTrail(uid);toast(esc(r.name||'Their')+' route · '+fmtD(ti.len),2500)}})}
 setInterval(liveTick,4000);setInterval(livePull,12000);setInterval(renderLive,15000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){livePull();liveTick()}});
 /* ============ new sighting alerts ============ */
@@ -2320,10 +2353,11 @@ function addSheet(tab,at){
 }
 $('pinBtn').onclick=()=>addSheet('sight');
 map.on('click','sights',e=>{const s=allSights().find(x=>x.cid===e.features[0].properties.cid);if(s)showPlace(sightPlace(s))});
+map.on('click','trail-line',e=>{const u=e.features[0].properties.uid;const r=LIVE[u]||{user_id:u,name:(TRAILS[u]||{}).n};e.originalEvent&&(e.originalEvent._est=1);mateSheet(r)});
 map.on('click','reports',e=>{const r=allReports().find(x=>x.cid===e.features[0].properties.cid);if(r)showPlace({kind:'report',name:r.kind,sub:'Road report · '+ago(r.t)+' · '+r.by+(r.road?' · '+r.road:'')+confTxt(r)+(r.note?' · '+r.note:''),ll:r.ll,cid:r.cid,mine:r.mine})});
 map.on('click','est-fill',e=>{if(map.queryRenderedFeatures(e.point,{layers:['sights','reports','poi','home']}).length)return;const id=e.features[0].properties.id,x=estimates().find(q=>q.id===id);if(x){e.preventDefault&&e.preventDefault();e.originalEvent&&(e.originalEvent._est=1);estSheet(x)}});
 map.on('click','poi',e=>{const f=e.features[0];showPlace({kind:f.properties.kind,name:f.properties.name,sub:'',ll:f.geometry.coordinates})});
-map.on('click',e=>{const f=map.queryRenderedFeatures(e.point,{layers:['sights','reports','poi','home','est-fill']});if(f.length)return;
+map.on('click',e=>{const f=map.queryRenderedFeatures(e.point,{layers:['sights','reports','poi','home','est-fill','trail-line']});if(f.length)return;
   if(nav)return;if(follow)setFollow(0);
   const ll=e.lngLat.toArray();addSheet('sight',ll);map.easeTo({center:ll,offset:[0,-innerHeight*0.22],duration:500})});
 for(const l of['sights','reports','poi','road','road-check'])map.on('mouseenter',l,()=>map.getCanvas().style.cursor='pointer'),map.on('mouseleave',l,()=>map.getCanvas().style.cursor='');
@@ -2655,6 +2689,25 @@ function startCal(){
 }
 function endCal(){$('cross').classList.add('hide');$('calBar').classList.add('hide');$('fabs').classList.remove('hide');const r=$('calReset');if(r)r.remove()}
 
+/* ============ demo: other cars driving the reserve, with their routes ============ */
+const DEMO={iv:null,cars:[],endT:null};
+function demoCarsStart(){demoCarsStop(true);const P=DATA.pois.features.filter(f=>['gate','water','picnic','view','hide','lodge'].includes(f.properties.kind)).map(f=>f.geometry.coordinates);if(P.length<3)return;
+  const names=[['demo1','Thabo (demo)'],['demo2','Sarah (demo)'],['demo3','Pieter (demo)']];let seed=7;const rnd=()=>{seed=(seed*16807)%2147483647;return seed/2147483647};
+  const pick=()=>nearestEdge(P[Math.floor(rnd()*P.length)]).q;
+  const leg=c=>{for(let k=0;k<6;k++){const to=pick();const r=route(c.at,to);if(r&&r.len>400){c.b=buildSteps(r);c.along=0;return true}}return false};
+  names.forEach(([id,n],i)=>{const c={id,n,v:5.5+i*1.2,at:pick(),pause:i===1?20:0};if(!leg(c))return;
+    // they've already been driving a while: start part way, with the route behind them
+    c.along=c.b.total*(.35+.15*i);const now=Date.now();TRAILS[id]={n,pts:[]};
+    for(let a=0;a<=c.along;a+=25){const p=pointAt(c.b.segs,a);TRAILS[id].pts.push([p[0],p[1],Math.round((now-(c.along-a)/c.v*1000)/1000)])}
+    DEMO.cars.push(c)});
+  const tick=()=>{const now=Date.now();DEMO.cars.forEach(c=>{
+      if(c.pause>0){c.pause--}else{c.along+=c.v;if(c.along>c.b.total){c.at=pointAt(c.b.segs,c.b.total);if(!leg(c))return;c.pause=6}}
+      const p=pointAt(c.b.segs,Math.min(c.along,c.b.total)),p2=pointAt(c.b.segs,Math.min(c.along+20,c.b.total));const e=nearestEdge(p,40),road=e?ROADS[e.e.road].properties.name:'';
+      const near=allSights().find(x=>dist(x.ll,p)<150);
+      LIVE[c.id]={user_id:c.id,name:c.n,lat:p[1],lng:p[0],heading:c.pause>0?null:Math.round(bearing(p,p2)),speed:c.pause>0?0:c.v,status:c.pause>0?(near?'viewing:'+near.what:'stopped:'+road):'driving:'+road,updated_at:new Date(now).toISOString()}});
+    renderLive();if(DEMO.endT&&now>DEMO.endT)demoCarsStop()};
+  tick();DEMO.iv=setInterval(tick,1000)}
+function demoCarsStop(quiet){clearInterval(DEMO.iv);DEMO.iv=null;DEMO.endT=null;DEMO.cars=[];Object.keys(LIVE).forEach(k=>{if(k.startsWith('demo'))delete LIVE[k]});Object.keys(TRAILS).forEach(k=>{if(k.startsWith('demo'))delete TRAILS[k]});trailSel=null;try{renderLive();drawTrails()}catch(e){}}
 /* ============ demo drive ============ */
 function startDemo(){
   const g=DATA.pois.features.find(f=>f.properties.name==='Main Gate').geometry.coordinates;
@@ -2662,14 +2715,14 @@ function startDemo(){
   const r=route(start,homeLL());if(!r){toast('Demo failed');return}
   if(sim)clearInterval(sim.iv);
   const b=buildSteps(r);let along=0;const v=6.5;
-  sim={iv:0};toast('Demo: driving from Main Gate to Home',2500);
-  const step=()=>{along+=v;if(along>b.total+30){clearInterval(sim.iv);sim=null;toast('Demo finished');return}
+  sim={iv:0};toast('Demo: driving from Main Gate to Home. Three other cars are out too, tap one to see their route.',4000);demoCarsStart();
+  const step=()=>{along+=v;if(along>b.total+30){clearInterval(sim.iv);sim=null;DEMO.endT=Date.now()+180000;toast('Demo finished. The other cars keep driving for 3 minutes so you can look around.',4000);return}
     const p=pointAt(b.segs,Math.min(along,b.total));const p2=pointAt(b.segs,Math.min(along+22,b.total));
     handlePos([p[0]-calib[0],p[1]-calib[1]],6,bearing(p,p2),v,Date.now())};
   step();
   setTimeout(()=>{beginNav({kind:'home',name:'Home',ll:homeLL()})},300);
   sim.iv=setInterval(step,1000);
-  const oldEnd=$('navEnd').onclick;$('navEnd').onclick=()=>{if(sim){clearInterval(sim.iv);sim=null}$('navEnd').onclick=oldEnd;endNav('Demo ended')};
+  const oldEnd=$('navEnd').onclick;$('navEnd').onclick=()=>{if(sim){clearInterval(sim.iv);sim=null}$('navEnd').onclick=oldEnd;endNav('Demo ended. The other cars keep driving for 3 minutes.');DEMO.endT=Date.now()+180000};
 }
 
 /* terrain: fetch reserve DEM tiles once so shading works offline (service worker caches them) */
