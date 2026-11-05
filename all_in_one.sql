@@ -1736,6 +1736,82 @@ begin
 end $$;
 grant execute on function public.weekly_report() to authenticated;
 
+
+-- ================= DATABASE ACCOUNTS =================
+-- A separate secret code makes you a Database account: every admin power, can't be removed by anyone else,
+-- always online, and the only accounts that can delete old Database accounts. The name "Database" is reserved.
+alter table private.config add column if not exists db_code text;
+do $$ declare a text := 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; c text := 'DB-'; i int;
+begin
+  if (select db_code from private.config limit 1) is null then
+    for i in 1..12 loop c := c || substr(a, 1 + floor(random() * 32)::int, 1); if i % 4 = 0 and i < 12 then c := c || '-'; end if; end loop;
+    update private.config set db_code = c;
+  end if;
+end $$;
+
+create or replace function public.kn_trg_db_name() returns trigger language plpgsql as $$
+begin
+  if (tg_op = 'INSERT' or new.name is distinct from old.name) and lower(btrim(coalesce(new.name, ''))) = 'database' and not coalesce(new.locked, false) then
+    raise exception 'The name Database is reserved';
+  end if;
+  return new;
+end $$;
+drop trigger if exists kn_db_name on public.members;
+create trigger kn_db_name before insert or update on public.members for each row execute function public.kn_trg_db_name();
+
+create or replace function public.join_database(p_code text, p_name text)
+returns json language plpgsql security definer set search_path = public, private as $$
+declare c text; me uuid := auth.uid(); nm text := left(btrim(coalesce(p_name, '')), 40);
+begin
+  if me is null then raise exception 'not signed in'; end if;
+  if (select count(*) from public.recovery_tries where user_id = me and at > now() - interval '1 hour') >= 20 then return json_build_object('ok', false, 'reason', 'tries'); end if;
+  select db_code into c from private.config limit 1;
+  if c is null or public.kn_hash(p_code) <> public.kn_hash(c) then insert into public.recovery_tries (user_id) values (me); return json_build_object('ok', false, 'reason', 'wrong'); end if;
+  if nm = '' then nm := 'Database'; end if;
+  perform set_config('kn.lockadmin', '1', true);
+  insert into public.members (user_id, name, role, locked, last_seen, last_login) values (me, nm, 'admin', true, now(), now())
+    on conflict (user_id) do update set name = excluded.name, role = 'admin', locked = true, expires_at = null, code = null, last_seen = now(), last_login = now();
+  perform set_config('kn.lockadmin', '', true);
+  perform public.kn_log('join', nm || ' joined as a Database account');
+  return json_build_object('ok', true, 'role', 'admin', 'locked', true, 'name', nm);
+end $$;
+grant execute on function public.join_database(text, text) to authenticated;
+
+create or replace function public.get_db_code() returns text language sql stable security definer set search_path = public, private as $$
+  select case when exists (select 1 from public.members where user_id = auth.uid() and locked) then (select db_code from private.config limit 1) end $$;
+grant execute on function public.get_db_code() to authenticated;
+
+create or replace function public.set_db_code(p_code text)
+returns text language plpgsql security definer set search_path = public, private as $$
+declare c text := upper(regexp_replace(btrim(coalesce(p_code, '')), '\s+', '', 'g')); inv text;
+begin
+  if not exists (select 1 from public.members where user_id = auth.uid() and locked) then raise exception 'Only Database accounts can do this'; end if;
+  if char_length(c) < 8 then raise exception 'The Database code needs at least 8 letters or numbers'; end if;
+  select upper(replace(invite_code, ' ', '')) into inv from private.config limit 1;
+  if c in (inv, 'ADMIN' || inv) or exists (select 1 from public.guest_codes where code = c) then raise exception 'Pick a code nobody else uses'; end if;
+  update private.config set db_code = c;
+  perform public.kn_log('code', 'changed the Database code');
+  return c;
+end $$;
+grant execute on function public.set_db_code(text) to authenticated;
+
+create or replace function public.delete_database(p_user uuid)
+returns void language plpgsql security definer set search_path = public as $$
+declare nm text;
+begin
+  if not exists (select 1 from public.members where user_id = auth.uid() and locked) then raise exception 'Only Database accounts can do this'; end if;
+  if p_user = auth.uid() then raise exception 'You cannot delete your own Database account'; end if;
+  select name into nm from public.members where user_id = p_user and locked;
+  if nm is null then raise exception 'That is not a Database account'; end if;
+  insert into public.removals (user_id, name, by_name, by_role, kind) values (p_user, nm, public.kn_me_name(), 'database', 'removed');
+  perform set_config('kn.handover', '1', true);
+  begin delete from public.live_locs where user_id = p_user; exception when others then null; end;
+  delete from public.members where user_id = p_user;
+  perform set_config('kn.handover', '', true);
+  perform public.kn_log('remove', 'deleted the old Database account ' || nm);
+end $$;
+grant execute on function public.delete_database(uuid) to authenticated;
+
 -- ---------- SUGGESTIONS: anyone on the map can send one, only the protected account can read them ----------
 create table if not exists public.suggestions (
   id bigserial primary key,
@@ -2027,7 +2103,7 @@ notify pgrst, 'reload schema';
 
 
 -- =====================================================================
--- PUSH THE UPDATE (version 84)
+-- PUSH THE UPDATE (version 85)
 -- =====================================================================
 
 alter table private.config add column if not exists min_build int not null default 0;
@@ -2085,8 +2161,8 @@ begin
 end $$;
 grant execute on function public.set_min_build(int) to authenticated;
 
--- push it now: require version 84 and post the news (as the first admin, so it shows who sent it)
-update private.config set min_build = 84;
+-- push it now: require version 85 and post the news (as the first admin, so it shows who sent it)
+update private.config set min_build = 85;
 do $$
 declare adm uuid := (select user_id from public.members where role = 'admin' order by joined_at limit 1);
 begin
@@ -2104,8 +2180,9 @@ select 'Tables: members, sightings, reports, drives, news, SOS, live location, p
   case when (select count(*) from information_schema.tables where table_schema = 'public' and table_name in ('members','sightings','reports','drives','announcements','sos','live_locs','animal_misses','places','road_closures','private_notes','suggestions')) = 12 then 'YES' else 'NO' end as result
 union all select 'Codes and logins self-test', case when (select count(*) from public.kn_selftest() where result not like 'PASS%') = 0 then 'YES' else 'NO: ' || (select string_agg(test, ', ') from public.kn_selftest() where result not like 'PASS%') end
 union all select 'Protected account (9fb4d097...) locked as admin', case when exists (select 1 from public.members where locked and role = 'admin') then 'YES' else 'NO: that account is not on the map yet. Open the map on that phone, then run this again' end
+union all select 'Your Database code (keep it secret, it gives full control)', (select db_code from private.config limit 1)
 union all select 'Backend self-test', case when (select count(*) from public.kn_backend_selftest() where result not like 'PASS%') = 0 then 'YES' else 'NO: ' || (select string_agg(test, ', ') from public.kn_backend_selftest() where result not like 'PASS%') end
-union all select 'Everyone must be on version 84', case when (select min_build from private.config limit 1) = 84 then 'YES' else 'NO' end
-union all select 'Update news posted (only old versions see it)', case when exists (select 1 from public.announcements where for_old_build = 84 and not removed) then 'YES' else 'NO' end
+union all select 'Everyone must be on version 85', case when (select min_build from private.config limit 1) = 85 then 'YES' else 'NO' end
+union all select 'Update news posted (only old versions see it)', case when exists (select 1 from public.announcements where for_old_build = 85 and not removed) then 'YES' else 'NO' end
 union all select 'Your owner code (unchanged)', (select upper(invite_code) from private.config limit 1)
-union all select 'People who still need to update', (select count(*)::text from public.members where coalesce(app_build, 0) < 84 and (role <> 'guest' or expires_at > now()));
+union all select 'People who still need to update', (select count(*)::text from public.members where coalesce(app_build, 0) < 85 and (role <> 'guest' or expires_at > now()));
