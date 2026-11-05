@@ -563,6 +563,7 @@ begin
   begin update public.drives set user_id = me where user_id = h.user_id; exception when others then null; end;
   begin delete from public.live_locs where user_id = h.user_id; exception when others then null; end;
   begin update public.private_notes set user_id = me where user_id = h.user_id; exception when others then null; end;
+  begin update public.direct_msgs set to_user = me where to_user = h.user_id; exception when others then null; end;
   delete from public.members where user_id = h.user_id;
   update public.handover set used_at = now() where token = h.token;
   perform set_config('kn.handover', '', true);
@@ -1106,6 +1107,7 @@ begin
   return coalesce((select json_agg(json_build_object('client_id', l.client_id, 'what', l.what, 'lat', round(l.lat::numeric, 5), 'lng', round(l.lng::numeric, 5), 'created_at', l.created_at) order by l.created_at)
     from (select * from public.sightings_log
           where not still and created_at > greatest(coalesce(p_since, now() - interval '400 days'), now() - interval '400 days')
+            and (public.is_admin() or user_id = auth.uid() or not public.kn_hidden_animal(what))
           order by created_at desc limit 12000) l), '[]'::json);
 end $$;
 grant execute on function public.sight_history(timestamptz) to authenticated;
@@ -1298,7 +1300,7 @@ returns json language plpgsql stable security definer set search_path = public, 
 begin
   if not public.is_member() then return '[]'::json; end if;
   return coalesce((select json_agg(json_build_object('c', l.client_id, 'w', l.what, 'by', coalesce(m.name, 'Someone'), 't', l.created_at, 'lat', l.lat, 'lng', l.lng, 'k', l.kill) order by l.created_at desc)
-    from (select * from public.sightings_log where photo and created_at > now() - make_interval(days => least(greatest(p_days, 1), 30)) order by created_at desc limit 300) l
+    from (select * from public.sightings_log where photo and created_at > now() - make_interval(days => least(greatest(p_days, 1), 30)) and (public.is_admin() or user_id = auth.uid() or not public.kn_hidden_animal(what)) order by created_at desc limit 300) l
     left join public.members m on m.user_id = l.user_id), '[]'::json);
 end $$;
 grant execute on function public.photo_album(int) to authenticated;
@@ -1446,6 +1448,7 @@ begin
   begin update public.reports set user_id = me where user_id = p_old; exception when others then null; end;
   begin update public.drives set user_id = me where user_id = p_old; exception when others then null; end;
   begin update public.private_notes set user_id = me where user_id = p_old; exception when others then null; end;
+  begin update public.direct_msgs set to_user = me where to_user = p_old; exception when others then null; end;
   begin delete from public.live_locs where user_id = p_old; exception when others then null; end;
   delete from public.members where user_id = p_old;
   perform set_config('kn.handover', '', true);
@@ -1506,6 +1509,232 @@ begin
   return r;
 end $$;
 grant execute on function public.use_recovery_code(text) to authenticated;
+
+
+-- ================= ADMIN POWER =================
+alter table private.config add column if not exists paused boolean not null default false;
+alter table private.config add column if not exists pause_msg text;
+alter table private.config add column if not exists paused_by text;
+alter table private.config add column if not exists paused_at timestamptz;
+alter table private.config add column if not exists rules jsonb not null default '{}'::jsonb;
+alter table private.config add column if not exists admin_only text[] not null default '{}';
+alter table private.config add column if not exists guest_max_days int;
+alter table private.config add column if not exists guest_max_per_owner int;
+alter table private.config add column if not exists admin_sees_all boolean not null default false;
+alter table public.removals add column if not exists snap jsonb;
+alter table public.removals add column if not exists restored_at timestamptz;
+alter table public.live_locs add column if not exists hidden boolean not null default false;
+
+create or replace function public.kn_me_name() returns text language sql stable security definer set search_path = public as $$
+  select coalesce((select name from public.members where user_id = auth.uid()), 'An admin') $$;
+
+-- everything the phones need to know about how the map is run right now
+create or replace function public.map_state()
+returns json language sql stable security definer set search_path = public, private as $$
+  select case when public.is_member() then json_build_object('paused', c.paused, 'pause_msg', c.pause_msg, 'paused_by', c.paused_by, 'paused_at', c.paused_at,
+    'rules', c.rules, 'admin_only', c.admin_only, 'guest_max_days', c.guest_max_days, 'guest_max_per_owner', c.guest_max_per_owner, 'admin_sees_all', c.admin_sees_all)
+  else json_build_object('paused', false) end from private.config c limit 1 $$;
+grant execute on function public.map_state() to authenticated;
+
+-- 1. pause the map for everyone except admins (SOS keeps working)
+create or replace function public.set_pause(p_on boolean, p_msg text default null)
+returns void language plpgsql security definer set search_path = public, private as $$
+begin
+  if not public.is_admin() then raise exception 'admins only'; end if;
+  update private.config set paused = p_on, pause_msg = case when p_on then left(nullif(btrim(coalesce(p_msg, '')), ''), 300) end,
+    paused_by = case when p_on then public.kn_me_name() end, paused_at = case when p_on then now() end;
+  perform public.kn_log('admin', case when p_on then 'paused the map for everyone' || coalesce(': ' || nullif(btrim(coalesce(p_msg, '')), ''), '') else 'turned the map back on for everyone' end);
+end $$;
+grant execute on function public.set_pause(boolean, text) to authenticated;
+
+-- 9. reserve rules (speed limit, quiet hours, sunset reminder) for every phone
+create or replace function public.set_rules(p_rules jsonb)
+returns void language plpgsql security definer set search_path = public, private as $$
+begin
+  if not public.is_admin() then raise exception 'admins only'; end if;
+  update private.config set rules = coalesce(p_rules, '{}'::jsonb);
+  perform public.kn_log('admin', 'changed the reserve rules');
+end $$;
+grant execute on function public.set_rules(jsonb) to authenticated;
+
+-- 10. animals only admins (and whoever marked them) can see
+create or replace function public.kn_hidden_animal(p_what text) returns boolean language sql stable security definer set search_path = public, private as $$
+  select coalesce(p_what = any(coalesce((select admin_only from private.config limit 1), '{}'::text[])), false) $$;
+create or replace function public.set_admin_only(p_animals text[])
+returns void language plpgsql security definer set search_path = public, private as $$
+begin
+  if not public.is_admin() then raise exception 'admins only'; end if;
+  update private.config set admin_only = coalesce(p_animals, '{}');
+  perform public.kn_log('admin', case when coalesce(array_length(p_animals, 1), 0) = 0 then 'made all animals visible to everyone' else 'made ' || array_to_string(p_animals, ', ') || ' sightings admin only' end);
+end $$;
+grant execute on function public.set_admin_only(text[]) to authenticated;
+drop policy if exists s_read on public.sightings;
+create policy s_read on public.sightings for select to authenticated
+  using (public.is_member() and (user_id = auth.uid() or public.is_admin() or not public.kn_hidden_animal(what)));
+
+-- 5. guest limits for owners (admins are not limited)
+create or replace function public.set_guest_limits(p_days int, p_max int)
+returns void language plpgsql security definer set search_path = public, private as $$
+begin
+  if not public.is_admin() then raise exception 'admins only'; end if;
+  update private.config set guest_max_days = nullif(p_days, 0), guest_max_per_owner = nullif(p_max, 0);
+  perform public.kn_log('admin', 'set guest limits: ' || coalesce(p_days::text || ' days max', 'no day limit') || ', ' || coalesce(p_max::text || ' guests per owner', 'no guest limit'));
+end $$;
+grant execute on function public.set_guest_limits(int, int) to authenticated;
+create or replace function public.kn_trg_guest_limits() returns trigger language plpgsql security definer set search_path = public, private as $$
+declare d int; mx int; n int;
+begin
+  if new.kind is distinct from 'guest' or public.is_admin() then return new; end if;
+  select guest_max_days, guest_max_per_owner into d, mx from private.config limit 1;
+  if d is not null and new.expires_at > now() + make_interval(days => d) + interval '1 hour' then
+    raise exception 'Guest passes can last at most % days', d; end if;
+  if mx is not null then
+    select count(*) into n from public.guest_codes where created_by = new.created_by and kind = 'guest' and not revoked and expires_at > now();
+    if n >= mx then raise exception 'You can have at most % guests at a time', mx; end if;
+  end if;
+  return new;
+end $$;
+drop trigger if exists kn_guest_limits on public.guest_codes;
+create trigger kn_guest_limits before insert on public.guest_codes for each row execute function public.kn_trg_guest_limits();
+
+-- 6. admins see every car (even with sharing off) when this is on; everyone is told in Settings
+create or replace function public.set_admin_sees_all(p_on boolean)
+returns void language plpgsql security definer set search_path = public, private as $$
+begin
+  if not public.is_admin() then raise exception 'admins only'; end if;
+  update private.config set admin_sees_all = p_on;
+  perform public.kn_log('admin', case when p_on then 'turned on: admins can see every car on the reserve' else 'turned off: admins only see cars that share' end);
+end $$;
+grant execute on function public.set_admin_sees_all(boolean) to authenticated;
+drop policy if exists ll_read on public.live_locs;
+create policy ll_read on public.live_locs for select to authenticated using (public.is_member() and (not hidden or public.is_admin()));
+
+-- 2. private message to one person
+create table if not exists public.direct_msgs (id bigserial primary key, to_user uuid not null, from_name text, body text not null check (char_length(body) between 1 and 600), created_at timestamptz not null default now(), read_at timestamptz);
+create index if not exists direct_msgs_to on public.direct_msgs (to_user, created_at desc);
+alter table public.direct_msgs enable row level security;
+revoke all on public.direct_msgs from anon, authenticated;
+create or replace function public.send_direct(p_user uuid, p_body text)
+returns void language plpgsql security definer set search_path = public as $$
+declare nm text;
+begin
+  if not public.is_admin() then raise exception 'admins only'; end if;
+  select name into nm from public.members where user_id = p_user;
+  if nm is null then raise exception 'That person is not on the map'; end if;
+  insert into public.direct_msgs (to_user, from_name, body) values (p_user, public.kn_me_name(), left(btrim(p_body), 600));
+  perform public.kn_log('admin', 'sent a private message to ' || nm);
+end $$;
+grant execute on function public.send_direct(uuid, text) to authenticated;
+create or replace function public.my_direct()
+returns json language sql stable security definer set search_path = public as $$
+  select coalesce(json_agg(json_build_object('id', id, 'from', from_name, 'body', body, 'at', created_at) order by created_at), '[]'::json)
+  from public.direct_msgs where to_user = auth.uid() and read_at is null and created_at > now() - interval '30 days' $$;
+grant execute on function public.my_direct() to authenticated;
+create or replace function public.read_direct(p_id bigint)
+returns void language sql security definer set search_path = public as $$
+  update public.direct_msgs set read_at = now() where id = p_id and to_user = auth.uid() $$;
+grant execute on function public.read_direct(bigint) to authenticated;
+
+-- 4. ban a phone: it can never join again, even with a new code
+create table if not exists public.bans (dev_hash text primary key, name text, by_name text, at timestamptz not null default now());
+alter table public.bans enable row level security;
+revoke all on public.bans from anon, authenticated;
+create or replace function public.ban_member(p_user uuid)
+returns json language plpgsql security definer set search_path = public as $$
+declare m public.members;
+begin
+  if not public.is_admin() then raise exception 'admins only'; end if;
+  select * into m from public.members where user_id = p_user;
+  if not found then raise exception 'That person is not on the map'; end if;
+  if m.locked then raise exception 'This account is protected and cannot be removed'; end if;
+  if m.dev_hash is not null then insert into public.bans (dev_hash, name, by_name) values (m.dev_hash, m.name, public.kn_me_name()) on conflict (dev_hash) do nothing; end if;
+  perform public.remove_member(p_user);
+  update public.removals set kind = 'banned' where user_id = p_user and at > now() - interval '1 minute';
+  perform public.kn_log('remove', 'banned ' || m.name || ' from the map' || case when m.dev_hash is null then ' (their phone had not checked in yet, so only removed)' else '' end);
+  return json_build_object('ok', true, 'phone', m.dev_hash is not null);
+end $$;
+grant execute on function public.ban_member(uuid) to authenticated;
+create or replace function public.list_bans()
+returns json language sql stable security definer set search_path = public as $$
+  select case when public.is_admin() then coalesce((select json_agg(json_build_object('h', dev_hash, 'name', name, 'by', by_name, 'at', at) order by at desc) from public.bans), '[]'::json) else '[]'::json end $$;
+grant execute on function public.list_bans() to authenticated;
+create or replace function public.unban(p_hash text)
+returns void language plpgsql security definer set search_path = public as $$
+declare nm text;
+begin
+  if not public.is_admin() then raise exception 'admins only'; end if;
+  delete from public.bans where dev_hash = p_hash returning name into nm;
+  perform public.kn_log('admin', 'lifted the ban on ' || coalesce(nm, 'a phone'));
+end $$;
+grant execute on function public.unban(text) to authenticated;
+-- a banned phone that joins with a fresh code is taken off again the moment it checks in
+create or replace function public.set_device_key(p_key text)
+returns void language plpgsql security definer set search_path = public as $$
+declare h text := public.kn_hash(p_key);
+begin
+  if char_length(coalesce(p_key, '')) < 24 then raise exception 'bad key'; end if;
+  if exists (select 1 from public.bans where dev_hash = h) then
+    insert into public.removals (user_id, name, by_name, kind) select user_id, name, (select by_name from public.bans where dev_hash = h), 'banned' from public.members where user_id = auth.uid() and not locked;
+    delete from public.members where user_id = auth.uid() and not locked;
+    return;
+  end if;
+  update public.members set dev_hash = h where user_id = auth.uid();
+end $$;
+
+-- 8. undo a removal within 7 days: everything they had comes back
+create or replace function public.list_removed()
+returns json language sql stable security definer set search_path = public as $$
+  select case when public.is_admin() then coalesce((select json_agg(json_build_object('u', user_id, 'name', name, 'by', by_name, 'at', at, 'kind', kind, 'role', snap->>'role') order by at desc)
+    from (select distinct on (user_id) * from public.removals where snap is not null and restored_at is null and at > now() - interval '7 days' and kind in ('removed', 'banned') order by user_id, at desc) r
+    where not exists (select 1 from public.members m where m.user_id = r.user_id)), '[]'::json) else '[]'::json end $$;
+grant execute on function public.list_removed() to authenticated;
+create or replace function public.restore_member(p_user uuid)
+returns json language plpgsql security definer set search_path = public as $$
+declare r public.removals;
+begin
+  if not public.is_admin() then raise exception 'admins only'; end if;
+  select * into r from public.removals where user_id = p_user and snap is not null and restored_at is null and at > now() - interval '7 days' order by at desc limit 1;
+  if not found then raise exception 'Nothing to undo for that person'; end if;
+  insert into public.members select * from jsonb_populate_record(null::public.members, r.snap) on conflict (user_id) do nothing;
+  if r.snap->>'dev_hash' is not null then delete from public.bans where dev_hash = r.snap->>'dev_hash'; end if;
+  update public.removals set restored_at = now() where user_id = p_user and restored_at is null;
+  perform public.kn_log('admin', 'brought ' || r.name || ' back onto the map');
+  return json_build_object('ok', true, 'name', r.name);
+end $$;
+grant execute on function public.restore_member(uuid) to authenticated;
+-- keep a copy of the membership when someone is removed, so it can be undone
+create or replace function public.kn_trg_removal_snap() returns trigger language plpgsql security definer set search_path = public as $$
+begin
+  if coalesce(current_setting('kn.handover', true), '') = '1' then return old; end if;
+  update public.removals set snap = to_jsonb(old) where user_id = old.user_id and snap is null and at > now() - interval '1 minute';
+  return old;
+end $$;
+drop trigger if exists kn_removal_snap on public.members;
+create trigger kn_removal_snap after delete on public.members for each row execute function public.kn_trg_removal_snap();
+
+-- 7. weekly report for admins
+create or replace function public.weekly_report()
+returns json language plpgsql stable security definer set search_path = public as $$
+declare since timestamptz := now() - interval '7 days';
+begin
+  if not public.is_admin() then raise exception 'admins only'; end if;
+  return json_build_object(
+    'since', since,
+    'joined', (select coalesce(json_agg(json_build_object('name', name, 'role', role) order by joined_at desc), '[]'::json) from public.members where joined_at > since),
+    'removed', (select count(*) from public.removals where at > since and kind in ('removed', 'banned')),
+    'sightings', (select count(*) from public.sightings_log where created_at > since),
+    'kills', (select count(*) from public.sightings_log where created_at > since and coalesce(kill, false)),
+    'top', (select coalesce(json_agg(json_build_object('what', what, 'n', n)), '[]'::json) from (select what, count(*) n from public.sightings_log where created_at > since group by what order by n desc limit 6) t),
+    'reports', (select count(*) from public.reports where created_at > since),
+    'drives', (select count(*) from public.drives where created_at > since),
+    'owners', (select count(*) from public.members where role in ('owner', 'admin')),
+    'guests', (select count(*) from public.members where role = 'guest' and expires_at > now()),
+    'active', (select count(*) from public.members where last_seen > since),
+    'quiet', (select coalesce(json_agg(name), '[]'::json) from public.members where role <> 'guest' and not locked and (last_seen is null or last_seen < since)),
+    'old', (select count(*) from public.members m where not m.locked and coalesce(m.app_build, 0) < (select min_build from private.config limit 1)),
+    'sos', (select count(*) from public.activity_log where kind = 'sos' and at > since));
+end $$;
+grant execute on function public.weekly_report() to authenticated;
 
 -- ---------- SUGGESTIONS: anyone on the map can send one, only the protected account can read them ----------
 create table if not exists public.suggestions (
@@ -1798,7 +2027,7 @@ notify pgrst, 'reload schema';
 
 
 -- =====================================================================
--- PUSH THE UPDATE (version 83)
+-- PUSH THE UPDATE (version 84)
 -- =====================================================================
 
 alter table private.config add column if not exists min_build int not null default 0;
@@ -1856,8 +2085,8 @@ begin
 end $$;
 grant execute on function public.set_min_build(int) to authenticated;
 
--- push it now: require version 83 and post the news (as the first admin, so it shows who sent it)
-update private.config set min_build = 83;
+-- push it now: require version 84 and post the news (as the first admin, so it shows who sent it)
+update private.config set min_build = 84;
 do $$
 declare adm uuid := (select user_id from public.members where role = 'admin' order by joined_at limit 1);
 begin
@@ -1876,7 +2105,7 @@ select 'Tables: members, sightings, reports, drives, news, SOS, live location, p
 union all select 'Codes and logins self-test', case when (select count(*) from public.kn_selftest() where result not like 'PASS%') = 0 then 'YES' else 'NO: ' || (select string_agg(test, ', ') from public.kn_selftest() where result not like 'PASS%') end
 union all select 'Protected account (9fb4d097...) locked as admin', case when exists (select 1 from public.members where locked and role = 'admin') then 'YES' else 'NO: that account is not on the map yet. Open the map on that phone, then run this again' end
 union all select 'Backend self-test', case when (select count(*) from public.kn_backend_selftest() where result not like 'PASS%') = 0 then 'YES' else 'NO: ' || (select string_agg(test, ', ') from public.kn_backend_selftest() where result not like 'PASS%') end
-union all select 'Everyone must be on version 83', case when (select min_build from private.config limit 1) = 83 then 'YES' else 'NO' end
-union all select 'Update news posted (only old versions see it)', case when exists (select 1 from public.announcements where for_old_build = 83 and not removed) then 'YES' else 'NO' end
+union all select 'Everyone must be on version 84', case when (select min_build from private.config limit 1) = 84 then 'YES' else 'NO' end
+union all select 'Update news posted (only old versions see it)', case when exists (select 1 from public.announcements where for_old_build = 84 and not removed) then 'YES' else 'NO' end
 union all select 'Your owner code (unchanged)', (select upper(invite_code) from private.config limit 1)
-union all select 'People who still need to update', (select count(*)::text from public.members where coalesce(app_build, 0) < 83 and (role <> 'guest' or expires_at > now()));
+union all select 'People who still need to update', (select count(*)::text from public.members where coalesce(app_build, 0) < 84 and (role <> 'guest' or expires_at > now()));
