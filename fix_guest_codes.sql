@@ -370,6 +370,8 @@ begin
   on conflict (user_id) do update set name = excluded.name, role = excluded.role, code = excluded.code,
     expires_at = excluded.expires_at, invited_by = excluded.invited_by, last_seen = now(), last_login = now(),
     home_lat = excluded.home_lat, home_lng = excluded.home_lng, locked = excluded.locked;
+  -- the recovery code comes along; the old phone's device key does not (so the old copy can never pull it back)
+  begin execute 'update public.members set rec_hash = (select rec_hash from public.members where user_id = $1), dev_hash = null where user_id = $2' using h.user_id, me; exception when others then null; end;
   -- bring their sightings, reports and drives along, then retire the Safari login
   begin update public.sightings set user_id = me where user_id = h.user_id; exception when others then null; end;
   begin update public.reports set user_id = me where user_id = h.user_id; exception when others then null; end;

@@ -495,6 +495,104 @@ create policy pn_own on public.private_notes for all to authenticated using (use
 grant select, insert, update, delete on public.private_notes to authenticated;
 
 
+
+-- ---------- STAY SIGNED IN: device keys and recovery codes ----------
+-- Every phone keeps a secret device key. If its sign-in is ever lost (phone slept mid-refresh, storage hiccup),
+-- it gets a fresh sign-in and the device key reconnects it to the exact same membership, silently.
+-- Owners and admins can also make a personal recovery code that brings their account back on any phone.
+alter table public.members add column if not exists dev_hash text;
+alter table public.members add column if not exists rec_hash text;
+create index if not exists members_dev_hash on public.members (dev_hash);
+create index if not exists members_rec_hash on public.members (rec_hash);
+create table if not exists public.recovery_tries (user_id uuid, at timestamptz not null default now());
+alter table public.recovery_tries enable row level security;
+revoke all on public.recovery_tries from anon, authenticated;
+
+create or replace function public.kn_hash(t text) returns text language sql immutable as $$
+  select encode(sha256(convert_to(upper(regexp_replace(coalesce(t, ''), '[^A-Za-z0-9]', '', 'g')), 'UTF8')), 'hex') $$;
+
+-- move a membership (and everything it owns) to the person calling, the same way a reinstall handover does
+create or replace function public.kn_take_over(p_old uuid)
+returns json language plpgsql security definer set search_path = public as $$
+#variable_conflict use_column
+declare m public.members; me uuid := auth.uid();
+begin
+  if me is null then raise exception 'not signed in'; end if;
+  select * into m from public.members where user_id = p_old;
+  if not found then return json_build_object('ok', false, 'reason', 'gone'); end if;
+  if m.role = 'guest' and m.expires_at is not null and m.expires_at <= now() then return json_build_object('ok', false, 'reason', 'expired'); end if;
+  if p_old = me then return json_build_object('ok', true, 'role', m.role, 'expires_at', m.expires_at, 'name', m.name, 'locked', m.locked); end if;
+  perform set_config('kn.handover', '1', true);
+  insert into public.members (user_id, name, role, code, expires_at, last_seen, invited_by, last_login, home_lat, home_lng, locked, dev_hash, rec_hash)
+  values (me, m.name, m.role, m.code, m.expires_at, now(), m.invited_by, now(), m.home_lat, m.home_lng, m.locked, m.dev_hash, m.rec_hash)
+  on conflict (user_id) do update set name = excluded.name, role = excluded.role, code = excluded.code, expires_at = excluded.expires_at,
+    invited_by = excluded.invited_by, last_seen = now(), last_login = now(), home_lat = excluded.home_lat, home_lng = excluded.home_lng,
+    locked = excluded.locked, dev_hash = excluded.dev_hash, rec_hash = excluded.rec_hash;
+  begin update public.sightings set user_id = me where user_id = p_old; exception when others then null; end;
+  begin update public.reports set user_id = me where user_id = p_old; exception when others then null; end;
+  begin update public.drives set user_id = me where user_id = p_old; exception when others then null; end;
+  begin update public.private_notes set user_id = me where user_id = p_old; exception when others then null; end;
+  begin delete from public.live_locs where user_id = p_old; exception when others then null; end;
+  delete from public.members where user_id = p_old;
+  perform set_config('kn.handover', '', true);
+  return json_build_object('ok', true, 'role', m.role, 'expires_at', m.expires_at, 'name', m.name, 'locked', m.locked);
+end $$;
+revoke all on function public.kn_take_over(uuid) from public, anon, authenticated;
+
+create or replace function public.set_device_key(p_key text)
+returns void language plpgsql security definer set search_path = public as $$
+begin
+  if char_length(coalesce(p_key, '')) < 24 then raise exception 'bad key'; end if;
+  update public.members set dev_hash = public.kn_hash(p_key) where user_id = auth.uid();
+end $$;
+grant execute on function public.set_device_key(text) to authenticated;
+
+create or replace function public.recover_device(p_key text)
+returns json language plpgsql security definer set search_path = public as $$
+declare o uuid; r json;
+begin
+  if auth.uid() is null or char_length(coalesce(p_key, '')) < 24 then return json_build_object('ok', false, 'reason', 'none'); end if;
+  select user_id into o from public.members where dev_hash = public.kn_hash(p_key) order by last_seen desc nulls last limit 1;
+  if o is null then return json_build_object('ok', false, 'reason', 'none'); end if;
+  r := public.kn_take_over(o);
+  if (r->>'ok')::boolean and o <> auth.uid() then perform public.kn_log('login', (r->>'name') || '''s phone reconnected by itself after losing its sign-in'); end if;
+  return r;
+end $$;
+grant execute on function public.recover_device(text) to authenticated;
+
+create or replace function public.make_recovery_code()
+returns text language plpgsql security definer set search_path = public as $$
+declare a text := 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; c text := ''; i int;
+begin
+  if not exists (select 1 from public.members where user_id = auth.uid() and role in ('owner', 'admin')) then raise exception 'owners only'; end if;
+  for i in 1..16 loop c := c || substr(a, 1 + floor(random() * 32)::int, 1); end loop;
+  update public.members set rec_hash = public.kn_hash(c) where user_id = auth.uid();
+  perform public.kn_log('code', 'made a new personal recovery code (the old one stops working)');
+  return substr(c, 1, 4) || '-' || substr(c, 5, 4) || '-' || substr(c, 9, 4) || '-' || substr(c, 13, 4);
+end $$;
+grant execute on function public.make_recovery_code() to authenticated;
+
+create or replace function public.has_recovery_code()
+returns boolean language sql stable security definer set search_path = public as $$
+  select coalesce((select rec_hash is not null from public.members where user_id = auth.uid()), false) $$;
+grant execute on function public.has_recovery_code() to authenticated;
+
+create or replace function public.use_recovery_code(p_code text)
+returns json language plpgsql security definer set search_path = public as $$
+declare o uuid; r json;
+begin
+  if auth.uid() is null then raise exception 'not signed in'; end if;
+  if (select count(*) from public.recovery_tries where user_id = auth.uid() and at > now() - interval '1 hour') >= 8 then
+    return json_build_object('ok', false, 'reason', 'tries'); end if;
+  select user_id into o from public.members where rec_hash = public.kn_hash(p_code) and rec_hash is not null limit 1;
+  if o is null then insert into public.recovery_tries (user_id) values (auth.uid()); return json_build_object('ok', false, 'reason', 'wrong'); end if;
+  r := public.kn_take_over(o);
+  if (r->>'ok')::boolean then perform set_config('kn.handover', '1', true); update public.members set dev_hash = null where user_id = auth.uid(); perform set_config('kn.handover', '', true);
+    perform public.kn_log('login', (r->>'name') || ' signed back in with their recovery code'); end if;
+  return r;
+end $$;
+grant execute on function public.use_recovery_code(text) to authenticated;
+
 -- ---------- SUGGESTIONS: anyone on the map can send one, only the protected account can read them ----------
 create table if not exists public.suggestions (
   id bigserial primary key,
