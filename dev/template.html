@@ -724,6 +724,21 @@ textarea.inp{font:inherit;font-size:16px;line-height:1.4}
 #lbox .lba button{height:40px;padding:0 14px;border-radius:20px;background:rgba(255,255,255,.14);color:#fff;font:700 13.5px system-ui;display:inline-flex;align-items:center;gap:6px}
 .qrw{margin:14px auto 0;padding:18px;border-radius:24px;background:#fff;box-shadow:0 10px 30px rgba(60,40,10,.18),inset 0 0 0 1px var(--hair);text-align:center;max-width:300px}
 .qrw svg{display:block;margin:0 auto;border-radius:8px}.qrw .qrc{font-size:26px;font-weight:800;color:#1f4d36;letter-spacing:.22em;margin-top:10px}.qrw small{display:block;color:#7a6548;font-size:12.5px;margin-top:4px}
+
+#demoBar{position:fixed;left:50%;transform:translateX(-50%);top:calc(var(--safe-t) + 112px);z-index:30;display:flex;align-items:center;gap:8px;padding:5px 5px 5px 12px;border-radius:999px;background:rgba(20,28,22,.86);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:#fff;font:700 13px system-ui;box-shadow:0 6px 18px rgba(0,0,0,.3)}
+#demoBar .dmd{width:8px;height:8px;border-radius:50%;background:#ffc23d;box-shadow:0 0 0 3px rgba(255,194,61,.25);animation:dmp 1.6s infinite}
+#demoBar button{height:28px;padding:0 12px;border-radius:14px;background:rgba(255,255,255,.14);color:#ffd36b;font:800 12.5px system-ui}
+@keyframes dmp{50%{opacity:.35}}
+
+.pr2{display:flex;align-items:center;gap:12px;width:100%;padding:10px 2px;border-bottom:1px solid var(--hair);text-align:left;background:none}
+.pr2:last-child{border-bottom:0}.pr2 .gav{width:38px;height:38px;font-size:15px;flex:none}
+.pr2m{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}.pr2n{display:flex;align-items:center;flex-wrap:wrap;gap:5px}.pr2n b{font-size:16px;font-weight:700;margin-right:2px}.pr2n .tag{margin-left:0!important}
+.pr2 small{color:var(--sub);font-size:12.5px;display:flex;align-items:center;gap:6px}.pr2 .ar{color:var(--sub);font-size:22px;line-height:1}
+.dotg{width:7px;height:7px;border-radius:50%;background:#188038;display:inline-block;box-shadow:0 0 0 3px rgba(24,128,56,.15)}
+.pc{display:flex;align-items:center;gap:14px}.gav.big{width:58px;height:58px;font-size:24px;flex:none}
+.av-db{background:linear-gradient(160deg,#2b3a4a,#111a22)!important;box-shadow:0 0 0 2px #9fb3c8!important}
+.tag.t-db{background:#1d2a36!important;color:#cfe0f2!important;border-color:#3d5266!important}
+body.night .tag.t-db{background:rgba(159,179,200,.14)!important;color:#cfe0f2!important}
 </style>
 </head>
 <body>
@@ -905,7 +920,7 @@ const AF={
 // ---------- roles ----------
 'What you can do':'Wat jy kan doen','What a guest can do':'Wat \'n gas kan doen','Everything owners can do':'Alles wat eienaars kan doen','Everything guests can do':'Alles wat gaste kan doen','Delete any sighting':'Skrap enige waarneming','Remove wrong or fake sightings for everyone':'Verwyder verkeerde of vals waarnemings vir almal','Post announcements that everyone sees':'Plaas aankondigings wat almal sien','Make owners into admins (or back) and remove anyone from the map':'Maak eienaars admins (of terug) en verwyder enigiemand van die kaart','Invite another owner with a one-time code':'Nooi nog \'n eienaar met \'n eenmalige kode','Map, navigation, sightings, road reports, SOS, live location and drives':'Kaart, navigasie, waarnemings, padverslae, SOS, lewendige ligging en ritte','Satellite and road map, offline download, search and turn-by-turn navigation with junction previews':'Satelliet- en padkaart, vanlyn aflaai, soek en stap-vir-stap-navigasie met kruisingvoorskoue','See every sighting live, add your own with a photo, tap Still here, and get alerts for the animals you choose':'Sien elke waarneming lewendig, voeg jou eie met \'n foto by, tik Nog hier, en kry waarskuwings vir die diere wat jy kies','Warn others about washed-out, muddy or blocked roads, and confirm or clear reports':'Waarsku ander oor weggespoelde, modderige of versperde paaie, en bevestig of verwyder verslae','Send an emergency alert to everyone on the map and see who is on the way':'Stuur \'n noodwaarskuwing aan almal op die kaart en sien wie op pad is','Record your drives and get a summary and share card':'Neem jou ritte op en kry \'n opsomming en deelkaart','Home point, guest codes, owner invites and the people list':'Huispunt, gaskodes, eienaaruitnodigings en die mense-lys','Codes made, people joining and leaving, cars at the gates, SOS and road reports':'Kodes gemaak, mense wat aansluit en weggaan, karre by die hekke, SOS en padverslae','The house button takes you to the home of the owner who invited you':'Die huisknoppie neem jou na die huis van die eienaar wat jou genooi het','You are logged out automatically when your code ends':'Jy word outomaties afgeteken wanneer jou kode verval','You will be logged out automatically when the code ends.':'Jy word outomaties afgeteken wanneer die kode verval.','You will be logged out automatically when your guest code ends.':'Jy word outomaties afgeteken wanneer jou gaskode verval.','Up to 4 people can use the admin code':'Tot 4 mense kan die admin-kode gebruik','One-time code, just for you.':'Eenmalige kode, net vir jou.','One-time code. Your access never expires.':'Eenmalige kode. Jou toegang verval nooit nie.','Your access stays until an admin removes it':'Jou toegang bly totdat \'n admin dit verwyder','Please keep this code to yourself.':'Hou asseblief hierdie kode vir jouself.',"You're an admin on the Khaya Ndlovu map. This is your pass.":'Jy is \'n admin op die Khaya Ndlovu-kaart. Dit is jou pas.',"You're an owner on the Khaya Ndlovu map. This is your pass.":'Jy is \'n eienaar op die Khaya Ndlovu-kaart. Dit is jou pas.',"You're a guest on the Khaya Ndlovu map. This is your pass.":'Jy is \'n gas op die Khaya Ndlovu-kaart. Dit is jou pas.','Guest pass':'Gaspas','Owner invite':'Eienaaruitnodiging','Admin and owner invites':'Admin- en eienaaruitnodigings','Owner invites':'Eienaaruitnodigings',
 // ---------- menu ----------
-'Best time':'Beste tyd','Sun, moon, animals':'Son, maan, diere','Record drive':'Neem rit op','Save your route':'Stoor jou roete','Stop drive':'Stop rit','Set your home':'Stel jou huis','Codes & members':'Kodes en lede','My drives':'My ritte','Summaries':'Opsommings','No announcements':'Geen aankondigings nie','No announcements right now':'Geen aankondigings op die oomblik nie','Share live location':'Deel lewendige ligging','Share my live location':'Deel my lewendige ligging','On · showing':'Aan · word gewys','Offline map':'Vanlynkaart','Demo drive':'Demonstrasierit','Test the navigation at home':'Toets die navigasie by die huis','Help & install':'Hulp en installeer','Sign out':'Teken af','Sign out?':'Teken af?','Signing out...':'Teken tans af...','Today on the reserve':'Vandag op die reservaat','Nothing new':'Niks nuuts nie','Announcements':'Aankondigings','Announcement':'Aankondiging','Live announcements':'Lewendige aankondigings','Post announcement':'Plaas aankondiging','Write anything. Everyone sees it as a pop-up when they open the map.':'Skryf enigiets. Almal sien dit as \'n opspringer wanneer hulle die kaart oopmaak.','e.g. Gate code changed to 4821. Firebreak burning on Bloubank Thursday, avoid Blok 3.':'bv. Hekkode verander na 4821. Brandstrook brand Donderdag op Bloubank, vermy Blok 3.','Write something first':'Skryf eers iets','Posted. Everyone will see it.':'Geplaas. Almal sal dit sien.','Spotted by':'Gesien deur','Added by':'Bygevoeg deur','Invited by':'Genooi deur','Last seen':'Laas gesien','Last updated':'Laas bygewerk','Last sync':'Laaste sinkronisering','Sync now':'Sinkroniseer nou','Not synced yet':'Nog nie gesinkroniseer nie',
+'Best time':'Beste tyd','Sun, moon, animals':'Son, maan, diere','Record drive':'Neem rit op','Save your route':'Stoor jou roete','Stop drive':'Stop rit','Set your home':'Stel jou huis','Codes & members':'Kodes en lede','My drives':'My ritte','Summaries':'Opsommings','No announcements':'Geen aankondigings nie','No announcements right now':'Geen aankondigings op die oomblik nie','Share live location':'Deel lewendige ligging','Share my live location':'Deel my lewendige ligging','On · showing':'Aan · word gewys','Offline map':'Vanlynkaart','Demo drive':'Demonstrasiemodus','Test the navigation at home':'Toets die navigasie by die huis','Pretend to be anywhere and test everything':'Maak asof jy enige plek is en toets alles','Demo mode':'Demonstrasiemodus','Exit demo mode':'Verlaat demonstrasiemodus','Back to your real location':'Terug na jou regte ligging','Help & install':'Hulp en installeer','Sign out':'Teken af','Sign out?':'Teken af?','Signing out...':'Teken tans af...','Today on the reserve':'Vandag op die reservaat','Nothing new':'Niks nuuts nie','Announcements':'Aankondigings','Announcement':'Aankondiging','Live announcements':'Lewendige aankondigings','Post announcement':'Plaas aankondiging','Write anything. Everyone sees it as a pop-up when they open the map.':'Skryf enigiets. Almal sien dit as \'n opspringer wanneer hulle die kaart oopmaak.','e.g. Gate code changed to 4821. Firebreak burning on Bloubank Thursday, avoid Blok 3.':'bv. Hekkode verander na 4821. Brandstrook brand Donderdag op Bloubank, vermy Blok 3.','Write something first':'Skryf eers iets','Posted. Everyone will see it.':'Geplaas. Almal sal dit sien.','Spotted by':'Gesien deur','Added by':'Bygevoeg deur','Invited by':'Genooi deur','Last seen':'Laas gesien','Last updated':'Laas bygewerk','Last sync':'Laaste sinkronisering','Sync now':'Sinkroniseer nou','Not synced yet':'Nog nie gesinkroniseer nie',
 // ---------- sightings hub ----------
 'On the map':'Op die kaart','All animals':'Alle diere','Animals seen':'Diere gesien','Seen along the way':'Langs die pad gesien','Most seen':'Meeste gesien','Animal profiles':'Dierprofiele','When to look for each animal':'Wanneer om na elke dier te soek','Learned from every sighting people have marked. Gets smarter over time.':'Geleer uit elke waarneming wat mense gemerk het. Word mettertyd slimmer.','Nothing learned yet. Profiles build up as people mark sightings.':'Nog niks geleer nie. Profiele bou op soos mense waarnemings merk.','Nothing spotted yet today. Be the first: tap the map or +.':'Nog niks vandag gesien nie. Wees die eerste: tik die kaart of +.','No sightings in the last 24 hours. Tap the map or + to add one.':'Geen waarnemings in die laaste 24 uur nie. Tik die kaart of + om een by te voeg.','No road problems reported. Tap + then Road report to add one.':'Geen padprobleme aangemeld nie. Tik + en dan Padverslag om een by te voeg.','Road reports today':'Padverslae vandag','Mark a sighting':'Merk \'n waarneming','Mark sightings while you drive and they show here':'Merk waarnemings terwyl jy ry en hulle wys hier','No photos here yet. Add one from a sighting with Add photo.':'Nog geen foto\'s hier nie. Voeg een by \'n waarneming by met Voeg foto by.','Loading photos...':'Laai foto\'s...','Pinned as photo of the week':'Vasgespeld as foto van die week','Unpinned':'Losgemaak','Confirmed still here':'Bevestig nog hier','confirmed still there':'bevestig nog daar','Tap if you can see it right now. Keeps the sighting fresh for everyone.':'Tik as jy dit nou kan sien. Hou die waarneming vars vir almal.','Get within 400 m to confirm it or add a photo':'Kom binne 400 m om dit te bevestig of \'n foto by te voeg','Get within 400 m of the sighting first':'Kom eers binne 400 m van die waarneming','Get within 400 m of the sighting to add a photo':'Kom binne 400 m van die waarneming om \'n foto by te voeg','Tap Not here when you have checked this spot. It disappears for everyone.':'Tik Nie hier nie wanneer jy hierdie kol nagegaan het. Dit verdwyn vir almal.','Get closer to this spot first, then tap Not here':'Kom eers nader aan hierdie kol, tik dan Nie hier nie',"Thanks, noted that it's gone":'Dankie, aangeteken dat dit weg is','Moves between sightings':'Beweeg tussen waarnemings','Based on':'Gebaseer op','Usually in':'Gewoonlik in','Best chance around that time of day':'Beste kans rondom daardie tyd van die dag','Sighting stays fresh for':'Waarneming bly vars vir','On the map for':'Op die kaart vir','Spotted again after':'Weer gesien na','Delete the old map icon':'Skrap die ou kaartikoon',
 // ---------- add sheet ----------
@@ -933,7 +948,7 @@ const AF={
 // ---------- tally ----------
 'Lion, leopard, elephant, buffalo and rhino, all in one day':'Leeu, luiperd, olifant, buffel en renoster, alles op een dag',
 // ---------- misc ----------
-'Khaya Ndlovu Map':'Khaya Ndlovu-kaart','Khaya Ndlovu Game Drive Map':'Khaya Ndlovu-wildritkaart','Thanks!':'Dankie!','Where you tapped':'Waar jy getik het','Set':'Gestel','This account is protected and cannot be removed':'Hierdie rekening is beskerm en kan nie verwyder word nie','This account is protected and its role cannot be changed':'Hierdie rekening is beskerm en sy rol kan nie verander word nie','Copy the link instead':'Kopieer eerder die skakel',"Didn't open Safari? Tap Copy the link, open Safari and paste it in the address bar.":'Het Safari nie oopgemaak nie? Tik Kopieer eerder die skakel, maak Safari oop en plak dit in die adresbalk.',"Didn't open Chrome? Tap Copy the link, open Chrome and paste it in the address bar.":'Het Chrome nie oopgemaak nie? Tik Kopieer eerder die skakel, maak Chrome oop en plak dit in die adresbalk.','Link copied. Open Safari, tap the address bar, paste it and go.':'Skakel gekopieer. Maak Safari oop, tik die adresbalk, plak dit en gaan.','Link copied. Open Chrome, tap the address bar, paste it and go.':'Skakel gekopieer. Maak Chrome oop, tik die adresbalk, plak dit en gaan.','Reinstall now':'Herinstalleer nou','It opens in Chrome, already signed in as you':'Dit maak in Chrome oop, reeds as jy aangeteken','It opens in Safari, already signed in as you':'Dit maak in Safari oop, reeds as jy aangeteken','Press and hold it on your Home screen, then Remove or Uninstall':'Druk en hou dit op jou Tuisskerm, dan Verwyder of Deïnstalleer','In Chrome tap ⋮, then Add to Home screen':'Tik in Chrome op ⋮, dan Voeg by Tuisskerm',"You get your own link with your name and access already in it. Open it, add the map to your Home Screen again and you're signed in straight away. Your old copy is removed once you open the new one.":'Jy kry jou eie skakel met jou naam en toegang reeds daarin. Maak dit oop, voeg die kaart weer by jou Tuisskerm en jy is dadelik aangeteken. Jou ou kopie word verwyder sodra jy die nuwe een oopmaak.','Add it again':'Voeg dit weer by','Moved on':'Het aanbeweeg','Not here':'Nie hier nie','Tap to change':'Tik om te verander','Breakdown':'Onklaar','Flat tyre':'Pap band','Stuck':'Vas','Medical':'Medies','Animal danger':'Gevaarlike dier','Accident':'Ongeluk','Out of fuel':'Brandstof op','Washed out':'Weggespoel','Blocked by animal':'Deur dier versper','Fallen tree':'Omgevalle boom','Muddy':'Modderig','Deep water':'Diep water','GPS locked (±5 m)':'GPS vas (±5 m)',
+'Khaya Ndlovu Map':'Khaya Ndlovu-kaart','Khaya Ndlovu Game Drive Map':'Khaya Ndlovu-wildritkaart','Thanks!':'Dankie!','Where you tapped':'Waar jy getik het','Set':'Gestel','Database':'Databasis','Update':'Opdateer','Role':'Rol','Status':'Status','Access until':'Toegang tot','Never expires':'Verval nooit','Joined':'Aangesluit','Last signed in':'Laas aangeteken','App version':'App-weergawe','Not seen yet':'Nog nie gesien nie','Protected account':'Beskermde rekening','What they can do':'Wat hulle kan doen','This is the database account that runs the map. It has every admin power, and nobody can remove it or change its role.':'Dit is die databasisrekening wat die kaart bestuur. Dit het alle admin-magte, en niemand kan dit verwyder of sy rol verander nie.','Manage':'Bestuur','Can do everything an owner can, plus admin tools':"Kan alles doen wat 'n eienaar kan, plus admin-gereedskap",'Takes away the admin tools':'Neem die admin-gereedskap weg','Remove from the map':'Verwyder van die kaart','They are logged out straight away':'Hulle word dadelik afgeteken','Removing...':'Verwyder tans...','not active since the update':'nie aktief sedert die opdatering nie','active now':'nou aktief','needs the update':'het die opdatering nodig','up to date':'op datum','Has not opened the new version yet':'Het nog nie die nuwe weergawe oopgemaak nie',"What's new":'Wat is nuut','Look around while you drive':'Kyk rond terwyl jy ry','Drag or pinch the map during a route to look ahead or around. Your route stays on, tap Re-centre to jump back.':"Sleep of knyp die kaart tydens 'n roete om vorentoe of rond te kyk. Jou roete bly aan, tik Sentreer weer om terug te spring.",'Put yourself anywhere on the map, drive to any sighting, and see other phones that are in demo mode too. Nothing in demo mode is real or saved.':'Plaas jouself enige plek op die kaart, ry na enige waarneming en sien ander fone wat ook in demonstrasiemodus is. Niks in demonstrasiemodus is eg of word gestoor nie.','Got an idea or found a problem? Send it from the menu.':"Het jy 'n idee of 'n probleem gekry? Stuur dit vanaf die kieslys.",'Easier updates':'Makliker opdaterings','Big updates now give you your own link. It opens in Safari already signed in as you.':'Groot opdaterings gee jou nou jou eie skakel. Dit maak in Safari oop, reeds as jy aangeteken.','Mark a lion, leopard, cheetah, wild dog or hyena as on a kill. It stays on the map for 2 days and alerts everyone.':"Merk 'n leeu, luiperd, jagluiperd, wildehond of hiëna as by 'n prooi. Dit bly 2 dae op die kaart en waarsku almal.",'No alert sounds from 19:30 to 06:00 unless you are out driving. SOS always comes through.':'Geen waarskuwingsklanke van 19:30 tot 06:00 nie, tensy jy buite ry. SOS kom altyd deur.','A heads up 40 minutes before sunset if you are still out and far from home.':"'n Waarskuwing 40 minute voor sononder as jy nog buite en ver van die huis is.",'Big Five tally':'Groot Vyf-telling','See which of the Big Five you have spotted today, in the menu and on your drive card.':'Sien watter van die Groot Vyf jy vandag gesien het, in die kieslys en op jou ritkaart.','Photo album':'Fotoalbum','Every sighting photo from the last 30 days, in Sightings › Photos.':"Elke waarnemingsfoto van die laaste 30 dae, in Waarnemings › Foto's.",'Private notes':'Privaat notas','Pins only you can see. Tap the map, then Note.':'Spelde wat net jy kan sien. Tik die kaart, dan Nota.','Who is out now':'Wie is nou buite','Tap Out now on the map to see who is driving.':'Tik Nou buite op die kaart om te sien wie ry.','Guest pass QR code':'Gaspas-QR-kode','Your guest scans it with their camera and is in.':'Jou gas skandeer dit met hul kamera en is in.','Places and road closures':'Plekke en padsluitings','Add, move or remove places and close roads for everyone.':'Voeg plekke by, skuif of verwyder hulle en sluit paaie vir almal.','Choose Afrikaans at the top of Settings.':'Kies Afrikaans bo-aan Instellings.','Suggest something':'Stel iets voor','Ideas, problems or wishes for the map':'Idees, probleme of wense vir die kaart','Suggestions':'Voorstelle','Nothing yet':'Nog niks nie','Got an idea, found a problem, or want something added to the map? Write it here and it goes straight to the person who makes the map.':'Het jy \'n idee, \'n probleem gekry, of wil jy iets op die kaart hê? Skryf dit hier en dit gaan reguit na die persoon wat die kaart maak.','e.g. Add the new hide at the northern dam':'bv. Voeg die nuwe skuiling by die noordelike dam by','Send suggestion':'Stuur voorstel','Sending...':'Stuur tans...','Sent, thank you!':'Gestuur, dankie!','You need signal to send it':'Jy het sein nodig om dit te stuur','Write a bit more first':'Skryf eers \'n bietjie meer','That is 10 suggestions today already, try again tomorrow':'Dit is al 10 voorstelle vandag, probeer môre weer','New suggestion':'Nuwe voorstel','See all':'Sien almal','Only you can see these. Everyone on the map can send one from the menu.':'Net jy kan dit sien. Almal op die kaart kan een vanaf die kieslys stuur.','No suggestions yet.':'Nog geen voorstelle nie.','Sure?':'Seker?','New':'Nuut','Demo':'Demo','Demo mode is already on':'Demonstrasiemodus is reeds aan',"Demo mode. Tap anywhere on the map and choose I'm here to move yourself there. Tap a sighting and Go to drive to it.":'Demonstrasiemodus. Tik enige plek op die kaart en kies Ek is hier om jouself daarheen te skuif. Tik \'n waarneming en Ry om daarheen te ry.','Demo ended. Back to your real location.':'Demonstrasie verby. Terug na jou regte ligging.',"I'm here":'Ek is hier','Move yourself to this spot':'Skuif jouself na hierdie kol','Drive here':'Ry hierheen','Navigate here from where you are now':'Navigeer hierheen van waar jy nou is','Add a sighting here':'Voeg \'n waarneming hier by','Only phones in demo mode see it':'Slegs fone in demonstrasiemodus sien dit',"Nothing you do in demo mode is saved or shown to anyone who isn't in demo mode.":'Niks wat jy in demonstrasiemodus doen, word gestoor of gewys aan iemand wat nie in demonstrasiemodus is nie.',"You're here now":'Jy is nou hier','Off the roads':'Van die paaie af','This account is protected and cannot be removed':'Hierdie rekening is beskerm en kan nie verwyder word nie','This account is protected and its role cannot be changed':'Hierdie rekening is beskerm en sy rol kan nie verander word nie','Copy the link instead':'Kopieer eerder die skakel',"Didn't open Safari? Tap Copy the link, open Safari and paste it in the address bar.":'Het Safari nie oopgemaak nie? Tik Kopieer eerder die skakel, maak Safari oop en plak dit in die adresbalk.',"Didn't open Chrome? Tap Copy the link, open Chrome and paste it in the address bar.":'Het Chrome nie oopgemaak nie? Tik Kopieer eerder die skakel, maak Chrome oop en plak dit in die adresbalk.','Link copied. Open Safari, tap the address bar, paste it and go.':'Skakel gekopieer. Maak Safari oop, tik die adresbalk, plak dit en gaan.','Link copied. Open Chrome, tap the address bar, paste it and go.':'Skakel gekopieer. Maak Chrome oop, tik die adresbalk, plak dit en gaan.','Reinstall now':'Herinstalleer nou','It opens in Chrome, already signed in as you':'Dit maak in Chrome oop, reeds as jy aangeteken','It opens in Safari, already signed in as you':'Dit maak in Safari oop, reeds as jy aangeteken','Press and hold it on your Home screen, then Remove or Uninstall':'Druk en hou dit op jou Tuisskerm, dan Verwyder of Deïnstalleer','In Chrome tap ⋮, then Add to Home screen':'Tik in Chrome op ⋮, dan Voeg by Tuisskerm',"You get your own link with your name and access already in it. Open it, add the map to your Home Screen again and you're signed in straight away. Your old copy is removed once you open the new one.":'Jy kry jou eie skakel met jou naam en toegang reeds daarin. Maak dit oop, voeg die kaart weer by jou Tuisskerm en jy is dadelik aangeteken. Jou ou kopie word verwyder sodra jy die nuwe een oopmaak.','Add it again':'Voeg dit weer by','Moved on':'Het aanbeweeg','Not here':'Nie hier nie','Tap to change':'Tik om te verander','Breakdown':'Onklaar','Flat tyre':'Pap band','Stuck':'Vas','Medical':'Medies','Animal danger':'Gevaarlike dier','Accident':'Ongeluk','Out of fuel':'Brandstof op','Washed out':'Weggespoel','Blocked by animal':'Deur dier versper','Fallen tree':'Omgevalle boom','Muddy':'Modderig','Deep water':'Diep water','GPS locked (±5 m)':'GPS vas (±5 m)',
 };
 // full-string patterns
 const _a=x=>ANAF[x]||x,_al=x=>(ANAF[x]||x).toLowerCase(),_r=x=>RKAF[x]||x;
@@ -975,7 +990,7 @@ const AFP=[
  [/^Sunset in (\d+) min$/,'Sononder oor $1 min'],[/^Sunset in (\d+) min · (.+) from home$/,'Sononder oor $1 min · $2 van die huis af'],[/^(.+) from home · about (.+) drive$/,'$1 van die huis af · omtrent $2 ry'],[/^(\d+) min drive$/,'$1 min ry'],
 [/^(\d+) h (\d+) min$/,'$1 h $2 min'],
  [/^viewing the (.+) sighting$/,(m,a)=>'kyk na die '+_al(a)+'-waarneming'],[/^(\d+) km\/h on (.+)$/,'$1 km/h op $2'],[/^driving on (.+)$/,'ry op $1'],[/^stopped on (.+)$/,'stilgehou op $1'],
- [/^(\d+) people$/,'$1 mense'],[/^(\d+) not shared yet · tap to see why$/,'$1 nog nie gedeel nie · tik om te sien hoekom'],[/^(\d+) waiting for signal$/,'$1 wag vir sein'],[/^(\d+) not shared yet$/,'$1 nog nie gedeel nie'],[/^Next one in (.+)$/,'Volgende een oor $1'],[/^(.+) needs help$/,'$1 het hulp nodig'],
+ [/^(\d+) people$/,'$1 mense'],[/^active (.+)$/,(m,a)=>'aktief '+_rel(a)],[/^Until (.+?) · invited by (.+)$/,'Tot $1 · genooi deur $2'],[/^Until (.+)$/,'Tot $1'],[/^Tap again to remove (.+)$/,'Tik weer om $1 te verwyder'],[/^Version (\d+) · (.+)$/,(m,n,b)=>'Weergawe '+n+' · '+(AF[b]||b)],[/^(\d+) from people on the map$/,'$1 van mense op die kaart'],[/^From (.+?) · (.+?) · (.+)$/,(m,a,b,c)=>'Van '+a+' · '+(AF[b]||b)+' · '+_rel(c)],[/^(\d+) not shared yet · tap to see why$/,'$1 nog nie gedeel nie · tik om te sien hoekom'],[/^(\d+) waiting for signal$/,'$1 wag vir sein'],[/^(\d+) not shared yet$/,'$1 nog nie gedeel nie'],[/^Next one in (.+)$/,'Volgende een oor $1'],[/^(.+) needs help$/,'$1 het hulp nodig'],
  [/^Guest until (.+)$/,'Gas tot $1'],[/^Valid until: (.+)$/,'Geldig tot: $1'],[/^Use it before (.+)$/,'Gebruik dit voor $1'],[/^The home of (.+)$/,'Die huis van $1'],
 ];
 function _live(a){const m=a.match(/^(stopped|driving|\d+ km\/h)(?: on (.+))?$/);if(!m)return a;return (m[1]==='stopped'?'stilgehou':m[1]==='driving'?'ry':m[1])+(m[2]?' op '+m[2]:'')}
@@ -1027,7 +1042,8 @@ function roadMid(name){const fs=ROADS.filter(f=>f.properties.name===name);let al
 function roadLen(name){return ROADS.filter(f=>f.properties.name===name).reduce((s,f)=>s+f.properties.len,0)}
 
 /* Dijkstra from a point (snapped on edge) to a point (snapped on edge) */
-function route(from,to){
+let AVOIDCHK=false;const CHECKR=new Set();
+function route(from,to){if(!CHECKR.size)ROADS.forEach((f,i)=>{if(f.properties.check)CHECKR.add(i)});
   const s=nearestEdge(from,1e9,null,true),t=nearestEdge(to,1e9,null,true);if(!s||!t)return null;
   const N=nodes.length,S=N,T=N+1;
   const ex=[];ex[S]=[];ex[T]=[];
@@ -1042,7 +1058,7 @@ function route(from,to){
   const pop=()=>{const top=heap[0],last=heap.pop();if(heap.length){heap[0]=last;let i=0;for(;;){const l=2*i+1,r=l+1;let m=i;if(l<heap.length&&heap[l][0]<heap[m][0])m=l;if(r<heap.length&&heap[r][0]<heap[m][0])m=r;if(m===i)break;[heap[m],heap[i]]=[heap[i],heap[m]];i=m}}return top};
   while(heap.length){const [d,u]=pop();if(done[u])continue;done[u]=1;if(u===T)break;
     const lst=(u<N?adj[u]:[]).concat(ex[u]||[]);
-    for(const {to,w,road} of lst){const nd=d+((blockedNodes.has(u)||blockedNodes.has(to)||CLOSEDR.has(road))?w+50000:w);if(nd<D[to]){D[to]=nd;P[to]=u;PR[to]=road;push([nd,to])}}}
+    for(const {to,w,road} of lst){const nd=d+((blockedNodes.has(u)||blockedNodes.has(to)||CLOSEDR.has(road)||(AVOIDCHK&&CHECKR.has(road)))?w+50000:w);if(nd<D[to]){D[to]=nd;P[to]=u;PR[to]=road;push([nd,to])}}}
   if(D[T]===Infinity)return null;
   const pts=[],rds=[];let u=T;while(u!==-1){pts.push(pos(u));rds.push(PR[u]);u=P[u]}
   pts.reverse();rds.reverse();// rds[i] = road used to arrive at pts[i]
@@ -1279,6 +1295,7 @@ const BLOCKING=['Washed out','Closed','Blocked by animal','Fallen tree','Deep wa
 let tracks=LS.get('tracks',[]);
 let calib=LS.get('calib',[0,0]);
 let curRoad=null, nav=null, recTrack=null, sim=null, offCount=0, lastPos=null, speedS=0;
+const DM={on:false,ll:null,hd:0,spd:0,segs:null,along:0,v:7,sights:[],reports:[],iv:null,bt:0};
 const DEMO_END=HOUSE2||DATA.pois.features[0].geometry.coordinates;
 const homeLL=()=>home?home.ll:DEMO_END;
 
@@ -1315,7 +1332,7 @@ async function api(path,opt={},retry=true){
   if(r.status===401&&retry){Cloud.sess.expires_at=0;return api(path,opt,false)}
   const t=await r.text();if(!r.ok)throw new Error(r.status+': '+t.slice(0,160));return t?JSON.parse(t):null;
 }
-function queue(op){if(!Cloud.on||!Cloud.member)return;Cloud.outbox.push(op);saveCloud();sync();clearTimeout(queue.t);queue.t=setTimeout(()=>{if(Cloud.outbox.length)sync()},2500)}
+function queue(op){if(!Cloud.on||!Cloud.member)return;{const id=String((op.row&&op.row.client_id)||op.cid||op.id||'');if(id.startsWith('demo-'))return}Cloud.outbox.push(op);saveCloud();sync();clearTimeout(queue.t);queue.t=setTimeout(()=>{if(Cloud.outbox.length)sync()},2500)}
 async function joinReserve(name,code){
   await ensureSession();
   let res;
@@ -1361,7 +1378,7 @@ async function sync(){
       api('/rest/v1/reports?select=client_id,user_id,name,kind,note,road,lat,lng,created_at'+(Cloud.noVotes?'':',confirms,confirmed_at')+'&resolved=is.false&expires_at=gt.'+now+'&order=created_at.desc&limit=400').catch(e=>{if(!Cloud.noVotes&&/^400/.test(String(e.message))){Cloud.noVotes=true;return api('/rest/v1/reports?select=client_id,user_id,name,kind,note,road,lat,lng,created_at&resolved=is.false&expires_at=gt.'+now+'&order=created_at.desc&limit=400')}throw e}),
       api('/rest/v1/members?select=user_id,role,expires_at').catch(()=>api('/rest/v1/members?select=user_id')),
       api('/rest/v1/map_data?select=version')]);
-    alertNew(s||[]);mergeLog(s||[]);backgroundJobs();loadPlaces();loadNotes();loadAnn();loadSos();if(!Cloud.noMiss)api('/rest/v1/animal_misses?select=client_id,user_id,name,what,lat,lng,created_at&created_at=gt.'+encodeURIComponent(new Date(Date.now()-864e5).toISOString())).then(x=>{Cloud.misses=x||[];refreshOverlays()}).catch(e=>{if(/404|PGRST20|does not exist|Could not find/.test(String(e.message||e)))Cloud.noMiss=true});if(Date.now()-LS.get('histT',0)>6*36e5){api('/rest/v1/sightings?select=client_id,what,lat,lng,created_at&created_at=gt.'+encodeURIComponent(new Date(Date.now()-365*864e5).toISOString())+'&order=created_at.desc&limit=5000').then(h=>{mergeLog(h||[]);LS.set('histT',Date.now());refreshOverlays()}).catch(()=>{})}
+    alertNew(s||[]);mergeLog(s||[]);backgroundJobs();loadPlaces();loadNotes();loadAnn();loadSug();loadSos();if(!Cloud.noMiss)api('/rest/v1/animal_misses?select=client_id,user_id,name,what,lat,lng,created_at&created_at=gt.'+encodeURIComponent(new Date(Date.now()-864e5).toISOString())).then(x=>{Cloud.misses=x||[];refreshOverlays()}).catch(e=>{if(/404|PGRST20|does not exist|Could not find/.test(String(e.message||e)))Cloud.noMiss=true});if(Date.now()-LS.get('histT',0)>6*36e5){api('/rest/v1/sightings?select=client_id,what,lat,lng,created_at&created_at=gt.'+encodeURIComponent(new Date(Date.now()-365*864e5).toISOString())+'&order=created_at.desc&limit=5000').then(h=>{mergeLog(h||[]);LS.set('histT',Date.now());refreshOverlays()}).catch(()=>{})}
     Cloud.remote={sightings:s||[],reports:r||[]};{const now_=Date.now(),M=m||[];Cloud.owners=M.filter(x=>!x.role||x.role!=='guest').length;Cloud.guests=M.filter(x=>x.role==='guest'&&x.expires_at&&Date.parse(x.expires_at)>now_).length}Cloud.lastSync=Date.now();Cloud.err=null;saveCloud();
     if(md&&md[0]&&md[0].version>MAP_VERSION&&LS.get('mapVer',0)<md[0].version){const full=await api('/rest/v1/map_data?select=version,data');if(full&&full[0]){try{localStorage.setItem('kn_mapdata',JSON.stringify(full[0].data));LS.set('mapVer',full[0].version);toast('Map update downloaded. It shows next time you open the app.',4500)}catch(e){}}}
     refreshOverlays();
@@ -1383,6 +1400,7 @@ async function rtConnect(){if(!Cloud.on||!Cloud.member||!navigator.onLine||RT.ws
   ws.onmessage=e=>{let m;try{m=JSON.parse(e.data)}catch(x){return}
     if(m.event==='phx_reply'&&m.topic===RT.topic&&m.payload&&m.payload.status==='ok'&&!RT.ok){RT.ok=true;RT.back=1000;sync()}
     else if(m.event==='postgres_changes'&&m.topic==='realtime:kn-live'){const d=m.payload&&m.payload.data;if(d)liveRow(d.type==='DELETE'?null:d.record,d.old_record)}
+    else if(m.event==='broadcast'&&m.payload&&m.payload.event==='demo'){demoRx(m.payload.payload)}
     else if(m.event==='broadcast'&&m.payload&&m.payload.event==='changed'){clearTimeout(RT.d);RT.d=setTimeout(()=>{sync();loadSos()},400)}
     else if(m.event==='phx_error'||m.event==='phx_close')try{ws.close()}catch(x){}};
   ws.onclose=()=>{clearInterval(RT.hb);RT.ws=null;RT.ok=false;if(Cloud.member&&navigator.onLine){setTimeout(rtConnect,RT.back);RT.back=Math.min(RT.back*2,60000)}};
@@ -1467,6 +1485,56 @@ function annPop(){const a=ANN.filter(x=>!annSeen.has(x.client_id)&&(!x.expires_a
   <div class="annb">${esc(a.body)}</div>${/^upd-/.test(a.client_id)&&Cloud.member?'<button class="btn pri" id="annRe" style="width:100%;margin-top:14px">'+LI('route',18)+' Reinstall now</button><div id="annSteps"></div>':''}<button class="btn${/^upd-/.test(a.client_id)&&Cloud.member?'':' pri'}" id="annOk" style="width:100%;margin-top:14px">${left>0?'Next ('+left+' more)':'Got it'}</button>`,()=>{
     if($('annRe'))$('annRe').onclick=()=>{$('annRe').classList.add('hide');reinstall('annSteps')};
     $('annOk').onclick=()=>{annSeen.add(a.client_id);LS.set('annSeen',[...annSeen].slice(-200));closeSheet();setTimeout(annPop,400)}})}
+
+
+/* ============ what's new: shown once to owners and admins after an update ============ */
+const WHATS_NEW=[
+ [75,'route','Look around while you drive','Drag or pinch the map during a route to look ahead or around. Your route stays on, tap Re-centre to jump back.'],
+ [75,'play','Demo mode','Put yourself anywhere on the map, drive to any sighting, and see other phones that are in demo mode too. Nothing in demo mode is real or saved.'],
+ [75,'msg','Suggest something','Got an idea or found a problem? Send it from the menu.'],
+ [72,'down','Easier updates','Big updates now give you your own link. It opens in Safari already signed in as you.'],
+ [70,'paw','On a kill','Mark a lion, leopard, cheetah, wild dog or hyena as on a kill. It stays on the map for 2 days and alerts everyone.'],
+ [70,'moon','Quiet hours','No alert sounds from 19:30 to 06:00 unless you are out driving. SOS always comes through.'],
+ [70,'sun','Sunset reminder','A heads up 40 minutes before sunset if you are still out and far from home.'],
+ [70,'star','Big Five tally','See which of the Big Five you have spotted today, in the menu and on your drive card.'],
+ [70,'cam','Photo album','Every sighting photo from the last 30 days, in Sightings › Photos.'],
+ [70,'lock','Private notes','Pins only you can see. Tap the map, then Note.'],
+ [70,'users','Who is out now','Tap Out now on the map to see who is driving.'],
+ [70,'ticket','Guest pass QR code','Your guest scans it with their camera and is in.'],
+ [70,'pin','Places and road closures','Add, move or remove places and close roads for everyone.','admin'],
+ [70,'msg','Afrikaans','Choose Afrikaans at the top of Settings.'],
+];
+function whatsNew(){const m=Cloud.member;if(!m||m.role==='guest')return;const last=LS.get('wnSeen',0);
+  if(last>=APP_BUILD&&last)return;
+  // brand new phone: nothing to compare with. Already using the map before this feature existed: show everything since version 70
+  const from=last||(LS.get('onboarded',false)?69:0);if(!from){LS.set('wnSeen',APP_BUILD);return}
+  if(nav||$('sheet').classList.contains('open')||!$('gate').classList.contains('hide')||needRole()){setTimeout(whatsNew,8000);return}
+  const L=WHATS_NEW.filter(x=>x[0]>from&&x[0]<=APP_BUILD&&(!x[4]||x[4]===m.role));LS.set('wnSeen',APP_BUILD);if(!L.length)return;
+  openSheet(`<div style="text-align:center;padding-top:4px"><div style="color:var(--blue)">${LI('star',38)}</div><h2 style="margin:4px 0 2px">What's new</h2><div class="sub">Version ${APP_BUILD}</div></div>
+   <div class="list sgroup" style="margin-top:12px">${L.map(x=>`<div class="it"><span class="lki" style="background:#1f4d36">${LI(x[1],19)}</span><div style="flex:1;min-width:0"><b>${esc(x[2])}</b><br><small>${esc(x[3])}</small></div></div>`).join('')}</div>
+   <button class="btn pri" id="wnOk" style="width:100%;margin-top:14px">Got it</button>`,()=>{$('wnOk').onclick=closeSheet})}
+setTimeout(whatsNew,6000);
+/* ============ suggestions: anyone sends, only the protected account reads ============ */
+const SUG={list:[],seen:new Set(LS.get('sugSeen',[])),t:0};
+function sugSheet(){openSheet(`<h2>Suggest something</h2><div class="sub">Got an idea, found a problem, or want something added to the map? Write it here and it goes straight to the person who makes the map.</div>
+   <textarea class="inp" id="sgBody" maxlength="1000" placeholder="e.g. Add the new hide at the northern dam" style="height:120px;padding-top:12px;resize:none;margin-top:12px"></textarea>
+   <button class="btn pri" id="sgGo" style="width:100%;margin-top:12px">Send suggestion</button>`,()=>{
+    $('sgGo').onclick=async()=>{const b=$('sgBody').value.trim();if(b.length<2){toast('Write a bit more first');return}if(!navigator.onLine){toast('You need signal to send it');return}
+      $('sgGo').textContent='Sending...';try{await rpc('send_suggestion',{p_body:b});rtPing();closeSheet();toast('Sent, thank you!',3000)}catch(e){$('sgGo').textContent='Send suggestion';toast(/members only/.test(e.message)?'Join the map first':/10 suggestions/.test(e.message)?'That is 10 suggestions today already, try again tomorrow':errTxt(e),5000)}}})}
+async function loadSug(){if(!Cloud.member||!Cloud.member.locked||!navigator.onLine)return;try{SUG.list=await rpc('list_suggestions',{})||[];SUG.t=Date.now();sugPop()}catch(e){}}
+function sugPop(){const x=SUG.list.find(q=>!q.read&&!SUG.seen.has(q.id));if(!x||nav||$('sheet').classList.contains('open')||!$('gate').classList.contains('hide'))return;
+  const left=SUG.list.filter(q=>!q.read&&!SUG.seen.has(q.id)).length-1;
+  openSheet(`<div style="text-align:center;padding-top:4px"><div style="color:#0b8043">${LI('msg',40)}</div><h2 style="margin:4px 0 2px">New suggestion</h2><div class="sub">From ${esc(x.name||'Someone')} · ${esc(ROLE_NM[x.role]||x.role||'')} · ${esc(ago(Date.parse(x.created_at)))}</div></div>
+   <div class="annb">${esc(x.body)}</div><div class="row" style="margin-top:14px"><button class="btn" id="sgAll">See all</button><button class="btn pri" id="sgOk">${left>0?'Next ('+left+' more)':'Got it'}</button></div>`,()=>{
+    const done=()=>{SUG.seen.add(x.id);LS.set('sugSeen',[...SUG.seen].slice(-300));rpc('read_suggestions',{p_ids:[x.id]}).catch(()=>{});x.read=true};
+    $('sgOk').onclick=()=>{done();closeSheet();setTimeout(sugPop,400)};$('sgAll').onclick=()=>{done();sugInbox()}})}
+async function sugInbox(){openSheet('<h2>Suggestions</h2><div class="sub">Loading...</div>');await loadSug();
+  const L=SUG.list;openSheet(`<h2>Suggestions</h2><div class="sub">Only you can see these. Everyone on the map can send one from the menu.</div>
+   ${L.length?`<div class="gw" style="margin-top:12px">${L.map(x=>`<div class="gg" style="align-items:flex-start"><div style="flex:1;min-width:0"><b>${esc(x.name||'Someone')}</b> <span class="tag">${esc(ROLE_NM[x.role]||x.role||'')}</span>${x.read?'':' <span class="tag t-new">New</span>'}<div style="margin-top:4px;white-space:pre-wrap;line-height:1.4">${esc(x.body)}</div><small>${esc(new Date(x.created_at).toLocaleDateString([],{day:'numeric',month:'short'}))} ${esc(new Date(x.created_at).toTimeString().slice(0,5))}</small></div><button class="sm red" data-sgd="${x.id}">Delete</button></div>`).join('')}</div>`:'<div class="sub" style="margin-top:16px">No suggestions yet.</div>'}
+   <button class="btn" id="sgBack" style="width:100%;margin-top:12px">Back</button>`,()=>{
+    $('sgBack').onclick=()=>$('menuBtn').click();
+    document.querySelectorAll('[data-sgd]').forEach(b=>b.onclick=async()=>{if(b.dataset.sure!=='1'){b.dataset.sure='1';b.textContent='Sure?';return}try{await rpc('delete_suggestion',{p_id:+b.dataset.sgd});SUG.list=SUG.list.filter(q=>q.id!==+b.dataset.sgd);sugInbox()}catch(e){toast(errTxt(e),4000)}})});
+  if(L.some(x=>!x.read)){rpc('read_suggestions',{}).catch(()=>{});L.forEach(x=>{x.read=true;SUG.seen.add(x.id)});LS.set('sugSeen',[...SUG.seen].slice(-300))}}
 function annSheet(){const admin=Cloud.member&&Cloud.member.role==='admin';const now=Date.now();
   openSheet(`<h2>Announcements</h2>${admin?`<div class="sub">Write anything. Everyone sees it as a pop-up when they open the map.</div>
    <textarea class="inp" id="annTxt" maxlength="1500" placeholder="e.g. Gate code changed to 4821. Firebreak burning on Bloubank Thursday, avoid Blok 3." style="height:110px;padding:12px;resize:vertical;font:inherit"></textarea>
@@ -1493,7 +1561,7 @@ function sosBeep(f,ms,n){try{unlockAudio();const t=actx.currentTime;for(let i=0;
 function sosSay(t){try{if('speechSynthesis' in window){speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='en-ZA';u.rate=1.05;speechSynthesis.speak(u)}}catch(e){}}
 function sosOv(html,alarm){const o=$('sosOv');$('sosIn').innerHTML=html;o.classList.remove('hide');o.classList.toggle('alarm',!!alarm)}
 function sosClose(){$('sosOv').classList.add('hide');$('sosOv').classList.remove('alarm');clearInterval(sosT);sirenStop()}
-function sosStart(){if(!Cloud.member){toast('Join the map first');return}if(SOS&&!SOS.resolved){sosActiveSheet();return}
+function sosStart(){if(DM.on)stopDemo();if(!Cloud.member){toast('Join the map first');return}if(SOS&&!SOS.resolved){sosActiveSheet();return}
   unlockAudio();let n=3;const tick=()=>{if(n===0){clearInterval(sosT);sosSlide();return}
     sosOv(`<h1>SOS</h1><div class="sosNum">${n}</div><p>Sending your exact location to everyone on the map</p><button class="sosBtnW w" id="sosCancel">Cancel</button>`);
     $('sosCancel').onclick=()=>{sosClose();toast('SOS cancelled')};
@@ -1735,6 +1803,7 @@ function rawSights(){
   const mine=new Set(sights.map(s=>s.cid)),now=Date.now();
   const out=sights.filter(s=>now-s.t<ttlOf(s)).map(s=>({...s,mine:true,by:'You'}));
   (Cloud.remote.sightings||[]).forEach(x=>{if(mine.has(x.client_id))return;const t=Date.parse(x.created_at);if(now-t>=(x.kill?KILL_TTL:SIGHT_TTL))return;out.push({cid:x.client_id,what:x.what,note:x.note,ll:[x.lng,x.lat],t,by:x.name||'Owner',mine:Cloud.sess&&x.user_id===Cloud.sess.uid,photo:!!x.photo,still:!!x.still,kill:!!x.kill})});
+  if(DM.on)DM.sights.forEach(x=>{if(now-x.t<ttlOf(x))out.push(x)});
   return out.sort((a,b)=>a.t-b.t);
 }
 /* animals move: a newer sighting of the same animal replaces the older one and we draw the path (as the crow flies) */
@@ -2002,6 +2071,7 @@ function allReports(){
   const mine=new Set(reports.map(r=>r.cid));
   const out=reports.filter(r=>Date.now()-r.t<REPORT_TTL).map(r=>({...r,mine:true,by:'You'}));
   (Cloud.remote.reports||[]).forEach(x=>{if(mine.has(x.client_id))return;out.push({cid:x.client_id,kind:x.kind,note:x.note,road:x.road,ll:[x.lng,x.lat],t:Date.parse(x.created_at),by:x.name||'Owner',mine:Cloud.sess&&x.user_id===Cloud.sess.uid,confirms:x.confirms||0,confAt:x.confirmed_at?Date.parse(x.confirmed_at):null})});
+  if(DM.on)DM.reports.forEach(r=>{if(Date.now()-r.t<REPORT_TTL)out.push(r)});
   return out.sort((a,b)=>b.t-a.t);
 }
 let blockedNodes=new Set();var CLOSEDR=new Set();
@@ -2102,8 +2172,16 @@ function camTick(){
     map.jumpTo({center:anim.pos,bearing:anim.camHd,pitch:Math.abs(p-pt)<.05?p:pt+(p-pt)*(1-Math.exp(-dt/0.6)),zoom:camState.zoom,padding:{top:Math.round(innerHeight*0.42),bottom:0,left:0,right:0}});
   }else anim.camHd=driving?anim.camHd:map.getBearing();
 }
-let userMoving=false;
-map.on('movestart',e=>{if(e.originalEvent)userMoving=true});map.on('moveend',()=>{userMoving=false});
+let userMoving=false,TOUCHING=false;
+map.on('movestart',e=>{if(e.originalEvent)userMoving=true});map.on('moveend',()=>{if(!TOUCHING)userMoving=false});
+/* free look while driving: the camera follows the car every frame, which on a phone cancels a drag before it starts.
+   So the moment a finger touches the map we stop following, and the first drag or pinch hands the map to you. */
+{const cc=map.getCanvasContainer();
+ cc.addEventListener('touchstart',()=>{TOUCHING=true;if(follow===2)userMoving=true},{passive:true});
+ const up=e=>{if(e.touches&&e.touches.length)return;TOUCHING=false;setTimeout(()=>{if(follow===2&&!TOUCHING)userMoving=false},80)};
+ cc.addEventListener('touchend',up,{passive:true});cc.addEventListener('touchcancel',up,{passive:true});
+ cc.addEventListener('mousedown',()=>{TOUCHING=true;if(follow===2)userMoving=true});addEventListener('mouseup',()=>up({}));
+ cc.addEventListener('wheel',()=>{if(follow===2){setFollow(0);if(me)$('recenter').classList.remove('hide')}},{passive:true})}
 requestAnimationFrame(camTick);
 function moveCam(){if(!me)return;if(follow===2)return; /* driving view is handled per frame */const o={center:me.disp||me.ll,duration:600,essential:true,padding:{top:0,bottom:0,left:0,right:0}};map.easeTo(o)}
 function inReserve(ll){let ins=false;for(let i=0,j=B.length-1;i<B.length;j=i++){const [xi,yi]=B[i],[xj,yj]=B[j];if(((yi>ll[1])!==(yj>ll[1]))&&(ll[0]<(xj-xi)*(ll[1]-yi)/(yj-yi)+xi))ins=!ins}return ins}
@@ -2496,6 +2574,7 @@ function addSheet(tab,at){
     $('sSave').onclick=()=>{if(cooldown(tab)>0)return;if(!pick){toast(tab==='report'?'Tap the problem first':'Tap what you saw first');const g=document.querySelector('.chips.grid');if(g){g.animate([{transform:'translateX(0)'},{transform:'translateX(-6px)'},{transform:'translateX(6px)'},{transform:'translateX(0)'}],{duration:280})}return}
       if(tab!=='report'&&pick==='Other'){const nm=otherName($('sOther').value);if(!nm){toast('Type what you saw, e.g. Warthog');$('sOther').focus();return}pick=nm;const L=[nm,...LS.get('otherNames',[]).filter(x=>x!==nm)].slice(0,6);LS.set('otherNames',L)}
       const note=$('sNote').value.trim(),cid=cidNew(),t=Date.now();
+      if(DM.on){demoAdd(tab,pick,note,ll,road,PRED.includes(pick)&&$('sKill')&&$('sKill').classList.contains('on'));closeSheet();return}
       if(tab==='report'){const r={cid,kind:pick,note,road,ll,t};reports.unshift(r);LS.set('reports',reports);queue({op:'add',t:'reports',row:reportRow(r)});toast(pick+' reported'+(road?' on '+road:''))}
       else{const sg={cid,what:pick,note,ll,t,photo:!!phBlob,...(PRED.includes(pick)&&$('sKill')&&$('sKill').classList.contains('on')?{kill:true}:{})};sights.unshift(sg);LS.set('sights',sights);logSight(cid,pick,ll,t);markSeen(pick);const share=!(pick==='Rhino'&&!shareRhino);if(phBlob){photoPut(cid,phBlob).then(()=>{if(share)queue({op:'photo',cid})})}if(share)queue({op:'add',t:'sightings',row:sightRow(sg)});toast(pick+(sg.kill?' on a kill':'')+' saved'+(phBlob?' with photo':''))}
       refreshOverlays();closeSheet()}
@@ -2511,7 +2590,7 @@ map.on('click','est-fill',e=>{if(map.queryRenderedFeatures(e.point,{layers:['sig
 map.on('click','poi',e=>{const f=e.features[0];showPlace({kind:f.properties.kind,name:f.properties.name,sub:(PKIND[f.properties.kind]||'')+(f.properties.note?' · '+f.properties.note:''),ll:f.geometry.coordinates,pid:f.properties.pid||'',base:f.properties.base||''})});
 map.on('click',e=>{const f=map.queryRenderedFeatures(e.point,{layers:['sights','reports','poi','home','est-fill','trail-line','note-dot','closed-roads']});if(f.length)return;
   if(nav)return;if(follow)setFollow(0);
-  const ll=e.lngLat.toArray();addSheet('sight',ll);map.easeTo({center:ll,offset:[0,-innerHeight*0.22],duration:500})});
+  const ll=e.lngLat.toArray();if(DM.on){demoTapSheet(ll);return}addSheet('sight',ll);map.easeTo({center:ll,offset:[0,-innerHeight*0.22],duration:500})});
 for(const l of['sights','reports','poi','road','road-check'])map.on('mouseenter',l,()=>map.getCanvas().style.cursor='pointer'),map.on('mouseleave',l,()=>map.getCanvas().style.cursor='');
 
 /* ============ menu ============ */
@@ -2540,10 +2619,11 @@ $('menuBtn').onclick=()=>{
    <div class="list sgroup">
     ${m&&owner?LK('lAnn','News',ANN.length?ANN.length+' live announcement'+(ANN.length==1?'':'s'):'No announcements',unread?'<span class="tag t-new">'+unread+' new</span>':'','mega','#7b1fa2'):''}
     ${m?LK('lLive','Share live location',shareLoc?'On · '+esc(liveWhy().short):'Off','','live','#1a73e8'):''}
+    ${m&&m.locked?LK('lSug','Suggestions',SUG.list.length?SUG.list.length+' from people on the map':'Nothing yet',SUG.list.filter(x=>!x.read).length?'<span class="tag t-new">'+SUG.list.filter(x=>!x.read).length+' new</span>':'','msg','#0b8043'):m?LK('lSug','Suggest something','Ideas, problems or wishes for the map','','msg','#0b8043'):''}
     ${LK('lOff','Offline map',esc(offlineStatus()),'','down','#00796b')}
-    ${LK('lDemo','Demo drive','Test the navigation at home','','play','#5f6368')}
+    ${LK('lDemo',DM.on?'Exit demo mode':'Demo mode',DM.on?'Back to your real location':'Pretend to be anywhere and test everything','','play','#5f6368')}
    </div>
-   ${m?'<button class="mout" id="mOut">Sign out</button>':''}`,()=>{
+   ${m&&!m.locked?'<button class="mout" id="mOut">Sign out</button>':''}`,()=>{
     $('mSet').onclick=()=>settingsSheet();
     $('tSight').onclick=()=>sightHub(today?'today':'map');
     $('tRec').onclick=()=>{closeSheet();toggleRec()};
@@ -2556,7 +2636,8 @@ $('menuBtn').onclick=()=>{
     $('tDrives').onclick=()=>openSheet(tracksSheet(),bindTracks);
     if($('lLive'))$('lLive').onclick=()=>liveSheet();
     $('lOff').onclick=()=>offlineSheet(false);
-    $('lDemo').onclick=()=>{closeSheet();startDemo()};
+    $('lDemo').onclick=()=>{closeSheet();DM.on?stopDemo():startDemo()};
+    if($('lSug'))$('lSug').onclick=()=>Cloud.member&&Cloud.member.locked?sugInbox():sugSheet();
     if($('mOut'))$('mOut').onclick=()=>signOutSheet();
   });
 };
@@ -2829,12 +2910,46 @@ async function loadPeople(){const el=$('gPeople');if(!el)return;let L;await load
   const seen=t=>!t?'':now-Date.parse(t)<5*6e4?' · on the map now':' · last active '+ago(Date.parse(t));
   const act=x=>{if(!admin)return esc(seen(x.last_seen));const p=[];if(x.last_login)p.push('Signed in '+esc(fmtDay(Date.parse(x.last_login))));p.push(!x.last_seen?'not active since the update':now-Date.parse(x.last_seen)<5*6e4?'<b style="color:#188038">active now</b>':'active '+esc(ago(Date.parse(x.last_seen))));return '<br>'+LI('clock',12)+' '+p.join(' · ')};
   const row=x=>`<div class="gg" style="align-items:center"><span class="gav av-${x.locked?'owner':x.role||'owner'}">${esc((x.name||'?').trim()[0]||'?').toUpperCase()}</span><div style="flex:1;min-width:0"><b>${esc(x.name||'No name')}</b>${x.me?' <span class="tag t-you">You</span>':''}${x.role==='admin'&&!x.locked?' <span class="tag t-admin">Admin</span>':''}${verTag(x.user_id)}<small>${x.role==='guest'?'Invited by '+esc(x.added_by||'an owner')+(x.code_label?' · '+esc(x.code_label):'')+'<br>Until '+esc(fmtExp(Date.parse(x.expires_at)))+' · '+esc(left(Date.parse(x.expires_at)))+' left':(x.added_by&&!/code$/.test(x.added_by)?'Invited by '+esc(x.added_by)+' · ':'')+'Joined '+esc(new Date(x.joined_at).toLocaleDateString([],{day:'numeric',month:'short',year:'numeric'}))+' · never expires'}${act(x)}</small></div>${admin&&!x.me&&!x.locked?`<div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end">${x.role==='owner'?`<button class="sm" data-role="admin" data-u="${x.user_id}" data-n="${esc(x.name||'')}">Make admin</button>`:x.role==='admin'?`<button class="sm" data-role="owner" data-u="${x.user_id}" data-n="${esc(x.name||'')}">Make owner</button>`:''}<button class="sm red" data-rm="${x.user_id}" data-n="${esc(x.name||'')}">Remove</button></div>`:''}</div>`;
-  const oc=oldCount(L);el.innerHTML=`${admin&&oc?`<div class="rpw" style="margin-top:16px;align-items:center">${LI('down',18)}<div style="flex:1"><b>${oc} ${oc===1?'person is':'people are'} on an old version</b><small>Send them news asking them to update</small></div><button class="ib2" id="remUpd" style="background:#fff;padding:0 12px">Send</button></div>`:''}<div class="sub" style="margin-top:18px"><b>Owners</b> · ${O.length}</div><div class="gw">${O.map(row).join('')||'<div class="gg"><small>No owners</small></div>'}</div>
-   <div class="sub" style="margin-top:14px"><b>Guests</b> · ${G.length}</div><div class="gw">${G.map(row).join('')||'<div class="gg"><small>No guests on the map right now. Guests disappear from here when their code ends.</small></div>'}</div>`;
+  const oc=oldCount(L);el.innerHTML=`${admin&&oc?`<div class="rpw" style="margin-top:16px;align-items:center">${LI('down',18)}<div style="flex:1"><b>${oc} ${oc===1?'person is':'people are'} on an old version</b><small>Send them news asking them to update</small></div><button class="ib2" id="remUpd" style="background:#fff;padding:0 12px">Send</button></div>`:''}<div class="sub" style="margin-top:18px"><b>Owners</b> · ${O.length}</div><div class="gw">${O.map(personRow).join('')||'<div class="gg"><small>No owners</small></div>'}</div>
+   <div class="sub" style="margin-top:14px"><b>Guests</b> · ${G.length}</div><div class="gw">${G.map(personRow).join('')||'<div class="gg"><small>No guests on the map right now. Guests disappear from here when their code ends.</small></div>'}</div>`;
   if($('remUpd'))$('remUpd').onclick=async()=>{$('remUpd').textContent='...';await remindUpdate();$('remUpd').textContent='Sent'};
-  el.querySelectorAll('[data-rm]').forEach(b=>b.onclick=async()=>{if(b.dataset.sure!=='1'){b.dataset.sure='1';b.textContent='Sure?';return}
-    b.textContent='...';try{await rpc('remove_member',{p_user:b.dataset.rm});toast((b.dataset.n||'They')+' was removed and will be logged out',3500)}catch(e){toast('Could not remove: '+String(e.message||e).slice(0,60))}loadPeople()});
-  el.querySelectorAll('[data-role]').forEach(b=>b.onclick=()=>roleConfirm(b.dataset.u,b.dataset.n||'They',b.dataset.role))}
+  bindPeople(el,()=>guestSheet())}
+
+/* ============ people: tidy rows, tap for the person's card, actions at the bottom of the card ============ */
+const PEOPLE={};
+const roleTag=x=>x.locked?' <span class="tag t-db">Database</span>':x.role==='admin'?' <span class="tag t-admin">Admin</span>':x.role==='guest'?' <span class="tag t-guest">Guest</span>':'';
+function oldTag(uid){if(!VERS)return '';const v=VERS[uid],need=Math.max(UPD.min||0,APP_BUILD);return !v||!v.v||v.v<need?' <span class="tag t-warn">Update</span>':''}
+function activeTxt(x){const now=Date.now();if(!x.last_seen)return x.role==='guest'?'':'not active since the update';return now-Date.parse(x.last_seen)<5*6e4?'active now':'active '+ago(Date.parse(x.last_seen))}
+function personRow(x){PEOPLE[x.user_id]=x;const a=activeTxt(x),live=a==='active now';
+  const sub=x.role==='guest'?'Until '+fmtExp(Date.parse(x.expires_at))+(x.added_by?' · invited by '+x.added_by:''):(a||'');
+  return `<button class="pr2" data-person="${esc(x.user_id)}"><span class="gav av-${x.locked?'db':x.role||'owner'}">${esc((x.name||'?').trim()[0]||'?').toUpperCase()}</span>
+   <span class="pr2m"><span class="pr2n"><b>${esc(x.name||'No name')}</b>${x.me?' <span class="tag t-you">You</span>':''}${roleTag(x)}${oldTag(x.user_id)}</span><small>${live?'<i class="dotg"></i>':''}${esc(sub)}</small></span><span class="ar">›</span></button>`}
+function bindPeople(root,back){root.querySelectorAll('[data-person]').forEach(b=>b.onclick=()=>{const x=PEOPLE[b.dataset.person];if(x)personSheet(x,back)})}
+function personSheet(x,back){const admin=Cloud.member&&Cloud.member.role==='admin',v=VERS&&VERS[x.user_id],need=Math.max(UPD.min||0,APP_BUILD);
+  const R=(l,val)=>val?`<div class="it"><div style="flex:1"><small>${esc(l)}</small><br><b style="font-weight:600">${val}</b></div></div>`:'';
+  const role=x.locked?'Database':ROLE_NM[x.role]||'Owner';
+  const can=admin&&!x.me&&!x.locked;
+  openSheet(`<div class="pc"><span class="gav big av-${x.locked?'db':x.role||'owner'}">${esc((x.name||'?').trim()[0]||'?').toUpperCase()}</span><div style="min-width:0"><h2 style="margin:0">${esc(x.name||'No name')}</h2><div class="pr2n" style="margin-top:4px">${x.me?'<span class="tag t-you">You</span>':''}${roleTag(x)}${oldTag(x.user_id)}</div></div></div>
+   <div class="list sgroup" style="margin-top:14px">
+    ${R('Role',esc(role))}
+    ${R('Status',esc(activeTxt(x)||'Not seen yet'))}
+    ${x.role==='guest'?R('Access until',esc(fmtExp(Date.parse(x.expires_at)))+' · '+esc(left(Date.parse(x.expires_at)))+' left'):R('Access','Never expires')}
+    ${R('Joined',x.joined_at?esc(new Date(x.joined_at).toLocaleDateString([],{day:'numeric',month:'short',year:'numeric'})):'')}
+    ${R('Invited by',x.added_by&&!/code$/.test(x.added_by)?esc(x.added_by)+(x.code_label?' · '+esc(x.code_label):''):'')}
+    ${R('Last signed in',x.last_login?esc(fmtDay(Date.parse(x.last_login))):'')}
+    ${R('App version',VERS?(v&&v.v?'Version '+v.v+(v.v<need?' · needs the update':' · up to date'):'Has not opened the new version yet'):'')}
+   </div>
+   <div class="msec" style="margin-top:16px">${x.locked?'Protected account':x.me?'What you can do':'What they can do'}</div>
+   ${x.locked?'<div class="sub" style="line-height:1.45">This is the database account that runs the map. It has every admin power, and nobody can remove it or change its role.</div>':permsHtml(x.role||'owner')}
+   ${can?`<div class="msec" style="margin-top:18px">Manage</div><div class="list sgroup">
+     ${x.role==='owner'?LK('pAdm','Make admin','Can do everything an owner can, plus admin tools','','shield','#b06000'):x.role==='admin'?LK('pOwn','Make owner','Takes away the admin tools','','users','#1f4d36'):''}
+     <button class="it lk" id="pRm"><span class="lki" style="background:#d93025">${LI('x',19)}</span><div style="flex:1;min-width:0"><b style="color:#d93025">Remove from the map</b><br><small>They are logged out straight away</small></div><span class="ar">›</span></button></div>`:''}
+   <button class="btn" id="pBack" style="width:100%;margin-top:14px">Back</button>`,()=>{
+    $('pBack').onclick=()=>back?back():guestSheet();
+    if($('pAdm'))$('pAdm').onclick=()=>roleConfirm(x.user_id,x.name||'They','admin');
+    if($('pOwn'))$('pOwn').onclick=()=>roleConfirm(x.user_id,x.name||'They','owner');
+    if($('pRm'))$('pRm').onclick=async()=>{const b=$('pRm');if(b.dataset.sure!=='1'){b.dataset.sure='1';b.querySelector('b').textContent='Tap again to remove '+(x.name||'them');return}
+      b.querySelector('b').textContent='Removing...';try{await rpc('remove_member',{p_user:x.user_id});toast((x.name||'They')+' was removed and will be logged out',3500);back?back():guestSheet()}catch(e){toast(errTxt(e),5000);b.dataset.sure='';b.querySelector('b').textContent='Remove from the map'}}})}
 function roleConfirm(uid,name,role){const up=role==='admin';
   openSheet(`<h2>${up?'Make '+esc(name)+' an admin?':'Make '+esc(name)+' an owner?'}</h2><div class="sub">${up?esc(name)+' will be able to do everything below, as well as everything owners can do.':esc(name)+' will no longer be an admin. As an owner they can still do the following.'}</div>
    ${permsHtml(role)}<div class="row" style="margin-top:14px"><button class="btn" id="rcNo">Cancel</button><button class="btn pri" id="rcGo">${up?LI('shield',18)+' Make admin':'Make owner'}</button></div>`,()=>{
@@ -2910,13 +3025,12 @@ async function membersSheet(){await loadVers();
   const O=L.filter(x=>x.role!=='guest'),G=L.filter(x=>x.role==='guest');
   const seen=t=>!t?'not opened since the update':now-Date.parse(t)<5*6e4?'on the map now':'last opened '+ago(Date.parse(t));
   const row=x=>`<div class="gg" style="align-items:center"><span class="gav av-${x.locked?'owner':x.role||'owner'}">${esc((x.name||'?').trim()[0]||'?').toUpperCase()}</span><div style="flex:1;min-width:0"><b>${esc(x.name||'No name')}</b>${x.me?' <span class="tag t-you">You</span>':''}${x.role==='admin'&&!x.locked?' <span class="tag t-admin">Admin</span>':''}${verTag(x.user_id)}<small>${x.role==='guest'?'Until '+esc(fmtExp(Date.parse(x.expires_at)))+' · '+esc(left(Date.parse(x.expires_at)))+' left'+(x.added_by?' · added by '+esc(x.added_by):'')+(x.code_label?' · '+esc(x.code_label):''):'Joined '+esc(new Date(x.joined_at).toLocaleDateString([],{day:'numeric',month:'short',year:'numeric'}))} · ${esc(seen(x.last_seen))}</small></div>${admin&&!x.me&&!x.locked?`<button class="sm red" data-rm="${x.user_id}" data-n="${esc(x.name||'')}">Remove</button>`:''}</div>`;
-  openSheet(`<h2>Owners & guests</h2><div class="sub">${O.length} owner${O.length==1?'':'s'} · ${G.length} guest${G.length==1?'':'s'}${admin?' · as admin you can remove people':''}</div>
-   <div class="sub" style="margin-top:14px"><b>Owners</b></div><div class="gw">${O.map(row).join('')||'<div class="gg"><small>No owners</small></div>'}</div>
-   <div class="sub" style="margin-top:14px"><b>Guests</b></div><div class="gw">${G.map(row).join('')||'<div class="gg"><small>No guests on the map right now. Expired guests are removed automatically.</small></div>'}</div>
+  openSheet(`<h2>Owners & guests</h2><div class="sub">${O.length} owner${O.length==1?'':'s'} · ${G.length} guest${G.length==1?'':'s'}${admin?' · tap someone to see more':''}</div>
+   <div class="sub" style="margin-top:14px"><b>Owners</b></div><div class="gw">${O.map(personRow).join('')||'<div class="gg"><small>No owners</small></div>'}</div>
+   <div class="sub" style="margin-top:14px"><b>Guests</b></div><div class="gw">${G.map(personRow).join('')||'<div class="gg"><small>No guests on the map right now. Expired guests are removed automatically.</small></div>'}</div>
    ${admin?'<button class="btn" id="mAct" style="width:100%;margin-top:14px">'+LI('clock',18)+' Activity log</button>':''}<button class="btn" id="mBack" style="width:100%;margin-top:10px">Back</button>`,()=>{
     $('mBack').onclick=()=>cloudSheet();if($('mAct'))$('mAct').onclick=()=>activitySheet();
-    document.querySelectorAll('[data-rm]').forEach(b=>b.onclick=async()=>{if(b.dataset.sure!=='1'){b.dataset.sure='1';b.textContent='Sure?';return}
-      b.textContent='...';try{await rpc('remove_member',{p_user:b.dataset.rm});toast((b.dataset.n||'They')+' was removed and will be logged out',3500)}catch(e){toast('Could not remove: '+String(e.message||e).slice(0,60))}membersSheet()})})}
+    bindPeople($('sheet'),()=>membersSheet())})}
 /* ============ activity log (admins): codes, joins, removals, gate arrivals, SOS ============ */
 async function activitySheet(){if(!navigator.onLine){toast('You need signal to see the activity log');return}
   openSheet('<h2>Activity log</h2><div class="list"><div class="it"><small>Loading...</small></div></div>');
@@ -3018,39 +3132,76 @@ function endCal(){$('cross').classList.add('hide');$('calBar').classList.add('hi
 
 /* ============ demo: other cars driving the reserve, with their routes ============ */
 const DEMO={iv:null,cars:[],endT:null};
+const DEMO_NAMES=[['demo1','Thabo (demo)'],['demo2','Sarah (demo)'],['demo3','Pieter (demo)']];
+function demoLeg(c,to){AVOIDCHK=true;try{for(let k=0;k<8;k++){const tgt=to||demoTarget(c);const r=route(c.at,tgt.ll);
+    if(r&&r.len>(to?60:400)){const b=buildSteps(r);if(b.segs.some(sg=>CHECKN().has(sg.road))){to=null;continue}c.b=b;c.along=0;c.goal=tgt;return true}to=null}}finally{AVOIDCHK=false}return false}
+const CHECKN=()=>{if(!CHECKN.s){CHECKN.s=new Set(ROADS.filter(f=>f.properties.check).map(f=>f.properties.name))}return CHECKN.s};
+let demoSeed=7;const demoRnd=()=>{demoSeed=(demoSeed*16807)%2147483647;return demoSeed/2147483647};
+function demoTarget(c){const S=allSights().filter(x=>Date.now()-x.t<6*36e5&&!(c.seen||[]).includes(x.cid));
+  if(S.length&&demoRnd()<.5){const x=S[Math.floor(demoRnd()*S.length)];return {ll:(nearestEdge(x.ll,400)||{q:x.ll}).q,sight:x}}
+  const P=DATA.pois.features.filter(f=>['gate','water','picnic','view','hide','lodge'].includes(f.properties.kind));const f=P[Math.floor(demoRnd()*P.length)];
+  return {ll:nearestEdge(f.geometry.coordinates).q,poi:f.properties.name}}
 function demoCarsStart(){demoCarsStop(true);const P=DATA.pois.features.filter(f=>['gate','water','picnic','view','hide','lodge'].includes(f.properties.kind)).map(f=>f.geometry.coordinates);if(P.length<3)return;
-  const names=[['demo1','Thabo (demo)'],['demo2','Sarah (demo)'],['demo3','Pieter (demo)']];let seed=7;const rnd=()=>{seed=(seed*16807)%2147483647;return seed/2147483647};
-  const pick=()=>nearestEdge(P[Math.floor(rnd()*P.length)]).q;
-  const leg=c=>{for(let k=0;k<6;k++){const to=pick();const r=route(c.at,to);if(r&&r.len>400){c.b=buildSteps(r);c.along=0;return true}}return false};
-  names.forEach(([id,n],i)=>{const c={id,n,v:5.5+i*1.2,at:pick(),pause:i===1?20:0};if(!leg(c))return;
-    // they've already been driving a while: start part way, with the route behind them
+  DEMO_NAMES.forEach(([id,n],i)=>{const c={id,n,v:5.5+i*1.1,at:nearestEdge(P[Math.floor(demoRnd()*P.length)]).q,pause:i===1?20:0,seen:[]};if(!demoLeg(c))return;
     c.along=c.b.total*(.35+.15*i);const now=Date.now();TRAILS[id]={n,pts:[]};
-    for(let a=0;a<=c.along;a+=25){const p=pointAt(c.b.segs,a);TRAILS[id].pts.push([p[0],p[1],Math.round((now-(c.along-a)/c.v*1000)/1000)])}
+    for(let a=0;a<=c.along;a+=10){const p=pointAt(c.b.segs,a);TRAILS[id].pts.push([p[0],p[1],Math.round((now-(c.along-a)/c.v*1000)/1000)])}
     DEMO.cars.push(c)});
   const tick=()=>{const now=Date.now();DEMO.cars.forEach(c=>{
-      if(c.pause>0){c.pause--}else{c.along+=c.v;if(c.along>c.b.total){c.at=pointAt(c.b.segs,c.b.total);if(!leg(c))return;c.pause=6}}
+      if(c.pause>0){c.pause--}else{c.along+=c.v;if(c.along>c.b.total){c.at=pointAt(c.b.segs,c.b.total);const g=c.goal||{};
+        if(g.sight){c.seen.push(g.sight.cid);c.view=g.sight.what;c.pause=45+Math.floor(demoRnd()*75)}else{c.view=null;c.pause=6+Math.floor(demoRnd()*14)}
+        if(!demoLeg(c))return}}
+      if(c.pause===1)c.view=null;
       const p=pointAt(c.b.segs,Math.min(c.along,c.b.total)),p2=pointAt(c.b.segs,Math.min(c.along+20,c.b.total));const e=nearestEdge(p,40),road=e?ROADS[e.e.road].properties.name:'';
-      const near=allSights().find(x=>dist(x.ll,p)<150);
-      LIVE[c.id]={user_id:c.id,name:c.n,lat:p[1],lng:p[0],heading:c.pause>0?null:Math.round(bearing(p,p2)),speed:c.pause>0?0:c.v,status:c.pause>0?(near?'viewing:'+near.what:'stopped:'+road):'driving:'+road,updated_at:new Date(now).toISOString()}});
-    renderLive();if(DEMO.endT&&now>DEMO.endT)demoCarsStop()};
+      LIVE[c.id]={user_id:c.id,name:c.n,lat:p[1],lng:p[0],heading:c.pause>0?null:Math.round(bearing(p,p2)),speed:c.pause>0?0:c.v,status:c.pause>0?(c.view?'viewing:'+c.view:'stopped:'+road):'driving:'+road,updated_at:new Date(now).toISOString()}});
+    renderLive();if(DEMO.endT&&now>DEMO.endT&&!DM.on)demoCarsStop()};
   tick();DEMO.iv=setInterval(tick,1000)}
+// a new sighting: the closest demo car that isn't already watching something heads there
+function demoChase(x){let best=null,bd=1e9;DEMO.cars.forEach(c=>{if(c.view)return;const p=pointAt(c.b.segs,Math.min(c.along,c.b.total));const d=dist(p,x.ll);if(d<bd){bd=d;best=c}});
+  if(best&&bd<6000){best.at=pointAt(best.b.segs,Math.min(best.along,best.b.total));best.pause=0;demoLeg(best,{ll:(nearestEdge(x.ll,400)||{q:x.ll}).q,sight:x})}}
 function demoCarsStop(quiet){clearInterval(DEMO.iv);DEMO.iv=null;DEMO.endT=null;DEMO.cars=[];Object.keys(LIVE).forEach(k=>{if(k.startsWith('demo'))delete LIVE[k]});Object.keys(TRAILS).forEach(k=>{if(k.startsWith('demo'))delete TRAILS[k]});trailSel=null;try{renderLive();drawTrails()}catch(e){}}
-/* ============ demo drive ============ */
-function startDemo(){
+/* ============ demo mode: put yourself anywhere, drive to anything, see other demo phones ============ */
+function startDemo(){if(DM.on){toast('Demo mode is already on');return}
   const g=DATA.pois.features.find(f=>f.properties.name==='Main Gate').geometry.coordinates;
-  const start=nearestEdge(g).q;
-  const r=route(start,homeLL());if(!r){toast('Demo failed');return}
-  if(sim)clearInterval(sim.iv);
-  const b=buildSteps(r);let along=0;const v=6.5;
-  sim={iv:0};toast('Demo: driving from Main Gate to Home. Three other cars are out too, tap one to see their route.',4000);demoCarsStart();
-  const step=()=>{along+=v;if(along>b.total+30){clearInterval(sim.iv);sim=null;DEMO.endT=Date.now()+180000;toast('Demo finished. The other cars keep driving for 3 minutes so you can look around.',4000);return}
-    const p=pointAt(b.segs,Math.min(along,b.total));const p2=pointAt(b.segs,Math.min(along+22,b.total));
-    handlePos([p[0]-calib[0],p[1]-calib[1]],6,bearing(p,p2),v,Date.now())};
-  step();
-  setTimeout(()=>{beginNav({kind:'home',name:'Home',ll:homeLL()})},300);
-  sim.iv=setInterval(step,1000);
-  const oldEnd=$('navEnd').onclick;$('navEnd').onclick=()=>{if(sim){clearInterval(sim.iv);sim=null}$('navEnd').onclick=oldEnd;endNav('Demo ended. The other cars keep driving for 3 minutes.');DEMO.endT=Date.now()+180000};
-}
+  const real=me&&Date.now()-me.t<60000&&inReserve(me.ll)?me.ll:null;
+  if(sim&&sim.iv)clearInterval(sim.iv);sim={demo:true};DM.on=true;DM.ll=(nearestEdge(real||g,300)||{q:real||g}).q;DM.segs=null;DM.spd=0;DM.sights=[];DM.reports=[];
+  document.body.classList.add('demo');demoCarsStart();demoTick();DM.iv=setInterval(demoTick,1000);demoBar();
+  setTimeout(()=>{setFollow(1)},300);demoSend({k:'hello'});
+  toast("Demo mode. Tap anywhere on the map and choose I'm here to move yourself there. Tap a sighting and Go to drive to it.",5500)}
+function stopDemo(){if(!DM.on)return;clearInterval(DM.iv);demoSend({k:'bye'});DM.on=false;if(nav)endNav();sim=null;DM.sights=[];DM.reports=[];DM.segs=null;
+  Object.keys(LIVE).forEach(k=>{if(k.startsWith('dp-'))delete LIVE[k]});demoCarsStop();document.body.classList.remove('demo');demoBar();refreshOverlays();
+  if(me)me.t=0;toast('Demo ended. Back to your real location.',3000)}
+function demoTick(){if(!DM.on)return;
+  if(nav&&nav.segs){if(DM.segs!==nav.segs){DM.segs=nav.segs;DM.along=projectOnRoute(nav.segs,DM.ll).along}
+    DM.along=Math.min(DM.along+DM.v,nav.total);const p=pointAt(nav.segs,DM.along),p2=pointAt(nav.segs,Math.min(DM.along+22,nav.total));
+    if(DM.along<nav.total){DM.hd=bearing(p,p2);DM.spd=DM.v}else DM.spd=0;DM.ll=p}
+  else{DM.segs=null;DM.spd=0}
+  handlePos([DM.ll[0]-calib[0],DM.ll[1]-calib[1]],5,DM.spd?DM.hd:null,DM.spd,Date.now());
+  if(++DM.bt%3===0){const e=nearestEdge(DM.ll,40),road=e?ROADS[e.e.road].properties.name:'';demoSend({k:'pos',lat:DM.ll[1],lng:DM.ll[0],heading:DM.spd?Math.round(DM.hd):null,speed:DM.spd,status:(DM.spd?'driving':'stopped')+(road?':'+road:'')})}
+  const b=$('demoBar');if(b){const n=$('nav');b.style.top=document.body.classList.contains('navon')&&n?Math.round(n.getBoundingClientRect().bottom+8)+'px':''}}
+function demoBar(){let b=$('demoBar');if(!DM.on){if(b)b.remove();return}
+  if(!b){b=document.createElement('div');b.id='demoBar';document.body.appendChild(b)}
+  b.innerHTML=`<span class="dmd"></span><b>Demo</b><button id="dmX">Exit</button>`;$('dmX').onclick=e=>{e.stopPropagation();stopDemo()}}
+function demoTapSheet(ll){const near=nearestEdge(ll,250),road=near?ROADS[near.e.road].properties.name:null;
+  openSheet(`<h2>Demo</h2><div class="sub">${road?'On '+esc(road):'Off the roads'} · ${fmtD(dist(DM.ll,ll))} from you</div>
+   <div class="list sgroup" style="margin-top:12px">${LK('dHere',"I'm here",'Move yourself to this spot','', 'pin','#1a73e8')}${LK('dGo','Drive here','Navigate here from where you are now','','route','#1f4d36')}${LK('dAdd','Add a sighting here','Only phones in demo mode see it','','binoc','#c77700')}</div>
+   <div class="sub" style="margin-top:10px;font-size:12.5px">Nothing you do in demo mode is saved or shown to anyone who isn't in demo mode.</div>`,()=>{
+    $('dHere').onclick=()=>{if(nav)endNav();DM.ll=near&&near.d<60?near.q:ll;DM.spd=0;DM.segs=null;closeSheet();demoTick();setFollow(1);toast("You're here now")};
+    $('dGo').onclick=()=>{closeSheet();beginNav({kind:'pin',name:road||'Dropped pin',ll})};
+    $('dAdd').onclick=()=>{closeSheet();addSheet('sight',ll)}});
+  dropPin(ll)}
+function demoAdd(tab,pick,note,ll,road,kill){const t=Date.now(),cid='demo-'+cidNew(),by=Cloud.member?Cloud.member.name:'Demo';
+  if(tab==='report'){const r={cid,kind:pick,note,road,ll,t,by:'You',mine:true,confirms:0};DM.reports.push(r);demoSend({k:'report',r:{...r,by,mine:false}});toast(pick+' reported (demo)')}
+  else{const x={cid,what:pick,note,ll,t,by:'You',mine:true,...(kill?{kill:true}:{})};DM.sights.push(x);demoSend({k:'sight',s:{...x,by,mine:false}});demoChase(x);toast(pick+' saved (demo, only demo phones see it)',3000)}
+  refreshOverlays()}
+function demoSend(x){if(!Cloud.sess)return;rtSend('broadcast',{type:'broadcast',event:'demo',payload:{...x,from:Cloud.sess.uid,name:Cloud.member?Cloud.member.name:'Someone'}})}
+function demoRx(x){if(!DM.on||!x||!x.from||(Cloud.sess&&x.from===Cloud.sess.uid))return;const id='dp-'+x.from;
+  if(x.k==='pos'){LIVE[id]={user_id:id,name:(x.name||'Someone')+' (demo)',lat:x.lat,lng:x.lng,heading:x.heading,speed:x.speed,status:x.status||'stopped',updated_at:new Date().toISOString()};renderLive()}
+  else if(x.k==='sight'&&x.s&&!DM.sights.some(q=>q.cid===x.s.cid)){DM.sights.push({...x.s,ll:x.s.ll,mine:false});refreshOverlays();demoChase(x.s);bing();toast((x.s.by||'Someone')+' marked a '+x.s.what+' (demo)',3500)}
+  else if(x.k==='report'&&x.r&&!DM.reports.some(q=>q.cid===x.r.cid)){DM.reports.push({...x.r,mine:false});refreshOverlays();toast((x.r.by||'Someone')+' reported '+x.r.kind+' (demo)',3500)}
+  else if(x.k==='hello'){const mine=DM.sights.filter(q=>q.mine).map(q=>({...q,by:Cloud.member?Cloud.member.name:'Demo',mine:false})),mr=DM.reports.filter(q=>q.mine).map(q=>({...q,by:Cloud.member?Cloud.member.name:'Demo',mine:false}));
+    if(mine.length||mr.length)demoSend({k:'sync',s:mine,r:mr});DM.bt=2}
+  else if(x.k==='sync'){(x.s||[]).forEach(q=>{if(!DM.sights.some(z=>z.cid===q.cid))DM.sights.push(q)});(x.r||[]).forEach(q=>{if(!DM.reports.some(z=>z.cid===q.cid))DM.reports.push(q)});refreshOverlays()}
+  else if(x.k==='bye'){delete LIVE[id];renderLive()}}
 
 /* terrain: fetch reserve DEM tiles once so shading works offline (service worker caches them) */
 function precacheTerrain(){if(LS.get('demCached',0)>=2||!navigator.onLine)return;const urls=[];

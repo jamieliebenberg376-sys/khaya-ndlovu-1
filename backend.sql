@@ -494,6 +494,61 @@ drop policy if exists pn_own on public.private_notes;
 create policy pn_own on public.private_notes for all to authenticated using (user_id = auth.uid()) with check (user_id = auth.uid());
 grant select, insert, update, delete on public.private_notes to authenticated;
 
+
+-- ---------- SUGGESTIONS: anyone on the map can send one, only the protected account can read them ----------
+create table if not exists public.suggestions (
+  id bigserial primary key,
+  user_id uuid default auth.uid(),
+  name text, role text,
+  body text not null check (char_length(body) between 1 and 1000),
+  created_at timestamptz not null default now(),
+  read_at timestamptz
+);
+alter table public.suggestions enable row level security;
+-- no table policies on purpose: nobody reads or writes it directly, only through the functions below
+revoke all on public.suggestions from anon, authenticated;
+
+create or replace function public.send_suggestion(p_body text)
+returns json language plpgsql security definer set search_path = public as $$
+declare m public.members; b text := btrim(coalesce(p_body, ''));
+begin
+  select * into m from public.members where user_id = auth.uid();
+  if not found then raise exception 'members only'; end if;
+  if m.role = 'guest' and m.expires_at is not null and m.expires_at <= now() then raise exception 'members only'; end if;
+  if char_length(b) < 2 then raise exception 'Write a bit more first'; end if;
+  if (select count(*) from public.suggestions where user_id = auth.uid() and created_at > now() - interval '1 day') >= 10 then
+    raise exception 'That is 10 suggestions today already, try again tomorrow'; end if;
+  insert into public.suggestions (user_id, name, role, body) values (auth.uid(), m.name, m.role, left(b, 1000));
+  return json_build_object('ok', true);
+end $$;
+grant execute on function public.send_suggestion(text) to authenticated;
+
+create or replace function public.list_suggestions()
+returns json language plpgsql security definer set search_path = public as $$
+begin
+  if not exists (select 1 from public.members where user_id = auth.uid() and locked) then return '[]'::json; end if;
+  return coalesce((select json_agg(row_to_json(x) order by x.created_at desc) from (
+    select id, name, role, body, created_at, read_at is not null as read from public.suggestions
+    order by created_at desc limit 200) x), '[]'::json);
+end $$;
+grant execute on function public.list_suggestions() to authenticated;
+
+create or replace function public.read_suggestions(p_ids bigint[] default null)
+returns void language plpgsql security definer set search_path = public as $$
+begin
+  if not exists (select 1 from public.members where user_id = auth.uid() and locked) then return; end if;
+  update public.suggestions set read_at = now() where read_at is null and (p_ids is null or id = any(p_ids));
+end $$;
+grant execute on function public.read_suggestions(bigint[]) to authenticated;
+
+create or replace function public.delete_suggestion(p_id bigint)
+returns void language plpgsql security definer set search_path = public as $$
+begin
+  if not exists (select 1 from public.members where user_id = auth.uid() and locked) then raise exception 'not allowed'; end if;
+  delete from public.suggestions where id = p_id;
+end $$;
+grant execute on function public.delete_suggestion(bigint) to authenticated;
+
 -- ---------- NIGHTLY CLEANUP ----------
 create or replace function public.kn_cleanup()
 returns json language plpgsql security definer set search_path = public, private as $$
