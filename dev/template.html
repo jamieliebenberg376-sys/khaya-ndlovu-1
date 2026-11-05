@@ -727,6 +727,7 @@ textarea.inp{font:inherit;font-size:16px;line-height:1.4}
 
 #demoBar{position:fixed;left:50%;transform:translateX(-50%);top:calc(var(--safe-t) + 112px);z-index:30;display:flex;align-items:center;gap:8px;padding:5px 5px 5px 12px;border-radius:999px;background:rgba(20,28,22,.86);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:#fff;font:700 13px system-ui;box-shadow:0 6px 18px rgba(0,0,0,.3)}
 #demoBar .dmd{width:8px;height:8px;border-radius:50%;background:#ffc23d;box-shadow:0 0 0 3px rgba(255,194,61,.25);animation:dmp 1.6s infinite}
+#demoBar .dmn{font-weight:600;opacity:.8}#demoBar .dmn:empty{display:none}#demoBar{cursor:pointer}
 #demoBar button{height:28px;padding:0 12px;border-radius:14px;background:rgba(255,255,255,.14);color:#ffd36b;font:800 12.5px system-ui}
 @keyframes dmp{50%{opacity:.35}}
 
@@ -930,7 +931,7 @@ const AF={
 // ---------- home ----------
 'Home point':'Huispunt','Your home point':'Jou huispunt','Set my home point':'Stel my huispunt','Set your home point':'Stel jou huispunt','Change home':'Verander huis','Remove home':'Verwyder huis','Home saved':'Huis gestoor','Home removed':'Huis verwyder','Not set':'Nie gestel nie','Not set yet':'Nog nie gestel nie',"Your host's home":'Jou gasheer se huis',"Everyone sets their own house. The house button then takes you straight home, and your live location is never shown while you're there.":'Elkeen stel hul eie huis. Die huisknoppie neem jou dan reguit huis toe, en jou lewendige ligging word nooit gewys terwyl jy daar is nie.','Your guests get it automatically, so the house button takes them to you':'Jou gaste kry dit outomaties, sodat die huisknoppie hulle na jou toe neem',"Your host hasn't set their home point yet. Once they do, the house button takes you straight there.":'Jou gasheer het nog nie hul huispunt gestel nie. Sodra hulle dit doen, neem die huisknoppie jou reguit daarheen.','Your own home point, saved on this phone':'Jou eie huispunt, op hierdie foon gestoor','Only owners can set a home point':'Slegs eienaars kan \'n huispunt stel','Only owners can set or change a home point.':'Slegs eienaars kan \'n huispunt stel of verander.','Set your home point first so it stays hidden there':'Stel eers jou huispunt sodat dit daar versteek bly','Hidden within 200 m of your home point':'Versteek binne 200 m van jou huispunt',
 // ---------- live ----------
-'Live location':'Lewendige ligging','Live while the app is open':'Lewendig terwyl die app oop is','Nobody can see where you are':'Niemand kan sien waar jy is nie','Nobody is sharing their location right now':'Niemand deel nou hul ligging nie','When people drive with live location on, they show up here.':'Wanneer mense met lewendige ligging aan ry, wys hulle hier.','Sharing your live location':'Deel jou lewendige ligging','Stopped sharing':'Opgehou deel','Stop sharing':'Hou op deel','Share now':'Deel nou','Sharing status':'Deelstatus','Others see your car while you drive on the reserve. You can turn it off any time':'Ander sien jou kar terwyl jy op die reservaat ry. Jy kan dit enige tyd afskakel','On by default. Other members see a coloured dot for you on their map, so you can find each other and see who is at a sighting. It stays on until you turn it off.':'By verstek aan. Ander lede sien \'n gekleurde kol vir jou op hul kaart, sodat julle mekaar kan vind en sien wie by \'n waarneming is. Dit bly aan totdat jy dit afskakel.','Updates every few seconds with signal. Only members can see it':'Werk elke paar sekondes by met sein. Slegs lede kan dit sien','Only on the reserve':'Slegs op die reservaat','Nothing is shared once you leave the reserve border':'Niks word gedeel sodra jy die reservaatgrens verlaat nie','Never at home':'Nooit by die huis nie','Except at a sighting':'Behalwe by \'n waarneming','After 3 minutes stopped your dot disappears':'Na 3 minute stilstaan verdwyn jou kol','Stopped at a sighting, others see you are viewing it':'Stilgehou by \'n waarneming, ander sien jy kyk daarna','Hidden: stopped for over 3 minutes and not at a sighting.':'Versteek: langer as 3 minute stil en nie by \'n waarneming nie.','Hidden: you are at your home point.':'Versteek: jy is by jou huispunt.','Hidden: you are outside the reserve.':'Versteek: jy is buite die reservaat.','Never shown for rhinos, to keep them safe':'Word nooit vir renosters gewys nie, om hulle veilig te hou','No route yet. It shows once they have driven a bit.':'Nog geen roete nie. Dit wys sodra hulle \'n bietjie gery het.',"Routes start 400 m from each person's house, to keep homes private.":'Roetes begin 400 m van elkeen se huis af, om huise privaat te hou.','Trail cleared':'Spoor skoongemaak','active now':'nou aktief','stopped':'stilgehou','driving':'ry','needs help (SOS)':'het hulp nodig (SOS)','Others can see you right now:':'Ander kan jou nou sien:','Pieter (demo)':'Pieter (demo)','Sarah (demo)':'Sarah (demo)','Thabo (demo)':'Thabo (demo)',
+'Live location':'Lewendige ligging','Live while the app is open':'Lewendig terwyl die app oop is','Nobody can see where you are':'Niemand kan sien waar jy is nie','Nobody is sharing their location right now':'Niemand deel nou hul ligging nie','When people drive with live location on, they show up here.':'Wanneer mense met lewendige ligging aan ry, wys hulle hier.','Sharing your live location':'Deel jou lewendige ligging','Stopped sharing':'Opgehou deel','Stop sharing':'Hou op deel','Share now':'Deel nou','Sharing status':'Deelstatus','Others see your car while you drive on the reserve. You can turn it off any time':'Ander sien jou kar terwyl jy op die reservaat ry. Jy kan dit enige tyd afskakel','On by default. Other members see a coloured dot for you on their map, so you can find each other and see who is at a sighting. It stays on until you turn it off.':'By verstek aan. Ander lede sien \'n gekleurde kol vir jou op hul kaart, sodat julle mekaar kan vind en sien wie by \'n waarneming is. Dit bly aan totdat jy dit afskakel.','Updates every few seconds with signal. Only members can see it':'Werk elke paar sekondes by met sein. Slegs lede kan dit sien','Only on the reserve':'Slegs op die reservaat','Nothing is shared once you leave the reserve border':'Niks word gedeel sodra jy die reservaatgrens verlaat nie','Never at home':'Nooit by die huis nie','Except at a sighting':'Behalwe by \'n waarneming','After 3 minutes stopped your dot disappears':'Na 3 minute stilstaan verdwyn jou kol','Stopped at a sighting, others see you are viewing it':'Stilgehou by \'n waarneming, ander sien jy kyk daarna','Hidden: stopped for over 3 minutes and not at a sighting.':'Versteek: langer as 3 minute stil en nie by \'n waarneming nie.','Hidden: you are at your home point.':'Versteek: jy is by jou huispunt.','Hidden: you are outside the reserve.':'Versteek: jy is buite die reservaat.','Never shown for rhinos, to keep them safe':'Word nooit vir renosters gewys nie, om hulle veilig te hou','No route yet. It shows once they have driven a bit.':'Nog geen roete nie. Dit wys sodra hulle \'n bietjie gery het.',"Routes start 400 m from each person's house, to keep homes private.":'Roetes begin 400 m van elkeen se huis af, om huise privaat te hou.','Trail cleared':'Spoor skoongemaak','active now':'nou aktief','stopped':'stilgehou','driving':'ry','needs help (SOS)':'het hulp nodig (SOS)','Others can see you right now:':'Ander kan jou nou sien:','Pieter (demo)':'Pieter (demo)','Sarah (demo)':'Sarah (demo)','Thabo (demo)':'Thabo (demo)','Sipho (demo)':'Sipho (demo)','Lerato (demo)':'Lerato (demo)',
 // ---------- settings ----------
 'Voice directions':'Stemaanwysings','Spoken turn-by-turn while navigating':'Gesproke aanwysings terwyl jy navigeer','Voice guidance on':'Stemleiding aan','New sighting alerts':'Nuwe waarnemingswaarskuwings','Pop-up when someone else marks a sighting':'Opspringer wanneer iemand anders \'n waarneming merk','Pops up when someone else marks a sighting':'Spring op wanneer iemand anders \'n waarneming merk','Which animals alert me':'Watter diere waarsku my','You only get pop-ups and the bing for the animals you pick. Everything still shows on the map. SOS alerts always come through.':'Jy kry slegs opspringers en die klokkie vir die diere wat jy kies. Alles wys steeds op die kaart. SOS-waarskuwings kom altyd deur.','Big 5 + wild dog':'Groot 5 + wildehond','Alert sound':'Waarskuwingsklank','A bing with each alert':'\'n Klokkie by elke waarskuwing','Plays a bing with each alert':'Speel \'n klokkie by elke waarskuwing','Phone notifications':'Foonkennisgewings','Also alert you while the app is in the background':'Waarsku jou ook terwyl die app in die agtergrond is','Notifications on':'Kennisgewings aan','Notifications are blocked. Allow them in Settings.':'Kennisgewings is geblokkeer. Laat dit toe in Instellings.','Quiet hours':'Stil ure','No alert sounds or pop-ups from 19:30 to 06:00 unless you are out driving. SOS always comes through.':'Geen waarskuwingsklanke of opspringers van 19:30 tot 06:00 nie, tensy jy buite ry. SOS kom altyd deur.','Sunset reminder':'Sononderherinnering','40 minutes before sunset if you are still out and far from home':'40 minute voor sononder as jy nog buite en ver van die huis is','Red screen every night':'Rooi skerm elke aand','Red screen now':'Rooi skerm nou','Keeps your night vision. On after sunset, off at sunrise':'Bewaar jou nagsig. Aan na sononder, af met sonop','Auto goes dark at sunset and light again at sunrise':'Outo word donker met sononder en weer lig met sonop','Night drives':'Nagritte','Night drive on. Red screen keeps your night vision.':'Nagrit aan. Rooi skerm bewaar jou nagsig.','Night drive off':'Nagrit af','Night drive turned on for the night':'Nagrit vir die nag aangeskakel','Red screen will turn on every night after sunset':'Rooi skerm sal elke aand na sononder aanskakel','Automatic red screen off':'Outomatiese rooi skerm af','Good morning, red screen is off':'Goeiemôre, rooi skerm is af','Share rhino sightings':'Deel renosterwaarnemings','Off keeps rhino locations on this phone only':'Af hou renosterliggings slegs op hierdie foon','Rhino sightings stay on this phone only, to keep rhinos safe. You can change this in Shared map settings.':'Renosterwaarnemings bly slegs op hierdie foon, om renosters veilig te hou. Jy kan dit verander in Gedeelde kaartinstellings.','Shared map settings':'Gedeelde kaartinstellings','Calibrate GPS':'Kalibreer GPS','If your dot sits next to the road':'As jou kol langs die pad sit','Stop the location question':'Stop die liggingvraag','If the map asks for your location every time':'As die kaart elke keer vir jou ligging vra','Language':'Taal','English':'English','Afrikaans':'Afrikaans','App language':'App-taal','Connect Spotify':'Koppel Spotify',"See what's playing and skip or pause from the map. Needs signal. Skip and pause need Spotify Premium.":'Sien wat speel en spring oor of pouseer vanaf die kaart. Het sein nodig. Oorspring en pouseer het Spotify Premium nodig.','Spotify connected':'Spotify gekoppel','Spotify not connected':'Spotify nie gekoppel nie','No signal for Spotify right now':'Geen sein vir Spotify nou nie','Open Spotify on this phone first':'Maak eers Spotify op hierdie foon oop','Nothing playing. Start music in Spotify and it shows here.':'Niks speel nie. Begin musiek in Spotify en dit wys hier.','Skip and pause need Spotify Premium':'Oorspring en pouseer het Spotify Premium nodig','Spotify did not respond':'Spotify het nie geantwoord nie','Spotify is not set up in this copy of the app yet':'Spotify is nog nie in hierdie kopie van die app opgestel nie','Location is off. Allow location for this site in Settings to see yourself on the map.':'Ligging is af. Laat ligging vir hierdie webwerf toe in Instellings om jouself op die kaart te sien.','Location permission denied':'Liggingtoestemming geweier','This phone has no GPS access in the browser':'Hierdie foon het geen GPS-toegang in die blaaier nie','Settings › Privacy & Security › Location Services':'Instellings › Privaatheid en Sekuriteit › Liggingsdienste','Settings › Apps › Safari › Location':'Instellings › Apps › Safari › Ligging','Scroll to Safari Websites and choose While Using the App':'Rol na Safari Websites en kies Terwyl die app gebruik word','Choose Allow':'Kies Laat toe','It finds you straight away from now on':'Dit vind jou van nou af dadelik','Need your GPS to check a spot':'Het jou GPS nodig om \'n kol na te gaan',
 // ---------- help ----------
@@ -948,7 +949,7 @@ const AF={
 // ---------- tally ----------
 'Lion, leopard, elephant, buffalo and rhino, all in one day':'Leeu, luiperd, olifant, buffel en renoster, alles op een dag',
 // ---------- misc ----------
-'Khaya Ndlovu Map':'Khaya Ndlovu-kaart','Khaya Ndlovu Game Drive Map':'Khaya Ndlovu-wildritkaart','Thanks!':'Dankie!','Where you tapped':'Waar jy getik het','Set':'Gestel','Database':'Databasis','Update':'Opdateer','Role':'Rol','Status':'Status','Access until':'Toegang tot','Never expires':'Verval nooit','Joined':'Aangesluit','Last signed in':'Laas aangeteken','App version':'App-weergawe','Not seen yet':'Nog nie gesien nie','Protected account':'Beskermde rekening','What they can do':'Wat hulle kan doen','This is the database account that runs the map. It has every admin power, and nobody can remove it or change its role.':'Dit is die databasisrekening wat die kaart bestuur. Dit het alle admin-magte, en niemand kan dit verwyder of sy rol verander nie.','Manage':'Bestuur','Can do everything an owner can, plus admin tools':"Kan alles doen wat 'n eienaar kan, plus admin-gereedskap",'Takes away the admin tools':'Neem die admin-gereedskap weg','Remove from the map':'Verwyder van die kaart','They are logged out straight away':'Hulle word dadelik afgeteken','Removing...':'Verwyder tans...','not active since the update':'nie aktief sedert die opdatering nie','active now':'nou aktief','needs the update':'het die opdatering nodig','up to date':'op datum','Has not opened the new version yet':'Het nog nie die nuwe weergawe oopgemaak nie',"What's new":'Wat is nuut','Look around while you drive':'Kyk rond terwyl jy ry','Drag or pinch the map during a route to look ahead or around. Your route stays on, tap Re-centre to jump back.':"Sleep of knyp die kaart tydens 'n roete om vorentoe of rond te kyk. Jou roete bly aan, tik Sentreer weer om terug te spring.",'Put yourself anywhere on the map, drive to any sighting, and see other phones that are in demo mode too. Nothing in demo mode is real or saved.':'Plaas jouself enige plek op die kaart, ry na enige waarneming en sien ander fone wat ook in demonstrasiemodus is. Niks in demonstrasiemodus is eg of word gestoor nie.','Got an idea or found a problem? Send it from the menu.':"Het jy 'n idee of 'n probleem gekry? Stuur dit vanaf die kieslys.",'Easier updates':'Makliker opdaterings','Big updates now give you your own link. It opens in Safari already signed in as you.':'Groot opdaterings gee jou nou jou eie skakel. Dit maak in Safari oop, reeds as jy aangeteken.','Mark a lion, leopard, cheetah, wild dog or hyena as on a kill. It stays on the map for 2 days and alerts everyone.':"Merk 'n leeu, luiperd, jagluiperd, wildehond of hiëna as by 'n prooi. Dit bly 2 dae op die kaart en waarsku almal.",'No alert sounds from 19:30 to 06:00 unless you are out driving. SOS always comes through.':'Geen waarskuwingsklanke van 19:30 tot 06:00 nie, tensy jy buite ry. SOS kom altyd deur.','A heads up 40 minutes before sunset if you are still out and far from home.':"'n Waarskuwing 40 minute voor sononder as jy nog buite en ver van die huis is.",'Big Five tally':'Groot Vyf-telling','See which of the Big Five you have spotted today, in the menu and on your drive card.':'Sien watter van die Groot Vyf jy vandag gesien het, in die kieslys en op jou ritkaart.','Photo album':'Fotoalbum','Every sighting photo from the last 30 days, in Sightings › Photos.':"Elke waarnemingsfoto van die laaste 30 dae, in Waarnemings › Foto's.",'Private notes':'Privaat notas','Pins only you can see. Tap the map, then Note.':'Spelde wat net jy kan sien. Tik die kaart, dan Nota.','Who is out now':'Wie is nou buite','Tap Out now on the map to see who is driving.':'Tik Nou buite op die kaart om te sien wie ry.','Guest pass QR code':'Gaspas-QR-kode','Your guest scans it with their camera and is in.':'Jou gas skandeer dit met hul kamera en is in.','Places and road closures':'Plekke en padsluitings','Add, move or remove places and close roads for everyone.':'Voeg plekke by, skuif of verwyder hulle en sluit paaie vir almal.','Choose Afrikaans at the top of Settings.':'Kies Afrikaans bo-aan Instellings.','Suggest something':'Stel iets voor','Ideas, problems or wishes for the map':'Idees, probleme of wense vir die kaart','Suggestions':'Voorstelle','Nothing yet':'Nog niks nie','Got an idea, found a problem, or want something added to the map? Write it here and it goes straight to the person who makes the map.':'Het jy \'n idee, \'n probleem gekry, of wil jy iets op die kaart hê? Skryf dit hier en dit gaan reguit na die persoon wat die kaart maak.','e.g. Add the new hide at the northern dam':'bv. Voeg die nuwe skuiling by die noordelike dam by','Send suggestion':'Stuur voorstel','Sending...':'Stuur tans...','Sent, thank you!':'Gestuur, dankie!','You need signal to send it':'Jy het sein nodig om dit te stuur','Write a bit more first':'Skryf eers \'n bietjie meer','That is 10 suggestions today already, try again tomorrow':'Dit is al 10 voorstelle vandag, probeer môre weer','New suggestion':'Nuwe voorstel','See all':'Sien almal','Only you can see these. Everyone on the map can send one from the menu.':'Net jy kan dit sien. Almal op die kaart kan een vanaf die kieslys stuur.','No suggestions yet.':'Nog geen voorstelle nie.','Sure?':'Seker?','New':'Nuut','Demo':'Demo','Demo mode is already on':'Demonstrasiemodus is reeds aan',"Demo mode. Tap anywhere on the map and choose I'm here to move yourself there. Tap a sighting and Go to drive to it.":'Demonstrasiemodus. Tik enige plek op die kaart en kies Ek is hier om jouself daarheen te skuif. Tik \'n waarneming en Ry om daarheen te ry.','Demo ended. Back to your real location.':'Demonstrasie verby. Terug na jou regte ligging.',"I'm here":'Ek is hier','Move yourself to this spot':'Skuif jouself na hierdie kol','Drive here':'Ry hierheen','Navigate here from where you are now':'Navigeer hierheen van waar jy nou is','Add a sighting here':'Voeg \'n waarneming hier by','Only phones in demo mode see it':'Slegs fone in demonstrasiemodus sien dit',"Nothing you do in demo mode is saved or shown to anyone who isn't in demo mode.":'Niks wat jy in demonstrasiemodus doen, word gestoor of gewys aan iemand wat nie in demonstrasiemodus is nie.',"You're here now":'Jy is nou hier','Off the roads':'Van die paaie af','This account is protected and cannot be removed':'Hierdie rekening is beskerm en kan nie verwyder word nie','This account is protected and its role cannot be changed':'Hierdie rekening is beskerm en sy rol kan nie verander word nie','Copy the link instead':'Kopieer eerder die skakel',"Didn't open Safari? Tap Copy the link, open Safari and paste it in the address bar.":'Het Safari nie oopgemaak nie? Tik Kopieer eerder die skakel, maak Safari oop en plak dit in die adresbalk.',"Didn't open Chrome? Tap Copy the link, open Chrome and paste it in the address bar.":'Het Chrome nie oopgemaak nie? Tik Kopieer eerder die skakel, maak Chrome oop en plak dit in die adresbalk.','Link copied. Open Safari, tap the address bar, paste it and go.':'Skakel gekopieer. Maak Safari oop, tik die adresbalk, plak dit en gaan.','Link copied. Open Chrome, tap the address bar, paste it and go.':'Skakel gekopieer. Maak Chrome oop, tik die adresbalk, plak dit en gaan.','Reinstall now':'Herinstalleer nou','It opens in Chrome, already signed in as you':'Dit maak in Chrome oop, reeds as jy aangeteken','It opens in Safari, already signed in as you':'Dit maak in Safari oop, reeds as jy aangeteken','Press and hold it on your Home screen, then Remove or Uninstall':'Druk en hou dit op jou Tuisskerm, dan Verwyder of Deïnstalleer','In Chrome tap ⋮, then Add to Home screen':'Tik in Chrome op ⋮, dan Voeg by Tuisskerm',"You get your own link with your name and access already in it. Open it, add the map to your Home Screen again and you're signed in straight away. Your old copy is removed once you open the new one.":'Jy kry jou eie skakel met jou naam en toegang reeds daarin. Maak dit oop, voeg die kaart weer by jou Tuisskerm en jy is dadelik aangeteken. Jou ou kopie word verwyder sodra jy die nuwe een oopmaak.','Add it again':'Voeg dit weer by','Moved on':'Het aanbeweeg','Not here':'Nie hier nie','Tap to change':'Tik om te verander','Breakdown':'Onklaar','Flat tyre':'Pap band','Stuck':'Vas','Medical':'Medies','Animal danger':'Gevaarlike dier','Accident':'Ongeluk','Out of fuel':'Brandstof op','Washed out':'Weggespoel','Blocked by animal':'Deur dier versper','Fallen tree':'Omgevalle boom','Muddy':'Modderig','Deep water':'Diep water','GPS locked (±5 m)':'GPS vas (±5 m)',
+'Khaya Ndlovu Map':'Khaya Ndlovu-kaart','Khaya Ndlovu Game Drive Map':'Khaya Ndlovu-wildritkaart','Thanks!':'Dankie!','Where you tapped':'Waar jy getik het','Set':'Gestel','Shared demo mode':'Gedeelde demonstrasiemodus','Everyone who taps Demo mode is in the same pretend world: you see each other, where you are heading, and the same demo cars and sightings.':'Almal wat Demonstrasiemodus tik, is in dieselfde speel-wêreld: julle sien mekaar, waarheen julle op pad is, en dieselfde demonstrasiekarre en waarnemings.','Add sightings while you drive':'Voeg waarnemings by terwyl jy ry','On a route, tap the map to mark a sighting without stopping your directions.':"Tik die kaart tydens 'n roete om 'n waarneming te merk sonder om jou aanwysings te stop.",'Smoother driving view':'Gladder ry-aansig','The map no longer shakes or wobbles while you follow a route.':"Die kaart skud of wiebel nie meer terwyl jy 'n roete volg nie.",'Sightings on their drive':'Waarnemings op hul rit','You are in demo mode · tap to see who is in it':'Jy is in demonstrasiemodus · tik om te sien wie daarin is',"You joined the demo. Tap anywhere on the map and choose I'm here to move yourself there.":'Jy het by die demonstrasie aangesluit. Tik enige plek op die kaart en kies Ek is hier om jouself daarheen te skuif.','People':'Mense','Demo cars':'Demonstrasiekarre','Your speed':'Jou spoed','Slow':'Stadig','Normal':'Normaal','Fast':'Vinnig','Very fast':'Baie vinnig','Starting...':'Begin tans...','Only you are in the demo right now. Anyone who taps Demo mode joins you.':'Net jy is nou in die demonstrasie. Enigiemand wat Demonstrasiemodus tik, sluit by jou aan.','Report a road problem here':"Meld 'n padprobleem hier aan",'Everyone in the demo sees it':'Almal in die demonstrasie sien dit','Drive recording is off in demo mode':'Ritopname is af in demonstrasiemodus','Thanks, confirmed (demo)':'Dankie, bevestig (demo)','Marked as clear (demo)':'As oop gemerk (demo)','Parked':'Geparkeer','Driving':'Ry','Database':'Databasis','Update':'Opdateer','Role':'Rol','Status':'Status','Access until':'Toegang tot','Never expires':'Verval nooit','Joined':'Aangesluit','Last signed in':'Laas aangeteken','App version':'App-weergawe','Not seen yet':'Nog nie gesien nie','Protected account':'Beskermde rekening','What they can do':'Wat hulle kan doen','This is the database account that runs the map. It has every admin power, and nobody can remove it or change its role.':'Dit is die databasisrekening wat die kaart bestuur. Dit het alle admin-magte, en niemand kan dit verwyder of sy rol verander nie.','Manage':'Bestuur','Can do everything an owner can, plus admin tools':"Kan alles doen wat 'n eienaar kan, plus admin-gereedskap",'Takes away the admin tools':'Neem die admin-gereedskap weg','Remove from the map':'Verwyder van die kaart','They are logged out straight away':'Hulle word dadelik afgeteken','Removing...':'Verwyder tans...','not active since the update':'nie aktief sedert die opdatering nie','active now':'nou aktief','needs the update':'het die opdatering nodig','up to date':'op datum','Has not opened the new version yet':'Het nog nie die nuwe weergawe oopgemaak nie',"What's new":'Wat is nuut','Look around while you drive':'Kyk rond terwyl jy ry','Drag or pinch the map during a route to look ahead or around. Your route stays on, tap Re-centre to jump back.':"Sleep of knyp die kaart tydens 'n roete om vorentoe of rond te kyk. Jou roete bly aan, tik Sentreer weer om terug te spring.",'Put yourself anywhere on the map, drive to any sighting, and see other phones that are in demo mode too. Nothing in demo mode is real or saved.':'Plaas jouself enige plek op die kaart, ry na enige waarneming en sien ander fone wat ook in demonstrasiemodus is. Niks in demonstrasiemodus is eg of word gestoor nie.','Got an idea or found a problem? Send it from the menu.':"Het jy 'n idee of 'n probleem gekry? Stuur dit vanaf die kieslys.",'Easier updates':'Makliker opdaterings','Big updates now give you your own link. It opens in Safari already signed in as you.':'Groot opdaterings gee jou nou jou eie skakel. Dit maak in Safari oop, reeds as jy aangeteken.','Mark a lion, leopard, cheetah, wild dog or hyena as on a kill. It stays on the map for 2 days and alerts everyone.':"Merk 'n leeu, luiperd, jagluiperd, wildehond of hiëna as by 'n prooi. Dit bly 2 dae op die kaart en waarsku almal.",'No alert sounds from 19:30 to 06:00 unless you are out driving. SOS always comes through.':'Geen waarskuwingsklanke van 19:30 tot 06:00 nie, tensy jy buite ry. SOS kom altyd deur.','A heads up 40 minutes before sunset if you are still out and far from home.':"'n Waarskuwing 40 minute voor sononder as jy nog buite en ver van die huis is.",'Big Five tally':'Groot Vyf-telling','See which of the Big Five you have spotted today, in the menu and on your drive card.':'Sien watter van die Groot Vyf jy vandag gesien het, in die kieslys en op jou ritkaart.','Photo album':'Fotoalbum','Every sighting photo from the last 30 days, in Sightings › Photos.':"Elke waarnemingsfoto van die laaste 30 dae, in Waarnemings › Foto's.",'Private notes':'Privaat notas','Pins only you can see. Tap the map, then Note.':'Spelde wat net jy kan sien. Tik die kaart, dan Nota.','Who is out now':'Wie is nou buite','Tap Out now on the map to see who is driving.':'Tik Nou buite op die kaart om te sien wie ry.','Guest pass QR code':'Gaspas-QR-kode','Your guest scans it with their camera and is in.':'Jou gas skandeer dit met hul kamera en is in.','Places and road closures':'Plekke en padsluitings','Add, move or remove places and close roads for everyone.':'Voeg plekke by, skuif of verwyder hulle en sluit paaie vir almal.','Choose Afrikaans at the top of Settings.':'Kies Afrikaans bo-aan Instellings.','Suggest something':'Stel iets voor','Ideas, problems or wishes for the map':'Idees, probleme of wense vir die kaart','Suggestions':'Voorstelle','Nothing yet':'Nog niks nie','Got an idea, found a problem, or want something added to the map? Write it here and it goes straight to the person who makes the map.':'Het jy \'n idee, \'n probleem gekry, of wil jy iets op die kaart hê? Skryf dit hier en dit gaan reguit na die persoon wat die kaart maak.','e.g. Add the new hide at the northern dam':'bv. Voeg die nuwe skuiling by die noordelike dam by','Send suggestion':'Stuur voorstel','Sending...':'Stuur tans...','Sent, thank you!':'Gestuur, dankie!','You need signal to send it':'Jy het sein nodig om dit te stuur','Write a bit more first':'Skryf eers \'n bietjie meer','That is 10 suggestions today already, try again tomorrow':'Dit is al 10 voorstelle vandag, probeer môre weer','New suggestion':'Nuwe voorstel','See all':'Sien almal','Only you can see these. Everyone on the map can send one from the menu.':'Net jy kan dit sien. Almal op die kaart kan een vanaf die kieslys stuur.','No suggestions yet.':'Nog geen voorstelle nie.','Sure?':'Seker?','New':'Nuut','Demo':'Demo','Demo mode is already on':'Demonstrasiemodus is reeds aan',"Demo mode. Tap anywhere on the map and choose I'm here to move yourself there. Tap a sighting and Go to drive to it.":'Demonstrasiemodus. Tik enige plek op die kaart en kies Ek is hier om jouself daarheen te skuif. Tik \'n waarneming en Ry om daarheen te ry.','Demo ended. Back to your real location.':'Demonstrasie verby. Terug na jou regte ligging.',"I'm here":'Ek is hier','Move yourself to this spot':'Skuif jouself na hierdie kol','Drive here':'Ry hierheen','Navigate here from where you are now':'Navigeer hierheen van waar jy nou is','Add a sighting here':'Voeg \'n waarneming hier by','Only phones in demo mode see it':'Slegs fone in demonstrasiemodus sien dit',"Nothing you do in demo mode is saved or shown to anyone who isn't in demo mode.":'Niks wat jy in demonstrasiemodus doen, word gestoor of gewys aan iemand wat nie in demonstrasiemodus is nie.',"You're here now":'Jy is nou hier','Off the roads':'Van die paaie af','This account is protected and cannot be removed':'Hierdie rekening is beskerm en kan nie verwyder word nie','This account is protected and its role cannot be changed':'Hierdie rekening is beskerm en sy rol kan nie verander word nie','Copy the link instead':'Kopieer eerder die skakel',"Didn't open Safari? Tap Copy the link, open Safari and paste it in the address bar.":'Het Safari nie oopgemaak nie? Tik Kopieer eerder die skakel, maak Safari oop en plak dit in die adresbalk.',"Didn't open Chrome? Tap Copy the link, open Chrome and paste it in the address bar.":'Het Chrome nie oopgemaak nie? Tik Kopieer eerder die skakel, maak Chrome oop en plak dit in die adresbalk.','Link copied. Open Safari, tap the address bar, paste it and go.':'Skakel gekopieer. Maak Safari oop, tik die adresbalk, plak dit en gaan.','Link copied. Open Chrome, tap the address bar, paste it and go.':'Skakel gekopieer. Maak Chrome oop, tik die adresbalk, plak dit en gaan.','Reinstall now':'Herinstalleer nou','It opens in Chrome, already signed in as you':'Dit maak in Chrome oop, reeds as jy aangeteken','It opens in Safari, already signed in as you':'Dit maak in Safari oop, reeds as jy aangeteken','Press and hold it on your Home screen, then Remove or Uninstall':'Druk en hou dit op jou Tuisskerm, dan Verwyder of Deïnstalleer','In Chrome tap ⋮, then Add to Home screen':'Tik in Chrome op ⋮, dan Voeg by Tuisskerm',"You get your own link with your name and access already in it. Open it, add the map to your Home Screen again and you're signed in straight away. Your old copy is removed once you open the new one.":'Jy kry jou eie skakel met jou naam en toegang reeds daarin. Maak dit oop, voeg die kaart weer by jou Tuisskerm en jy is dadelik aangeteken. Jou ou kopie word verwyder sodra jy die nuwe een oopmaak.','Add it again':'Voeg dit weer by','Moved on':'Het aanbeweeg','Not here':'Nie hier nie','Tap to change':'Tik om te verander','Breakdown':'Onklaar','Flat tyre':'Pap band','Stuck':'Vas','Medical':'Medies','Animal danger':'Gevaarlike dier','Accident':'Ongeluk','Out of fuel':'Brandstof op','Washed out':'Weggespoel','Blocked by animal':'Deur dier versper','Fallen tree':'Omgevalle boom','Muddy':'Modderig','Deep water':'Diep water','GPS locked (±5 m)':'GPS vas (±5 m)',
 };
 // full-string patterns
 const _a=x=>ANAF[x]||x,_al=x=>(ANAF[x]||x).toLowerCase(),_r=x=>RKAF[x]||x;
@@ -990,7 +991,7 @@ const AFP=[
  [/^Sunset in (\d+) min$/,'Sononder oor $1 min'],[/^Sunset in (\d+) min · (.+) from home$/,'Sononder oor $1 min · $2 van die huis af'],[/^(.+) from home · about (.+) drive$/,'$1 van die huis af · omtrent $2 ry'],[/^(\d+) min drive$/,'$1 min ry'],
 [/^(\d+) h (\d+) min$/,'$1 h $2 min'],
  [/^viewing the (.+) sighting$/,(m,a)=>'kyk na die '+_al(a)+'-waarneming'],[/^(\d+) km\/h on (.+)$/,'$1 km/h op $2'],[/^driving on (.+)$/,'ry op $1'],[/^stopped on (.+)$/,'stilgehou op $1'],
- [/^(\d+) people$/,'$1 mense'],[/^active (.+)$/,(m,a)=>'aktief '+_rel(a)],[/^Until (.+?) · invited by (.+)$/,'Tot $1 · genooi deur $2'],[/^Until (.+)$/,'Tot $1'],[/^Tap again to remove (.+)$/,'Tik weer om $1 te verwyder'],[/^Version (\d+) · (.+)$/,(m,n,b)=>'Weergawe '+n+' · '+(AF[b]||b)],[/^(\d+) from people on the map$/,'$1 van mense op die kaart'],[/^From (.+?) · (.+?) · (.+)$/,(m,a,b,c)=>'Van '+a+' · '+(AF[b]||b)+' · '+_rel(c)],[/^(\d+) not shared yet · tap to see why$/,'$1 nog nie gedeel nie · tik om te sien hoekom'],[/^(\d+) waiting for signal$/,'$1 wag vir sein'],[/^(\d+) not shared yet$/,'$1 nog nie gedeel nie'],[/^Next one in (.+)$/,'Volgende een oor $1'],[/^(.+) needs help$/,'$1 het hulp nodig'],
+ [/^(\d+) people$/,'$1 mense'],[/^Passed (.+)$/,(m,a)=>'Verbygery '+_rel(a)],[/^(.+) joined the demo$/,'$1 het by die demonstrasie aangesluit'],[/^(.+) left the demo$/,'$1 het die demonstrasie verlaat'],[/^Heading to the (.+) sighting$/,(m,a)=>'Op pad na die '+_al(a.replace(/^./,c=>c.toUpperCase()))+'-waarneming'],[/^Heading to (.+)$/,'Op pad na $1'],[/^Watching the (.+)$/,(m,a)=>'Kyk na die '+_al(a.replace(/^./,c=>c.toUpperCase()))],[/^You and (\d+) other (?:people|person) are in this demo\. Everyone sees the same cars and sightings\.$/,'Jy en $1 ander is in hierdie demonstrasie. Almal sien dieselfde karre en waarnemings.'],[/^(.+) (?:is|are) in demo mode now · tap to join$/,'$1 is nou in demonstrasiemodus · tik om aan te sluit'],[/^(.+) reported (.+) \(demo\)$/,'$1 het $2 aangemeld (demo)'],[/^(.+) saved \(demo, only demo phones see it\)$/,(m,a)=>_a(a)+' gestoor (demo, slegs demonstrasiefone sien dit)'],[/^active (.+)$/,(m,a)=>'aktief '+_rel(a)],[/^Until (.+?) · invited by (.+)$/,'Tot $1 · genooi deur $2'],[/^Until (.+)$/,'Tot $1'],[/^Tap again to remove (.+)$/,'Tik weer om $1 te verwyder'],[/^Version (\d+) · (.+)$/,(m,n,b)=>'Weergawe '+n+' · '+(AF[b]||b)],[/^(\d+) from people on the map$/,'$1 van mense op die kaart'],[/^From (.+?) · (.+?) · (.+)$/,(m,a,b,c)=>'Van '+a+' · '+(AF[b]||b)+' · '+_rel(c)],[/^(\d+) not shared yet · tap to see why$/,'$1 nog nie gedeel nie · tik om te sien hoekom'],[/^(\d+) waiting for signal$/,'$1 wag vir sein'],[/^(\d+) not shared yet$/,'$1 nog nie gedeel nie'],[/^Next one in (.+)$/,'Volgende een oor $1'],[/^(.+) needs help$/,'$1 het hulp nodig'],
  [/^Guest until (.+)$/,'Gas tot $1'],[/^Valid until: (.+)$/,'Geldig tot: $1'],[/^Use it before (.+)$/,'Gebruik dit voor $1'],[/^The home of (.+)$/,'Die huis van $1'],
 ];
 function _live(a){const m=a.match(/^(stopped|driving|\d+ km\/h)(?: on (.+))?$/);if(!m)return a;return (m[1]==='stopped'?'stilgehou':m[1]==='driving'?'ry':m[1])+(m[2]?' op '+m[2]:'')}
@@ -1132,6 +1133,7 @@ function style(){return{version:8,glyphs:'local://{fontstack}/{range}',
   cur:{type:'geojson',data:empty},
   route:{type:'geojson',data:empty},
   trails:{type:'geojson',data:empty},
+  mates:{type:'geojson',data:empty},mateplan:{type:'geojson',data:empty},
   notes:{type:'geojson',data:empty},
   tracks:{type:'geojson',data:empty},
   sights:{type:'geojson',data:empty},est:{type:'geojson',data:empty},redq:{type:'geojson',data:{type:'Feature',properties:{},geometry:{type:'Polygon',coordinates:[[[-179,-85],[179,-85],[179,85],[-179,85],[-179,-85]]]}}},heat:{type:'geojson',data:empty},estpt:{type:'geojson',data:empty},spath:{type:'geojson',data:empty},sprev:{type:'geojson',data:empty},
@@ -1194,7 +1196,12 @@ function style(){return{version:8,glyphs:'local://{fontstack}/{range}',
   {id:'trail-line',type:'line',source:'trails',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':['get','col'],'line-width':['interpolate',['linear'],['zoom'],12,['case',['==',['get','sel'],1],3,1.8],16,['case',['==',['get','sel'],1],6,4]],'line-opacity':['get','op'],'line-dasharray':[1.6,.9]}},
   {id:'kill-ring',type:'circle',source:'sights',filter:['==',['get','kill'],true],paint:{'circle-radius':['interpolate',['linear'],['zoom'],12,10,16,24],'circle-color':'#d93025','circle-opacity':.18,'circle-stroke-color':'#d93025','circle-stroke-width':2,'circle-stroke-opacity':.7,'circle-translate':[0,-8]}},
   {id:'sights',type:'symbol',source:'sights',layout:{'icon-image':['concat','an-',['get','what']],'icon-anchor':'bottom','icon-size':['interpolate',['linear'],['zoom'],11,.36,14,.5,17,.62],'icon-allow-overlap':true,'text-field':['get','label'],'text-font':['Sans Bold'],'text-size':12,'text-line-height':1.15,'text-offset':[0,.35],'text-anchor':'top','text-optional':true},paint:{'text-color':['case',['get','kill'],'#c5221f','#b45309'],'text-halo-color':'#fff','text-halo-width':1.8,'icon-opacity':['get','iop'],'text-opacity':['get','op']}},
-  {id:'reports',type:'symbol',source:'reports',layout:{'icon-image':'report','icon-size':['interpolate',['linear'],['zoom'],12,.5,15,.72],'icon-allow-overlap':true,'text-field':['get','label'],'text-font':['Sans Bold'],'text-size':12,'text-offset':[0,1.3],'text-anchor':'top','text-optional':true},paint:{'text-color':'#c5221f','text-halo-color':'#fff','text-halo-width':1.8}}
+  {id:'reports',type:'symbol',source:'reports',layout:{'icon-image':'report','icon-size':['interpolate',['linear'],['zoom'],12,.5,15,.72],'icon-allow-overlap':true,'text-field':['get','label'],'text-font':['Sans Bold'],'text-size':12,'text-offset':[0,1.3],'text-anchor':'top','text-optional':true},paint:{'text-color':'#c5221f','text-halo-color':'#fff','text-halo-width':1.8}},
+  {id:'mate-plan',type:'line',source:'mateplan',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':['get','col'],'line-width':['interpolate',['linear'],['zoom'],12,2,16,5],'line-dasharray':[1.2,1.4],'line-opacity':.9}},
+  {id:'mate-halo',type:'circle',source:'mates',filter:['==',['get','view'],true],paint:{'circle-radius':['interpolate',['linear'],['zoom'],12,12,17,22],'circle-color':['get','col'],'circle-opacity':.22,'circle-pitch-alignment':'map'}},
+  {id:'mate-arrow',type:'symbol',source:'mates',filter:['==',['get','mv'],true],layout:{'icon-image':'mate-arr','icon-size':['interpolate',['linear'],['zoom'],12,.75,17,1.05],'icon-rotate':['get','hd'],'icon-rotation-alignment':'map','icon-pitch-alignment':'map','icon-allow-overlap':true,'icon-ignore-placement':true},paint:{'icon-color':['get','col'],'icon-halo-color':'#fff','icon-halo-width':1.5,'icon-opacity':['get','op']}},
+  {id:'mate-dot',type:'circle',source:'mates',paint:{'circle-radius':['interpolate',['linear'],['zoom'],12,6,17,9],'circle-color':['get','col'],'circle-stroke-color':'#fff','circle-stroke-width':3,'circle-opacity':['get','op'],'circle-stroke-opacity':['get','op'],'circle-pitch-alignment':'map'}},
+  {id:'mate-lbl',type:'symbol',source:'mates',minzoom:12.5,layout:{'text-field':['get','label'],'text-font':['Sans Bold'],'text-size':11.5,'text-offset':[0,1.25],'text-anchor':'top','text-allow-overlap':true,'text-ignore-placement':true,'text-max-width':14},paint:{'text-color':'#fff','text-halo-color':['get','col'],'text-halo-width':3.2,'text-opacity':['get','op']}},
  ]}}
 const CALLOUT={id:'road-callout',type:'symbol',source:'roads',minzoom:12,layout:{visibility:'none','symbol-placement':'line-center','text-field':['get','name'],'text-font':['Sans Bold'],'text-size':14,'text-rotation-alignment':'viewport','text-pitch-alignment':'viewport','icon-image':'pill','icon-text-fit':'both','icon-text-fit-padding':[3,9,3,9],'icon-rotation-alignment':'viewport','icon-pitch-alignment':'viewport','text-padding':10,'symbol-sort-key':['-',0,['get','len']],'text-max-width':12},paint:{'text-color':'#202124'}};
 function lbl(id,minz,filter){return{id,type:'symbol',source:'roads',minzoom:minz,filter,layout:{'symbol-placement':'line','text-field':['get','name'],'text-font':['Sans Bold'],'text-size':['interpolate',['linear'],['zoom'],13,10.5,17,14.5],'text-letter-spacing':.02,'symbol-spacing':260,'text-max-angle':55,'text-padding':6,'symbol-sort-key':['-',0,['get','len']]},paint:{'text-color':'#4a4036','text-halo-color':'#ffffff','text-halo-width':1.8}}}
@@ -1220,6 +1227,7 @@ function drawIcon(kind){
 function hatch(col,bg){const S=16,c=document.createElement('canvas');c.width=c.height=S;const x=c.getContext('2d');x.fillStyle=bg;x.fillRect(0,0,S,S);x.strokeStyle=col;x.lineWidth=2.2;x.lineCap='square';
   for(const o of[-S,0,S]){x.beginPath();x.moveTo(o,S);x.lineTo(o+S,0);x.stroke()}return x.getImageData(0,0,S,S)}
 map.on('styleimagemissing',e=>{if(e.id.startsWith('an-')){const k=e.id.slice(3),im=PIN_IMG[k]||PIN_IMG.Other;if(im&&!map.hasImage(e.id))map.addImage(e.id,im,{pixelRatio:2});return}if(COLORS[e.id])map.addImage(e.id,drawIcon(e.id),{pixelRatio:2});
+  else if(e.id==='mate-arr'){const c=document.createElement('canvas');c.width=c.height=64;const x=c.getContext('2d');x.fillStyle='#000';x.beginPath();x.moveTo(32,2);x.lineTo(46,24);x.lineTo(18,24);x.closePath();x.fill();map.addImage('mate-arr',x.getImageData(0,0,64,64),{pixelRatio:2,sdf:true})}
   else if(e.id==='sarrow'){const c=document.createElement('canvas');c.width=c.height=32;const x=c.getContext('2d');x.fillStyle='#f57c00';x.strokeStyle='#fff';x.lineWidth=3;x.lineJoin='round';x.beginPath();x.moveTo(25,16);x.lineTo(8,6);x.lineTo(12,16);x.lineTo(8,26);x.closePath();x.stroke();x.fill();map.addImage('sarrow',x.getImageData(0,0,32,32),{pixelRatio:2})}
   else if(e.id==='hatch-red')map.addImage('hatch-red',hatch('rgba(217,48,37,.55)','rgba(217,48,37,.08)'),{pixelRatio:2});
   else if(e.id==='hatch')map.addImage('hatch',hatch('#4a90e2','rgba(178,214,245,.55)'),{pixelRatio:2});
@@ -1295,7 +1303,7 @@ const BLOCKING=['Washed out','Closed','Blocked by animal','Fallen tree','Deep wa
 let tracks=LS.get('tracks',[]);
 let calib=LS.get('calib',[0,0]);
 let curRoad=null, nav=null, recTrack=null, sim=null, offCount=0, lastPos=null, speedS=0;
-const DM={on:false,ll:null,hd:0,spd:0,segs:null,along:0,v:7,sights:[],reports:[],iv:null,bt:0};
+const DM={on:false,ll:null,hd:0,spd:0,segs:null,along:0,v:7,sights:[],reports:[],iv:null,bt:0,peers:{},host:false,lastCars:{}};
 const DEMO_END=HOUSE2||DATA.pois.features[0].geometry.coordinates;
 const homeLL=()=>home?home.ll:DEMO_END;
 
@@ -1332,7 +1340,7 @@ async function api(path,opt={},retry=true){
   if(r.status===401&&retry){Cloud.sess.expires_at=0;return api(path,opt,false)}
   const t=await r.text();if(!r.ok)throw new Error(r.status+': '+t.slice(0,160));return t?JSON.parse(t):null;
 }
-function queue(op){if(!Cloud.on||!Cloud.member)return;{const id=String((op.row&&op.row.client_id)||op.cid||op.id||'');if(id.startsWith('demo-'))return}Cloud.outbox.push(op);saveCloud();sync();clearTimeout(queue.t);queue.t=setTimeout(()=>{if(Cloud.outbox.length)sync()},2500)}
+function queue(op){if(!Cloud.on||!Cloud.member)return;if(DM.on&&(op.t==='drives'||op.t==='animal_misses'))return;{const id=String((op.row&&op.row.client_id)||op.cid||op.id||'');if(id.startsWith('demo-'))return}Cloud.outbox.push(op);saveCloud();sync();clearTimeout(queue.t);queue.t=setTimeout(()=>{if(Cloud.outbox.length)sync()},2500)}
 async function joinReserve(name,code){
   await ensureSession();
   let res;
@@ -1489,6 +1497,9 @@ function annPop(){const a=ANN.filter(x=>!annSeen.has(x.client_id)&&(!x.expires_a
 
 /* ============ what's new: shown once to owners and admins after an update ============ */
 const WHATS_NEW=[
+ [77,'play','Shared demo mode','Everyone who taps Demo mode is in the same pretend world: you see each other, where you are heading, and the same demo cars and sightings.'],
+ [77,'binoc','Add sightings while you drive','On a route, tap the map to mark a sighting without stopping your directions.'],
+ [77,'route','Smoother driving view','The map no longer shakes or wobbles while you follow a route.'],
  [75,'route','Look around while you drive','Drag or pinch the map during a route to look ahead or around. Your route stays on, tap Re-centre to jump back.'],
  [75,'play','Demo mode','Put yourself anywhere on the map, drive to any sighting, and see other phones that are in demo mode too. Nothing in demo mode is real or saved.'],
  [75,'msg','Suggest something','Got an idea or found a problem? Send it from the menu.'],
@@ -1737,27 +1748,37 @@ function trailInfo(uid){const T=TRAILS[uid];if(!T||T.pts.length<2)return null;le
 function showTrail(uid){const T=TRAILS[uid];if(!T||T.pts.length<2)return;trailSel=uid;drawTrails();closeSheet();setFollow(0);try{map.setPadding({top:0,bottom:0,left:0,right:0})}catch(e){}setTimeout(()=>{if(trailSel===uid){trailSel=null;drawTrails()}},60000);
   const b=new maplibregl.LngLatBounds([T.pts[0][0],T.pts[0][1]],[T.pts[0][0],T.pts[0][1]]);T.pts.forEach(p=>b.extend([p[0],p[1]]));
   const top=nav?$('nav').getBoundingClientRect().bottom+30:140;map.fitBounds(b,{padding:{top,bottom:nav?200:170,left:50,right:70},maxZoom:16,bearing:0,pitch:0,duration:800})}
+const MATEP={};let mateRAF=0;
 function renderLive(){if(!mapReady)return;const me_=Cloud.sess&&Cloud.sess.uid,now=Date.now(),keep=new Set();
   Object.values(LIVE).forEach(r=>{if(r.user_id!==me_&&now-Date.parse(r.updated_at)<150000)trailAdd(r.user_id,r.name,[r.lng,r.lat],Date.parse(r.updated_at))});drawTrails();
   Object.values(LIVE).forEach(r=>{if(r.user_id===me_)return;const age=now-Date.parse(r.updated_at);if(age>150000)return;keep.add(r.user_id);
-    let m=liveMk[r.user_id];const col=mateCol(r.user_id),view=(r.status||'').startsWith('viewing');
-    if(!m){const el=document.createElement('div');el.className='mate';el.innerHTML='<div class="ma"><svg viewBox="0 0 34 34"><path d="M17 1l6 9h-12z" fill="'+col+'" stroke="#fff" stroke-width="1.5"/></svg></div><div class="md" style="background:'+col+'"></div><div class="mn" style="background:'+col+'"></div>';
-      el.onclick=e=>{e.stopPropagation();const x=LIVE[r.user_id];if(x)mateSheet(x)};m=liveMk[r.user_id]=new maplibregl.Marker({element:el,rotationAlignment:'map'}).setLngLat([r.lng,r.lat]).addTo(map)}
-    else m.setLngLat([r.lng,r.lat]);
-    const el=m.getElement(),moving=(r.speed||0)>1.5&&r.heading!=null;
-    el.querySelector('.ma').style.display=moving?'':'none';if(moving)el.querySelector('.ma').style.transform='rotate('+r.heading+'deg)';
-    el.querySelector('.mn').innerHTML=esc(r.name||'Member')+(view?' <small>· '+esc((r.status||'').split(':')[1]||'')+'</small>':'');
-    el.classList.toggle('old',age>60000);el.classList.toggle('view',view)});
-  Object.keys(liveMk).forEach(id=>{if(!keep.has(id)){liveMk[id].remove();delete liveMk[id]}})}
+    const P=MATEP[r.user_id]||(MATEP[r.user_id]={cur:[r.lng,r.lat]});const to=[r.lng,r.lat];if(!P.to||dist(P.cur,to)>400)P.cur=to.slice();P.from=P.cur.slice();P.to=to;P.t0=performance.now();P.r=r});
+  Object.keys(MATEP).forEach(id=>{if(!keep.has(id))delete MATEP[id]});
+  if(!mateRAF)mateRAF=requestAnimationFrame(mateFrame)}
+function mateFrame(){mateRAF=0;if(!mapReady||!map.getSource('mates'))return;const now=performance.now();let moving=false;const F=[];
+  Object.entries(MATEP).forEach(([id,P])=>{const r=P.r;const k=Math.min(1,(now-P.t0)/1000);if(k<1)moving=true;
+    P.cur=[P.from[0]+(P.to[0]-P.from[0])*k,P.from[1]+(P.to[1]-P.from[1])*k];
+    const age=Date.now()-Date.parse(r.updated_at),view=(r.status||'').startsWith('viewing'),mv=(r.speed||0)>1.5&&r.heading!=null;
+    F.push({type:'Feature',properties:{id,col:mateCol(id),hd:r.heading||0,mv,view,op:age>60000?.55:1,label:(r.name||'Member')+(view?' · '+((r.status||'').split(':')[1]||''):'')},geometry:{type:'Point',coordinates:P.cur}})});
+  map.getSource('mates').setData({type:'FeatureCollection',features:F});
+  if(moving)setTimeout(()=>{if(!mateRAF)mateRAF=requestAnimationFrame(mateFrame)},70)}
+// what they've passed: sightings within 120 m of the path they drove
+function mateSeen(uid){const T=TRAILS[uid];if(!T||T.pts.length<2)return [];const out=[];
+  allSights().forEach(x=>{let best=null;for(const p of T.pts){if(dist([p[0],p[1]],x.ll)<120){best=p[2];break}}if(best)out.push({x,t:best*1000})});
+  return out.sort((a,b)=>b.t-a.t).slice(0,8)}
 function mateSheet(r){const ll=r?[r.lng,r.lat]:null,uid=r.user_id,d=me&&ll?fmtD(dist(me.ll,ll)):'',ti=trailInfo(uid),col=mateCol(uid),live=r.updated_at&&Date.now()-Date.parse(r.updated_at)<150000;
   openSheet(`<div class="rph"><span class="mav2" style="background:${col}">${esc((r.name||'?').trim()[0]||'?').toUpperCase()}</span><div style="min-width:0"><small>${live?'On the reserve now':'Earlier today'}</small><b>${esc(r.name||'Member')}</b></div></div>
    <div class="sub" style="margin-top:6px">${live?esc(liveTxt(r))+' · updated '+esc(ago(Date.parse(r.updated_at))):'Last seen '+esc(ago(ti?ti.start+ti.mins*6e4:Date.now()))}${d?' · '+d+' from you':''}</div>
    ${ti?`<div class="rpm"><div><b class="g">${fmtD(ti.len)}</b><small>Driven</small></div><div><b>${fmtT(ti.mins*60)}</b><small>Time</small></div><div><b>${new Date(ti.start).toTimeString().slice(0,5)}</b><small>Started</small></div></div>
    ${ti.roads.length?`<div class="rpv">${LI('route',17)}<span>${ti.roads.slice(-6).map(esc).join(' <i>›</i> ')}</span></div>`:''}`:'<div class="sub" style="margin-top:10px">No route yet. It shows once they have driven a bit.</div>'}
+   ${(()=>{const g=(DEMO.info[uid]||{}).goal;return g?`<div class="rpv" style="margin-top:8px">${LI('arrow',17)}<span>${esc(g)}</span></div>`:''})()}
+   ${(()=>{const L=mateSeen(uid);return L.length?`<div class="msec" style="margin-top:14px">Sightings on their drive</div><div class="list sgroup">${L.map(q=>`<button class="it lk" data-msx="${esc(q.x.cid)}"><span style="flex:none;display:flex">${AN(q.x.what,30)}</span><div style="flex:1;min-width:0"><b>${esc(q.x.what)}</b><br><small>Passed ${esc(ago(q.t))}</small></div><span class="ar">›</span></button>`).join('')}</div>`:''})()}
    <div class="sub" style="margin-top:10px;font-size:12px">Routes start 400 m from each person's house, to keep homes private.</div>
    <div class="row" style="margin-top:12px">${ti?'<button class="btn" id="mRoute">'+LI('route',18)+' Show route</button>':''}${live?'<button class="btn pri" id="mGo">Go to them</button>':''}</div>`,()=>{
     if($('mGo'))$('mGo').onclick=()=>{closeSheet();startNav({kind:'pin',name:r.name||'Member',ll})};
-    if($('mRoute'))$('mRoute').onclick=()=>{showTrail(uid);toast(esc(r.name||'Their')+' route · '+fmtD(ti.len),2500)}})}
+    if($('mRoute'))$('mRoute').onclick=()=>{showTrail(uid);toast(esc(r.name||'Their')+' route · '+fmtD(ti.len),2500)};
+    document.querySelectorAll('[data-msx]').forEach(b=>b.onclick=()=>{const x=allSights().find(q=>q.cid===b.dataset.msx);if(x)showPlace(sightPlace(x))});
+    trailSel=uid;drawTrails();drawPlan(uid);clearTimeout(mateSheet.t);mateSheet.t=setTimeout(()=>{if(trailSel===uid){trailSel=null;drawTrails();drawPlan(null)}},90000)})}
 setInterval(liveTick,4000);setInterval(livePull,12000);setInterval(renderLive,15000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){livePull();liveTick()}});
 /* ============ new sighting alerts ============ */
@@ -1790,7 +1811,7 @@ function nextPing(){const x=pingQ.shift(),el=$('ping');if(!x){pingOn=false;el.cl
 let expT=0;
 function armExpiry(){clearTimeout(expT);const m=Cloud.member;if(!m||!m.exp)return;const d=m.exp-Date.now();
   if(d<=0){logOut('expired');return}expT=setTimeout(()=>logOut('expired'),Math.min(d,2147e6))}
-function logOut(why){if(!Cloud.member)return;clearTimeout(expT);rtStop();Object.values(liveMk).forEach(m=>m.remove());liveMk={};LIVE={};
+function logOut(why){if(!Cloud.member)return;clearTimeout(expT);rtStop();Object.values(liveMk).forEach(m=>m.remove());liveMk={};LIVE={};setTimeout(()=>{try{renderLive()}catch(e){}},0);
   Cloud.member=null;Cloud.outbox=[];Cloud.remote={sightings:[],reports:[]};saveCloud();
   try{if(nav)endNav()}catch(e){}try{closeSheet()}catch(e){}refreshOverlays();
   const o=$('gOut');o.style.background='';o.style.color='';const moved=why==='removed'&&Date.now()-LS.get('movedT',0)<14*864e5;o.innerHTML=moved?'This copy of the map is no longer used<small>You moved to the new version. Open the map from the new icon on your Home Screen and delete this one.</small>':'You have been logged out<small>'+(why==='expired'?'Your guest code has expired. Ask an owner for a new one.':why==='revoked'?'An owner ended your guest code.':'Your access to the map was removed.')+'</small>';o.classList.remove('hide');
@@ -1875,9 +1896,9 @@ function bindSightExtras(x){
     const cid=cidNew(),t=Date.now(),sg={cid,what:x.name,note:'',ll:x.ll.slice(),t,still:true,photo:true};await photoPut(cid,b);sights.unshift(sg);LS.set('sights',sights);
     const share=!(x.name==='Rhino'&&!shareRhino);if(share){queue({op:'add',t:'sightings',row:sightRow(sg)});queue({op:'photo',cid})}refreshOverlays();showPlace(sightPlace(allSights().find(q=>q.cid===cid)||sg));toast('Photo added'+(navigator.onLine?'':'. It uploads when you have signal'),3000)};
   $('stillBtn').onclick=()=>{if(!me||dist(me.ll,x.ll)>400){toast('Get within 400 m of the sighting first',3000);return}confirmStill(x.name,x.ll);closeSheet();toast('Thanks! '+x.name+' marked as still here')}}
-function confirmStill(what,ll){markSeen(what);const cid=cidNew(),t=Date.now(),sg={cid,what,note:'',ll:ll.slice(),t,still:true};sights.unshift(sg);LS.set('sights',sights);
+function confirmStill(what,ll){if(DM.on){demoAdd('sight',what,'',ll.slice(),null,false,true);return}markSeen(what);const cid=cidNew(),t=Date.now(),sg={cid,what,note:'',ll:ll.slice(),t,still:true};sights.unshift(sg);LS.set('sights',sights);
   if(!(what==='Rhino'&&!shareRhino))queue({op:'add',t:'sightings',row:sightRow(sg)});refreshOverlays()}
-function reportGone(what,ll){const m={cid:cidNew(),what,ll:ll.slice(),t:Date.now(),by:'You'};MYMISS.push(m);MYMISS=MYMISS.filter(x=>Date.now()-x.t<864e5);LS.set('mymiss',MYMISS);try{estCache.k=''}catch(e){}
+function reportGone(what,ll){if(DM.on){const x=DM.sights.filter(q=>q.what===what&&dist(q.ll,ll)<250).sort((a,b)=>dist(a.ll,ll)-dist(b.ll,ll))[0];if(x){DM.sights=DM.sights.filter(q=>q.what!==what||dist(q.ll,ll)>=250);demoSend({k:'gone',cid:x.cid})}refreshOverlays();return}const m={cid:cidNew(),what,ll:ll.slice(),t:Date.now(),by:'You'};MYMISS.push(m);MYMISS=MYMISS.filter(x=>Date.now()-x.t<864e5);LS.set('mymiss',MYMISS);try{estCache.k=''}catch(e){}
   queue({op:'add',t:'animal_misses',row:{client_id:m.cid,what:m.what,lat:m.ll[1],lng:m.ll[0],created_at:new Date(m.t).toISOString()}});refreshOverlays()}
 /* back before dark: 40 min before sunset (and again at sunset) if you are out and far from home */
 let sunRemind=LS.get('sunRemind',true);
@@ -2145,7 +2166,7 @@ function setTarget(ll,heading,t){
     if(heading!=null&&Math.abs(((hd-heading+540)%360)-180)>60)hd=heading}
   const now=performance.now();anim.lastFix=now;anim.fixT=now;anim.v=Math.min(35,speedS||0);
   anim.to=tgt;anim.toHd=hd!=null?hd:(anim.toHd||0);
-  anim.routeHd=null;if(nav&&nav.segs&&(speedS||0)>1.2){try{const pr=projectOnRoute(nav.segs,tgt);if(pr.d<40)anim.routeHd=bearing(pointAt(nav.segs,pr.along),pointAt(nav.segs,Math.min(nav.total,pr.along+35)))}catch(e){}}if(!anim.pos){anim.pos=tgt.slice();anim.hd=anim.toHd;anim.camHd=anim.toHd}
+  anim.routeHd=null;if(nav&&nav.segs&&(speedS||0)>1.2){try{const pr=projectOnRoute(nav.segs,tgt);if(pr.d<40)anim.routeHd=bearing(pointAt(nav.segs,pr.along),pointAt(nav.segs,Math.min(nav.total,pr.along+70)))}catch(e){}}if(!anim.pos){anim.pos=tgt.slice();anim.hd=anim.toHd;anim.camHd=anim.toHd}
   if(me)me.disp=tgt;
 }
 const camState={zoom:null};
@@ -2159,25 +2180,32 @@ function camTick(){
   // where the car is now: last fix, carried forward along its heading until the next fix arrives
   let pred=anim.to;const ex=Math.min(1.25,(now-anim.fixT)/1000);
   if(!stopped&&anim.v>1.2&&ex>0){const a=anim.toHd*Math.PI/180,d=anim.v*ex;pred=[anim.to[0]+Math.sin(a)*d/(111320*Math.cos(anim.to[1]*Math.PI/180)),anim.to[1]+Math.cos(a)*d/110540]}
+  // on a route: keep the car exactly on the route line, so GPS wobble never pushes it sideways
+  if(nav&&nav.segs&&!stopped){try{const pr=projectOnRoute(nav.segs,pred);if(pr.d<25)pred=pointAt(nav.segs,pr.along)}catch(e){}}
   if(dist(anim.pos,pred)>120)anim.pos=pred.slice();
   else{const kp=1-Math.exp(-dt/0.2);anim.pos=[anim.pos[0]+(pred[0]-anim.pos[0])*kp,anim.pos[1]+(pred[1]-anim.pos[1])*kp]}
   anim.hd=angLerp(anim.hd,anim.toHd,1-Math.exp(-dt/0.22));
   if(anim.camHd==null)anim.camHd=anim.hd;
-  anim.camHd=angLerp(anim.camHd,anim.routeHd!=null&&!stopped?anim.routeHd:anim.toHd,1-Math.exp(-dt/1.15));
+  {// the map turns slowly and only for real bends: small wiggles are ignored and it never turns faster than 30 degrees a second
+   const want=anim.routeHd!=null&&!stopped?anim.routeHd:anim.toHd;let diff=((want-anim.camHd+540)%360)-180;
+   if(Math.abs(diff)<4&&!nav)diff=0;else if(Math.abs(diff)<2.5)diff=0;
+   let step=diff*(1-Math.exp(-dt/1.6));const mx=30*dt;step=Math.max(-mx,Math.min(mx,step));anim.camHd=(anim.camHd+step+360)%360}
   meMk.setLngLat(anim.pos);meMk.setRotation(anim.hd);
   const driving=follow===2;meEl.classList.toggle('nav',driving||!!nav);
   if(driving&&!userMoving){
-    const kmh=(speedS||0)*3.6;const zt=kmh>45?16.4:kmh>25?16.9:17.4;const kz=1-Math.exp(-dt/1.8);camState.zoom=camState.zoom==null?map.getZoom():camState.zoom+(zt-camState.zoom)*kz;
+    const kmh=(speedS||0)*3.6;{const z=camState.zl||17.4;camState.zl=z===17.4?(kmh>29?16.9:17.4):z===16.9?(kmh>50?16.4:kmh<20?17.4:16.9):(kmh<38?16.9:16.4)}const zt=camState.zl;const kz=1-Math.exp(-dt/2.6);camState.zoom=camState.zoom==null?map.getZoom():camState.zoom+(zt-camState.zoom)*kz;
     const p=tilt?60:0,pt=map.getPitch();
     map.jumpTo({center:anim.pos,bearing:anim.camHd,pitch:Math.abs(p-pt)<.05?p:pt+(p-pt)*(1-Math.exp(-dt/0.6)),zoom:camState.zoom,padding:{top:Math.round(innerHeight*0.42),bottom:0,left:0,right:0}});
   }else anim.camHd=driving?anim.camHd:map.getBearing();
 }
 let userMoving=false,TOUCHING=false;
+function lookAround(){if(follow!==2)return;setFollow(0);if(me)$('recenter').classList.remove('hide')}
 map.on('movestart',e=>{if(e.originalEvent)userMoving=true});map.on('moveend',()=>{if(!TOUCHING)userMoving=false});
 /* free look while driving: the camera follows the car every frame, which on a phone cancels a drag before it starts.
    So the moment a finger touches the map we stop following, and the first drag or pinch hands the map to you. */
 {const cc=map.getCanvasContainer();
- cc.addEventListener('touchstart',()=>{TOUCHING=true;if(follow===2)userMoving=true},{passive:true});
+ let t0=null;cc.addEventListener('touchstart',e=>{TOUCHING=true;if(follow===2)userMoving=true;const t=e.touches[0];t0=t?[t.clientX,t.clientY]:null;if(e.touches.length>1&&follow===2)lookAround()},{passive:true});
+ cc.addEventListener('touchmove',e=>{if(follow!==2||!t0)return;const t=e.touches[0];if(e.touches.length>1||Math.hypot(t.clientX-t0[0],t.clientY-t0[1])>8)lookAround()},{passive:true});
  const up=e=>{if(e.touches&&e.touches.length)return;TOUCHING=false;setTimeout(()=>{if(follow===2&&!TOUCHING)userMoving=false},80)};
  cc.addEventListener('touchend',up,{passive:true});cc.addEventListener('touchcancel',up,{passive:true});
  cc.addEventListener('mousedown',()=>{TOUCHING=true;if(follow===2)userMoving=true});addEventListener('mouseup',()=>up({}));
@@ -2521,10 +2549,10 @@ const OTHER_SUG=['Warthog','Impala','Wildebeest','Nyala','Waterbuck','Honey badg
 const otherSugs=()=>[...new Set([...LS.get('otherNames',[]),...OTHER_SUG])].slice(0,14);
 function otherName(v){v=String(v||'').trim().replace(/\s+/g,' ').slice(0,30);if(!v)return '';const k=ANIMALS.find(a=>a.toLowerCase()===v.toLowerCase());if(k)return k;return v.charAt(0).toUpperCase()+v.slice(1)}
 const ANIMALS=['Lion','Leopard','Elephant','Rhino','Cheetah','Wild dog','Hippo','Buffalo','Hyena','Giraffe','Zebra','Kudu','Other'];
-function delSight(cid){const i=sights.findIndex(s=>s.cid===cid);if(i>-1){sights.splice(i,1);LS.set('sights',sights)}
+function delSight(cid){if(String(cid).startsWith('demo-')){DM.sights=DM.sights.filter(q=>q.cid!==cid);demoSend({k:'gone',cid});refreshOverlays();return}const i=sights.findIndex(s=>s.cid===cid);if(i>-1){sights.splice(i,1);LS.set('sights',sights)}
   Cloud.remote.sightings=(Cloud.remote.sightings||[]).filter(x=>x.client_id!==cid);queue({op:'del',t:'sightings',id:cid});refreshOverlays()}
 /* road reports: "Still there" confirms it, "Road is clear" from the reporter/admin clears it; from others it takes 2 people */
-async function voteReport(x,still){
+async function voteReport(x,still){if(String(x.cid).startsWith('demo-')){if(still){x.confirms=(x.confirms||0)+1;x.confAt=Date.now();demoSend({k:'rconf',cid:x.cid});toast('Thanks, confirmed (demo)')}else{DM.reports=DM.reports.filter(q=>q.cid!==x.cid);demoSend({k:'rgone',cid:x.cid});toast('Marked as clear (demo)')}refreshOverlays();return}
   if(x.mine&&!still){resolveReport(x.cid);toast('Marked as clear');return}
   if(!Cloud.member||!navigator.onLine){if(!still){resolveReport(x.cid);toast('Marked as clear')}else toast('You need signal to confirm');return}
   try{const r=await rpc('vote_report',{p_cid:x.cid,p_still:still});
@@ -2532,7 +2560,7 @@ async function voteReport(x,still){
     const rr=(Cloud.remote.reports||[]).find(q=>q.client_id===x.cid);if(rr){rr.confirms=r.confirms;if(still)rr.confirmed_at=new Date().toISOString()}
     toast(still?'Thanks, confirmed. '+(r.confirms>1?r.confirms+' people say':'You say')+' it is still there':'Thanks. One more person saying it is clear removes it',3500);refreshOverlays()}
   catch(e){if(/404|PGRST202|Could not find/.test(String(e.message))){if(!still){resolveReport(x.cid);toast('Marked as clear')}}else toast('Could not send, try again with better signal')}}
-function resolveReport(cid,server){const i=reports.findIndex(r=>r.cid===cid);if(i>-1){reports.splice(i,1);LS.set('reports',reports)}
+function resolveReport(cid,server){if(String(cid).startsWith('demo-')){DM.reports=DM.reports.filter(q=>q.cid!==cid);demoSend({k:'rgone',cid});refreshOverlays();return}const i=reports.findIndex(r=>r.cid===cid);if(i>-1){reports.splice(i,1);LS.set('reports',reports)}
   Cloud.remote.reports=(Cloud.remote.reports||[]).filter(x=>x.client_id!==cid);if(!server)queue({op:'resolve',id:cid});refreshOverlays()}
 var tapMk=null;
 function dropPin(ll){if(!tapMk){const el=document.createElement('div');el.innerHTML='<svg class="tapmk" viewBox="0 0 30 40"><path d="M15 39C15 39 2 23 2 14a13 13 0 0 1 26 0c0 9-13 25-13 25z" fill="#ea4335" stroke="#fff" stroke-width="2"/><circle cx="15" cy="14" r="5" fill="#fff"/></svg>';tapMk=new maplibregl.Marker({element:el,anchor:'bottom'})}tapMk.setLngLat(ll).addTo(map)}
@@ -2584,13 +2612,17 @@ $('pinBtn').onclick=()=>addSheet('sight');
 map.on('click','sights',e=>{const s=allSights().find(x=>x.cid===e.features[0].properties.cid);if(s)showPlace(sightPlace(s))});
 map.on('click','note-dot',e=>{const n=NOTES.find(x=>x.client_id===e.features[0].properties.id);if(n){e.originalEvent&&(e.originalEvent._est=1);noteSheet(n)}});
 map.on('click','closed-roads',e=>{const r=e.features[0].properties.name;if(r){e.originalEvent&&(e.originalEvent._est=1);showPlace({kind:'road',name:r,road:r,sub:'Road'})}});
+for(const l of ['mate-dot','mate-lbl','mate-arrow'])map.on('click',l,e=>{const id=e.features[0].properties.id;e.originalEvent&&(e.originalEvent._est=1);const r=LIVE[id];if(r)mateSheet(r)});
 map.on('click','trail-line',e=>{const u=e.features[0].properties.uid;const r=LIVE[u]||{user_id:u,name:(TRAILS[u]||{}).n};e.originalEvent&&(e.originalEvent._est=1);mateSheet(r)});
 map.on('click','reports',e=>{const r=allReports().find(x=>x.cid===e.features[0].properties.cid);if(r)showPlace({kind:'report',name:r.kind,sub:'Road report · '+ago(r.t)+' · '+r.by+(r.road?' · '+r.road:'')+confTxt(r)+(r.note?' · '+r.note:''),ll:r.ll,cid:r.cid,mine:r.mine})});
 map.on('click','est-fill',e=>{if(map.queryRenderedFeatures(e.point,{layers:['sights','reports','poi','home']}).length)return;const id=e.features[0].properties.id,x=estimates().find(q=>q.id===id);if(x){e.preventDefault&&e.preventDefault();e.originalEvent&&(e.originalEvent._est=1);estSheet(x)}});
 map.on('click','poi',e=>{const f=e.features[0];showPlace({kind:f.properties.kind,name:f.properties.name,sub:(PKIND[f.properties.kind]||'')+(f.properties.note?' · '+f.properties.note:''),ll:f.geometry.coordinates,pid:f.properties.pid||'',base:f.properties.base||''})});
-map.on('click',e=>{const f=map.queryRenderedFeatures(e.point,{layers:['sights','reports','poi','home','est-fill','trail-line','note-dot','closed-roads']});if(f.length)return;
-  if(nav)return;if(follow)setFollow(0);
-  const ll=e.lngLat.toArray();if(DM.on){demoTapSheet(ll);return}addSheet('sight',ll);map.easeTo({center:ll,offset:[0,-innerHeight*0.22],duration:500})});
+map.on('click',e=>{const f=map.queryRenderedFeatures(e.point,{layers:['sights','reports','poi','home','est-fill','trail-line','note-dot','closed-roads','mate-dot','mate-lbl','mate-arrow']});if(f.length)return;
+  const ll=e.lngLat.toArray();
+  // on a route: tapping the map adds a sighting there without moving the map or stopping the route
+  if(nav){if(DM.on){demoTapSheet(ll);return}addSheet('sight',ll);return}
+  if(follow)setFollow(0);
+  if(DM.on){demoTapSheet(ll);return}addSheet('sight',ll);map.easeTo({center:ll,offset:[0,-innerHeight*0.22],duration:500})});
 for(const l of['sights','reports','poi','road','road-check'])map.on('mouseenter',l,()=>map.getCanvas().style.cursor='pointer'),map.on('mouseleave',l,()=>map.getCanvas().style.cursor='');
 
 /* ============ menu ============ */
@@ -2621,7 +2653,7 @@ $('menuBtn').onclick=()=>{
     ${m?LK('lLive','Share live location',shareLoc?'On · '+esc(liveWhy().short):'Off','','live','#1a73e8'):''}
     ${m&&m.locked?LK('lSug','Suggestions',SUG.list.length?SUG.list.length+' from people on the map':'Nothing yet',SUG.list.filter(x=>!x.read).length?'<span class="tag t-new">'+SUG.list.filter(x=>!x.read).length+' new</span>':'','msg','#0b8043'):m?LK('lSug','Suggest something','Ideas, problems or wishes for the map','','msg','#0b8043'):''}
     ${LK('lOff','Offline map',esc(offlineStatus()),'','down','#00796b')}
-    ${LK('lDemo',DM.on?'Exit demo mode':'Demo mode',DM.on?'Back to your real location':'Pretend to be anywhere and test everything','','play','#5f6368')}
+    ${LK('lDemo',DM.on?'Demo mode':'Demo mode',DM.on?'You are in demo mode · tap to see who is in it':(()=>{const L=Object.values(DEMO.outside).filter(p=>Date.now()-p.t<20000);return L.length?L.map(p=>p.name).slice(0,2).join(' and ')+(L.length>2?' and others':'')+(L.length>1?' are':' is')+' in demo mode now · tap to join':'Pretend to be anywhere and test everything'})(),'','play','#5f6368')}
    </div>
    ${m&&!m.locked?'<button class="mout" id="mOut">Sign out</button>':''}`,()=>{
     $('mSet').onclick=()=>settingsSheet();
@@ -2636,7 +2668,7 @@ $('menuBtn').onclick=()=>{
     $('tDrives').onclick=()=>openSheet(tracksSheet(),bindTracks);
     if($('lLive'))$('lLive').onclick=()=>liveSheet();
     $('lOff').onclick=()=>offlineSheet(false);
-    $('lDemo').onclick=()=>{closeSheet();DM.on?stopDemo():startDemo()};
+    $('lDemo').onclick=()=>{if(DM.on){demoPeopleSheet();return}closeSheet();startDemo()};
     if($('lSug'))$('lSug').onclick=()=>Cloud.member&&Cloud.member.locked?sugInbox():sugSheet();
     if($('mOut'))$('mOut').onclick=()=>signOutSheet();
   });
@@ -2810,7 +2842,7 @@ function outSheet(){const L=outNow().sort((a,b)=>(a.name||'').localeCompare(b.na
 /* ============ today's animals: Big Five tally ============ */
 const BIG5=['Lion','Leopard','Elephant','Buffalo','Rhino'];
 function seenToday(){const d=new Date().toDateString();let S=LS.get('seenDay',null);if(!S||S.d!==d)S={d,a:{}};return S}
-function markSeen(what){if(!what||what==='Rhino'&&!shareRhino&&false)return;const S=seenToday();const had=BIG5.filter(w=>S.a[w]).length;if(S.a[what])return;S.a[what]=Date.now();LS.set('seenDay',S);
+function markSeen(what){if(DM.on)return;if(!what||what==='Rhino'&&!shareRhino&&false)return;const S=seenToday();const had=BIG5.filter(w=>S.a[w]).length;if(S.a[what])return;S.a[what]=Date.now();LS.set('seenDay',S);
   const now5=BIG5.filter(w=>S.a[w]).length;if(now5===5&&had===4)setTimeout(big5Party,600)}
 function tallyHtml(compact){const S=seenToday(),k=Object.keys(S.a),b=BIG5.filter(w=>S.a[w]).length;
   return `<div class="tally${compact?' c':''}"><div class="tyh"><b>Big Five ${b}/5</b><small>${k.length} kind${k.length===1?'':'s'} of animal today</small></div><div class="tyb">${BIG5.map(w=>`<span class="${S.a[w]?'on':''}" title="${w}">${AN(w,compact?26:30)}</span>`).join('')}</div></div>`}
@@ -3051,7 +3083,7 @@ function signOutSheet(){const m=Cloud.member;if(!m)return;
     $('soNo').onclick=closeSheet;
     $('soYes').onclick=async()=>{$('soYes').textContent='Signing out...';$('soYes').disabled=true;let off=true;
       if(navigator.onLine&&Cloud.sess){try{await rpc('leave_reserve')}catch(e){off=false;try{await api('/rest/v1/live_locs?user_id=eq.'+Cloud.sess.uid,{method:'DELETE'})}catch(x){}}}else off=false;
-      LS_.on=false;rtStop();Object.values(liveMk).forEach(x=>x.remove());liveMk={};LIVE={};clearTimeout(expT);
+      LS_.on=false;rtStop();Object.values(liveMk).forEach(x=>x.remove());liveMk={};LIVE={};setTimeout(()=>{try{renderLive()}catch(e){}},0);clearTimeout(expT);
       Cloud.member=null;Cloud.outbox=[];Cloud.remote={sightings:[],reports:[]};saveCloud();refreshOverlays();closeSheet();
       const o=$('gOut');o.innerHTML='You have been signed out<small style="color:#1967d2!important">'+(off?"You're no longer listed as on the app. Enter your code to come back.":"You're signed out on this phone. It may take a little while to disappear from the list.")+'</small>';o.classList.remove('hide');o.style.background='#e8f0fe';o.style.color='#1967d2';
       $('gCode').value='';showGate()}})}
@@ -3074,7 +3106,7 @@ function cloudSheetOld(){
     $('cLeave').onclick=()=>signOutSheet();
   });
 }
-function toggleRec(){
+function toggleRec(){if(DM.on&&!recTrack){toast('Drive recording is off in demo mode');return}
   if(recTrack){if(recTrack.pts.length>2){const t={cid:cidNew(),name:'Drive '+new Date(recTrack.t).toLocaleString([], {day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}),pts:recTrack.pts,len:recTrack.len,t:recTrack.t};t.end=Date.now();tracks.unshift(t);LS.set('tracks',tracks);queue({op:'add',t:'drives',row:driveRow(t)});setTimeout(()=>driveSummary(t),300)}else toast('Recording stopped');recTrack=null;LS.set('rec',null);$('rec').classList.add('hide')}
   else{recTrack={pts:[],len:0,t:Date.now()};if(me)recTrack.pts.push(me.ll);LS.set('rec',recTrack);$('rec').classList.remove('hide');$('recInfo').textContent='';toast('Recording your drive')}
   refreshOverlays();
@@ -3132,76 +3164,148 @@ function endCal(){$('cross').classList.add('hide');$('calBar').classList.add('hi
 
 /* ============ demo: other cars driving the reserve, with their routes ============ */
 const DEMO={iv:null,cars:[],endT:null};
-const DEMO_NAMES=[['demo1','Thabo (demo)'],['demo2','Sarah (demo)'],['demo3','Pieter (demo)']];
-function demoLeg(c,to){AVOIDCHK=true;try{for(let k=0;k<8;k++){const tgt=to||demoTarget(c);const r=route(c.at,tgt.ll);
-    if(r&&r.len>(to?60:400)){const b=buildSteps(r);if(b.segs.some(sg=>CHECKN().has(sg.road))){to=null;continue}c.b=b;c.along=0;c.goal=tgt;return true}to=null}}finally{AVOIDCHK=false}return false}
+/* ============ demo mode: one shared pretend world for everyone who taps Demo ============
+   Every phone in demo mode joins the same world over the live connection. One phone (the host, picked
+   automatically) drives the demo cars and tells everyone where they are, so all phones see the same cars.
+   If the host leaves, the next phone carries on from where the cars were. Nothing here touches the real map. */
+const DEMO_NAMES=[['demo1','Sipho (demo)'],['demo2','Lerato (demo)'],['demo3','Pieter (demo)']];
+const DEMO_SPOT=[['Impala',14],['Zebra',9],['Giraffe',7],['Elephant',8],['Buffalo',6],['Kudu',7],['Warthog',8],['Lion',4],['Leopard',3],['Rhino',3],['Wild dog',2],['Cheetah',2],['Hippo',3],['Hyena',3],['Wildebeest',6],['Waterbuck',4],['Baboon',4]];
+DEMO.info={};DEMO.outside={};
+const demoMe=()=>(Cloud.sess&&Cloud.sess.uid)||'local';
 const CHECKN=()=>{if(!CHECKN.s){CHECKN.s=new Set(ROADS.filter(f=>f.properties.check).map(f=>f.properties.name))}return CHECKN.s};
-let demoSeed=7;const demoRnd=()=>{demoSeed=(demoSeed*16807)%2147483647;return demoSeed/2147483647};
-function demoTarget(c){const S=allSights().filter(x=>Date.now()-x.t<6*36e5&&!(c.seen||[]).includes(x.cid));
-  if(S.length&&demoRnd()<.5){const x=S[Math.floor(demoRnd()*S.length)];return {ll:(nearestEdge(x.ll,400)||{q:x.ll}).q,sight:x}}
-  const P=DATA.pois.features.filter(f=>['gate','water','picnic','view','hide','lodge'].includes(f.properties.kind));const f=P[Math.floor(demoRnd()*P.length)];
-  return {ll:nearestEdge(f.geometry.coordinates).q,poi:f.properties.name}}
-function demoCarsStart(){demoCarsStop(true);const P=DATA.pois.features.filter(f=>['gate','water','picnic','view','hide','lodge'].includes(f.properties.kind)).map(f=>f.geometry.coordinates);if(P.length<3)return;
-  DEMO_NAMES.forEach(([id,n],i)=>{const c={id,n,v:5.5+i*1.1,at:nearestEdge(P[Math.floor(demoRnd()*P.length)]).q,pause:i===1?20:0,seen:[]};if(!demoLeg(c))return;
-    c.along=c.b.total*(.35+.15*i);const now=Date.now();TRAILS[id]={n,pts:[]};
-    for(let a=0;a<=c.along;a+=10){const p=pointAt(c.b.segs,a);TRAILS[id].pts.push([p[0],p[1],Math.round((now-(c.along-a)/c.v*1000)/1000)])}
+let demoSeed=Date.now()%2147483647||7;const demoRnd=()=>{demoSeed=(demoSeed*16807)%2147483647;return demoSeed/2147483647};
+const demoPOIs=()=>DATA.pois.features.filter(f=>['water','picnic','view','hide','lodge'].includes(f.properties.kind)&&inReserve(f.geometry.coordinates));
+function demoTarget(c){const S=allSights().filter(x=>Date.now()-x.t<6*36e5&&inReserve(x.ll)&&!(c.seen||[]).includes(x.cid));
+  if(S.length&&demoRnd()<.55){const x=S[Math.floor(demoRnd()*S.length)];return {ll:(nearestEdge(x.ll,400)||{q:x.ll}).q,sight:x}}
+  const P=demoPOIs();const f=P[Math.floor(demoRnd()*P.length)];return {ll:nearestEdge(f.geometry.coordinates).q,poi:f.properties.name}}
+// a leg along proper roads only: never the orange "to be checked" tracks, never outside the reserve
+function demoLeg(c,to){AVOIDCHK=true;try{for(let k=0;k<8;k++){const tgt=to||demoTarget(c);const r=route(c.at,tgt.ll);
+    if(r&&r.len>(to?40:350)){const b=buildSteps(r);if(b.segs.some(sg=>CHECKN().has(sg.road)||!inReserve(sg.b))){to=null;continue}c.b=b;c.along=0;c.goal=tgt;return true}to=null}}finally{AVOIDCHK=false}return false}
+const simplify=(pts,n)=>{if(pts.length<=n)return pts;const out=[];for(let i=0;i<n;i++)out.push(pts[Math.round(i*(pts.length-1)/(n-1))]);return out};
+function carPlan(c){const a0=Math.min(c.along,c.b.total),pts=[pointAt(c.b.segs,a0)];c.b.segs.forEach(sg=>{if(sg.cum+sg.L>a0)pts.push(sg.b)});return simplify(pts,40).map(p=>[+p[0].toFixed(6),+p[1].toFixed(6)])}
+function carGoalTxt(c){if(c.pause>0&&c.view)return 'Watching the '+c.view.toLowerCase();const g=c.goal||{};return g.sight?'Heading to the '+g.sight.what.toLowerCase()+' sighting':g.poi?'Heading to '+g.poi:''}
+// host: build the cars (fresh, or carry on from the last positions everyone saw)
+function demoCarsStart(from){demoCarsStop(true);const P=demoPOIs().map(f=>f.geometry.coordinates);if(P.length<3)return;
+  DEMO_NAMES.forEach(([id,n],i)=>{const was=from&&from[id];
+    const c={id,n,v:5+i*1.3,at:was?(nearestEdge([was.lng,was.lat],200)||{q:[was.lng,was.lat]}).q:nearestEdge(P[Math.floor(demoRnd()*P.length)]).q,pause:was?0:(i===1?20:0),seen:[],spotT:Date.now()+(60+i*70)*1000};
+    let ok=demoLeg(c);for(let k=0;!ok&&k<6;k++){c.at=nearestEdge(P[Math.floor(demoRnd()*P.length)]).q;ok=demoLeg(c)}if(!ok)return;
+    if(!was){c.along=c.b.total*(.3+.15*i);const now=Date.now();TRAILS[id]={n,pts:[]};
+      for(let a=0;a<=c.along;a+=8){const p=pointAt(c.b.segs,a);TRAILS[id].pts.push([p[0],p[1],Math.round((now-(c.along-a)/c.v*1000)/1000)])}}
     DEMO.cars.push(c)});
-  const tick=()=>{const now=Date.now();DEMO.cars.forEach(c=>{
-      if(c.pause>0){c.pause--}else{c.along+=c.v;if(c.along>c.b.total){c.at=pointAt(c.b.segs,c.b.total);const g=c.goal||{};
-        if(g.sight){c.seen.push(g.sight.cid);c.view=g.sight.what;c.pause=45+Math.floor(demoRnd()*75)}else{c.view=null;c.pause=6+Math.floor(demoRnd()*14)}
-        if(!demoLeg(c))return}}
-      if(c.pause===1)c.view=null;
-      const p=pointAt(c.b.segs,Math.min(c.along,c.b.total)),p2=pointAt(c.b.segs,Math.min(c.along+20,c.b.total));const e=nearestEdge(p,40),road=e?ROADS[e.e.road].properties.name:'';
-      LIVE[c.id]={user_id:c.id,name:c.n,lat:p[1],lng:p[0],heading:c.pause>0?null:Math.round(bearing(p,p2)),speed:c.pause>0?0:c.v,status:c.pause>0?(c.view?'viewing:'+c.view:'stopped:'+road):'driving:'+road,updated_at:new Date(now).toISOString()}});
-    renderLive();if(DEMO.endT&&now>DEMO.endT&&!DM.on)demoCarsStop()};
-  tick();DEMO.iv=setInterval(tick,1000)}
-// a new sighting: the closest demo car that isn't already watching something heads there
-function demoChase(x){let best=null,bd=1e9;DEMO.cars.forEach(c=>{if(c.view)return;const p=pointAt(c.b.segs,Math.min(c.along,c.b.total));const d=dist(p,x.ll);if(d<bd){bd=d;best=c}});
+  DEMO.iv=setInterval(demoCarsTick,1000);demoCarsTick()}
+function demoCarsTick(){const now=Date.now();
+  DEMO.cars.forEach(c=>{
+    if(c.pause>0){c.pause--;if(c.pause===0)c.view=null}
+    else{c.along+=c.v;if(c.along>c.b.total){c.at=pointAt(c.b.segs,c.b.total);const g=c.goal||{};
+      if(g.sight){c.seen.push(g.sight.cid);c.view=g.sight.what;c.pause=45+Math.floor(demoRnd()*75)}else{c.view=null;c.pause=8+Math.floor(demoRnd()*15)}
+      demoLeg(c)}}
+    const p=pointAt(c.b.segs,Math.min(c.along,c.b.total)),p2=pointAt(c.b.segs,Math.min(c.along+20,c.b.total));const e=nearestEdge(p,40),road=e?ROADS[e.e.road].properties.name:'';
+    {const T=TRAILS[c.id]||(TRAILS[c.id]={n:c.n,pts:[]});const L=T.pts[T.pts.length-1];if(!L||dist([L[0],L[1]],p)>4)T.pts.push([p[0],p[1],Math.round(now/1000)])}
+    // now and then a car spots something and marks it for everyone, then stops to watch
+    if(DM.on&&!c.pause&&now>c.spotT&&DM.sights.filter(q=>q.ai&&now-q.t<2*36e5).length<8){c.spotT=now+(150+demoRnd()*240)*1000;
+      let tot=DEMO_SPOT.reduce((a,b)=>a+b[1],0),r=demoRnd()*tot,what='Impala';for(const [w,n] of DEMO_SPOT){r-=n;if(r<=0){what=w;break}}
+      const side=(bearing(p,p2)+(demoRnd()<.5?90:-90))*Math.PI/180,off=15+demoRnd()*45,ll=[p[0]+Math.sin(side)*off/(111320*Math.cos(p[1]*Math.PI/180)),p[1]+Math.cos(side)*off/110540];
+      const x={cid:'demo-ai-'+cidNew(),what,note:'',ll,t:now,by:c.n,mine:false,ai:1,...(PRED.includes(what)&&demoRnd()<.25?{kill:true}:{})};
+      DM.sights.push(x);demoSend({k:'sight',s:x});demoAlert(x);demoChase(x,c.id);c.view=what;c.pause=40+Math.floor(demoRnd()*50);c.seen.push(x.cid);refreshOverlays()}
+    LIVE[c.id]={user_id:c.id,name:c.n,lat:p[1],lng:p[0],heading:c.pause>0?null:Math.round(bearing(p,p2)),speed:c.pause>0?0:c.v,status:c.pause>0?(c.view?'viewing:'+c.view:'stopped:'+road):'driving:'+road,updated_at:new Date(now).toISOString()};
+    DEMO.info[c.id]={goal:carGoalTxt(c),plan:c.pause>0?null:carPlan(c),seen:c.seen.slice(-12)}});
+  renderLive();if(trailSel)drawPlan(trailSel);
+  if(DM.on&&DM.host&&now-(DEMO.sentT||0)>1900){DEMO.sentT=now;demoSend({k:'cars',c:DEMO.cars.map(c=>({id:c.id,n:c.n,...LIVE[c.id],info:DEMO.info[c.id]}))})}}
+// a new sighting: the closest demo car that isn't busy watching heads there
+function demoChase(x,not){if(!DM.host&&DM.on)return;let best=null,bd=1e9;DEMO.cars.forEach(c=>{if(c.view||c.id===not)return;const p=pointAt(c.b.segs,Math.min(c.along,c.b.total));const d=dist(p,x.ll);if(d<bd){bd=d;best=c}});
   if(best&&bd<6000){best.at=pointAt(best.b.segs,Math.min(best.along,best.b.total));best.pause=0;demoLeg(best,{ll:(nearestEdge(x.ll,400)||{q:x.ll}).q,sight:x})}}
-function demoCarsStop(quiet){clearInterval(DEMO.iv);DEMO.iv=null;DEMO.endT=null;DEMO.cars=[];Object.keys(LIVE).forEach(k=>{if(k.startsWith('demo'))delete LIVE[k]});Object.keys(TRAILS).forEach(k=>{if(k.startsWith('demo'))delete TRAILS[k]});trailSel=null;try{renderLive();drawTrails()}catch(e){}}
-/* ============ demo mode: put yourself anywhere, drive to anything, see other demo phones ============ */
-function startDemo(){if(DM.on){toast('Demo mode is already on');return}
+function demoCarsStop(quiet){clearInterval(DEMO.iv);DEMO.iv=null;DEMO.endT=null;DEMO.cars=[];Object.keys(LIVE).forEach(k=>{if(k.startsWith('demo'))delete LIVE[k]});
+  if(!quiet){Object.keys(TRAILS).forEach(k=>{if(k.startsWith('demo')||k.startsWith('dp-'))delete TRAILS[k]});DEMO.info={}}trailSel=null;try{renderLive();drawTrails();drawPlan(null)}catch(e){}}
+function drawPlan(uid){if(!mapReady||!map.getSource('mateplan'))return;const i=uid&&DEMO.info[uid];
+  map.getSource('mateplan').setData(i&&i.plan&&i.plan.length>1?{type:'FeatureCollection',features:[{type:'Feature',properties:{col:mateCol(uid)},geometry:{type:'LineString',coordinates:i.plan}}]}:empty)}
+
+/* ---------- joining, leaving and who runs the cars ---------- */
+function startDemo(){if(DM.on){demoPeopleSheet();return}
   const g=DATA.pois.features.find(f=>f.properties.name==='Main Gate').geometry.coordinates;
   const real=me&&Date.now()-me.t<60000&&inReserve(me.ll)?me.ll:null;
-  if(sim&&sim.iv)clearInterval(sim.iv);sim={demo:true};DM.on=true;DM.ll=(nearestEdge(real||g,300)||{q:real||g}).q;DM.segs=null;DM.spd=0;DM.sights=[];DM.reports=[];
-  document.body.classList.add('demo');demoCarsStart();demoTick();DM.iv=setInterval(demoTick,1000);demoBar();
-  setTimeout(()=>{setFollow(1)},300);demoSend({k:'hello'});
-  toast("Demo mode. Tap anywhere on the map and choose I'm here to move yourself there. Tap a sighting and Go to drive to it.",5500)}
-function stopDemo(){if(!DM.on)return;clearInterval(DM.iv);demoSend({k:'bye'});DM.on=false;if(nav)endNav();sim=null;DM.sights=[];DM.reports=[];DM.segs=null;
+  if(recTrack)toggleRec();
+  if(sim&&sim.iv)clearInterval(sim.iv);sim={demo:true};
+  Object.assign(DM,{on:true,ll:(nearestEdge(real||g,300)||{q:real||g}).q,segs:null,spd:0,hd:0,sights:[],reports:[],peers:{},host:false,lastCars:{},v:LS.get('demoSpd',7)});
+  document.body.classList.add('demo');demoTick();DM.iv=setInterval(demoTick,1000);demoBar();
+  setTimeout(()=>setFollow(1),300);demoSend({k:'hello'});
+  // give other phones a moment to answer, then decide who runs the demo cars
+  setTimeout(demoElect,2600);
+  const n=Object.values(DEMO.outside).filter(p=>Date.now()-p.t<20000).length;
+  toast(n?"You joined the demo. Tap anywhere on the map and choose I'm here to move yourself there.":"Demo mode. Tap anywhere on the map and choose I'm here to move yourself there. Tap a sighting and Go to drive to it.",5500)}
+function demoElect(){if(!DM.on)return;const now=Date.now(),ids=[demoMe(),...Object.keys(DM.peers).filter(u=>now-DM.peers[u].t<15000)].sort();
+  const host=ids[0]===demoMe();
+  if(host&&!DM.host){DM.host=true;demoCarsStart(Object.keys(DM.lastCars).length?DM.lastCars:null)}
+  else if(!host&&DM.host){DM.host=false;clearInterval(DEMO.iv);DEMO.iv=null;DEMO.cars=[]}}
+function stopDemo(){if(!DM.on)return;clearInterval(DM.iv);demoSend({k:'bye'});DM.on=false;DM.host=false;if(nav)endNav();sim=null;
+  DM.sights=[];DM.reports=[];DM.segs=null;DM.peers={};DM.lastCars={};
   Object.keys(LIVE).forEach(k=>{if(k.startsWith('dp-'))delete LIVE[k]});demoCarsStop();document.body.classList.remove('demo');demoBar();refreshOverlays();
   if(me)me.t=0;toast('Demo ended. Back to your real location.',3000)}
-function demoTick(){if(!DM.on)return;
+function demoTick(){if(!DM.on)return;const now=Date.now();
   if(nav&&nav.segs){if(DM.segs!==nav.segs){DM.segs=nav.segs;DM.along=projectOnRoute(nav.segs,DM.ll).along}
     DM.along=Math.min(DM.along+DM.v,nav.total);const p=pointAt(nav.segs,DM.along),p2=pointAt(nav.segs,Math.min(DM.along+22,nav.total));
     if(DM.along<nav.total){DM.hd=bearing(p,p2);DM.spd=DM.v}else DM.spd=0;DM.ll=p}
   else{DM.segs=null;DM.spd=0}
-  handlePos([DM.ll[0]-calib[0],DM.ll[1]-calib[1]],5,DM.spd?DM.hd:null,DM.spd,Date.now());
-  if(++DM.bt%3===0){const e=nearestEdge(DM.ll,40),road=e?ROADS[e.e.road].properties.name:'';demoSend({k:'pos',lat:DM.ll[1],lng:DM.ll[0],heading:DM.spd?Math.round(DM.hd):null,speed:DM.spd,status:(DM.spd?'driving':'stopped')+(road?':'+road:'')})}
-  const b=$('demoBar');if(b){const n=$('nav');b.style.top=document.body.classList.contains('navon')&&n?Math.round(n.getBoundingClientRect().bottom+8)+'px':''}}
+  handlePos([DM.ll[0]-calib[0],DM.ll[1]-calib[1]],5,DM.spd?DM.hd:null,DM.spd,now);
+  // tell the other demo phones where I am, where I'm going and the road ahead of me
+  if(++DM.bt%2===0){const e=nearestEdge(DM.ll,40),road=e?ROADS[e.e.road].properties.name:'';let plan=null,goal='';
+    if(nav&&nav.segs){const pts=[DM.ll];nav.segs.forEach(sg=>{if(sg.cum+sg.L>DM.along)pts.push(sg.b)});plan=simplify(pts,40).map(p=>[+p[0].toFixed(6),+p[1].toFixed(6)]);goal='Heading to '+(nav.target&&nav.target.name||'a spot')}
+    demoSend({k:'pos',lat:DM.ll[1],lng:DM.ll[0],heading:DM.spd?Math.round(DM.hd):null,speed:DM.spd,status:(DM.spd?'driving':'stopped')+(road?':'+road:''),info:{goal,plan}})}
+  // people who went quiet have left
+  Object.keys(DM.peers).forEach(u=>{if(now-DM.peers[u].t>20000){delete DM.peers[u];delete LIVE['dp-'+u];delete DEMO.info['dp-'+u];renderLive()}});
+  if(DM.bt%5===0)demoElect();
+  const b=$('demoBar');if(b){const n=$('nav');b.style.top=document.body.classList.contains('navon')&&n?Math.round(n.getBoundingClientRect().bottom+8)+'px':'';const c=b.querySelector('.dmn');const k=Object.keys(DM.peers).length+1;if(c)c.textContent=k>1?k+' people':''}}
 function demoBar(){let b=$('demoBar');if(!DM.on){if(b)b.remove();return}
   if(!b){b=document.createElement('div');b.id='demoBar';document.body.appendChild(b)}
-  b.innerHTML=`<span class="dmd"></span><b>Demo</b><button id="dmX">Exit</button>`;$('dmX').onclick=e=>{e.stopPropagation();stopDemo()}}
+  b.innerHTML=`<span class="dmd"></span><b>Demo</b><span class="dmn"></span><button id="dmX">Exit</button>`;b.onclick=()=>demoPeopleSheet();$('dmX').onclick=e=>{e.stopPropagation();stopDemo()}}
+function demoPeopleSheet(){const me_=demoMe(),P=Object.entries(DM.peers),cars=Object.values(LIVE).filter(r=>r.user_id.startsWith('demo'));
+  const row=(id,name,sub)=>`<button class="pr2" data-dm="${esc(id)}"><span class="gav" style="background:${mateCol(id)}">${esc((name||'?').trim()[0]||'?').toUpperCase()}</span><span class="pr2m"><span class="pr2n"><b>${esc(name)}</b></span><small>${esc(sub||'')}</small></span><span class="ar">›</span></button>`;
+  const spd=[[4.2,'Slow'],[7,'Normal'],[14,'Fast'],[25,'Very fast']];
+  openSheet(`<h2>Demo</h2><div class="sub">${P.length?'You and '+P.length+' other'+(P.length>1?' people':' person')+' are in this demo. Everyone sees the same cars and sightings.':'Only you are in the demo right now. Anyone who taps Demo mode joins you.'}</div>
+   <div class="msec" style="margin-top:14px">People</div><div class="gw" style="margin-top:0">${row(me_,(Cloud.member&&Cloud.member.name||'You')+' (you)',nav?'Driving':'Parked')}${P.map(([u,p])=>row('dp-'+u,p.name||'Someone',(DEMO.info['dp-'+u]||{}).goal||liveTxt(LIVE['dp-'+u]||{}))).join('')}</div>
+   <div class="msec" style="margin-top:14px">Demo cars</div><div class="gw" style="margin-top:0">${cars.map(r=>row(r.user_id,r.name,(DEMO.info[r.user_id]||{}).goal||liveTxt(r))).join('')||'<div class="sub">Starting...</div>'}</div>
+   <div class="msec" style="margin-top:14px">Your speed</div><div class="seg">${spd.map(([v,l])=>`<button data-spd="${v}" class="${Math.abs(DM.v-v)<.1?'sel':''}">${l}</button>`).join('')}</div>
+   <button class="btn" id="dmOut" style="width:100%;margin-top:14px">Exit demo mode</button>`,()=>{
+    document.querySelectorAll('[data-dm]').forEach(b=>b.onclick=()=>{const id=b.dataset.dm;if(id===me_){closeSheet();setFollow(1);return}const r=LIVE[id];if(r)mateSheet(r)});
+    document.querySelectorAll('[data-spd]').forEach(b=>b.onclick=()=>{DM.v=+b.dataset.spd;LS.set('demoSpd',DM.v);demoPeopleSheet()});
+    $('dmOut').onclick=()=>{closeSheet();stopDemo()}})}
 function demoTapSheet(ll){const near=nearestEdge(ll,250),road=near?ROADS[near.e.road].properties.name:null;
   openSheet(`<h2>Demo</h2><div class="sub">${road?'On '+esc(road):'Off the roads'} · ${fmtD(dist(DM.ll,ll))} from you</div>
-   <div class="list sgroup" style="margin-top:12px">${LK('dHere',"I'm here",'Move yourself to this spot','', 'pin','#1a73e8')}${LK('dGo','Drive here','Navigate here from where you are now','','route','#1f4d36')}${LK('dAdd','Add a sighting here','Only phones in demo mode see it','','binoc','#c77700')}</div>
+   <div class="list sgroup" style="margin-top:12px">${nav?'':LK('dHere',"I'm here",'Move yourself to this spot','','pin','#1a73e8')}${LK('dGo','Drive here','Navigate here from where you are now','','route','#1f4d36')}${LK('dAdd','Add a sighting here','Everyone in the demo sees it','','binoc','#c77700')}${LK('dRep','Report a road problem here','Everyone in the demo sees it','','alert','#e37400')}</div>
    <div class="sub" style="margin-top:10px;font-size:12.5px">Nothing you do in demo mode is saved or shown to anyone who isn't in demo mode.</div>`,()=>{
-    $('dHere').onclick=()=>{if(nav)endNav();DM.ll=near&&near.d<60?near.q:ll;DM.spd=0;DM.segs=null;closeSheet();demoTick();setFollow(1);toast("You're here now")};
-    $('dGo').onclick=()=>{closeSheet();beginNav({kind:'pin',name:road||'Dropped pin',ll})};
-    $('dAdd').onclick=()=>{closeSheet();addSheet('sight',ll)}});
+    if($('dHere'))$('dHere').onclick=()=>{DM.ll=near&&near.d<60?near.q:ll;DM.spd=0;DM.segs=null;closeSheet();clearPin();demoTick();setFollow(1);toast("You're here now")};
+    $('dGo').onclick=()=>{closeSheet();clearPin();beginNav({kind:'pin',name:road||'Dropped pin',ll})};
+    $('dAdd').onclick=()=>{closeSheet();addSheet('sight',ll)};$('dRep').onclick=()=>{closeSheet();addSheet('report',ll)}});
   dropPin(ll)}
-function demoAdd(tab,pick,note,ll,road,kill){const t=Date.now(),cid='demo-'+cidNew(),by=Cloud.member?Cloud.member.name:'Demo';
+function demoAdd(tab,pick,note,ll,road,kill,still){const t=Date.now(),cid='demo-'+cidNew(),by=Cloud.member?Cloud.member.name:'Demo';
   if(tab==='report'){const r={cid,kind:pick,note,road,ll,t,by:'You',mine:true,confirms:0};DM.reports.push(r);demoSend({k:'report',r:{...r,by,mine:false}});toast(pick+' reported (demo)')}
-  else{const x={cid,what:pick,note,ll,t,by:'You',mine:true,...(kill?{kill:true}:{})};DM.sights.push(x);demoSend({k:'sight',s:{...x,by,mine:false}});demoChase(x);toast(pick+' saved (demo, only demo phones see it)',3000)}
+  else{const x={cid,what:pick,note,ll,t,by:'You',mine:true,...(kill?{kill:true}:{}),...(still?{still:true}:{})};DM.sights.push(x);demoSend({k:'sight',s:{...x,by,mine:false}});demoChase(x);if(!still)toast(pick+' saved (demo, only demo phones see it)',3000)}
   refreshOverlays()}
+// the normal sighting pop-up, for demo sightings
+function demoAlert(x){if(!alertOn||(!x.kill&&alertWhat&&!alertWhat.includes(ANIMALS.includes(x.what)?x.what:'Other')))return;
+  pingQ.push({client_id:x.cid,what:x.what,name:x.by,lat:x.ll[1],lng:x.ll[0],created_at:new Date(x.t).toISOString(),kill:x.kill,still:x.still,note:x.note});bing();if(!pingOn)nextPing()}
 function demoSend(x){if(!Cloud.sess)return;rtSend('broadcast',{type:'broadcast',event:'demo',payload:{...x,from:Cloud.sess.uid,name:Cloud.member?Cloud.member.name:'Someone'}})}
-function demoRx(x){if(!DM.on||!x||!x.from||(Cloud.sess&&x.from===Cloud.sess.uid))return;const id='dp-'+x.from;
-  if(x.k==='pos'){LIVE[id]={user_id:id,name:(x.name||'Someone')+' (demo)',lat:x.lat,lng:x.lng,heading:x.heading,speed:x.speed,status:x.status||'stopped',updated_at:new Date().toISOString()};renderLive()}
-  else if(x.k==='sight'&&x.s&&!DM.sights.some(q=>q.cid===x.s.cid)){DM.sights.push({...x.s,ll:x.s.ll,mine:false});refreshOverlays();demoChase(x.s);bing();toast((x.s.by||'Someone')+' marked a '+x.s.what+' (demo)',3500)}
+function demoRx(x){if(!x||!x.from||(Cloud.sess&&x.from===Cloud.sess.uid))return;const id='dp-'+x.from,now=Date.now();
+  if(!DM.on){if(x.k==='bye')delete DEMO.outside[x.from];else DEMO.outside[x.from]={name:x.name,t:now};return}
+  const P=DM.peers[x.from]||(DM.peers[x.from]={name:x.name,t:now});const fresh=now-P.t>20000||!LIVE[id];P.t=now;P.name=x.name||P.name;
+  if(x.k==='pos'){LIVE[id]={user_id:id,name:(x.name||'Someone'),lat:x.lat,lng:x.lng,heading:x.heading,speed:x.speed,status:x.status||'stopped',updated_at:new Date().toISOString()};{const T=TRAILS[id]||(TRAILS[id]={n:x.name,pts:[]});const L=T.pts[T.pts.length-1];if(!L||dist([L[0],L[1]],[x.lng,x.lat])>5)T.pts.push([x.lng,x.lat,Math.round(Date.now()/1000)])}if(x.info)DEMO.info[id]=x.info;renderLive();if(trailSel===id)drawPlan(id)}
+  else if(x.k==='cars'){if(DM.host&&x.from>demoMe())return;  // two hosts for a moment: the lower one wins
+    if(DM.host&&x.from<demoMe()){DM.host=false;clearInterval(DEMO.iv);DEMO.iv=null;DEMO.cars=[]}
+    (x.c||[]).forEach(c=>{LIVE[c.id]={user_id:c.id,name:c.n,lat:c.lat,lng:c.lng,heading:c.heading,speed:c.speed,status:c.status,updated_at:new Date().toISOString()};DEMO.info[c.id]=c.info||{};DM.lastCars[c.id]=c});renderLive();if(trailSel)drawPlan(trailSel)}
+  else if(x.k==='trails'){Object.entries(x.t||{}).forEach(([u,pts])=>{if(!TRAILS[u]||TRAILS[u].pts.length<pts.length)TRAILS[u]={n:(LIVE[u]||{}).name||'',pts}});drawTrails()}
+  else if(x.k==='sight'&&x.s&&!DM.sights.some(q=>q.cid===x.s.cid)){DM.sights.push({...x.s,mine:false});refreshOverlays();demoChase(x.s);demoAlert(x.s)}
   else if(x.k==='report'&&x.r&&!DM.reports.some(q=>q.cid===x.r.cid)){DM.reports.push({...x.r,mine:false});refreshOverlays();toast((x.r.by||'Someone')+' reported '+x.r.kind+' (demo)',3500)}
-  else if(x.k==='hello'){const mine=DM.sights.filter(q=>q.mine).map(q=>({...q,by:Cloud.member?Cloud.member.name:'Demo',mine:false})),mr=DM.reports.filter(q=>q.mine).map(q=>({...q,by:Cloud.member?Cloud.member.name:'Demo',mine:false}));
-    if(mine.length||mr.length)demoSend({k:'sync',s:mine,r:mr});DM.bt=2}
+  else if(x.k==='gone'){DM.sights=DM.sights.filter(q=>q.cid!==x.cid);refreshOverlays()}
+  else if(x.k==='rgone'){DM.reports=DM.reports.filter(q=>q.cid!==x.cid);refreshOverlays()}
+  else if(x.k==='rconf'){const r=DM.reports.find(q=>q.cid===x.cid);if(r){r.confirms=(r.confirms||0)+1;r.confAt=now;refreshOverlays()}}
+  else if(x.k==='hello'||x.k==='sync0'){
+    // someone joined: send them everything in this world so far
+    const S=DM.sights.map(q=>({...q,by:q.mine?(Cloud.member?Cloud.member.name:'Demo'):q.by,mine:false})),R=DM.reports.map(q=>({...q,by:q.mine?(Cloud.member?Cloud.member.name:'Demo'):q.by,mine:false}));
+    demoSend({k:'sync',s:S,r:R});DM.bt=1;demoTick();
+    const T={};Object.entries(TRAILS).forEach(([u,t])=>{if(u.startsWith('demo')&&t.pts.length>1)T[u]=simplify(t.pts,150)});
+    if(DM.host){if(Object.keys(T).length)demoSend({k:'trails',t:T});DEMO.sentT=0;demoCarsTick()}
+    if(x.k==='hello'&&fresh)toast((x.name||'Someone')+' joined the demo',3000)}
   else if(x.k==='sync'){(x.s||[]).forEach(q=>{if(!DM.sights.some(z=>z.cid===q.cid))DM.sights.push(q)});(x.r||[]).forEach(q=>{if(!DM.reports.some(z=>z.cid===q.cid))DM.reports.push(q)});refreshOverlays()}
-  else if(x.k==='bye'){delete LIVE[id];renderLive()}}
+  else if(x.k==='bye'){delete DM.peers[x.from];delete LIVE[id];delete DEMO.info[id];renderLive();toast((x.name||'Someone')+' left the demo',2500);setTimeout(demoElect,500)}}
 
 /* terrain: fetch reserve DEM tiles once so shading works offline (service worker caches them) */
 function precacheTerrain(){if(LS.get('demCached',0)>=2||!navigator.onLine)return;const urls=[];
