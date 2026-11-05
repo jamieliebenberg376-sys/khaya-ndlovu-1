@@ -424,10 +424,11 @@ create or replace function public.save_place(p_id text, p_base text, p_kind text
 returns void language plpgsql security definer set search_path = public as $$
 declare nm text := left(trim(coalesce(p_name, '')), 60); isnew boolean;
 begin
-  if not public.is_admin() then raise exception 'admins only'; end if;
   if nm = '' then raise exception 'name needed'; end if;
   if not public.kn_in_area(p_lat, p_lng) then raise exception 'outside the reserve'; end if;
   isnew := not exists (select 1 from public.places where id = p_id);
+  -- owners can add new places; changing or moving existing ones stays with admins
+  if not public.is_admin() and not (isnew and nullif(p_base, '') is null and public.is_owner()) then raise exception 'Only admins can change existing places'; end if;
   insert into public.places (id, base, kind, name, note, lat, lng, removed, updated_at, updated_by)
   values (p_id, nullif(p_base, ''), left(coalesce(p_kind, 'other'), 20), nm, left(nullif(trim(coalesce(p_note, '')), ''), 200), p_lat, p_lng, false, now(),
           (select name from public.members where user_id = auth.uid()))
@@ -534,6 +535,7 @@ begin
   begin update public.drives set user_id = me where user_id = p_old; exception when others then null; end;
   begin update public.private_notes set user_id = me where user_id = p_old; exception when others then null; end;
   begin update public.direct_msgs set to_user = me where to_user = p_old; exception when others then null; end;
+  begin update public.place_photos set user_id = me where user_id = p_old; exception when others then null; end;
   begin delete from public.live_locs where user_id = p_old; exception when others then null; end;
   delete from public.members where user_id = p_old;
   perform set_config('kn.handover', '', true);
@@ -897,6 +899,40 @@ begin
 end $$;
 grant execute on function public.delete_database(uuid) to authenticated;
 
+
+-- ================= PLACE PHOTOS (like reviews on a map) =================
+create table if not exists public.place_photos (cid text primary key, place_key text not null, user_id uuid default auth.uid(), name text, caption text, created_at timestamptz not null default now());
+create index if not exists place_photos_key on public.place_photos (place_key, created_at desc);
+alter table public.place_photos enable row level security;
+revoke all on public.place_photos from anon, authenticated;
+create or replace function public.add_place_photo(p_cid text, p_key text, p_caption text default null)
+returns void language plpgsql security definer set search_path = public as $$
+declare m public.members;
+begin
+  select * into m from public.members where user_id = auth.uid();
+  if not found or m.role = 'guest' then raise exception 'Only owners and admins can add photos'; end if;
+  if coalesce(p_cid, '') !~ '^pp-[A-Za-z0-9-]+$' then raise exception 'bad photo'; end if;
+  insert into public.place_photos (cid, place_key, user_id, name, caption) values (p_cid, left(p_key, 120), auth.uid(), m.name, left(nullif(btrim(coalesce(p_caption, '')), ''), 200))
+    on conflict (cid) do update set caption = excluded.caption;
+end $$;
+grant execute on function public.add_place_photo(text, text, text) to authenticated;
+create or replace function public.place_photos(p_key text)
+returns json language sql stable security definer set search_path = public as $$
+  select case when public.is_member() then coalesce((select json_agg(json_build_object('c', cid, 'by', name, 'cap', caption, 't', created_at, 'mine', user_id = auth.uid()) order by created_at desc)
+    from public.place_photos where place_key = p_key), '[]'::json) else '[]'::json end $$;
+grant execute on function public.place_photos(text) to authenticated;
+create or replace function public.place_photo_counts()
+returns json language sql stable security definer set search_path = public as $$
+  select case when public.is_member() then coalesce((select json_object_agg(place_key, n) from (select place_key, count(*) n from public.place_photos group by place_key) x), '{}'::json) else '{}'::json end $$;
+grant execute on function public.place_photo_counts() to authenticated;
+create or replace function public.delete_place_photo(p_cid text)
+returns void language plpgsql security definer set search_path = public as $$
+begin
+  if not exists (select 1 from public.place_photos where cid = p_cid and (user_id = auth.uid() or public.is_admin())) then raise exception 'You can only delete your own photos'; end if;
+  delete from public.place_photos where cid = p_cid;
+end $$;
+grant execute on function public.delete_place_photo(text) to authenticated;
+
 -- ---------- SUGGESTIONS: anyone on the map can send one, only the protected account can read them ----------
 create table if not exists public.suggestions (
   id bigserial primary key,
@@ -997,14 +1033,16 @@ begin
   if not public.is_member() then return '[]'::json; end if;
   return coalesce((select json_agg(o.name) from (select name from storage.objects
     where bucket_id = 'sightings' and not exists (select 1 from public.sightings s where s.client_id || '.jpg' = storage.objects.name)
-      and not exists (select 1 from public.sightings_log l where l.client_id || '.jpg' = storage.objects.name and l.created_at > now() - interval '30 days') limit 200) o), '[]'::json);
+      and not exists (select 1 from public.sightings_log l where l.client_id || '.jpg' = storage.objects.name and l.created_at > now() - interval '30 days')
+      and storage.objects.name not like 'pp-%' limit 200) o), '[]'::json);
 end $$;
 grant execute on function public.orphan_photos() to authenticated;
 do $$ begin
   drop policy if exists kn_photo_del on storage.objects;
   create policy kn_photo_del on storage.objects for delete to authenticated using (bucket_id = 'sightings' and public.is_member()
     and (owner = auth.uid() or (not exists (select 1 from public.sightings s where s.client_id || '.jpg' = name)
-      and not exists (select 1 from public.sightings_log l where l.client_id || '.jpg' = name and l.created_at > now() - interval '30 days'))));
+      and not exists (select 1 from public.sightings_log l where l.client_id || '.jpg' = name and l.created_at > now() - interval '30 days')
+      and (name not like 'pp-%' or not exists (select 1 from public.place_photos pp where pp.cid || '.jpg' = name)))));
 exception when others then null; end $$;
 
 -- ---------- ENCRYPTED BACKUP ----------
