@@ -1314,7 +1314,7 @@ let follow=0;           // 0 free, 1 follow, 2 follow+heading
 let home=LS.get('home',null);
 let sights=LS.get('sights',[]);sights.forEach(s=>{if(!s.cid)s.cid=cidNew()});
 let reports=LS.get('reports',[]);
-let shareRhino=LS.get('shareRhino',false);
+const shareRhino=true; // rhinos are treated like every other animal
 function cidNew(){return Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,10)}
 const SIGHT_TTL=864e5, REPORT_TTL=5*864e5, KILL_TTL=48*36e5;
 const PRED=['Lion','Leopard','Cheetah','Wild dog','Hyena'];const ttlOf=s=>s&&s.kill?KILL_TTL:SIGHT_TTL;
@@ -1981,7 +1981,7 @@ function stillAsk(){if(!me||SQ.cur||Date.now()-SQ.last<45000)return;if($('sheet'
   SQ.t=setTimeout(()=>done(),8000)}
 setInterval(stillAsk,3000);
 /* ============ sightings heatmap ============ */
-function heatData(){const now=Date.now();return {type:'FeatureCollection',features:SLOG.filter(x=>x[1]!=='Rhino'&&x[1]!=='Other'&&(heatWhat==='All'||x[1]===heatWhat)).map(x=>({type:'Feature',properties:{w:Math.max(.25,Math.exp(-(now-x[4])/(120*864e5)))},geometry:{type:'Point',coordinates:[x[2],x[3]]}}))}}
+function heatData(){const now=Date.now();return {type:'FeatureCollection',features:SLOG.filter(x=>x[1]!=='Other'&&(heatWhat==='All'||x[1]===heatWhat)).map(x=>({type:'Feature',properties:{w:Math.max(.25,Math.exp(-(now-x[4])/(120*864e5)))},geometry:{type:'Point',coordinates:[x[2],x[3]]}}))}}
 /* ============ night drive red screen ============ */
 const redSaved={};
 function applyRedMap(){if(!mapReady)return;const st=map.getStyle();if(!st)return;
@@ -2011,7 +2011,7 @@ function driveSummary(t,fromList){const st=driveStats(t),sp=Object.entries(st.se
    <div class="big"><div><b>${fmtD(t.len)}</b>distance</div><div><b>${fmtHM(st.dur)}</b>time</div><div><b>${Math.round(st.kmh)||0} km/h</b>average</div></div>
    ${(()=>{const b=BIG5.filter(w=>st.seen[w]).length;return `<div class="tally" style="margin-top:14px"><div class="tyh"><b>Big Five ${b}/5</b><small>${sp.length} kind${sp.length===1?'':'s'} of animal on this drive</small></div><div class="tyb">${BIG5.map(w=>`<span class="${st.seen[w]?'on':''}">${AN(w,30)}</span>`).join('')}</div></div>`})()}
    <div class="sub" style="margin-top:14px"><b>Animals seen</b></div>
-   <div class="prof" style="margin-top:6px">${sp.length?sp.map(([w,v])=>`<div class="pr"><span>${AN(w,30)}</span><div>${esc(w)}${v.n>1?' ×'+v.n:''}<small>${w==='Rhino'?'Location kept private':esc(areaOf(v.ll)||'On the reserve')}</small></div></div>`).join(''):'<div class="pr"><span>'+LI('scope',20)+'</span><div>No sightings on this drive<small>Mark sightings while you drive and they show here</small></div></div>'}</div>
+   <div class="prof" style="margin-top:6px">${sp.length?sp.map(([w,v])=>`<div class="pr"><span>${AN(w,30)}</span><div>${esc(w)}${v.n>1?' ×'+v.n:''}<small>${esc(areaOf(v.ll)||'On the reserve')}</small></div></div>`).join(''):'<div class="pr"><span>'+LI('scope',20)+'</span><div>No sightings on this drive<small>Mark sightings while you drive and they show here</small></div></div>'}</div>
    <div class="row"><button class="btn" id="dsMap">Show on map</button><button class="btn pri" id="dsShare">Share card</button></div></div>`,()=>{
     $('dsMap').onclick=()=>{closeSheet();if(t.pts.length)map.fitBounds(bb,{padding:60})};
     $('dsShare').onclick=async()=>{$('dsShare').textContent='Making card...';try{const blob=await driveCard(t,st,sp);const f=new File([blob],'khaya-ndlovu-drive.png',{type:'image/png'});
@@ -2045,7 +2045,7 @@ function bestSheet(){const s=sunToday(),now=new Date(),hm=d=>new Date(d).toLocal
   <div class="prof"><div class="pr"><span>${LI('moon',20)}</span><div>Night drives<small>${mo.ill>.7?'Bright moon: good visibility, nocturnal animals may stay hidden':mo.ill<.25?'Dark sky: great for spotlighting and stars, use the red screen':'Some moonlight tonight'}${mo.toFull>1&&mo.toFull<15?' · full moon in '+Math.round(mo.toFull)+' days':''}</small></div></div>
   ${wx?`<div class="pr"><span>${wxIcon(wx.c.weather_code,wx.c.is_day,22)}</span><div>Weather now ${Math.round(wx.c.temperature_2m)}°<small>${esc(WMO(wx.c.weather_code)[1])} · rain today ${wx.d.precipitation_probability_max[0]??0}%${wx.c.temperature_2m>30?' · hot: animals rest in shade around midday':''}</small></div></div>`:''}</div>
   <div class="sub" style="margin-top:14px"><b>When to look for each animal</b> · learned from sightings</div>
-  <div class="list">${sp.length?sp.map(({w,p})=>{const e=ES.filter(x=>x.what===w)[0];const near=e?nearestEdge(e.ll,400):null;return `<div class="it" data-best="${esc(w)}"><div style="width:40px">${AN(w,34)}</div><div style="flex:1"><b>${esc(w)}</b><br><small>${p.period?'Mostly '+esc(p.period):'Any time'}${w==='Rhino'?' · locations kept private':p.area?' · usually '+esc(p.area):''}${e?'<br>Likely now: '+e.pct+'%'+(near?' near '+esc(ROADS[near.e.road].properties.name):''):''}</small></div><small>›</small></div>`}).join(''):'<div class="it"><small>Not enough sightings yet. The more people mark, the smarter this gets.</small></div>'}</div>`,()=>{
+  <div class="list">${sp.length?sp.map(({w,p})=>{const e=ES.filter(x=>x.what===w)[0];const near=e?nearestEdge(e.ll,400):null;return `<div class="it" data-best="${esc(w)}"><div style="width:40px">${AN(w,34)}</div><div style="flex:1"><b>${esc(w)}</b><br><small>${p.period?'Mostly '+esc(p.period):'Any time'}${p.area?' · usually '+esc(p.area):''}${e?'<br>Likely now: '+e.pct+'%'+(near?' near '+esc(ROADS[near.e.road].properties.name):''):''}</small></div><small>›</small></div>`}).join(''):'<div class="it"><small>Not enough sightings yet. The more people mark, the smarter this gets.</small></div>'}</div>`,()=>{
     document.querySelectorAll('[data-best]').forEach(b=>b.onclick=()=>{const w=b.dataset.best,e=estimates().find(x=>x.what===w);if(e)estSheet(e);else openSheet('<button class="sm" id="pBack">‹ Back</button>'+profileHtml(w),()=>{$('pBack').onclick=bestSheet})})})}
 const onKill=s=>(s.chain||[s]).some(c=>c.kill&&Date.now()-c.t<KILL_TTL);
 function sightOp(s){const age=(Date.now()-s.t)/36e5,k=onKill(s),stay=k?12:animalProfile(s.what).stayH,hz=k?48:24;return age<=stay?1:Math.max(.22,1-(age-stay)/(hz-stay)*.78)}
@@ -2085,7 +2085,7 @@ function animalProfile(what){if(profCache[what])return profCache[what];
   const stay=med(gaps);
   return profCache[what]={n:L.length,days,stayH:Math.min(8,Math.max(1,stay==null?2:stay)),gapH:stay,moveKm:med(moves),kmh:med(speeds),links:gaps.length,period:top&&top.c?top.n:null,periodPct:top&&L.length?Math.round(top.c/L.length*100):0,area:area?area[0]:null,areaPct:area?Math.round(area[1]/L.length*100):0}}
 /* ---- likely spots: when an animal hasn't been seen for 24 h, estimate where it probably is from everything learned ---- */
-const EST_MIN_DAYS=14,EST_MIN_N=6,NO_EST=['Other','Rhino'];
+const EST_MIN_DAYS=14,EST_MIN_N=6,NO_EST=['Other'];
 const EST_COL={Lion:'#b06000',Leopard:'#8e24aa',Elephant:'#5f6368',Cheetah:'#e37400','Wild dog':'#c5221f',Hippo:'#3949ab',Buffalo:'#4e342e',Hyena:'#6d4c41',Giraffe:'#f9a825',Zebra:'#37474f',Kudu:'#795548'};
 let MYMISS=LS.get('mymiss',[]);
 function allMisses(){const t0=Date.now()-864e5,have=new Set();const out=[];
@@ -2133,7 +2133,7 @@ function profileHtml(what){if(what==='Other')return '';const p=animalProfile(wha
   if(p.area)L.push([LI('pin',20),'Usually in',p.area+(p.n>=4?' ('+p.areaPct+'%)':'')]);
   if(p.gapH!=null)L.push([LI('timer',20),'Spotted again after',fmtDur(p.gapH)+' on average']);
   if(p.moveKm!=null)L.push([LI('paw',20),'Moves between sightings',fmtD(p.moveKm*1000)+(p.kmh!=null?' · about '+(p.kmh<1?p.kmh.toFixed(1):Math.round(p.kmh))+' km/h':'')]);
-  {const lr=estLearn(what);if(what!=='Rhino')L.push([LI('map',20),'Likely spots',lr.ready?'On. Shows where to look when not seen for 24 h':'Learning, '+Math.max(0,EST_MIN_DAYS-lr.days)+' more day'+(EST_MIN_DAYS-lr.days==1?'':'s')+(lr.n<EST_MIN_N?' and '+(EST_MIN_N-lr.n)+' more sightings':'')+' needed']);else L.push([LI('shield',20),'Likely spots','Never shown for rhinos, to keep them safe'])}
+  {const lr=estLearn(what);L.push([LI('map',20),'Likely spots',lr.ready?'On. Shows where to look when not seen for 24 h':'Learning, '+Math.max(0,EST_MIN_DAYS-lr.days)+' more day'+(EST_MIN_DAYS-lr.days==1?'':'s')+(lr.n<EST_MIN_N?' and '+(EST_MIN_N-lr.n)+' more sightings':'')+' needed'])}
   L.push([LI('bulb',20),'Sighting stays fresh for',fmtDur(p.stayH)+', then fades out by 24 h']);
   return `<div class="prof"><b>${EMO[what]||''} ${esc(what)} profile</b><small>${p.n<5?'Still learning · ':''}${p.n} sighting${p.n==1?'':'s'} over ${p.days} day${p.days==1?'':'s'}</small>${L.map(([i,a,b])=>`<div class="pr"><span>${i}</span><div><small>${a}</small>${esc(b)}</div></div>`).join('')}</div>`}
 const confTxt=r=>r.confirms?' · confirmed by '+(r.confirms+1)+' people'+(r.confAt?', last '+ago(r.confAt):''):'';
@@ -2384,7 +2384,7 @@ function layerSheet(){setTimeout(()=>{document.querySelectorAll('[data-mode]').f
   $('trailClr').onclick=()=>{trail=[];try{localStorage.removeItem('kn_trail')}catch(e){}map.getSource('trail').setData(empty);toast('Trail cleared')}},0);
  return `<h2>Map style</h2><div class="sub">Satellite needs signal to load new areas. Areas you have viewed stay saved.</div><div class="seg"><button data-mode="map" class="${mode==='map'?'sel':''}">Map</button><button data-mode="sat" class="${mode==='sat'?'sel':''}">Satellite</button></div>
 <div class="list" style="margin-top:10px">
-<div class="it"><div><b>Farm borders</b><br><small>Show the border and name of each farm</small></div><button class="tgl ${showFarms?'on':''}" id="farmTog"><i></i></button></div><div class="it" style="flex-wrap:wrap"><div style="flex:1"><b>Sightings heatmap</b><br><small>Where animals are seen most, from every sighting</small></div><button class="tgl ${showHeat?'on':''}" id="heatTog"><i></i></button>${showHeat?`<div class="heatChips" style="width:100%">${['All',...ANIMALS.filter(a=>a!=='Other'&&a!=='Rhino')].map(a=>`<button class="chip${heatWhat===a?' sel':''}" data-hw="${a}">${a==='All'?'All animals':(EMO[a]||'')+' '+a}</button>`).join('')}</div>`:''}</div><div class="it"><div><b>Likely animal spots</b><br><small>Where animals are probably found when nobody has seen them for 24 h</small></div><button class="tgl ${showEst?'on':''}" id="estTog"><i></i></button></div>
+<div class="it"><div><b>Farm borders</b><br><small>Show the border and name of each farm</small></div><button class="tgl ${showFarms?'on':''}" id="farmTog"><i></i></button></div><div class="it" style="flex-wrap:wrap"><div style="flex:1"><b>Sightings heatmap</b><br><small>Where animals are seen most, from every sighting</small></div><button class="tgl ${showHeat?'on':''}" id="heatTog"><i></i></button>${showHeat?`<div class="heatChips" style="width:100%">${['All',...ANIMALS.filter(a=>a!=='Other')].map(a=>`<button class="chip${heatWhat===a?' sel':''}" data-hw="${a}">${a==='All'?'All animals':(EMO[a]||'')+' '+a}</button>`).join('')}</div>`:''}</div><div class="it"><div><b>Likely animal spots</b><br><small>Where animals are probably found when nobody has seen them for 24 h</small></div><button class="tgl ${showEst?'on':''}" id="estTog"><i></i></button></div>
 <div class="it"><div><b>My private notes</b><br><small>Pins only you can see</small></div><button class="tgl ${showNotes?'on':''}" id="notesTog"><i></i></button></div>
 <div class="it"><div><b>Terrain shading</b><br><small>Hills, ridges and riverbanks</small></div><button class="tgl ${showHill?'on':''}" id="hillTog"><i></i></button></div>
 <div class="it"><div><b>Today's trail</b><br><small>Fading line of where you've driven</small></div><button class="sm red" id="trailClr">Clear</button></div>
@@ -2742,7 +2742,6 @@ function settingsSheet(){const m=Cloud.member;const notif='Notification' in wind
    <div class="msec">Location</div>${MS.admin_sees_all?'<div class="sub" style="margin:-4px 2px 8px;font-size:12.5px">'+LI('eye',12)+' Admins can see your car while you drive on the reserve, even with sharing off. Your home stays hidden.</div>':''}<div class="list sgroup">${m?LK('sLive','Share live location','',shareLoc?'On':'Off'):''}${LK('sHome','Home point','',home?'Set':'Not set')}${LK('sCal','Calibrate GPS','If your dot sits next to the road',calib[0]||calib[1]?'Active':'')}${isIOS?LK('sLoc','Stop the location question','If the map asks for your location every time',''):''}</div>
    <div class="msec">Driving</div>${MS.rules&&MS.rules.lock?'<div class="sub" style="margin:-4px 2px 8px;font-size:12.5px">'+LI('lock',12)+' Speed warning, quiet hours and sunset reminder are set by an admin for everyone</div>':''}<div class="list sgroup">${TG('sSpd','Speed warning','Red alert over '+SPEED_LIMIT+' km/h on the reserve',speedWarn)}${TG('sSun','Sunset reminder',(SUNMIN===60?'1 hour':SUNMIN+' minutes')+' before sunset if you are still out and far from home',sunRemind)}${TG('sVoice','Voice directions','Spoken turn-by-turn while navigating',voiceOn)}</div>
    ${m?`<div class="msec">Account</div><div class="list sgroup">${Cloud.sess&&Cloud.sess.uid?`<button class="it lk" id="sUid"><div style="flex:1;min-width:0"><b>Account ID</b><br><small class="mono" data-notr style="word-break:break-all;font-size:12px">${esc(Cloud.sess.uid)}</small><br><small>The same ID Supabase shows for you · tap to copy</small></div></button>`:''}${m.role!=='guest'?LK('sRec','Recovery code','Get your exact account back on any phone, even if you are signed out','','key','#1f4d36'):''}</div>`:''}
-   ${m?`<div class="msec">Privacy</div><div class="list sgroup">${TG('sRhino','Share rhino sightings','Off keeps rhino locations on this phone only',shareRhino)}</div>`:''}
    <div class="msec">Map data</div><div class="list sgroup">${LK('sOff','Offline map','',esc(offlineStatus()))}${m?LK('sShare','Sharing status',shareStatus(),''):''}${m&&m.role==='admin'?LK('sUpd','Require everyone to update','Version '+APP_BUILD,''):''}</div>
    ${m&&!m.locked?'<button class="mout" id="sOut">Sign out</button>':''}<div class="sub" style="text-align:center;font-size:11.5px;margin-top:10px">Khaya Ndlovu game drive map · version ${APP_BUILD}</div>`,()=>{
     if($('sRec'))$('sRec').onclick=()=>recSheet();
@@ -2757,7 +2756,6 @@ function settingsSheet(){const m=Cloud.member;const notif='Notification' in wind
     tg('sVoice',()=>{voiceOn=!voiceOn;LS.set('voice',voiceOn);try{$('voiceBtn').innerHTML=VOICE_ICON(voiceOn)}catch(e){}});
     tg('sRed',()=>setRed(!redOn));
     tg('sRedAuto',()=>{redAuto=!redAuto;LS.set('redAuto',redAuto);redCheck()});
-    tg('sRhino',()=>{shareRhino=!shareRhino;LS.set('shareRhino',shareRhino)});
     if($('sAW'))$('sAW').onclick=()=>alertWhatSheet();
     if($('sNotif'))$('sNotif').onclick=async()=>{try{const r=await Notification.requestPermission();toast(r==='granted'?'Notifications on':'Notifications are blocked. Allow them in Settings.',3500)}catch(e){toast('Add the app to your Home Screen first',3500)}settingsSheet()};
     if($('sLive'))$('sLive').onclick=()=>liveSheet();
@@ -3286,14 +3284,13 @@ function cloudSheetOld(){
   <button class="it" id="cAW" style="width:100%;text-align:left;background:none;border:0;color:inherit;font:inherit"><div style="flex:1"><b>Which animals alert me</b><br><small>${esc(alertWhatTxt())}</small></div><small>›</small></button>
   <div class="it"><div><b>Alert sound</b><br><small>Plays a bing with each alert</small></div><button class="sm ${alertSound?'':'red'}" id="cSound">${alertSound?'On':'Off'}</button></div>
   ${'Notification' in window&&Notification.permission!=='granted'?`<div class="it"><div><b>Phone notifications</b><br><small>Also alert you while the app is in the background</small></div><button class="sm" id="cNotif">Turn on</button></div>`:''}
-  <div class="it"><div><b>Share rhino sightings</b><br><small>Off keeps rhino locations on this phone only</small></div><button class="sm ${shareRhino?'':'red'}" id="cRhino">${shareRhino?'On':'Off'}</button></div></div>
+  </div>
   <div class="row"><button class="btn pri" id="cSync">Sync now</button><button class="btn red" id="cLeave">Sign out</button></div>`,()=>{
     if($('cPeople'))$('cPeople').onclick=()=>guestSheet();
     $('cAW').onclick=()=>alertWhatSheet();
     $('cAlert').onclick=()=>{alertOn=!alertOn;LS.set('alertOn',alertOn);cloudSheet()};
     $('cSound').onclick=()=>{alertSound=!alertSound;LS.set('alertSound',alertSound);if(alertSound)bing();cloudSheet()};
     if($('cNotif'))$('cNotif').onclick=async()=>{try{const r=await Notification.requestPermission();toast(r==='granted'?'Notifications on':'Notifications are blocked. Allow them in Settings.',3500)}catch(e){toast('This phone needs the app added to the Home Screen first',3500)}cloudSheet()};
-    $('cRhino').onclick=()=>{shareRhino=!shareRhino;LS.set('shareRhino',shareRhino);cloudSheet()};
     $('cSync').onclick=async()=>{if(!navigator.onLine){toast('No signal right now. It syncs by itself when signal comes back.');return}$('cSync').textContent='Syncing...';await sync();cloudSheet();toast(Cloud.err?'Sync failed, will retry':'Up to date')};
     $('cLeave').onclick=()=>signOutSheet();
   });
