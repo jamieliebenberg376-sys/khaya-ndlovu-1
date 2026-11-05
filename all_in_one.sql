@@ -1084,6 +1084,7 @@ begin
     insert into public.sightings_log (client_id, what, lat, lng, created_at, user_id, still, photo, kill)
     values (new.client_id, new.what, new.lat, new.lng, new.created_at, new.user_id, coalesce((to_jsonb(new)->>'still')::boolean, false),
       coalesce((to_jsonb(new)->>'photo')::boolean, false), coalesce((to_jsonb(new)->>'kill')::boolean, false)) on conflict (client_id) do nothing;
+    begin update public.sightings_log set name = to_jsonb(new)->>'name', story = nullif(btrim(coalesce(to_jsonb(new)->>'note', '')), ''), story_at = case when nullif(btrim(coalesce(to_jsonb(new)->>'note', '')), '') is not null then now() end where client_id = new.client_id; exception when others then null; end;
   elsif tg_op = 'DELETE' and not public.kn_flag('kn.cleanup') then
     delete from public.sightings_log where client_id = old.client_id;  -- deleted on purpose: forget it. Expired: keep it.
   end if;
@@ -1849,6 +1850,51 @@ begin
 end $$;
 grant execute on function public.delete_place_photo(text) to authenticated;
 
+
+-- ================= FEED: sightings become posts with a story, photos and likes =================
+alter table public.sightings_log add column if not exists name text;
+alter table public.sightings_log add column if not exists story text;
+alter table public.sightings_log add column if not exists story_at timestamptz;
+create table if not exists public.feed_likes (client_id text not null, user_id uuid not null default auth.uid(), at timestamptz not null default now(), primary key (client_id, user_id));
+alter table public.feed_likes enable row level security;
+revoke all on public.feed_likes from anon, authenticated;
+
+create or replace function public.set_story(p_cid text, p_text text)
+returns void language plpgsql security definer set search_path = public as $$
+declare t text := left(nullif(btrim(coalesce(p_text, '')), ''), 500);
+begin
+  if not exists (select 1 from public.sightings_log where client_id = p_cid and (user_id = auth.uid() or public.is_admin())) then raise exception 'You can only write the story for your own sightings'; end if;
+  update public.sightings_log set story = t, story_at = now() where client_id = p_cid;
+  begin update public.sightings set note = t where client_id = p_cid; exception when others then null; end;
+end $$;
+grant execute on function public.set_story(text, text) to authenticated;
+
+create or replace function public.like_post(p_cid text)
+returns json language plpgsql security definer set search_path = public as $$
+begin
+  if not public.is_member() then raise exception 'members only'; end if;
+  if exists (select 1 from public.feed_likes where client_id = p_cid and user_id = auth.uid()) then delete from public.feed_likes where client_id = p_cid and user_id = auth.uid();
+  else insert into public.feed_likes (client_id) values (p_cid); end if;
+  return json_build_object('n', (select count(*) from public.feed_likes where client_id = p_cid), 'me', exists (select 1 from public.feed_likes where client_id = p_cid and user_id = auth.uid()));
+end $$;
+grant execute on function public.like_post(text) to authenticated;
+
+-- the feed: newest first; filter by animal or by an area (lat/lng + km)
+create or replace function public.feed(p_before timestamptz default null, p_what text default null, p_lat double precision default null, p_lng double precision default null, p_km double precision default null, p_limit int default 30)
+returns json language sql stable security definer set search_path = public as $$
+  select case when not public.is_member() then '[]'::json else coalesce((select json_agg(row_to_json(x) order by x.t desc) from (
+    select l.client_id c, l.what w, coalesce(l.name, m.name, 'Someone') by, l.created_at t, l.story s, l.photo ph, coalesce(l.kill, false) k, l.lat, l.lng,
+           l.user_id = auth.uid() mine,
+           (select count(*) from public.feed_likes f where f.client_id = l.client_id) likes,
+           exists (select 1 from public.feed_likes f where f.client_id = l.client_id and f.user_id = auth.uid()) liked
+    from public.sightings_log l left join public.members m on m.user_id = l.user_id
+    where not l.still and l.created_at < coalesce(p_before, now() + interval '1 minute') and l.created_at > now() - interval '400 days'
+      and (p_what is null or l.what = p_what)
+      and (p_km is null or (abs(l.lat - p_lat) < p_km / 111.0 and abs(l.lng - p_lng) < p_km / (111.0 * cos(radians(p_lat)))))
+      and (public.is_admin() or l.user_id = auth.uid() or not public.kn_hidden_animal(l.what))
+    order by l.created_at desc limit least(greatest(coalesce(p_limit, 30), 1), 60)) x), '[]'::json) end $$;
+grant execute on function public.feed(timestamptz, text, double precision, double precision, double precision, int) to authenticated;
+
 -- ---------- SUGGESTIONS: anyone on the map can send one, only the protected account can read them ----------
 create table if not exists public.suggestions (
   id bigserial primary key,
@@ -1950,7 +1996,8 @@ begin
   return coalesce((select json_agg(o.name) from (select name from storage.objects
     where bucket_id = 'sightings' and not exists (select 1 from public.sightings s where s.client_id || '.jpg' = storage.objects.name)
       and not exists (select 1 from public.sightings_log l where l.client_id || '.jpg' = storage.objects.name and l.created_at > now() - interval '30 days')
-      and storage.objects.name not like 'pp-%' limit 200) o), '[]'::json);
+      and storage.objects.name not like 'pp-%'
+      and not exists (select 1 from public.sightings_log l2 where l2.client_id || '.jpg' = storage.objects.name and l2.story is not null and l2.created_at > now() - interval '365 days') limit 200) o), '[]'::json);
 end $$;
 grant execute on function public.orphan_photos() to authenticated;
 do $$ begin
@@ -1958,7 +2005,8 @@ do $$ begin
   create policy kn_photo_del on storage.objects for delete to authenticated using (bucket_id = 'sightings' and public.is_member()
     and (owner = auth.uid() or (not exists (select 1 from public.sightings s where s.client_id || '.jpg' = name)
       and not exists (select 1 from public.sightings_log l where l.client_id || '.jpg' = name and l.created_at > now() - interval '30 days')
-      and (name not like 'pp-%' or not exists (select 1 from public.place_photos pp where pp.cid || '.jpg' = name)))));
+      and (name not like 'pp-%' or not exists (select 1 from public.place_photos pp where pp.cid || '.jpg' = name))
+      and not exists (select 1 from public.sightings_log l2 where l2.client_id || '.jpg' = name and l2.story is not null and l2.created_at > now() - interval '365 days'))));
 exception when others then null; end $$;
 
 -- ---------- ENCRYPTED BACKUP ----------
@@ -2142,7 +2190,7 @@ notify pgrst, 'reload schema';
 
 
 -- =====================================================================
--- PUSH THE UPDATE (version 87)
+-- PUSH THE UPDATE (version 88)
 -- =====================================================================
 
 alter table private.config add column if not exists min_build int not null default 0;
@@ -2200,8 +2248,8 @@ begin
 end $$;
 grant execute on function public.set_min_build(int) to authenticated;
 
--- push it now: require version 87 and post the news (as the first admin, so it shows who sent it)
-update private.config set min_build = 87;
+-- push it now: require version 88 and post the news (as the first admin, so it shows who sent it)
+update private.config set min_build = 88;
 do $$
 declare adm uuid := (select user_id from public.members where role = 'admin' order by joined_at limit 1);
 begin
@@ -2221,7 +2269,7 @@ union all select 'Codes and logins self-test', case when (select count(*) from p
 union all select 'Protected account (9fb4d097...) locked as admin', case when exists (select 1 from public.members where locked and role = 'admin') then 'YES' else 'NO: that account is not on the map yet. Open the map on that phone, then run this again' end
 union all select 'Your Database code (keep it secret, it gives full control)', (select db_code from private.config limit 1)
 union all select 'Backend self-test', case when (select count(*) from public.kn_backend_selftest() where result not like 'PASS%') = 0 then 'YES' else 'NO: ' || (select string_agg(test, ', ') from public.kn_backend_selftest() where result not like 'PASS%') end
-union all select 'Everyone must be on version 87', case when (select min_build from private.config limit 1) = 87 then 'YES' else 'NO' end
-union all select 'Update news posted (only old versions see it)', case when exists (select 1 from public.announcements where for_old_build = 87 and not removed) then 'YES' else 'NO' end
+union all select 'Everyone must be on version 88', case when (select min_build from private.config limit 1) = 88 then 'YES' else 'NO' end
+union all select 'Update news posted (only old versions see it)', case when exists (select 1 from public.announcements where for_old_build = 88 and not removed) then 'YES' else 'NO' end
 union all select 'Your owner code (unchanged)', (select upper(invite_code) from private.config limit 1)
-union all select 'People who still need to update', (select count(*)::text from public.members where coalesce(app_build, 0) < 87 and (role <> 'guest' or expires_at > now()));
+union all select 'People who still need to update', (select count(*)::text from public.members where coalesce(app_build, 0) < 88 and (role <> 'guest' or expires_at > now()));
