@@ -186,6 +186,11 @@ alter table public.members add column if not exists last_login timestamptz;
 alter table public.members add column if not exists home_lat double precision;
 alter table public.members add column if not exists home_lng double precision;
 alter table public.members add column if not exists locked boolean not null default false;
+-- who took someone off the map, so the removed phone can tell them
+create table if not exists public.removals (user_id uuid, name text, by_name text, by_role text, kind text, at timestamptz not null default now());
+create index if not exists removals_user on public.removals (user_id, at desc);
+alter table public.removals enable row level security;
+revoke all on public.removals from anon, authenticated;
 
 -- ---------- protected account: can never be removed, demoted or changed by anyone in the app ----------
 -- The lock lives on the membership, so it moves with you when you reinstall (handover).
@@ -227,6 +232,8 @@ create table if not exists public.guest_codes (
   revoked boolean not null default false,
   created_at timestamptz not null default now()
 );
+alter table public.guest_codes add column if not exists revoked_by_name text;
+alter table public.guest_codes add column if not exists revoked_at timestamptz;
 alter table public.guest_codes add column if not exists kind text not null default 'guest';
 alter table public.guest_codes add column if not exists uses int not null default 0;
 alter table public.guest_codes enable row level security;
@@ -338,7 +345,10 @@ returns json language plpgsql volatile security definer set search_path = public
 declare m public.members; hl double precision; hg double precision; hn text;
 begin
   select * into m from public.members where user_id = auth.uid();
-  if not found then return json_build_object('member', false, 'active', false); end if;
+  if not found then
+    return (select json_build_object('member', false, 'active', false, 'removed_by', r.by_name, 'removed_role', r.by_role, 'removed_at', r.at, 'removed_kind', r.kind)
+            from (select 1) one left join lateral (select * from public.removals where user_id = auth.uid() and at > now() - interval '60 days' order by at desc limit 1) r on true);
+  end if;
   update public.members set last_seen = now() where user_id = auth.uid() and (last_seen is null or last_seen < now() - interval '2 minutes');
   if m.role in ('owner', 'admin') then
     return json_build_object('member', true, 'role', m.role, 'expires_at', null, 'active', true, 'locked', m.locked,
@@ -348,6 +358,9 @@ begin
   select h.home_lat, h.home_lng, h.name into hl, hg, hn from public.guest_codes g join public.members h on h.user_id = g.created_by where g.code = m.code;
   return json_build_object('member', true, 'role', m.role, 'expires_at', m.expires_at,
     'home', case when hl is null then null else json_build_object('lat', hl, 'lng', hg, 'by', hn) end,
+    'invited_by', coalesce((select created_by_name from public.guest_codes where code = m.code), m.invited_by),
+    'revoked_by', (select revoked_by_name from public.guest_codes where code = m.code and revoked),
+    'revoked_at', (select revoked_at from public.guest_codes where code = m.code and revoked),
     'active', (m.expires_at is null or m.expires_at > now())
               and not exists (select 1 from public.guest_codes g where g.code = m.code and g.revoked));
 end $$;
@@ -437,6 +450,8 @@ begin
   if not public.is_admin() then raise exception 'admins only'; end if;
   if p_user = auth.uid() then raise exception 'you cannot remove yourself'; end if;
   if exists (select 1 from public.members where user_id = p_user and locked) then raise exception 'This account is protected and cannot be removed'; end if;
+  insert into public.removals (user_id, name, by_name, by_role, kind)
+    select p_user, m.name, me.name, me.role, 'removed' from public.members m, public.members me where m.user_id = p_user and me.user_id = auth.uid();
   begin delete from public.live_locs where user_id = p_user; exception when undefined_table then null; end;
   delete from public.members where user_id = p_user;
 end $$;
@@ -475,7 +490,7 @@ returns void language plpgsql security definer set search_path = public as $$
 #variable_conflict use_column
 begin
   if not public.is_owner() then raise exception 'owners only'; end if;
-  update public.guest_codes gc set revoked = true where gc.code = upper(trim(p_code));
+  update public.guest_codes gc set revoked = true, revoked_at = now(), revoked_by_name = (select name from public.members where user_id = auth.uid()) where gc.code = upper(trim(p_code));
   update public.members m set expires_at = now() where m.code = upper(trim(p_code)) and m.role = 'guest';
 end $$;
 grant execute on function public.revoke_guest_code(text) to authenticated;
@@ -1559,7 +1574,8 @@ begin
   begin delete from public.live_trail where at < now() - interval '3 hours'; exception when others then null; end;
   begin delete from public.road_closures where until is not null and until < now() - interval '1 day'; exception when others then null; end;
   begin delete from public.handover where (used_at is not null and used_at < now() - interval '7 days') or created_at < now() - interval '60 days'; exception when others then null; end;
-  begin delete from public.members where role = 'guest' and expires_at < now() - interval '3 days'; get diagnostics n = row_count; out := out || jsonb_build_object('guests', n); exception when others then null; end;
+  begin insert into public.removals (user_id, name, by_name, kind, at) select user_id, name, 'System', 'expired', expires_at from public.members where role = 'guest' and expires_at < now() - interval '3 days' and not locked;
+  delete from public.members where role = 'guest' and expires_at < now() - interval '3 days'; get diagnostics n = row_count; out := out || jsonb_build_object('guests', n); exception when others then null; end;
   begin delete from public.guest_codes g where g.expires_at < now() - interval '30 days' and not exists (select 1 from public.members m where m.code = g.code); exception when others then null; end;
   begin delete from public.sos where resolved and updated_at < now() - interval '14 days'; exception when others then null; end;
   begin delete from public.animal_misses where created_at < now() - interval '45 days'; exception when others then null; end;
@@ -1782,7 +1798,7 @@ notify pgrst, 'reload schema';
 
 
 -- =====================================================================
--- PUSH THE UPDATE (version 78)
+-- PUSH THE UPDATE (version 79)
 -- =====================================================================
 
 alter table private.config add column if not exists min_build int not null default 0;
@@ -1840,8 +1856,8 @@ begin
 end $$;
 grant execute on function public.set_min_build(int) to authenticated;
 
--- push it now: require version 78 and post the news (as the first admin, so it shows who sent it)
-update private.config set min_build = 78;
+-- push it now: require version 79 and post the news (as the first admin, so it shows who sent it)
+update private.config set min_build = 79;
 do $$
 declare adm uuid := (select user_id from public.members where role = 'admin' order by joined_at limit 1);
 begin
@@ -1860,7 +1876,7 @@ select 'Tables: members, sightings, reports, drives, news, SOS, live location, p
 union all select 'Codes and logins self-test', case when (select count(*) from public.kn_selftest() where result not like 'PASS%') = 0 then 'YES' else 'NO: ' || (select string_agg(test, ', ') from public.kn_selftest() where result not like 'PASS%') end
 union all select 'Protected account (9fb4d097...) locked as admin', case when exists (select 1 from public.members where locked and role = 'admin') then 'YES' else 'NO: that account is not on the map yet. Open the map on that phone, then run this again' end
 union all select 'Backend self-test', case when (select count(*) from public.kn_backend_selftest() where result not like 'PASS%') = 0 then 'YES' else 'NO: ' || (select string_agg(test, ', ') from public.kn_backend_selftest() where result not like 'PASS%') end
-union all select 'Everyone must be on version 78', case when (select min_build from private.config limit 1) = 78 then 'YES' else 'NO' end
-union all select 'Update news posted (only old versions see it)', case when exists (select 1 from public.announcements where for_old_build = 78 and not removed) then 'YES' else 'NO' end
+union all select 'Everyone must be on version 79', case when (select min_build from private.config limit 1) = 79 then 'YES' else 'NO' end
+union all select 'Update news posted (only old versions see it)', case when exists (select 1 from public.announcements where for_old_build = 79 and not removed) then 'YES' else 'NO' end
 union all select 'Your owner code (unchanged)', (select upper(invite_code) from private.config limit 1)
-union all select 'People who still need to update', (select count(*)::text from public.members where coalesce(app_build, 0) < 78 and (role <> 'guest' or expires_at > now()));
+union all select 'People who still need to update', (select count(*)::text from public.members where coalesce(app_build, 0) < 79 and (role <> 'guest' or expires_at > now()));

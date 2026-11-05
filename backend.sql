@@ -660,7 +660,8 @@ begin
   begin delete from public.live_trail where at < now() - interval '3 hours'; exception when others then null; end;
   begin delete from public.road_closures where until is not null and until < now() - interval '1 day'; exception when others then null; end;
   begin delete from public.handover where (used_at is not null and used_at < now() - interval '7 days') or created_at < now() - interval '60 days'; exception when others then null; end;
-  begin delete from public.members where role = 'guest' and expires_at < now() - interval '3 days'; get diagnostics n = row_count; out := out || jsonb_build_object('guests', n); exception when others then null; end;
+  begin insert into public.removals (user_id, name, by_name, kind, at) select user_id, name, 'System', 'expired', expires_at from public.members where role = 'guest' and expires_at < now() - interval '3 days' and not locked;
+  delete from public.members where role = 'guest' and expires_at < now() - interval '3 days'; get diagnostics n = row_count; out := out || jsonb_build_object('guests', n); exception when others then null; end;
   begin delete from public.guest_codes g where g.expires_at < now() - interval '30 days' and not exists (select 1 from public.members m where m.code = g.code); exception when others then null; end;
   begin delete from public.sos where resolved and updated_at < now() - interval '14 days'; exception when others then null; end;
   begin delete from public.animal_misses where created_at < now() - interval '45 days'; exception when others then null; end;

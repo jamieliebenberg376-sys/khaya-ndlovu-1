@@ -16,6 +16,11 @@ alter table public.members add column if not exists last_login timestamptz;
 alter table public.members add column if not exists home_lat double precision;
 alter table public.members add column if not exists home_lng double precision;
 alter table public.members add column if not exists locked boolean not null default false;
+-- who took someone off the map, so the removed phone can tell them
+create table if not exists public.removals (user_id uuid, name text, by_name text, by_role text, kind text, at timestamptz not null default now());
+create index if not exists removals_user on public.removals (user_id, at desc);
+alter table public.removals enable row level security;
+revoke all on public.removals from anon, authenticated;
 
 -- ---------- protected account: can never be removed, demoted or changed by anyone in the app ----------
 -- The lock lives on the membership, so it moves with you when you reinstall (handover).
@@ -57,6 +62,8 @@ create table if not exists public.guest_codes (
   revoked boolean not null default false,
   created_at timestamptz not null default now()
 );
+alter table public.guest_codes add column if not exists revoked_by_name text;
+alter table public.guest_codes add column if not exists revoked_at timestamptz;
 alter table public.guest_codes add column if not exists kind text not null default 'guest';
 alter table public.guest_codes add column if not exists uses int not null default 0;
 alter table public.guest_codes enable row level security;
@@ -168,7 +175,10 @@ returns json language plpgsql volatile security definer set search_path = public
 declare m public.members; hl double precision; hg double precision; hn text;
 begin
   select * into m from public.members where user_id = auth.uid();
-  if not found then return json_build_object('member', false, 'active', false); end if;
+  if not found then
+    return (select json_build_object('member', false, 'active', false, 'removed_by', r.by_name, 'removed_role', r.by_role, 'removed_at', r.at, 'removed_kind', r.kind)
+            from (select 1) one left join lateral (select * from public.removals where user_id = auth.uid() and at > now() - interval '60 days' order by at desc limit 1) r on true);
+  end if;
   update public.members set last_seen = now() where user_id = auth.uid() and (last_seen is null or last_seen < now() - interval '2 minutes');
   if m.role in ('owner', 'admin') then
     return json_build_object('member', true, 'role', m.role, 'expires_at', null, 'active', true, 'locked', m.locked,
@@ -178,6 +188,9 @@ begin
   select h.home_lat, h.home_lng, h.name into hl, hg, hn from public.guest_codes g join public.members h on h.user_id = g.created_by where g.code = m.code;
   return json_build_object('member', true, 'role', m.role, 'expires_at', m.expires_at,
     'home', case when hl is null then null else json_build_object('lat', hl, 'lng', hg, 'by', hn) end,
+    'invited_by', coalesce((select created_by_name from public.guest_codes where code = m.code), m.invited_by),
+    'revoked_by', (select revoked_by_name from public.guest_codes where code = m.code and revoked),
+    'revoked_at', (select revoked_at from public.guest_codes where code = m.code and revoked),
     'active', (m.expires_at is null or m.expires_at > now())
               and not exists (select 1 from public.guest_codes g where g.code = m.code and g.revoked));
 end $$;
@@ -267,6 +280,8 @@ begin
   if not public.is_admin() then raise exception 'admins only'; end if;
   if p_user = auth.uid() then raise exception 'you cannot remove yourself'; end if;
   if exists (select 1 from public.members where user_id = p_user and locked) then raise exception 'This account is protected and cannot be removed'; end if;
+  insert into public.removals (user_id, name, by_name, by_role, kind)
+    select p_user, m.name, me.name, me.role, 'removed' from public.members m, public.members me where m.user_id = p_user and me.user_id = auth.uid();
   begin delete from public.live_locs where user_id = p_user; exception when undefined_table then null; end;
   delete from public.members where user_id = p_user;
 end $$;
@@ -305,7 +320,7 @@ returns void language plpgsql security definer set search_path = public as $$
 #variable_conflict use_column
 begin
   if not public.is_owner() then raise exception 'owners only'; end if;
-  update public.guest_codes gc set revoked = true where gc.code = upper(trim(p_code));
+  update public.guest_codes gc set revoked = true, revoked_at = now(), revoked_by_name = (select name from public.members where user_id = auth.uid()) where gc.code = upper(trim(p_code));
   update public.members m set expires_at = now() where m.code = upper(trim(p_code)) and m.role = 'guest';
 end $$;
 grant execute on function public.revoke_guest_code(text) to authenticated;
