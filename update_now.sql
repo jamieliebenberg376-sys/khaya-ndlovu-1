@@ -1,6 +1,6 @@
--- Khaya Ndlovu map: PUSH THE UPDATE TO EVERYONE (version 65)
+-- Khaya Ndlovu map: PUSH THE UPDATE TO EVERYONE (version 98)
 -- Paste into Supabase > SQL Editor > New query and press Run. Safe to run as many times as you like.
--- It installs the update + version tracking, requires version 65, and posts an "please update" news message
+-- It installs the update + version tracking, requires version 98, and posts an "please update" news message
 -- that only people on an old version can see. At the bottom you get a check table: every line should say YES.
 
 alter table private.config add column if not exists min_build int not null default 0;
@@ -58,8 +58,8 @@ begin
 end $$;
 grant execute on function public.set_min_build(int) to authenticated;
 
--- push it now: require version 65 and post the news (as the first admin, so it shows who sent it)
-update private.config set min_build = 65;
+-- push it now: require version 98 and post the news (as the first admin, so it shows who sent it)
+update private.config set min_build = 98;
 do $$
 declare adm uuid := (select user_id from public.members where role = 'admin' order by joined_at limit 1);
 begin
@@ -75,6 +75,6 @@ notify pgrst, 'reload schema';
 select 'Update functions installed' as "check", case when count(*) = 6 then 'YES' else 'NO (' || count(*) || ' of 6)' end as result
   from pg_proc p join pg_namespace n on n.oid = p.pronamespace
   where n.nspname = 'public' and p.proname in ('app_min_build','report_build','member_versions','announce_update','set_min_build','is_admin')
-union all select 'Everyone must be on version 65', case when (select min_build from private.config limit 1) = 65 then 'YES' else 'NO' end
-union all select 'Update news posted (only old versions see it)', case when exists (select 1 from public.announcements where for_old_build = 65 and not removed) then 'YES' else 'NO' end
-union all select 'People who still need to update', (select count(*)::text from public.members where coalesce(app_build, 0) < 65 and (role <> 'guest' or expires_at > now()));
+union all select 'Everyone must be on version 98', case when (select min_build from private.config limit 1) = 98 then 'YES' else 'NO' end
+union all select 'Update news posted (only old versions see it)', case when exists (select 1 from public.announcements where for_old_build = 98 and not removed) then 'YES' else 'NO' end
+union all select 'People who still need to update', (select count(*)::text from public.members where coalesce(app_build, 0) < 98 and (role <> 'guest' or expires_at > now()));
