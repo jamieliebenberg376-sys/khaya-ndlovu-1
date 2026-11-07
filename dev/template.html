@@ -957,6 +957,19 @@ body.night .dmc{background:rgba(255,255,255,.07);box-shadow:inset 0 0 0 1px rgba
 .lvprog{margin-top:12px}.lvbar{height:10px;border-radius:5px;background:rgba(127,127,127,.18);overflow:hidden}.lvbar i{display:block;height:100%;width:0;border-radius:5px;background:linear-gradient(90deg,#2f8f4e,#ffc23d);transition:width .35s}
 .lvpt{display:flex;justify-content:space-between;gap:10px;margin-top:6px;font-size:12.5px;color:var(--sub)}.lvpt b{color:var(--ink)}
 body.night .lvst,body.night .lvpt b{color:#f1ece4}
+
+/* ===== v101: sighting videos ===== */
+.phbtn.vbtn{margin-top:8px}
+.svid{position:relative;margin-top:12px;border-radius:16px;overflow:hidden;aspect-ratio:16/9;background:linear-gradient(160deg,var(--sandA,#efe6d6),var(--sandB,#e2d3b9));cursor:pointer}
+.svid img,.svid video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.svid img{opacity:0;transition:opacity .3s}.svid.ok img{opacity:1}.svid.playing{background:#000}.svid.playing video{object-fit:contain}
+#vtrim{display:none;position:fixed;inset:0;z-index:70;background:#0b0e0a;color:#fff;align-items:center;justify-content:center;padding:calc(var(--safe-t) + 10px) 14px calc(var(--safe-b) + 14px)}#vtrim.on{display:flex}
+#vtrim .vtc{width:100%;max-width:520px}#vtrim .vth{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}#vtrim .vth button{background:none;color:#ffd36b;font:700 15px system-ui}#vtrim .vth b{font-size:17px}
+#vtrim video{width:100%;max-height:52vh;border-radius:16px;background:#000;display:block}
+#vtrim .vtw{position:relative;margin-top:16px;height:44px}#vtrim .vtbar{position:absolute;left:0;right:0;top:12px;height:20px;border-radius:10px;background:rgba(255,255,255,.12)}
+#vtrim .vtbar i{position:absolute;top:-4px;bottom:-4px;border-radius:10px;border:3px solid #ffc23d;background:rgba(255,194,61,.25);box-sizing:border-box}
+#vtrim input[type=range]{position:absolute;inset:0;width:100%;height:44px;opacity:0;margin:0}
+#vtrim .vtt{display:flex;justify-content:space-between;font:700 12.5px system-ui;color:rgba(255,255,255,.7)}#vtrim .btn:not(.pri){background:rgba(255,255,255,.12)!important;color:#fff!important;box-shadow:none!important}
+#vtrim .vtp{margin-top:12px;text-align:center}#vtrim .vtp small{display:block;margin-top:6px;color:rgba(255,255,255,.7)}
 </style>
 </head>
 <body>
@@ -1635,7 +1648,7 @@ async function joinReserve(name,code){
   saveCloud();sync();armExpiry();setTimeout(rtConnect,500);setTimeout(armHandover,900);setTimeout(reportBuild,1500);return true;
 }
 const iso=t=>new Date(t).toISOString();
-const sightRow=s=>({client_id:s.cid,what:s.what,note:s.note||null,lat:s.ll[1],lng:s.ll[0],created_at:iso(s.t),expires_at:iso(s.t+ttlOf(s)),...(s.photo?{photo:true}:{}),...(s.still?{still:true}:{}),...(s.kill?{kill:true}:{})});
+const sightRow=s=>({client_id:s.cid,what:s.what,note:s.note||null,lat:s.ll[1],lng:s.ll[0],created_at:iso(s.t),expires_at:iso(s.t+ttlOf(s)),...(s.photo?{photo:true}:{}),...(s.still?{still:true}:{}),...(s.kill?{kill:true}:{}),...(s.video?{video:s.video}:{})});
 const reportRow=r=>({client_id:r.cid,kind:r.kind,note:r.note||null,road:r.road||null,lat:r.ll[1],lng:r.ll[0],created_at:iso(r.t),expires_at:iso(r.t+REPORT_TTL)});
 const driveRow=t=>({client_id:t.cid,title:t.name,len_m:Math.round(t.len),pts:trimHome(t.pts,t.t,t.end||Date.now()),created_at:iso(t.t)});
 async function sync(){
@@ -1647,8 +1660,9 @@ async function sync(){
     if((Cloud.stuck||[]).length&&Date.now()-(Cloud.stuckT||0)>5*6e4){Cloud.stuckT=Date.now();Cloud.outbox.push(...Cloud.stuck);Cloud.stuck=[]}
     while(Cloud.outbox.length){const o=Cloud.outbox[0];
       try{
-      if(o.op==='add'){const post=row=>api('/rest/v1/'+o.t+'?on_conflict=client_id',{method:'POST',headers:{Prefer:'resolution=ignore-duplicates,return=minimal'},body:JSON.stringify(row)});try{await post(o.row)}catch(e){const m=String(e.message);if(/kn_reject/.test(m)){const why=/outside/.test(m)?'it was outside the reserve':'too many were sent in a short time';toast((o.t==='reports'?'A road report':'A sighting')+' was not shared: '+why,4500)}else if(o.t==='sightings'&&/^400/.test(m)&&('photo' in o.row||'still' in o.row||'kill' in o.row)){const r2={...o.row};delete r2.kill;try{await post(r2)}catch(e2){delete r2.photo;delete r2.still;await post(r2)}}else if(!((o.t==='animal_misses'||o.t==='sos')&&/^(404|400)/.test(m)))throw e}}
+      if(o.op==='add'){const post=row=>api('/rest/v1/'+o.t+'?on_conflict=client_id',{method:'POST',headers:{Prefer:'resolution=ignore-duplicates,return=minimal'},body:JSON.stringify(row)});try{await post(o.row)}catch(e){const m=String(e.message);if(/kn_reject/.test(m)){const why=/outside/.test(m)?'it was outside the reserve':'too many were sent in a short time';toast((o.t==='reports'?'A road report':'A sighting')+' was not shared: '+why,4500)}else if(o.t==='sightings'&&/^400/.test(m)&&('photo' in o.row||'still' in o.row||'kill' in o.row||'video' in o.row)){const r2={...o.row};delete r2.kill;delete r2.video;try{await post(r2)}catch(e2){delete r2.photo;delete r2.still;await post(r2)}}else if(!((o.t==='animal_misses'||o.t==='sos')&&/^(404|400)/.test(m)))throw e}}
       else if(o.op==='photo'){await uploadPhoto(o.cid)}
+      else if(o.op==='svid'){const r=await fmUpload(o.f,o.ct);if(r==='big')toast('A sighting video was too big to share',4000)}
       else if(o.op==='fcom'){try{await rpc('add_comment',{p_id:o.id,p_post:o.post,p_body:o.body})}catch(e){const m=String(e.message);if(/That post is gone|Write a comment|members only|bad comment/.test(m)){toast('A comment was not sent: '+m.replace(/^\d+:\s*/,''),4000)}else throw e}}
       else if(o.op==='story'){try{await rpc('set_story',{p_cid:o.cid,p_text:o.text})}catch(e){if(!/^(4\d\d)/.test(String(e.message))&&!/own sightings/.test(String(e.message)))throw e}}
       else if(o.op==='pp'){try{await rpc('add_place_photo',{p_cid:o.cid,p_key:o.key,p_caption:o.cap})}catch(e){if(!/^(4\d\d)/.test(String(e.message))&&!/Only owners/.test(String(e.message)))throw e}}
@@ -1783,6 +1797,7 @@ function annPop(){const a=ANN.filter(x=>!annSeen.has(x.client_id)&&(!x.expires_a
 
 /* ============ what's new: shown once to owners and admins after an update ============ */
 const WHATS_NEW=[
+ [101,'play','Videos on sightings','When you add a sighting you can add a video of up to 10 seconds. If your video is longer, slide to choose which 10 seconds to keep. It shows on the sighting and in the Feed.'],
  [100,'live','Which way you are facing','Your blue dot now has a beam showing which way your phone is pointing, even when you stand still, like Google Maps. A narrow beam means the compass is sure, a wide one means it needs calibrating (tap the dot).'],
  [98,'map','Swap to Stellenbosch','Menu › Swap to Stellenbosch shows the area with its border, downloads every real road and the satellite map with a progress bar, then swaps the map so you can test everything driving for real. Swap back any time.'],
  [95,'route','Smarter drives','Sightings coming up on your route are called out, a strip along the bottom shows every turn, gate and sighting ahead, one tap reports, a better way is offered if a road is blocked, stops like Google Maps, search along your route, saved and recent places, smart animal search, landscape layout, and every drive saved with top speed.'],
@@ -2128,7 +2143,7 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)sync()});
 function rawSights(){
   const mine=new Set(sights.map(s=>s.cid)),now=Date.now();
   const out=sights.filter(s=>now-s.t<ttlOf(s)).map(s=>({...s,mine:true,by:'You'}));
-  (Cloud.remote.sightings||[]).forEach(x=>{if(mine.has(x.client_id))return;const t=Date.parse(x.created_at);if(now-t>=(x.kill?KILL_TTL:SIGHT_TTL))return;out.push({cid:x.client_id,what:x.what,note:x.note,ll:[x.lng,x.lat],t,by:x.name||'Owner',mine:Cloud.sess&&x.user_id===Cloud.sess.uid,photo:!!x.photo,still:!!x.still,kill:!!x.kill})});
+  (Cloud.remote.sightings||[]).forEach(x=>{if(mine.has(x.client_id))return;const t=Date.parse(x.created_at);if(now-t>=(x.kill?KILL_TTL:SIGHT_TTL))return;out.push({cid:x.client_id,what:x.what,note:x.note,ll:[x.lng,x.lat],t,by:x.name||'Owner',mine:Cloud.sess&&x.user_id===Cloud.sess.uid,photo:!!x.photo,still:!!x.still,kill:!!x.kill,video:x.video||null})});
   if(DM.on)DM.sights.forEach(x=>{if(now-x.t<ttlOf(x))out.push(x)});
   return out.sort((a,b)=>a.t-b.t);
 }
@@ -2381,7 +2396,7 @@ function estSheet(e){const d=me?dist(me.ll,e.ll):null,p=animalProfile(e.what),ne
       queue({op:'add',t:'animal_misses',row:{client_id:m.cid,what:m.what,lat:m.ll[1],lng:m.ll[0],created_at:iso(m.t)}});
       closeSheet();refreshOverlays();const left=estimates().filter(x=>x.what===e.what);toast(left.length?'Thanks. '+left.length+' other likely spot'+(left.length>1?'s':'')+' left for '+e.what.toLowerCase():'Thanks. No more likely spots for '+e.what.toLowerCase()+' right now',3500)}})}
 const sightSub=s=>'Last seen '+lastSeen(s.t)+' · '+s.by+(s.prev?' · '+moveTxt(s):'')+(s.note?' · '+s.note:'');
-const sightPlace=s=>({kind:'sight',kill:onKill(s),name:s.what,sub:sightSub(s),ll:s.ll,cid:s.cid,mine:s.mine,by:s.by,t:s.t,t0:(s.chain||[s])[0].t,note:s.note||((s.chain||[]).find(c=>c.note)||{}).note||'',stillN:(s.chain||[]).filter(c=>c.still).length,moved:s.prev&&dist(s.prev.ll,s.ll)>=80?moveTxt(s):'',photoCid:((s.chain||[s]).filter(c=>c.photo).pop()||{}).cid,photos:(s.chain||[s]).filter(c=>c.photo).map(c=>c.cid)});
+const sightPlace=s=>({kind:'sight',kill:onKill(s),name:s.what,sub:sightSub(s),ll:s.ll,cid:s.cid,mine:s.mine,by:s.by,t:s.t,t0:(s.chain||[s])[0].t,note:s.note||((s.chain||[]).find(c=>c.note)||{}).note||'',stillN:(s.chain||[]).filter(c=>c.still).length,moved:s.prev&&dist(s.prev.ll,s.ll)>=80?moveTxt(s):'',photoCid:((s.chain||[s]).filter(c=>c.photo).pop()||{}).cid,photos:(s.chain||[s]).filter(c=>c.photo).map(c=>c.cid),videos:(s.chain||[s]).filter(c=>c.video).map(c=>c.video).reverse()});
 function profileHtml(what){if(what==='Other')return '';const p=animalProfile(what);
   if(!p.n)return `<div class="prof"><b>${EMO[what]||''} ${esc(what)} profile</b><small>No ${esc(what.toLowerCase())} sightings yet. The app learns how they move as people mark them.</small></div>`;
   const L=[];
@@ -2807,12 +2822,12 @@ const pendPosts=()=>FPQ.map(o=>({kind:'p',c:o.id,w:o.what,by:myName(),t:new Date
 
 /* ---- one post ---- */
 function mediaHtml(p){const M=p.media||[];if(!M.length)return '';const n=M.length;
-  return `<div class="pmg n${Math.min(n,4)}">${M.slice(0,4).map((m,k)=>`<div class="pmi${m.k==='vid'?' vid':''}" data-fm="${esc(p.c)}" data-k="${k}"${n===1&&m.w&&m.h?` style="aspect-ratio:${Math.max(.6,Math.min(1.9,m.w/m.h)).toFixed(3)}"`:''}>${m.k==='vid'?(m.p?`<img alt="" data-fsrc="${esc(m.p)}">`:'')+`<span class="pplay">${LI('play',26)}</span>${m.d?`<span class="pdur">${fmtSec(m.d)}</span>`:''}`:`<img alt="" data-fsrc="${esc(m.f)}">`}${k===3&&n>4?`<span class="pmore">+${n-4}</span>`:''}</div>`).join('')}</div>`}
+  return `<div class="pmg n${Math.min(n,4)}">${M.slice(0,4).map((m,k)=>`<div class="pmi${m.k==='vid'?' vid':''}" data-fm="${esc(p.c)}" data-k="${k}"${n===1&&m.w&&m.h?` style="aspect-ratio:${Math.max(.6,Math.min(1.9,m.w/m.h)).toFixed(3)}"`:''}>${m.k==='vid'?(m.sv?`<img alt="" data-svp="${esc(p.c)}">`:m.p?`<img alt="" data-fsrc="${esc(m.p)}">`:'')+`<span class="pplay">${LI('play',26)}</span>${m.d?`<span class="pdur">${fmtSec(m.d)}</span>`:''}`:`<img alt="" data-fsrc="${esc(m.f)}">`}${k===3&&n>4?`<span class="pmore">+${n-4}</span>`:''}</div>`).join('')}</div>`}
 function postCard(p){const t=Date.parse(p.t),isP=p.kind==='p',place=p.lat!=null&&p.lng!=null?postPlace(p):'',likes=+p.likes||0,cm=+p.cm||0,long=p.s&&p.s.length>320;
   return `<div class="post${p.wait?' wait':''}" data-post="${esc(p.c)}"><div class="poh"><span class="poa" style="background:${mateCol(p.by||'x')}">${iniOf(p.by)}</span><div class="pom"><b>${esc(p.mine?T('You'):p.by||'Someone')}</b><small>${esc(ago(t))}${place?` · <span class="poplace" data-pmap="${esc(p.c)}">${esc(place)}</span>`:''}${p.wait?' · '+T('Waiting to post'):''}</small></div>${p.w?`<span class="pow">${AN(p.w,26)}<span>${esc(p.w)}</span></span>`:''}${isP&&(p.can||p.mine)&&!p.wait?`<button class="podots" data-pdel="${esc(p.c)}" aria-label="More">${LI('more',18)}</button>`:''}</div>
    ${p.k?'<span class="tag t-kill" style="margin:8px 0 0">On a kill</span>':''}
    ${p.s?`<div class="pos${long?' clip':''}">${esc(p.s)}</div>${long?`<button class="poseem" data-seem>${T('See more')}</button>`:''}`:!isP&&p.mine?`<button class="poadd" data-story="${esc(p.c)}" data-w="${esc(p.w)}">${LI('msg',15)} ${T('Add the story of this sighting')}</button>`:''}
-   ${!isP&&p.ph?`<div class="pop"><img alt="" data-pimg="${esc(p.c)}"></div>`:''}${isP?mediaHtml(p):''}
+   ${!isP&&p.ph&&!(p.media&&p.media.length)?`<div class="pop"><img alt="" data-pimg="${esc(p.c)}"></div>`:''}${isP||(p.media&&p.media.length)?mediaHtml(p):''}
    ${(likes||cm)&&!p.local?`<div class="pocnt">${likes?`<span class="pcl">${LI('like',12)}</span><span>${likes}</span>`:''}<span style="flex:1"></span>${cm?`<button data-pcm="${esc(p.c)}">${cm} ${cm===1?T('comment'):T('comments')}</button>`:''}</div>`:''}
    <div class="poa2 fb">${p.local?'':`<button class="pol${p.liked?' on':''}" data-like="${esc(p.c)}">${LI('like',17)}<span>${T('Like')}</span></button><button class="pob" data-pcm="${esc(p.c)}">${LI('msg',17)}<span>${T('Comment')}</span></button>`}${p.lat!=null?`<button class="pob" data-pgo="${esc(p.c)}">${LI('route',17)}<span>${T('Go')}</span></button>`:''}</div>
    ${p.lc&&!p.local?`<button class="polc" data-pcm="${esc(p.c)}"><span class="poa sm" style="background:${mateCol(p.lc.by||'x')}">${iniOf(p.lc.by)}</span><span class="lcb"><b>${esc(p.lc.by)}</b> ${esc(p.lc.s)}</span></button>`:''}</div>`}
@@ -2823,6 +2838,7 @@ function bindPosts(root,list,again){
   scope.forEach(card=>{
   card.querySelectorAll('[data-pimg]').forEach(im=>photoURL(im.dataset.pimg).then(u=>{if(u){im.src=u;im.parentNode.classList.add('ok')}else im.parentNode.remove()}));
   card.querySelectorAll('.pop').forEach(d=>d.onclick=()=>{const c=d.querySelector('img').dataset.pimg,p=find(c);lightbox([c],0,(p.w||'')+' · '+(p.by||'')+(p.s?' · '+p.s:''))});
+  card.querySelectorAll('[data-svp]').forEach(im=>photoURL(im.dataset.svp).then(u=>{if(u){im.src=u;im.closest('.pmi').classList.add('ok')}}));
   card.querySelectorAll('[data-fsrc]').forEach(im=>fmImg(im.dataset.fsrc).then(u=>{if(u){im.src=u;im.closest('.pmi').classList.add('ok')}}));
   card.querySelectorAll('[data-fm]').forEach(d=>d.onclick=async()=>{const p=find(d.dataset.fm),k=+d.dataset.k,m=p&&p.media[k];if(!m)return;
     if(m.k==='vid'&&p.media.length===1){if(d.querySelector('video'))return;const u=await fmVid(m.f);if(!u){toast(T('The video needs signal'));return}
@@ -2910,7 +2926,7 @@ async function feedLoad(reset){if(FEED.busy)return;FEED.busy=true;if(reset){FEED
     if(Cloud.member&&navigator.onLine){try{const a={p_before:before,p_what:FEED.what||null,p_lat:nm?me.ll[1]:null,p_lng:nm?me.ll[0]:null,p_km:nm?3:null,p_limit:25};if(FEED.kind)a.p_kind=FEED.kind;L=await rpc('feed',a)||[]}catch(e){L=null}}
     if(L===null){FEED.local=true;FEED.more=false;if(before){return}
       L=FEED.kind==='post'||FEED.kind==='video'?[]:allSights().flatMap(x=>(x.chain||[x])).filter(x=>!x.still&&(!FEED.what||x.what===FEED.what)&&(!nm||dist(me.ll,x.ll)<3000)).sort((a,b)=>b.t-a.t).slice(0,40)
-        .map(x=>({kind:'s',c:x.cid,w:x.what,by:x.mine?'You':x.by||'Someone',t:new Date(x.t).toISOString(),s:x.note||null,ph:!!x.photo,k:!!x.kill,lat:x.ll[1],lng:x.ll[0],mine:!!x.mine,likes:0,liked:false,local:true}))}
+        .map(x=>({kind:'s',c:x.cid,w:x.what,by:x.mine?'You':x.by||'Someone',t:new Date(x.t).toISOString(),s:x.note||null,ph:!!x.photo,k:!!x.kill,lat:x.ll[1],lng:x.ll[0],mine:!!x.mine,likes:0,liked:false,local:true,media:x.video?[{k:'vid',f:x.video,sv:true}]:[]}))}
     FEED.list=FEED.list.concat(L.filter(p=>!FEED.list.some(q=>q.c===p.c)));if(!FEED.local&&L.length<25)FEED.more=false}catch(e){FEED.more=false}finally{FEED.busy=false}}
 async function feedHome(){FEED.open=true;openSheet(`<h2>${T('Feed')}</h2><div class="sub">${T('Loading...')}</div>`);await feedLoad(true);feedDraw()}
 const postFeed=feedHome;
@@ -2973,9 +2989,9 @@ function showPlace(x){
   const r=me?route(me.ll,ll):null;
   const isPoi=PKIND[x.kind]&&x.kind!=='home';const cl=x.kind==='road'&&CLOSED[x.road];
   const extra=isAdm()&&isPoi?`<button class="btn" id="plEdit">${LI('gear',18)} Edit place</button>`:isAdm()&&x.kind==='road'?`<button class="btn${cl?'':' red'}" id="rdClose">${cl?'Reopen road':'Close road'}</button>`:(x.kind==='sight'&&(x.mine||isAdm()))?`<button class="btn red" id="delS">Delete</button>`:x.kind==='report'?`${x.mine?'':'<button class="btn" id="stillR">Still there</button>'}<button class="btn red" id="resR">Road is clear</button>`:'';
-  openSheet(`${x.kind==='sight'?sightHead(x,me?dist(me.ll,ll):null,r?r.len:null):`<h2>${esc(x.name)}</h2><div class="sub">${esc(x.sub||'')}${d?' · '+d:''}${r?' · '+fmtD(r.len)+' by road':''}</div>`}<div class="row"><button class="btn pri" id="goBtn"><svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M12 2l8 20-8-5-8 5z"/></svg>Go</button>${extra}</div>${x.kind==='sight'?sightExtrasHtml(x):''}${x.kind==='sight'?profileHtml(x.name):''}${isPoi?'<div id="ppBox"><div class="msec" style="margin-top:16px">Photos</div><div class="sub">Loading...</div></div><div id="plIns"></div>':''}${x.kind==='sight'&&x.mine&&!x.note&&!String(x.cid).startsWith('demo-')?'<button class="btn" id="stW" style="width:100%;margin-top:12px">'+LI('msg',18)+' Add the story of this sighting</button>':''}`,()=>{
+  openSheet(`${x.kind==='sight'?sightHead(x,me?dist(me.ll,ll):null,r?r.len:null):`<h2>${esc(x.name)}</h2><div class="sub">${esc(x.sub||'')}${d?' · '+d:''}${r?' · '+fmtD(r.len)+' by road':''}</div>`}<div class="row"><button class="btn pri" id="goBtn"><svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M12 2l8 20-8-5-8 5z"/></svg>Go</button>${extra}</div>${x.kind==='sight'?sightVideoHtml(x)+sightExtrasHtml(x):''}${x.kind==='sight'?profileHtml(x.name):''}${isPoi?'<div id="ppBox"><div class="msec" style="margin-top:16px">Photos</div><div class="sub">Loading...</div></div><div id="plIns"></div>':''}${x.kind==='sight'&&x.mine&&!x.note&&!String(x.cid).startsWith('demo-')?'<button class="btn" id="stW" style="width:100%;margin-top:12px">'+LI('msg',18)+' Add the story of this sighting</button>':''}`,()=>{
     $('goBtn').onclick=()=>{closeSheet();startNav(x)};if(isPoi){placePhotos(x);placeInsights(x)}if($('stW'))$('stW').onclick=()=>storySheet(x.cid,x.name,()=>closeSheet());
-    if(x.kind==='sight')bindSightExtras(x);
+    if(x.kind==='sight'){bindSightExtras(x);bindSightVideo($('sheetBody'))}
     if($('delS'))$('delS').onclick=async()=>{if(!x.mine){if($('delS').dataset.sure!=='1'){$('delS').dataset.sure='1';$('delS').textContent='Tap again to delete';return}if(await adminDelete([x.cid]))closeSheet();return}delSight(x.cid);closeSheet();toast('Sighting deleted')};
     if($('plEdit'))$('plEdit').onclick=()=>placeSheet({id:x.pid||'',base:x.pid?'':(x.base||x.name),kind:x.kind,name:x.name,note:(POIS_BY_NAME[x.name]||{}).note||'',ll});
     if($('rdClose'))$('rdClose').onclick=()=>CLOSED[x.road]?reopenRoad(x.road):closeRoadSheet(x.road);
@@ -3548,6 +3564,52 @@ if(LIVEMAP){document.body.classList.add('livedemo');setTimeout(liveBar,800);
   setInterval(()=>{const b=$('liveBar');if(!b)return;const n=$('nav');b.style.top=document.body.classList.contains('navon')&&n?Math.round(n.getBoundingClientRect().bottom+8)+'px':''},700);
 }
 
+/* ============ a 10 second video on a sighting: pick a clip, and if it's longer, slide to choose which 10 seconds ============ */
+const SV_MAX=10;
+function svMime(){if(!window.MediaRecorder||!MediaRecorder.isTypeSupported)return null;return ['video/mp4;codecs=avc1','video/mp4','video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm'].find(m=>{try{return MediaRecorder.isTypeSupported(m)}catch(e){return false}})||null}
+/* cut [start, start+len] out of the video by playing it into a canvas and recording that (works on iPhone and Android) */
+async function cutClip(file,start,len,onp){const mime=svMime();if(!mime)throw new Error('This phone cannot cut videos');
+  const v=document.createElement('video');v.playsInline=true;v.preload='auto';v.src=URL.createObjectURL(file);
+  await new Promise((res,rej)=>{v.onloadedmetadata=res;v.onerror=()=>rej(new Error('Could not read that video'))});
+  const k=Math.min(1,1280/Math.max(v.videoWidth||1280,v.videoHeight||720)),c=document.createElement('canvas');c.width=Math.round((v.videoWidth||1280)*k/2)*2;c.height=Math.round((v.videoHeight||720)*k/2)*2;const g=c.getContext('2d');
+  const stream=c.captureStream(30);let ac=null;
+  try{ac=new (window.AudioContext||window.webkitAudioContext)();const src=ac.createMediaElementSource(v),dst=ac.createMediaStreamDestination();src.connect(dst);dst.stream.getAudioTracks().forEach(t=>stream.addTrack(t))}catch(e){v.muted=true}
+  v.currentTime=start;await new Promise(r=>{v.onseeked=r;setTimeout(r,1500)});
+  const chunks=[],rec=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:2500000});rec.ondataavailable=e=>{if(e.data&&e.data.size)chunks.push(e.data)};
+  const done=new Promise(r=>rec.onstop=r);rec.start(250);
+  try{await v.play()}catch(e){v.muted=true;await v.play()}
+  await new Promise(r=>{const end=start+len;const step=()=>{if(v.videoWidth)g.drawImage(v,0,0,c.width,c.height);onp&&onp(Math.min(1,(v.currentTime-start)/len));if(v.currentTime>=end||v.ended){v.pause();r();return}requestAnimationFrame(step)};step()});
+  rec.stop();await done;try{ac&&ac.close()}catch(e){}URL.revokeObjectURL(v.src);
+  return new Blob(chunks,{type:mime.split(';')[0]})}
+/* the trim screen */
+function trimClip(file,dur){return new Promise(resolve=>{let ov=$('vtrim');if(!ov){ov=document.createElement('div');ov.id='vtrim';document.body.appendChild(ov)}
+  const url=URL.createObjectURL(file),maxS=Math.max(0,dur-SV_MAX);let s=0,pv=null;
+  ov.innerHTML=`<div class="vtc"><div class="vth"><button id="vtX">${T('Cancel')}</button><b>${T('Choose 10 seconds')}</b><span></span></div>
+   <video id="vtV" src="${url}" playsinline muted preload="auto"></video>
+   <div class="vtw"><div class="vtbar" id="vtBar"><i id="vtWin"></i></div><input type="range" id="vtR" min="0" max="${maxS.toFixed(2)}" step="0.1" value="0"></div>
+   <div class="vtt"><span id="vtFrom">0:00</span><span>${T('Your clip')} · 10 s</span><span id="vtTo">0:10</span></div>
+   <div class="row" style="margin-top:12px"><button class="btn" id="vtPlay">${LI('play',18)} ${T('Preview')}</button><button class="btn pri" id="vtGo">${T('Use these 10 seconds')}</button></div>
+   <div class="vtp hide" id="vtP"><div class="lvbar"><i id="vtF"></i></div><small>${T('Cutting your clip...')}</small></div></div>`;ov.classList.add('on');
+  const V=$('vtV'),win=$('vtWin');win.style.width=Math.min(100,SV_MAX/dur*100)+'%';
+  const upd=()=>{win.style.left=(s/dur*100)+'%';$('vtFrom').textContent=fmtSec(s);$('vtTo').textContent=fmtSec(Math.min(dur,s+SV_MAX))};
+  $('vtR').oninput=e=>{s=+e.target.value;upd();try{V.currentTime=s}catch(x){}};upd();
+  const close=r=>{clearInterval(pv);ov.classList.remove('on');ov.innerHTML='';URL.revokeObjectURL(url);resolve(r)};
+  $('vtX').onclick=()=>close(null);
+  $('vtPlay').onclick=()=>{clearInterval(pv);V.currentTime=s;V.play().catch(()=>{});pv=setInterval(()=>{if(V.currentTime>=s+SV_MAX){V.pause();clearInterval(pv)}},100)};
+  $('vtGo').onclick=async()=>{clearInterval(pv);V.pause();$('vtGo').disabled=true;$('vtPlay').disabled=true;$('vtP').classList.remove('hide');
+    try{const b=await cutClip(file,s,Math.min(SV_MAX,dur-s),f=>{const el=$('vtF');if(el)el.style.width=Math.round(f*100)+'%'});close({blob:b,dur:Math.min(SV_MAX,dur-s)})}
+    catch(e){toast(String(e.message||e),4000);close(null)}}})}
+/* pick a video for a sighting: short ones are used as they are, longer or very big ones go through the trim screen */
+async function pickSightVideo(file){const m=await vidMeta(file);if(!m||!m.d){toast(T('Could not read that video'));return null}
+  if(m.d<=SV_MAX+0.4&&file.size<=25*1048576)return {blob:file,dur:m.d,poster:m.poster,ct:file.type||(/\.mov$/i.test(file.name)?'video/quicktime':'video/mp4')};
+  if(!svMime()){toast(T('Pick a clip of 10 seconds or less. This phone cannot cut videos.'),5000);return null}
+  const r=m.d<=SV_MAX+0.4?{blob:await cutClip(file,0,m.d),dur:m.d}:await trimClip(file,m.d);if(!r)return null;
+  const p2=await vidMeta(new File([r.blob],'clip',{type:r.blob.type}));return {blob:r.blob,dur:r.dur,poster:(p2&&p2.poster)||m.poster,ct:r.blob.type||'video/mp4'}}
+/* the video on a sighting's page */
+function sightVideoHtml(x){const v=(x.videos||[])[0];if(!v)return '';return `<div class="svid" data-svid="${esc(v)}" data-pc="${esc(x.photoCid||'')}"><img alt=""><span class="pplay">${LI('play',26)}</span><span class="pdur">${T('Video')}</span></div>`}
+function bindSightVideo(root){(root||document).querySelectorAll('[data-svid]').forEach(d=>{const im=d.querySelector('img');if(d.dataset.pc)photoURL(d.dataset.pc).then(u=>{if(u&&im){im.src=u;d.classList.add('ok')}});
+  d.onclick=async()=>{if(d.querySelector('video'))return;const u=await fmVid(d.dataset.svid);if(!u){toast(T('The video needs signal'));return}d.innerHTML=`<video src="${u}" controls playsinline autoplay></video>`;d.classList.add('ok','playing')}})}
+
 /* ============ sightings & road reports ============ */
 const OTHER_SUG=['Warthog','Impala','Wildebeest','Nyala','Waterbuck','Honey badger','Jackal','Baboon','Vervet monkey','Duiker','Steenbok','Bushbuck','Porcupine','Ostrich','Crocodile','Mongoose'];
 const otherSugs=()=>[...new Set([...LS.get('otherNames',[]),...OTHER_SUG])].slice(0,14);
@@ -3592,9 +3654,11 @@ function addSheet(tab,at){
   const where=at?'Where you tapped'+(road?' on '+road:'')+(away?' · '+fmtD(away.len)+' away by road':me?' · '+fmtD(dist(me.ll,ll))+' away':''):me?'At your current location'+(road?' on '+road:''):'No GPS yet, pinned at the centre of the map';
   const shared=Cloud.on&&Cloud.member;
   const opts=tab==='report'?REPORT_KINDS:ANIMALS;
-  openSheet(`<h2>${tab==='report'?'Report a road problem':'Add a sighting'}</h2>${addSeg(tab)}<div class="sub" style="margin-top:12px">${esc(where)}</div><div class="chips grid">${opts.map(a=>`<button class="chip" data-a="${a}">${(EMO[a]||'')+' '+a}</button>`).join('')}</div>${tab!=='report'?`<div id="otherBox" class="hide"><input class="inp" id="sOther" placeholder="What did you see? e.g. Warthog" maxlength="30" autocapitalize="words"><div class="osug">${otherSugs().map(n=>`<button class="osg" data-o="${esc(n)}">${esc(n)}</button>`).join('')}</div></div>`:''}${tab!=='report'?`<div id="killBox" class="hide"><div class="it killrow"><div style="flex:1"><b>On a kill</b><br><small>Stays on the map for 2 days and alerts everyone</small></div><button class="tgl" id="sKill" aria-label="On a kill"><i></i></button></div></div>`:''}<input class="inp" id="sNote" placeholder="${tab==='report'?'Note (optional), e.g. drift is 50 cm deep':'Note (optional), e.g. 2 males under tree'}">${tab!=='report'?`<label class="phbtn" id="phLbl"><input type="file" accept="image/*" id="sPhoto" hidden><span id="phTxt">${LI('cam',20)} Add a photo</span><img id="phPrev" class="hide"></label>`:''}<div class="sub" id="shareNote" style="margin-top:10px;font-size:12.5px">${shared?(tab==='report'?'Shared with all owners for 5 days. Navigation avoids blocked roads.':'Shared with everyone for 24 hours.'):'Saved on this phone only.'}</div><div class="cdn hide" id="cdNote">${LI('timer',15)} One ${tab==='report'?'report':'sighting'} every 20 seconds keeps the map accurate</div><div class="sticky-save">${at?`<div class="row" style="margin:0"><button class="btn" id="sGo"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l8 20-8-5-8 5z"/></svg>Go now</button><button class="btn pri" id="sSave">Save</button></div>`:`<button class="btn pri" id="sSave" style="width:100%">Save</button>`}</div>`,()=>{
+  openSheet(`<h2>${tab==='report'?'Report a road problem':'Add a sighting'}</h2>${addSeg(tab)}<div class="sub" style="margin-top:12px">${esc(where)}</div><div class="chips grid">${opts.map(a=>`<button class="chip" data-a="${a}">${(EMO[a]||'')+' '+a}</button>`).join('')}</div>${tab!=='report'?`<div id="otherBox" class="hide"><input class="inp" id="sOther" placeholder="What did you see? e.g. Warthog" maxlength="30" autocapitalize="words"><div class="osug">${otherSugs().map(n=>`<button class="osg" data-o="${esc(n)}">${esc(n)}</button>`).join('')}</div></div>`:''}${tab!=='report'?`<div id="killBox" class="hide"><div class="it killrow"><div style="flex:1"><b>On a kill</b><br><small>Stays on the map for 2 days and alerts everyone</small></div><button class="tgl" id="sKill" aria-label="On a kill"><i></i></button></div></div>`:''}<input class="inp" id="sNote" placeholder="${tab==='report'?'Note (optional), e.g. drift is 50 cm deep':'Note (optional), e.g. 2 males under tree'}">${tab!=='report'?`<label class="phbtn" id="phLbl"><input type="file" accept="image/*" id="sPhoto" hidden><span id="phTxt">${LI('cam',20)} Add a photo</span><img id="phPrev" class="hide"></label><label class="phbtn vbtn" id="vdLbl"><input type="file" accept="video/*" id="sVideo" hidden><span id="vdTxt">${LI('play',20)} Add a video · up to 10 s</span></label>`:''}<div class="sub" id="shareNote" style="margin-top:10px;font-size:12.5px">${shared?(tab==='report'?'Shared with all owners for 5 days. Navigation avoids blocked roads.':'Shared with everyone for 24 hours.'):'Saved on this phone only.'}</div><div class="cdn hide" id="cdNote">${LI('timer',15)} One ${tab==='report'?'report':'sighting'} every 20 seconds keeps the map accurate</div><div class="sticky-save">${at?`<div class="row" style="margin:0"><button class="btn" id="sGo"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l8 20-8-5-8 5z"/></svg>Go now</button><button class="btn pri" id="sSave">Save</button></div>`:`<button class="btn pri" id="sSave" style="width:100%">Save</button>`}</div>`,()=>{
     document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>addSheet(b.dataset.tab,at));
     let phBlob=null;if($('sPhoto'))$('sPhoto').onchange=async e=>{const f=e.target.files&&e.target.files[0];if(!f)return;$('phTxt').textContent='Preparing photo...';try{phBlob=await shrinkPhoto(f);$('phPrev').src=URL.createObjectURL(phBlob);$('phPrev').classList.remove('hide');$('phTxt').innerHTML=LI('cam',20)+' Photo added · tap to change'}catch(x){phBlob=null;$('phTxt').textContent='Could not read that photo, try another'}};
+    let vid=null;if($('sVideo'))$('sVideo').onchange=async e=>{const f=e.target.files&&e.target.files[0];e.target.value='';if(!f)return;$('vdTxt').textContent='Reading the video...';
+      try{const r=await pickSightVideo(f);if(r){vid=r;$('vdTxt').innerHTML=LI('play',20)+' Video added · '+fmtSec(r.dur)+' · tap to change';if(!phBlob&&r.poster){phBlob=r.poster;$('phPrev').src=URL.createObjectURL(phBlob);$('phPrev').classList.remove('hide');$('phTxt').innerHTML=LI('cam',20)+' Photo from your video · tap to change'}}else $('vdTxt').innerHTML=vid?LI('play',20)+' Video added · '+fmtSec(vid.dur)+' · tap to change':LI('play',20)+' Add a video · up to 10 s'}catch(x){$('vdTxt').textContent='Could not read that video, try another'}};
     if(at){dropPin(ll);$('sGo').onclick=()=>{clearPin();startNav({kind:'pin',name:road||'Dropped pin',ll})}}
     {const sb=$('sSave'),orig=sb.innerHTML;const cd=()=>{if(!document.body.contains(sb)||!$('sheet').classList.contains('open')){clearInterval(iv);return}const w=cooldown(tab);
       if(w>0){sb.disabled=true;sb.classList.add('wait');sb.innerHTML=LI('timer',18)+' Next one in '+fmtCd(w);$('cdNote')&&$('cdNote').classList.remove('hide')}
@@ -3608,7 +3672,8 @@ function addSheet(tab,at){
       const note=$('sNote').value.trim(),cid=cidNew(),t=Date.now();
       if(DM.on){demoAdd(tab,pick,note,ll,road,PRED.includes(pick)&&$('sKill')&&$('sKill').classList.contains('on'));closeSheet();return}
       if(tab==='report'){const r={cid,kind:pick,note,road,ll,t};reports.unshift(r);LS.set('reports',reports);queue({op:'add',t:'reports',row:reportRow(r)});toast(pick+' reported'+(road?' on '+road:''))}
-      else{const sg={cid,what:pick,note,ll,t,photo:!!phBlob,...(PRED.includes(pick)&&$('sKill')&&$('sKill').classList.contains('on')?{kill:true}:{})};sights.unshift(sg);LS.set('sights',sights);logSight(cid,pick,ll,t);markSeen(pick);if(!note)storyLater(cid,pick);const share=!(pick==='Rhino'&&!shareRhino);if(phBlob){photoPut(cid,phBlob).then(()=>{if(share)queue({op:'photo',cid})})}if(share)queue({op:'add',t:'sightings',row:sightRow(sg)});toast(pick+(sg.kill?' on a kill':'')+' saved'+(phBlob?' with photo':''))}
+      else{const sg={cid,what:pick,note,ll,t,photo:!!phBlob,...(PRED.includes(pick)&&$('sKill')&&$('sKill').classList.contains('on')?{kill:true}:{})};if(vid){const ext=/webm/.test(vid.ct)?'webm':/quicktime/.test(vid.ct)?'mov':'mp4';sg.video='fm-sv-'+cid.replace(/[^A-Za-z0-9_-]/g,'')+'.'+ext;const vf=sg.video,vc=vid.ct;photoPut(vf,vid.blob).then(()=>{if(!(pick==='Rhino'&&!shareRhino))queue({op:'svid',cid,f:vf,ct:vc})}).catch(()=>{})}
+      sights.unshift(sg);LS.set('sights',sights);logSight(cid,pick,ll,t);markSeen(pick);if(!note)storyLater(cid,pick);const share=!(pick==='Rhino'&&!shareRhino);if(phBlob){photoPut(cid,phBlob).then(()=>{if(share)queue({op:'photo',cid})})}if(share)queue({op:'add',t:'sightings',row:sightRow(sg)});toast(pick+(sg.kill?' on a kill':'')+' saved'+(phBlob?' with photo':''))}
       refreshOverlays();closeSheet()}
   });
 }

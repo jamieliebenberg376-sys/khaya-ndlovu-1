@@ -168,6 +168,7 @@ begin
     insert into public.sightings_log (client_id, what, lat, lng, created_at, user_id, still, photo, kill)
     values (new.client_id, new.what, new.lat, new.lng, new.created_at, new.user_id, coalesce((to_jsonb(new)->>'still')::boolean, false),
       coalesce((to_jsonb(new)->>'photo')::boolean, false), coalesce((to_jsonb(new)->>'kill')::boolean, false)) on conflict (client_id) do nothing;
+    begin update public.sightings_log set video = to_jsonb(new)->>'video' where client_id = new.client_id; exception when others then null; end;
     begin update public.sightings_log set name = to_jsonb(new)->>'name', story = nullif(btrim(coalesce(to_jsonb(new)->>'note', '')), ''), story_at = case when nullif(btrim(coalesce(to_jsonb(new)->>'note', '')), '') is not null then now() end where client_id = new.client_id; exception when others then null; end;
   elsif tg_op = 'DELETE' and not public.kn_flag('kn.cleanup') then
     delete from public.sightings_log where client_id = old.client_id;  -- deleted on purpose: forget it. Expired: keep it.
@@ -378,6 +379,10 @@ grant execute on function public.set_min_build(int) to authenticated;
 alter table public.sightings add column if not exists kill boolean not null default false;
 alter table public.sightings_log add column if not exists photo boolean not null default false;
 alter table public.sightings_log add column if not exists kill boolean not null default false;
+-- a short video clip (up to 10 seconds) on a sighting; the file lives in the feedmedia storage
+alter table public.sightings add column if not exists video text;
+alter table public.sightings_log add column if not exists video text;
+do $$ begin alter table public.sightings add constraint sightings_video_ok check (video is null or video ~ '^fm-sv-[A-Za-z0-9_-]+\.(mp4|webm|mov)$'); exception when duplicate_object then null; end $$;
 
 -- ---------- PHOTO ALBUM (photos kept 30 days) ----------
 alter table private.config add column if not exists featured_photo text;
@@ -1077,7 +1082,7 @@ create or replace function public.feed(p_before timestamptz default null, p_what
 returns json language sql stable security definer set search_path = public as $$
   select case when not public.is_member() then '[]'::json else coalesce((select json_agg(row_to_json(x) order by x.t desc) from (
     select * from (
-      select 's' kind, l.client_id c, l.what w, coalesce(l.name, m.name, 'Someone') by, l.created_at t, l.story s, l.photo ph, coalesce(l.kill, false) k, l.lat, l.lng, '[]'::jsonb media,
+      select 's' kind, l.client_id c, l.what w, coalesce(l.name, m.name, 'Someone') by, l.created_at t, l.story s, l.photo ph, coalesce(l.kill, false) k, l.lat, l.lng, case when l.video is not null then jsonb_build_array(jsonb_build_object('k', 'vid', 'f', l.video, 'p', l.client_id || '.jpg', 'sv', true)) else '[]'::jsonb end media,
              l.user_id = auth.uid() mine, false can
       from public.sightings_log l left join public.members m on m.user_id = l.user_id
       where coalesce(p_kind, '') in ('', 'sight') and not l.still and l.created_at < coalesce(p_before, now() + interval '1 minute') and l.created_at > now() - interval '400 days'
