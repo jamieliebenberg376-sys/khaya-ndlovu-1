@@ -1783,6 +1783,7 @@ function annPop(){const a=ANN.filter(x=>!annSeen.has(x.client_id)&&(!x.expires_a
 
 /* ============ what's new: shown once to owners and admins after an update ============ */
 const WHATS_NEW=[
+ [100,'live','Which way you are facing','Your blue dot now has a beam showing which way your phone is pointing, even when you stand still, like Google Maps. A narrow beam means the compass is sure, a wide one means it needs calibrating (tap the dot).'],
  [98,'map','Swap to Stellenbosch','Menu › Swap to Stellenbosch shows the area with its border, downloads every real road and the satellite map with a progress bar, then swaps the map so you can test everything driving for real. Swap back any time.'],
  [95,'route','Smarter drives','Sightings coming up on your route are called out, a strip along the bottom shows every turn, gate and sighting ahead, one tap reports, a better way is offered if a road is blocked, stops like Google Maps, search along your route, saved and recent places, smart animal search, landscape layout, and every drive saved with top speed.'],
  [94,'route','Top-down view at turns','From 100 metres before a turn the map goes flat and zooms in, so you can see exactly which turn to take. Once you are through it tilts back to the driving view.'],
@@ -2421,7 +2422,7 @@ function refreshOverlays(){
 
 /* ============ me marker ============ */
 const meEl=document.createElement('div');meEl.className='me hide';
-meEl.innerHTML='<svg class="cone" viewBox="0 0 80 80"><defs><radialGradient id="cg" cx="50%" cy="65%" r="60%"><stop offset="0" stop-color="#1a73e8" stop-opacity=".5"/><stop offset="1" stop-color="#1a73e8" stop-opacity="0"/></radialGradient></defs><path d="M40 52 L18 6 A50 50 0 0 1 62 6 Z" fill="url(#cg)"/></svg><div class="d"></div><svg class="chev" viewBox="0 0 52 56"><path d="M26 3 L47 50 L26 39 L5 50 Z" fill="#1a73e8" stroke="#fff" stroke-width="4" stroke-linejoin="round"/></svg>';
+meEl.innerHTML='<svg class="cone" viewBox="0 0 80 80"><defs><radialGradient id="cg" cx="50%" cy="65%" r="60%"><stop offset="0" stop-color="#1a73e8" stop-opacity=".72"/><stop offset="1" stop-color="#1a73e8" stop-opacity="0"/></radialGradient></defs><path d="M40 52 L18 6 A50 50 0 0 1 62 6 Z" fill="url(#cg)"/></svg><div class="d"></div><svg class="chev" viewBox="0 0 52 56"><path d="M26 3 L47 50 L26 39 L5 50 Z" fill="#1a73e8" stroke="#fff" stroke-width="4" stroke-linejoin="round"/></svg>';
 const meMk=new maplibregl.Marker({element:meEl,rotationAlignment:'map',pitchAlignment:'map'});
 let meAdded=false;
 function circlePoly(c,r){const pts=[];for(let i=0;i<=40;i++){const a=i/40*2*Math.PI;pts.push([c[0]+Math.sin(a)*r/KX,c[1]+Math.cos(a)*r/KY])}return{type:'Feature',geometry:{type:'Polygon',coordinates:[pts]},properties:{}}}
@@ -2445,7 +2446,6 @@ function handlePos(raw,acc,heading,speed,t){if((speed||0)>1.5)lastMoveT=Date.now
   gotFirst=true;try{gpsAcc(me.acc)}catch(e){}
   if(!meAdded){meMk.setLngLat(ll).addTo(map);meAdded=true;meEl.classList.remove('hide');anim.pos=ll.slice();anim.hd=heading||0}
   setTarget(ll,heading,t);
-  if(heading!=null)meEl.querySelector('.cone').style.opacity=1;else meEl.querySelector('.cone').style.opacity=0;
   map.getSource('acc')&&map.getSource('acc').setData(circlePoly(ll,Math.min(me.acc,200)));
   $('spd').textContent=Math.round((speedS||0)*3.6);$('speed').classList.toggle('mv',(speedS||0)*3.6>4);speedCheck(ll);
   { const L=trail[trail.length-1];if(L&&dist(L,ll)>400)trail=[];if(!L||dist(L,ll)>8){trail.push([+ll[0].toFixed(6),+ll[1].toFixed(6)]);if(trail.length>1500)trail.shift();
@@ -2481,7 +2481,8 @@ function camTick(){
   if(!anim.to||!anim.pos)return;
   const now=performance.now(),dt=Math.min(.1,Math.max(0,(now-(anim.lastT||now))/1000));anim.lastT=now;
   const stopped=(speedS||0)<1.4;
-  if(stopped&&compassHd!=null&&follow===2)anim.toHd=compassHd;
+  if(stopped&&compassHd!=null)anim.toHd=compassHd;
+  {const c=meEl.querySelector('.cone');if(c){const v=(compassHd!=null||(me&&me.heading!=null))?'1':'0';if(c.style.opacity!==v)c.style.opacity=v}}
   // where the car is now: last fix, carried forward along its heading until the next fix arrives
   let pred=anim.to;const ex=Math.min(1.25,(now-anim.fixT)/1000);
   if(!stopped&&anim.v>1.2&&ex>0){const a=anim.toHd*Math.PI/180,d=anim.v*ex;pred=[anim.to[0]+Math.sin(a)*d/(111320*Math.cos(anim.to[1]*Math.PI/180)),anim.to[1]+Math.cos(a)*d/110540]}
@@ -3089,6 +3090,9 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden&&(follow==
 /* phone compass: points the map the way you face when stopped */
 let compassHd=null,compassAsked=false;
 function onOrient(e){let h=e.webkitCompassHeading;if(e.webkitCompassAccuracy!=null)compassAcc=e.webkitCompassAccuracy;if(h==null&&e.absolute&&e.alpha!=null)h=360-e.alpha;if(h==null)return;h=(h+(screen.orientation&&screen.orientation.angle||0)+360)%360;compassHd=compassHd==null?h:angLerp(compassHd,h,.25)}
+/* the compass: Android allows it straight away, iPhone asks once on the first tap */
+setTimeout(()=>{if(!(window.DeviceOrientationEvent&&typeof DeviceOrientationEvent.requestPermission==='function'))askCompass()},1500);
+['touchend','click'].forEach(ev=>document.addEventListener(ev,function f(){if(window.DeviceOrientationEvent&&typeof DeviceOrientationEvent.requestPermission==='function')askCompass();document.removeEventListener(ev,f,true)},true));
 async function askCompass(){if(compassAsked)return;compassAsked=true;try{if(window.DeviceOrientationEvent&&typeof DeviceOrientationEvent.requestPermission==='function'){const r=await DeviceOrientationEvent.requestPermission();if(r!=='granted')return}window.addEventListener('deviceorientationabsolute',onOrient);window.addEventListener('deviceorientation',onOrient)}catch(e){}}
 /* road pill shown at the bottom in driving view */
 let calloutState='';
