@@ -923,9 +923,10 @@ alter table private.config add column if not exists last_daily timestamptz;
 alter table private.config add column if not exists last_backup timestamptz;
 
 -- ---------- helpers ----------
--- the map area (all roads plus about 1.5 km around them). Sightings and reports outside this are refused.
+-- the map areas (all roads plus about 1.5 km around them). Sightings and reports outside these are refused.
 create or replace function public.kn_in_area(p_lat double precision, p_lng double precision)
-returns boolean language sql immutable as $$ select p_lng between 30.884 and 31.004 and p_lat between -24.490 and -24.343 $$;
+returns boolean language sql immutable as $$ select (p_lng between 30.884 and 31.004 and p_lat between -24.490 and -24.343)
+  or (p_lng between 18.80 and 18.90 and p_lat between -34.01 and -33.94) $$;  -- the reserve, and the Stellenbosch swap map
 
 -- nearest gate within p_max metres (or null)
 create or replace function public.kn_near_gate(p_lat double precision, p_lng double precision, p_max double precision)
@@ -2315,9 +2316,35 @@ revoke all on function public.kn_backend_selftest() from public, anon, authentic
 
 notify pgrst, 'reload schema';
 
+-- ---------- UPDATES KEEP YOUR STUFF (v103) ----------
+-- the reinstall link carries the phone's settings and places to the new Home Screen app. Only through these two functions;
+-- nobody can read the handover table directly. A pack is used once and is gone after a day.
+alter table public.handover add column if not exists carry jsonb;
+create or replace function public.handover_carry(p_token text, p_data jsonb)
+returns boolean language plpgsql security definer set search_path = public as $$
+begin
+  if auth.uid() is null or p_data is null or length(p_data::text) > 300000 then return false; end if;
+  update public.handover set carry = p_data where token = upper(trim(p_token)) and user_id = auth.uid() and used_at is null;
+  return found;
+end $$;
+grant execute on function public.handover_carry(text, jsonb) to authenticated;
+create or replace function public.take_carry(p_token text)
+returns jsonb language plpgsql security definer set search_path = public as $$
+declare c jsonb;
+begin
+  if auth.uid() is null or not exists (select 1 from public.members where user_id = auth.uid()) then return null; end if;
+  select carry into c from public.handover where token = upper(trim(p_token)) and carry is not null
+    and ((used_at is not null and used_at > now() - interval '1 day') or user_id = auth.uid()) for update;
+  if c is null then return null; end if;
+  update public.handover set carry = null where token = upper(trim(p_token));
+  return c;
+end $$;
+grant execute on function public.take_carry(text) to authenticated;
+
+
 
 -- =====================================================================
--- PUSH THE UPDATE (version 102)
+-- PUSH THE UPDATE (version 103)
 -- =====================================================================
 
 alter table private.config add column if not exists min_build int not null default 0;
@@ -2375,8 +2402,8 @@ begin
 end $$;
 grant execute on function public.set_min_build(int) to authenticated;
 
--- push it now: require version 102 and post the news (as the first admin, so it shows who sent it)
-update private.config set min_build = 102;
+-- push it now: require version 103 and post the news (as the first admin, so it shows who sent it)
+update private.config set min_build = 103;
 do $$
 declare adm uuid := (select user_id from public.members where role = 'admin' order by joined_at limit 1);
 begin
@@ -2396,7 +2423,7 @@ union all select 'Codes and logins self-test', case when (select count(*) from p
 union all select 'Protected account (9fb4d097...) locked as admin', case when exists (select 1 from public.members where locked and role = 'admin') then 'YES' else 'NO: that account is not on the map yet. Open the map on that phone, then run this again' end
 union all select 'Your Database code (keep it secret, it gives full control)', (select db_code from private.config limit 1)
 union all select 'Backend self-test', case when (select count(*) from public.kn_backend_selftest() where result not like 'PASS%') = 0 then 'YES' else 'NO: ' || (select string_agg(test, ', ') from public.kn_backend_selftest() where result not like 'PASS%') end
-union all select 'Everyone must be on version 102', case when (select min_build from private.config limit 1) = 102 then 'YES' else 'NO' end
-union all select 'Update news posted (only old versions see it)', case when exists (select 1 from public.announcements where for_old_build = 102 and not removed) then 'YES' else 'NO' end
+union all select 'Everyone must be on version 103', case when (select min_build from private.config limit 1) = 103 then 'YES' else 'NO' end
+union all select 'Update news posted (only old versions see it)', case when exists (select 1 from public.announcements where for_old_build = 103 and not removed) then 'YES' else 'NO' end
 union all select 'Your owner code (unchanged)', (select upper(invite_code) from private.config limit 1)
-union all select 'People who still need to update', (select count(*)::text from public.members where coalesce(app_build, 0) < 102 and (role <> 'guest' or expires_at > now()));
+union all select 'People who still need to update', (select count(*)::text from public.members where coalesce(app_build, 0) < 103 and (role <> 'guest' or expires_at > now()));

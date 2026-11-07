@@ -1058,7 +1058,8 @@ try{const v=+localStorage.getItem('kn_mapVer')||0,d=localStorage.getItem('kn_map
 /* live demo: a real town map (every road from OpenStreetMap) instead of the reserve, saved on this phone */
 const LIVEMAP=(()=>{try{if(localStorage.getItem('kn_liveOn')!=='true')return null;const d=localStorage.getItem('kn_liveMap');return d?JSON.parse(d):null}catch(e){return null}})();
 if(LIVEMAP)DATA=LIVEMAP.data;
-const LIVEK=new Set(['sights','reports','tracks','rec','slog','recents','favs','offline','home','demCached','stQ','storyQ','seen','trailKey']);
+const LIVEK=new Set(['tracks','rec','recents','favs','offline','home','demCached','trailKey','cam']);
+const AREA_NAME=LIVEMAP?LIVEMAP.name:'Khaya Ndlovu';
 /* House No. 2 is not shown on the map (it is only used as the end point of the demo drive) */
 const HOUSE2=((DATA.pois.features.find(f=>f.properties.kind==='home')||{}).geometry||{}).coordinates||null;DATA.pois.features=DATA.pois.features.filter(f=>f.properties.kind!=='home');
 const ORIG_POIS=JSON.parse(JSON.stringify(DATA.pois.features));
@@ -1471,7 +1472,8 @@ function style(){return{version:8,glyphs:'local://{fontstack}/{range}',
 const CALLOUT={id:'road-callout',type:'symbol',source:'roads',minzoom:12,layout:{visibility:'none','symbol-placement':'line-center','text-field':['get','name'],'text-font':['Sans Bold'],'text-size':14,'text-rotation-alignment':'viewport','text-pitch-alignment':'viewport','icon-image':'pill','icon-text-fit':'both','icon-text-fit-padding':[3,9,3,9],'icon-rotation-alignment':'viewport','icon-pitch-alignment':'viewport','text-padding':10,'symbol-sort-key':['-',0,['get','len']],'text-max-width':12},paint:{'text-color':'#202124'}};
 function lbl(id,minz,filter){return{id,type:'symbol',source:'roads',minzoom:minz,filter,layout:{'symbol-placement':'line','text-field':['get','name'],'text-font':['Sans Bold'],'text-size':['interpolate',['linear'],['zoom'],13,10.5,17,14.5],'text-letter-spacing':.02,'symbol-spacing':260,'text-max-angle':55,'text-padding':6,'symbol-sort-key':['-',0,['get','len']]},paint:{'text-color':'#4a4036','text-halo-color':'#ffffff','text-halo-width':1.8}}}
 
-const map=new maplibregl.Map({container:'map',style:style(),bounds:RES_BOUNDS,fitBoundsOptions:{padding:40},maxBounds:[[minX-.12,minY-.1],[maxX+.12,maxY+.1]],minZoom:11,maxZoom:19,attributionControl:false,pitchWithRotate:false,dragRotate:true,touchPitch:true,fadeDuration:120});
+const CAM0=(()=>{const c=LS.get('cam',null);return c&&Date.now()-c.t<14*864e5&&Array.isArray(c.c)?c:null})();
+const map=new maplibregl.Map({container:'map',style:style(),...(CAM0?{center:CAM0.c,zoom:CAM0.z}:{bounds:RES_BOUNDS,fitBoundsOptions:{padding:40}}),maxBounds:[[minX-.12,minY-.1],[maxX+.12,maxY+.1]],minZoom:11,maxZoom:19,attributionControl:false,pitchWithRotate:false,dragRotate:true,touchPitch:true,fadeDuration:120});
 
 function drawIcon(kind){
   const s=64,c=document.createElement('canvas');c.width=c.height=s;const x=c.getContext('2d');const col=COLORS[kind]||'#555';
@@ -1630,7 +1632,7 @@ async function api(path,opt={},retry=true){
   if(r.status===401&&retry){Cloud.sess.expires_at=0;return api(path,opt,false)}
   const t=await r.text();if(!r.ok)throw new Error(r.status+': '+t.slice(0,160));return t?JSON.parse(t):null;
 }
-function queue(op){if(!Cloud.on||!Cloud.member)return;if(LIVEMAP&&op.op!=='fcom')return;if(DM.on&&(op.t==='drives'||op.t==='animal_misses'))return;{const id=String((op.row&&op.row.client_id)||op.cid||op.id||'');if(id.startsWith('demo-'))return}Cloud.outbox.push(op);saveCloud();sync();clearTimeout(queue.t);queue.t=setTimeout(()=>{if(Cloud.outbox.length)sync()},2500)}
+function queue(op){if(!Cloud.on||!Cloud.member)return;if(DM.on&&(op.t==='drives'||op.t==='animal_misses'))return;{const id=String((op.row&&op.row.client_id)||op.cid||op.id||'');if(id.startsWith('demo-'))return}Cloud.outbox.push(op);saveCloud();sync();clearTimeout(queue.t);queue.t=setTimeout(()=>{if(Cloud.outbox.length)sync()},2500)}
 async function joinReserve(name,code){
   await ensureSession();
   let res;
@@ -1798,6 +1800,7 @@ function annPop(){const a=ANN.filter(x=>!annSeen.has(x.client_id)&&(!x.expires_a
 
 /* ============ what's new: shown once to owners and admins after an update ============ */
 const WHATS_NEW=[
+ [103,'map','Updates keep your stuff','When you update with the reinstall link, your settings, saved and recent places, home, drives, the map you were on and where you were looking all come with you. The Stellenbosch swap map is now a real map: everyone who swaps there sees each other live and sightings are shared.'],
  [102,'binoc','Heatmap for animals on the move','The sightings heatmap now works for lions, leopards, cheetahs, wild dogs and hyenas. Each sighting glows over the area they roam and the way they moved between sightings is filled in. After 24 hours a sighting leaves the map but stays in the Feed.'],
  [101,'play','Videos on sightings','When you add a sighting you can add a video of up to 10 seconds. If your video is longer, slide to choose which 10 seconds to keep. It shows on the sighting and in the Feed.'],
  [100,'live','Which way you are facing','Your blue dot now has a beam showing which way your phone is pointing, even when you stand still, like Google Maps. A narrow beam means the compass is sure, a wide one means it needs calibrating (tap the dot).'],
@@ -1888,7 +1891,7 @@ function sosBeep(f,ms,n){try{unlockAudio();const t=actx.currentTime;for(let i=0;
 function sosSay(t){try{if('speechSynthesis' in window){speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='en-ZA';u.rate=1.05;speechSynthesis.speak(u)}}catch(e){}}
 function sosOv(html,alarm){const o=$('sosOv');$('sosIn').innerHTML=html;o.classList.remove('hide');o.classList.toggle('alarm',!!alarm)}
 function sosClose(){$('sosOv').classList.add('hide');$('sosOv').classList.remove('alarm');clearInterval(sosT);sirenStop()}
-function sosStart(){if(LIVEMAP){toast('SOS is off in the live demo. Exit the demo for the real SOS.',4000);return}if(DM.on)stopDemo();if(!Cloud.member){toast('Join the map first');return}if(SOS&&!SOS.resolved){sosActiveSheet();return}
+function sosStart(){if(DM.on)stopDemo();if(!Cloud.member){toast('Join the map first');return}if(SOS&&!SOS.resolved){sosActiveSheet();return}
   unlockAudio();let n=3;const tick=()=>{if(n===0){clearInterval(sosT);sosSlide();return}
     sosOv(`<h1>SOS</h1><div class="sosNum">${n}</div><p>Sending your exact location to everyone on the map</p><button class="sosBtnW w" id="sosCancel">Cancel</button>`);
     $('sosCancel').onclick=()=>{sosClose();toast('SOS cancelled')};
@@ -2030,7 +2033,7 @@ function myLiveState(){
   const e=nearestEdge(me.ll,60),road=e?ROADS[e.e.road].properties.name:null;
   const st=near&&still>20000?'viewing:'+near.what:(me.speed||0)>1.5?'driving'+(road?':'+road:''):'stopped'+(road?':'+road:'');
   return {st}}
-async function liveTick(){if(LIVEMAP)return;
+async function liveTick(){
   const want=myLiveState(),now=Date.now();
   if(!navigator.onLine||!Cloud.sess||LS_.missing)return;
   try{
@@ -3555,7 +3558,7 @@ function swapSheet(){const s=liveSaved(),o=liveOff(),a=liveArea(),have=s&&s.name
   openSheet(`<div class="cmh"><span style="width:60px"></span><b>${LIVEMAP?T('Stellenbosch map'):T('Swap to')+' '+esc(a.name)}</b><span style="width:60px"></span></div>
    ${livePreview()}
    <div class="lvst">${LI('map',16)}<span>${have?s.n+' '+T('roads')+' · '+T('saved')+' '+new Date(s.t).toLocaleDateString([],{day:'numeric',month:'short'})+(o&&o.n?' · '+T('satellite')+' '+o.mb+' MB':''):T('Not downloaded yet')}</span></div>
-   <div class="sub" style="margin-top:6px;font-size:13px;line-height:1.45">${LIVEMAP?T('You are on the Stellenbosch map. Sightings, reports and drives here stay on this phone and never go onto the reserve map.'):T('Swaps the reserve for this area with every real road, so you can test the whole app driving for real with your GPS. Nothing you do there goes onto the reserve map.')}</div>
+   <div class="sub" style="margin-top:6px;font-size:13px;line-height:1.45">${LIVEMAP?T('You are on the Stellenbosch map. Everyone who swaps here sees each other live, with the same sightings, reports and Feed as the reserve.'):T('Swaps the reserve for this area with every real road. Everyone who swaps here sees each other live, and sightings and reports are shared like on the reserve.')}</div>
    ${LIVEMAP?'':`<div class="list sgroup" style="margin-top:10px">${TG('lvSat',T('Save the satellite map for offline'),T('About 10 to 20 MB'),LS.get('liveSatPref',true))}</div>`}
    <div class="lvprog hide" id="lvProg"><div class="lvbar"><i id="lvFill"></i></div><div class="lvpt"><span id="lvTxt"></span><b id="lvPct">0%</b></div></div>
    ${LIVEMAP?`<button class="btn pri" id="lvBack2" style="width:100%;margin-top:12px">${LI('home',18)} ${T('Swap back to Khaya Ndlovu')}</button><button class="btn" id="lvDl" style="width:100%;margin-top:8px">${LI('down',18)} ${T('Update the map')}</button>`
@@ -3570,7 +3573,7 @@ function swapSheet(){const s=liveSaved(),o=liveOff(),a=liveArea(),have=s&&s.name
 
 /* while in the live demo: a pill at the top, and nothing goes to the real reserve */
 function liveBar(){if(!LIVEMAP)return;let b=$('liveBar');if(!b){b=document.createElement('div');b.id='liveBar';document.body.appendChild(b)}
-  b.innerHTML=`<span class="dmd"></span><b>${esc(LIVEMAP.name)}</b><span class="lvn">${T('test map')}</span><button id="lvX">${T('Swap back')}</button>`;b.onclick=swapSheet;$('lvX').onclick=e=>{e.stopPropagation();liveExit()}}
+  b.innerHTML=`<span class="dmd"></span><b>${esc(LIVEMAP.name)}</b><button id="lvX">${T('Swap back')}</button>`;b.onclick=swapSheet;$('lvX').onclick=e=>{e.stopPropagation();liveExit()}}
 if(LIVEMAP){document.body.classList.add('livedemo');setTimeout(liveBar,800);
   setInterval(()=>{const b=$('liveBar');if(!b)return;const n=$('nav');b.style.top=document.body.classList.contains('navon')&&n?Math.round(n.getBoundingClientRect().bottom+8)+'px':''},700);
 }
@@ -3653,7 +3656,7 @@ function cooldown(tab){const c=COOL[tab==='report'?'report':'sight'],now=Date.no
 const fmtCd=ms=>{const s=Math.ceil(ms/1000);return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')};
 function outsideSheet(ll,mine){const d=fromBoundary(ll);
   openSheet(`<div class="arv"><div class="arvi warn">${LI('alert',30)}</div><small>Outside the reserve</small><h2>${mine?"You're outside the reserve":"Can't add it here"}</h2></div>
-   <div class="sub" style="text-align:center;line-height:1.5;margin-top:8px">Sightings and road reports can only be added inside Khaya Ndlovu${d<5e4?'. '+(mine?'You are':'That spot is')+' '+fmtD(d)+' from the boundary':''}.${mine?' Tap a spot on the map inside the reserve to add one there.':''}</div>
+   <div class="sub" style="text-align:center;line-height:1.5;margin-top:8px">Sightings and road reports can only be added inside ${esc(AREA_NAME)}${d<5e4?'. '+(mine?'You are':'That spot is')+' '+fmtD(d)+' from the boundary':''}.${mine?' Tap a spot on the map inside the reserve to add one there.':''}</div>
    <button class="btn pri" id="oOk" style="width:100%;margin-top:16px">OK</button>`,()=>$('oOk').onclick=closeSheet)}
 const addSeg=tab=>`<div class="seg" style="margin-top:12px">${[['sight','Sighting'],['report','Road report'],['note','Note'],...(Cloud.member&&Cloud.member.role!=='guest'?[['place','Place']]:[])].map(([k,l])=>`<button data-tab="${k}" class="${tab===k?'sel':''}">${l}</button>`).join('')}</div>`;
 function addSheet(tab,at){
@@ -3736,7 +3739,7 @@ $('menuBtn').onclick=()=>{
     ${m&&m.locked?LK('lSug','Suggestions',SUG.list.length?SUG.list.length+' from people on the map':'Nothing yet',SUG.list.filter(x=>!x.read).length?'<span class="tag t-new">'+SUG.list.filter(x=>!x.read).length+' new</span>':'','msg','#0b8043'):m?LK('lSug','Suggest something','Ideas, problems or wishes for the map','','msg','#0b8043'):''}
     ${m&&isAdm2()&&!m.viewAs?LK('lAdm','Admin tools',MS.paused?'The map is paused':'Pause, rules, guest limits, reports','','shield','#b06000'):''}
     ${LK('lOff','Offline map',esc(offlineStatus()),'','down','#00796b')}
-    ${LK('lSwap',LIVEMAP?'Swap to Khaya Ndlovu':'Swap to Stellenbosch',LIVEMAP?'You are on the Stellenbosch test map':liveSaved()?'Every real road, saved on this phone':'Every real road · drive it with your GPS','','map','#c48a1a')}${LK('lDemo','Demo mode',DM.on?'You are in demo mode · tap to see who is in it':(()=>{const L=Object.values(DEMO.outside).filter(p=>Date.now()-p.t<20000);return L.length?L.map(p=>p.name).slice(0,2).join(' and ')+(L.length>2?' and others':'')+(L.length>1?' are':' is')+' in demo mode now · tap to join':'Pretend to be anywhere and test everything'})(),'','play','#5f6368')}
+    ${LK('lSwap',LIVEMAP?'Swap to Khaya Ndlovu':'Swap to Stellenbosch',LIVEMAP?'You are on the Stellenbosch map':liveSaved()?'Every real road, saved on this phone':'Every real road · drive it with your GPS','','map','#c48a1a')}${LK('lDemo','Demo mode',DM.on?'You are in demo mode · tap to see who is in it':(()=>{const L=Object.values(DEMO.outside).filter(p=>Date.now()-p.t<20000);return L.length?L.map(p=>p.name).slice(0,2).join(' and ')+(L.length>2?' and others':'')+(L.length>1?' are':' is')+' in demo mode now · tap to join':'Pretend to be anywhere and test everything'})(),'','play','#5f6368')}
    </div>
    ${m&&!m.locked?'<button class="mout" id="mOut">Sign out</button>':''}`,()=>{
     $('mSet').onclick=()=>settingsSheet();
@@ -3837,8 +3840,21 @@ async function doUpdate(){$('uwGo').textContent='Updating...';LS.set('updTries',
   try{const regs=navigator.serviceWorker?await navigator.serviceWorker.getRegistrations():[];for(const r of regs)await r.unregister()}catch(e){}
   try{for(const k of await caches.keys())if(k!=='kn-tiles')await caches.delete(k)}catch(e){}
   location.replace(location.pathname+'?fresh='+Date.now())}
+/* ============ updates keep your stuff ============
+   A reinstall makes a brand new Home Screen app with an empty memory. Before the sign-in link is made, your settings, saved and recent
+   places, home, recorded drives, the map you were on and where you were looking are packed up and travel with the one-time link,
+   then are put back in the new app. Sign-in keys, Spotify and the downloaded map files are never sent (the maps download again). */
+const CARRY=['avoidTracks','voice','theme','speedWarn','redOn','redAuto','alertSound','alertOn','alertWhat','vmode','topTurn','tilt','sunRemind','showSpd','showNotes','showHeat','showEst','heatWhat','shareLoc','quiet','northUp','mode','lang','keepAwake','hill','farms','autoRec','focusMode','liveSatPref','liveOn','onboarded','roleSeen','wnSeen','annSeen','dmSeen','sugSeen','wrSeen','obNag','sqAsked','joinSkip','calib','otherNames','recents','favs','home','tracks','cam','pnotes','mymiss'];
+function carryPack(){const o={};CARRY.forEach(k=>['kn_'+k,'kn_live_'+k].forEach(n=>{try{const v=localStorage.getItem(n);if(v!=null&&v.length<150000)o[n]=v}catch(e){}}));
+  let s=JSON.stringify(o);if(s.length>280000){delete o.kn_tracks;delete o.kn_live_tracks;s=JSON.stringify(o)}return s.length>280000?null:o}
+async function carrySend(t){if(!t)return;try{const o=carryPack();if(o)await rpc('handover_carry',{p_token:t,p_data:o})}catch(e){}}
+async function carryTake(t){if(!t)return false;try{const o=await rpc('take_carry',{p_token:t});if(!o||typeof o!=='object')return false;let n=0;
+    Object.entries(o).forEach(([k,v])=>{if(/^kn_(live_)?[A-Za-z]+$/.test(k)&&typeof v==='string'&&CARRY.includes(k.replace(/^kn_(live_)?/,''))){try{localStorage.setItem(k,v);n++}catch(e){}}});
+    if(n){toast(T('Your settings and places are back'),2500);setTimeout(()=>location.reload(),1600);return true}}catch(e){}return false}
+// the swap map was on before the update but its roads are not on this phone yet: fetch them (about a second) and open it
+if(!LIVEMAP){try{if(localStorage.getItem('kn_liveOn')==='true'&&!localStorage.getItem('kn_liveMap'))setTimeout(async()=>{try{const m=await liveRoads(liveArea());localStorage.setItem('kn_liveMap',JSON.stringify(m));location.reload()}catch(e){localStorage.setItem('kn_liveOn','false')}},1500)}catch(e){}}
 async function reinstall(elId){const el=$(elId||'uwSteps');if(!el)return;el.innerHTML='<small>Making your sign-in link...</small>';
-  let t=null;try{if(Cloud.member&&navigator.onLine)t=await rpc('make_handover',{})}catch(e){}if(t)LS.set('movedT',Date.now());
+  let t=null;try{if(Cloud.member&&navigator.onLine)t=await rpc('make_handover',{})}catch(e){}if(t){LS.set('movedT',Date.now());await carrySend(t)}
   const nm=Cloud.member&&Cloud.member.name?'n='+encodeURIComponent(Cloud.member.name)+'&':'';
   const url=location.origin+'/?'+(t?'resume='+encodeURIComponent(t)+'&':'')+nm+'wn='+(LS.get('wnSeen',0)||APP_BUILD)+'&fresh='+Date.now();
   const and=/Android/i.test(navigator.userAgent);
@@ -4677,20 +4693,20 @@ function afterGate2(){if(!LS.get('onboarded',false)||!LS.get('offline',null))set
 const isIOS=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
 async function armHandover(){if(!Cloud.on||!Cloud.member||!isIOS||isStandalone()||!navigator.onLine)return;
   const q=new URLSearchParams(location.search);if(q.get('code')||q.get('error'))return;
-  try{let t=LS.get('hoTok','');if(!t){t=await rpc('make_handover',{});if(!t||typeof t!=='string')return;LS.set('hoTok',t)}
+  try{let t=LS.get('hoTok','');if(!t){t=await rpc('make_handover',{});if(!t||typeof t!=='string')return;LS.set('hoTok',t)}carrySend(t);
     if(q.get('resume')!==t||!q.get('wn'))history.replaceState(null,'',location.pathname+'?resume='+encodeURIComponent(t)+'&wn='+(LS.get('wnSeen',0)||APP_BUILD))}catch(e){console.warn('handover',e)}}
 async function softResume(t){Cloud.resuming=true;LS.set('usedTok',t);
   try{await ensureSession();const r=await rpc('use_handover',{p_token:t});
     if(r&&r.ok){Cloud.member={name:r.name||'Member',uid:Cloud.sess.uid,t:Date.now(),role:r.role||'owner',exp:r.expires_at?Date.parse(r.expires_at):null};
       LS.set('hoTok','');LS.set('movedT',0);LS.set('roleSeen',Cloud.member.role);saveCloud();try{history.replaceState(null,'',location.pathname)}catch(e){}
-      toast('Welcome back, '+Cloud.member.name+'! You are signed in.',3000)}}catch(e){}
+      toast('Welcome back, '+Cloud.member.name+'! You are signed in.',3000);await carryTake(t)}}catch(e){}
   Cloud.resuming=false;armExpiry();setTimeout(armHandover,2500);setTimeout(sync,300);setTimeout(rtConnect,800)}
 async function tryResume(t){const fail=msg=>{showGate();if(msg){$('gErr').textContent=msg;$('gErr').classList.add('on')}};
   if(!navigator.onLine){fail('Open the map with signal once to finish signing in');return}
   try{await ensureSession();const r=await rpc('use_handover',{p_token:t});
     if(r&&r.ok){Cloud.member={name:r.name||'Member',uid:Cloud.sess.uid,t:Date.now(),role:r.role||'owner',exp:r.expires_at?Date.parse(r.expires_at):null};
       LS.set('hoTok','');LS.set('movedT',0);LS.set('usedTok',t);try{history.replaceState(null,'',location.pathname)}catch(e){}setTimeout(armHandover,2500);
-      LS.set('roleSeen',Cloud.member.role);saveCloud();sync();armExpiry();setTimeout(rtConnect,500);toast('Welcome back, '+Cloud.member.name+'! You are signed in.',3000);setTimeout(afterGate2,1200);return}
+      LS.set('roleSeen',Cloud.member.role);saveCloud();sync();armExpiry();setTimeout(rtConnect,500);toast('Welcome back, '+Cloud.member.name+'! You are signed in.',3000);if(await carryTake(t))return;setTimeout(afterGate2,1200);return}
     fail(r&&r.reason==='used'?'That sign-in link was already used. Enter your code to sign in':r&&r.reason==='expired'?'Your access has ended':'Please sign in with your name and code')}
   catch(e){fail(/timeout|Failed to fetch|NetworkError|Load failed/i.test(String(e.message||e))?'Weak signal. Close the map and open it again to finish signing in':'Please sign in with your name and code')}}
 {const rt=new URLSearchParams(location.search).get('resume');{const wn=+new URLSearchParams(location.search).get('wn');if(wn>0&&wn<=APP_BUILD&&!LS.get('wnSeen',0))LS.set('wnSeen',wn)}
@@ -4743,6 +4759,7 @@ function offlineSheet(first){
 let mapReady=false,prog=0;
 function setProg(p,t){prog=Math.max(prog,p);$('barFill').style.width=prog+'%';if(t)$('gpsTxt').textContent=t}
 setProg(15,'Loading map...');
+let camT=0;map.on('moveend',()=>{clearTimeout(camT);camT=setTimeout(()=>{try{const c=map.getCenter();LS.set('cam',{c:[+c.lng.toFixed(6),+c.lat.toFixed(6)],z:+map.getZoom().toFixed(2),t:Date.now()})}catch(e){}},1500)});
 function onMapLoad(){if(mapReady)return;mapReady=true;if(LIVEMAP)try{for(const id of['road-lbl-1','road-lbl-2','road-lbl-3']){const f=map.getFilter(id);map.setFilter(id,f?['all',f,['!=',['get','noname'],true]]:['!=',['get','noname'],true])}const cf=map.getFilter('road-callout');map.setFilter('road-callout',cf?['all',cf,['!=',['get','noname'],true]]:['!=',['get','noname'],true])}catch(e){}try{map.setFilter('pan',['all',['==',['get','kind'],'water'],['!',['in',['get','name'],['literal',DATA.water.features.map(f=>f.properties.name).concat(['Hippo Dam','Wild Dog Dam'])]]]])}catch(e){}setTimeout(()=>{applyPlaces();drawNotes()},100);setTimeout(()=>document.querySelectorAll('.maplibregl-compact-show').forEach(e=>e.classList.remove('maplibregl-compact-show')),50);checkNight();applyMode();if(trail.length>1)map.getSource('trail').setData({type:'Feature',geometry:{type:'LineString',coordinates:trail},properties:{}});setInterval(checkNight,60000);setTimeout(precacheTerrain,8000);sights.forEach(x=>logSight(x.cid,x.what,x.ll,x.t));refreshOverlays();loadWx();map.on('zoom',wxZoom);setProg(55,'Finding satellites...');
   const r=LS.get('rec',null);if(r){recTrack=r;$('rec').classList.remove('hide');$('recInfo').textContent=fmtD(r.len)}
   startGPS();bootWait();netEval();try{$('sunTxt').textContent=sunLine()}catch(e){}}
@@ -4763,7 +4780,7 @@ function finishBoot(fix){
   if(!needGate()&&(!LS.get('onboarded',false)||(!LS.get('offline',null)&&!LS.get('obNag',0))))setTimeout(()=>{LS.set('obNag',1);offlineSheet(!LS.get('onboarded',false))},2900);
   if(Cloud.member)sync();setTimeout(()=>{const sp=$('splash');if(sp)sp.remove()},1400);
   if(fix&&inReserve(me.ll)){map.flyTo({center:me.ll,zoom:16,bearing:0,duration:2600,curve:1.6,essential:true});setTimeout(()=>setFollow(1),2700)}
-  else{setFollow(0);map.fitBounds(RES_BOUNDS,{padding:40,bearing:0,duration:2200});if(fix)toast("You're outside the reserve, showing the whole map",3500)}
+  else{setFollow(0);if(CAM0)map.flyTo({center:CAM0.c,zoom:CAM0.z,bearing:0,duration:2200,essential:true});else map.fitBounds(RES_BOUNDS,{padding:40,bearing:0,duration:2200});if(fix)toast(CAM0?"You're outside "+AREA_NAME+", back where you were looking":"You're outside the reserve, showing the whole map",3500)}
   // when first fix comes later, jump to it if inside
   if(!fix){const iv=setInterval(()=>{if(gotFirst){clearInterval(iv);if(inReserve(me.ll)){setFollow(1);map.easeTo({center:me.ll,zoom:16,duration:900})}}},500)}
 }

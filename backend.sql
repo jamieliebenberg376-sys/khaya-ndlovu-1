@@ -7,9 +7,10 @@ alter table private.config add column if not exists last_daily timestamptz;
 alter table private.config add column if not exists last_backup timestamptz;
 
 -- ---------- helpers ----------
--- the map area (all roads plus about 1.5 km around them). Sightings and reports outside this are refused.
+-- the map areas (all roads plus about 1.5 km around them). Sightings and reports outside these are refused.
 create or replace function public.kn_in_area(p_lat double precision, p_lng double precision)
-returns boolean language sql immutable as $$ select p_lng between 30.884 and 31.004 and p_lat between -24.490 and -24.343 $$;
+returns boolean language sql immutable as $$ select (p_lng between 30.884 and 31.004 and p_lat between -24.490 and -24.343)
+  or (p_lng between 18.80 and 18.90 and p_lat between -34.01 and -33.94) $$;  -- the reserve, and the Stellenbosch swap map
 
 -- nearest gate within p_max metres (or null)
 create or replace function public.kn_near_gate(p_lat double precision, p_lng double precision, p_max double precision)
@@ -1398,4 +1399,31 @@ end $$;
 revoke all on function public.kn_backend_selftest() from public, anon, authenticated;
 
 notify pgrst, 'reload schema';
+
+-- ---------- UPDATES KEEP YOUR STUFF (v103) ----------
+-- the reinstall link carries the phone's settings and places to the new Home Screen app. Only through these two functions;
+-- nobody can read the handover table directly. A pack is used once and is gone after a day.
+alter table public.handover add column if not exists carry jsonb;
+create or replace function public.handover_carry(p_token text, p_data jsonb)
+returns boolean language plpgsql security definer set search_path = public as $$
+begin
+  if auth.uid() is null or p_data is null or length(p_data::text) > 300000 then return false; end if;
+  update public.handover set carry = p_data where token = upper(trim(p_token)) and user_id = auth.uid() and used_at is null;
+  return found;
+end $$;
+grant execute on function public.handover_carry(text, jsonb) to authenticated;
+create or replace function public.take_carry(p_token text)
+returns jsonb language plpgsql security definer set search_path = public as $$
+declare c jsonb;
+begin
+  if auth.uid() is null or not exists (select 1 from public.members where user_id = auth.uid()) then return null; end if;
+  select carry into c from public.handover where token = upper(trim(p_token)) and carry is not null
+    and ((used_at is not null and used_at > now() - interval '1 day') or user_id = auth.uid()) for update;
+  if c is null then return null; end if;
+  update public.handover set carry = null where token = upper(trim(p_token));
+  return c;
+end $$;
+grant execute on function public.take_carry(text) to authenticated;
+
 select * from public.kn_backend_selftest();
+
