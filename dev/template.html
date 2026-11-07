@@ -891,7 +891,49 @@ body.night .fcomp .fcph{background:rgba(255,255,255,.06)}body.night .poa2.fb .po
 #focusPill.on{display:flex}
 body.focus #chips,body.focus #spot:not(.open),body.focus #wxBtn,body.focus .phpin,body.focus #chipOut{display:none!important}
 body.focus #gpsWeak{top:calc(var(--safe-t) + 150px)}body.focus #scaleBar{top:calc(var(--safe-t) + 182px)}
-.nmb{grid-template-columns:repeat(5,1fr)!important}.nmb button{font-size:11px!important;padding:11px 2px!important}.nmb button.on{background:linear-gradient(160deg,#2f6f4c,#1c4631)!important;color:#ffd36b!important}.nmb button.on .li{color:#ffd36b!important}
+.nmb{grid-template-columns:repeat(3,1fr)!important}.nmb button{font-size:12px!important;padding:11px 2px!important}.nmb button.on{background:linear-gradient(160deg,#2f6f4c,#1c4631)!important;color:#ffd36b!important}.nmb button.on .li{color:#ffd36b!important}
+
+/* ===== v95: smarter drives ===== */
+.nchip.anc{padding:2px 10px 2px 3px;background:rgba(255,194,61,.2);color:#fff3d6}.nchip.anc svg{flex:none}
+#navBottom .nprog{overflow:visible!important}
+#nMarks{position:absolute;left:0;right:0;top:50%;height:0;pointer-events:none}
+#nMarks .nm{position:absolute;top:0;transform:translate(-50%,-50%);width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#16130d;border:1.5px solid rgba(255,194,61,.7);color:#ffd36b;font:800 10px system-ui;box-shadow:0 2px 6px rgba(0,0,0,.4);transition:opacity .4s}
+#nMarks .nm svg{width:11px;height:11px;fill:#ffd36b}#nMarks .nm.turn{width:14px;height:14px;border-color:rgba(255,255,255,.35)}#nMarks .nm.turn svg{width:9px;height:9px;fill:#fff}
+#nMarks .nm.rep{background:#c5221f;border-color:#fff;color:#fff}#nMarks .nm.stop{background:#ffc23d;color:#2a1c08;border-color:#2a1c08}#nMarks .nm.end{background:#ffc23d;color:#2a1c08;border-color:#2a1c08;width:20px;height:20px}#nMarks .nm.end svg{fill:none;stroke:#2a1c08}
+#nMarks .nm.an{width:22px;height:22px;padding:0;background:#fff;border-color:#ffc23d}#nMarks .nm.past{opacity:.25}
+#navOffer{display:none;position:fixed;left:10px;right:10px;z-index:13;top:calc(var(--safe-t) + 150px);padding:12px 14px;border-radius:20px;background:linear-gradient(135deg,rgba(32,42,30,.97),rgba(14,18,13,.98));border:1px solid rgba(255,194,61,.4);color:#fff;box-shadow:0 14px 34px rgba(0,0,0,.45);overflow:hidden}
+#navOffer.on{display:block;animation:nrbIn .35s ease-out}#navOffer .noh{display:flex;align-items:center;gap:8px;color:#ffd36b}#navOffer .noh b{color:#fff;font-size:15.5px}
+#navOffer .nos{margin:6px 0 10px 26px;font-size:14px;color:rgba(255,255,255,.75)}#navOffer .nos .slow{color:#ffb4a8}#navOffer .nos .fast{color:#81c995}
+#navOffer .nob{display:flex;gap:8px;position:relative}#navOffer .nob button{flex:1;height:42px;border-radius:14px;background:rgba(255,255,255,.1);color:#fff;font:700 14px system-ui}#navOffer .nob .go{background:linear-gradient(180deg,#ffd36b,#f2a516);color:#1d1406}
+#navOffer .notm{position:absolute;left:0;bottom:-12px;height:3px;background:#ffc23d;width:100%;animation:notm 15s linear forwards}@keyframes notm{to{width:0}}
+#qrBtn{display:none;color:#c5221f}body.navon #qrBtn,body.drive #qrBtn{display:flex}body.navon #qrBtn,body.night #qrBtn{color:#ff8a80}
+.qrg{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:14px}.qrg button{display:flex;align-items:center;gap:10px;padding:16px 14px;border-radius:18px;background:var(--sandA,rgba(127,127,127,.1));color:var(--ink);font:700 15px system-ui;text-align:left;box-shadow:inset 0 0 0 1px var(--hair)}.qrg button .li{color:#c5221f;flex:none}.qrg button:active{transform:scale(.97)}
+body.night .qrg button{background:rgba(255,255,255,.07);color:#e8eaed}
+#toast .tundo{margin-left:12px;background:none;color:#ffd36b;font:800 14px system-ui;padding:0}
+.rhdr{padding:10px 14px 4px;font-size:11.5px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:var(--sub)}
+.favb{display:flex;align-items:center;justify-content:center;gap:6px}.favb.on{background:linear-gradient(160deg,#ffd36b,#f2a516)!important;color:#1d1406!important}.favb.on .li{color:#1d1406}
+.dirs{margin-top:12px;padding:6px 10px;border-radius:18px;background:rgba(127,127,127,.07);box-shadow:inset 0 0 0 1px var(--hair);position:relative}
+.drw{display:flex;align-items:center;gap:10px;min-height:42px;padding:2px 2px;border-bottom:1px solid var(--hair);width:100%;text-align:left;background:none;font-size:15px}.drw:last-child{border-bottom:0}
+.drw .dtx{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600}.drw.from .dtx{color:var(--sub);font-weight:500}
+.dd{width:24px;height:24px;flex:none;display:flex;align-items:center;justify-content:center}.dd.from:before{content:'';width:12px;height:12px;border-radius:50%;background:#1a73e8;border:3px solid #fff;box-shadow:0 0 0 1.5px #1a73e8}
+.dd.to{border-radius:50%;background:#c5221f;color:#fff}.drw .stn{margin:0}.drw .dx{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--sub);background:none}
+.drw.add{color:#2f8f4e;font-weight:700}.drw.add .li{width:24px;flex:none}.drw .hdl{color:var(--sub);touch-action:none}
+.big.b2{margin-top:8px}.big.b2 .bad b{color:#c5221f}
+/* landscape: phone in a dashboard mount */
+body.land.navon #nav{left:calc(8px + env(safe-area-inset-left,0px));right:auto;width:40%;top:8px}
+body.land #navBottom{left:calc(8px + env(safe-area-inset-left,0px))!important;right:auto!important;width:40%;bottom:8px!important;border-radius:22px!important;padding-bottom:12px!important}
+body.land.navon #speed{left:calc(40% + 26px + env(safe-area-inset-left,0px))!important;bottom:12px!important}
+body.land.navon #fabs{bottom:12px!important;right:calc(10px + env(safe-area-inset-right,0px))}
+body.land.navon #recenter{left:70%!important;bottom:14px!important}
+body.land.navon #roadPill{left:70%!important;bottom:70px!important}
+body.land #navOffer{left:calc(8px + env(safe-area-inset-left,0px));right:auto;width:40%;top:auto;bottom:110px}
+body.land.navon #sosBtn{bottom:84px!important;left:calc(40% + 26px)!important}
+body.land.navon #junc{display:none!important}
+
+.drw .stn{color:#2a1c08!important;background:#ffc23d!important}
+body.land #nav .jx,body.land #nav .nchips .nchip:nth-child(n+2){display:none!important}
+body.land #nav .tx .ins{font-size:18px!important}
+body.land.navon #sosBtn{left:calc(40% + 26px + env(safe-area-inset-left,0px))!important;bottom:118px!important}
 </style>
 </head>
 <body>
@@ -927,9 +969,10 @@ body.focus #gpsWeak{top:calc(var(--safe-t) + 150px)}body.focus #scaleBar{top:cal
   <div class="nchips" id="navChip" style="display:none"></div>
   <div class="jx" id="navJx"></div></div>
 </div>
+<div id="navOffer"></div>
 <div id="navBottom" class="hide">
   <div class="nbgrab"></div>
-  <div class="nprog"><i id="navProg"></i></div>
+  <div class="nprog"><i id="navProg"></i><div id="nMarks"></div></div>
   <div class="mid"><div class="eta" id="navEta">-</div><div class="meta" id="navMeta">-</div></div>
   <button class="exit" id="navEnd" aria-label="Exit">Exit</button>
 </div>
@@ -980,7 +1023,7 @@ const HOUSE2=((DATA.pois.features.find(f=>f.properties.kind==='home')||{}).geome
 const ORIG_POIS=JSON.parse(JSON.stringify(DATA.pois.features));
 const PKIND={water:'Dam / waterhole',hide:'Bird hide',picnic:'Picnic spot',view:'Viewpoint',gate:'Gate',lodge:'Lodge',other:'Place'};let POIS_BY_NAME={};
 /* ============ Khaya Ndlovu icon set: animal badges, report badges, line icons, weather ============ */
-const LI_P={like:'<path d="M7 10.5V20H4.2a1 1 0 0 1-1-1v-7.5a1 1 0 0 1 1-1z"/><path d="M7 10.5 10.6 3.4a1.9 1.9 0 0 1 3.4 1.2V9h5a2 2 0 0 1 2 2.3l-1.2 6.9A2.2 2.2 0 0 1 17.6 20H7"/>',plus:'<path d="M12 5v14M5 12h14"/>',share:'<circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/><path d="M8.3 10.8l7.4-4.4M8.3 13.2l7.4 4.4"/>',ruler:'<path d="M3 16.5 16.5 3 21 7.5 7.5 21z"/><path d="M7.5 12l2 2M10.5 9l2 2M13.5 6l2 2"/>',picnic:'<path d="M4 9h16M6.5 9 4 19M17.5 9 20 19M3 14h18"/>',gate:'<path d="M4 21V5M20 21V5M4 8h16M4 13h16M8 8v5M12 8v5M16 8v5"/>',binoc:'<circle cx="6.5" cy="16" r="3.5"/><circle cx="17.5" cy="16" r="3.5"/><path d="M10 16h4M3.6 14.6 6 6.5h3l1.2 6.8M20.4 14.6 18 6.5h-3l-1.2 6.8M9.5 6.5V4.5h-2v2M16.5 6.5V4.5h-2v2"/>',
+const LI_P={grip:'<path d="M5 9h14M5 15h14"/>',like:'<path d="M7 10.5V20H4.2a1 1 0 0 1-1-1v-7.5a1 1 0 0 1 1-1z"/><path d="M7 10.5 10.6 3.4a1.9 1.9 0 0 1 3.4 1.2V9h5a2 2 0 0 1 2 2.3l-1.2 6.9A2.2 2.2 0 0 1 17.6 20H7"/>',plus:'<path d="M12 5v14M5 12h14"/>',share:'<circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/><path d="M8.3 10.8l7.4-4.4M8.3 13.2l7.4 4.4"/>',ruler:'<path d="M3 16.5 16.5 3 21 7.5 7.5 21z"/><path d="M7.5 12l2 2M10.5 9l2 2M13.5 6l2 2"/>',picnic:'<path d="M4 9h16M6.5 9 4 19M17.5 9 20 19M3 14h18"/>',gate:'<path d="M4 21V5M20 21V5M4 8h16M4 13h16M8 8v5M12 8v5M16 8v5"/>',binoc:'<circle cx="6.5" cy="16" r="3.5"/><circle cx="17.5" cy="16" r="3.5"/><path d="M10 16h4M3.6 14.6 6 6.5h3l1.2 6.8M20.4 14.6 18 6.5h-3l-1.2 6.8M9.5 6.5V4.5h-2v2M16.5 6.5V4.5h-2v2"/>',
  rec:'<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3.8" fill="currentColor"/>',stop:'<rect x="6" y="6" width="12" height="12" rx="2.5" fill="currentColor"/>',
  sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
  home:'<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/>',users:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.6a3.5 3.5 0 0 1 0 6.8M18 14.2a6.5 6.5 0 0 1 3.5 5.8"/>',
@@ -1712,6 +1755,7 @@ function annPop(){const a=ANN.filter(x=>!annSeen.has(x.client_id)&&(!x.expires_a
 
 /* ============ what's new: shown once to owners and admins after an update ============ */
 const WHATS_NEW=[
+ [95,'route','Smarter drives','Sightings coming up on your route are called out, a strip along the bottom shows every turn, gate and sighting ahead, one tap reports, a better way is offered if a road is blocked, stops like Google Maps, search along your route, saved and recent places, smart animal search, landscape layout, and every drive saved with top speed.'],
  [94,'route','Top-down view at turns','From 100 metres before a turn the map goes flat and zooms in, so you can see exactly which turn to take. Once you are through it tilts back to the driving view.'],
  [93,'scope','Focus mode','When you start driving the map hides the clutter: no heatmap, guesses, notes, borders, old trails or pop-ups. You still see roads, fresh sightings, reports, picnic spots, gates, dams and other cars. Change it in Settings › Driving.'],
  [92,'map','A better looking map','Roads follow their real curves, dams are proper blue water with shallows and a muddy edge, rivers show the sandy bed with the water in it, and every pan is drawn as a little pond.'],
@@ -2190,7 +2234,7 @@ function fmtHM(ms){const m=Math.round(ms/6e4);return m<60?m+' min':Math.floor(m/
 function driveSummary(t,fromList){const st=driveStats(t),sp=Object.entries(st.seen).sort((a,b)=>b[1].n-a[1].n);
   const bb=new maplibregl.LngLatBounds();t.pts.forEach(p=>bb.extend(p));setFollow(0);if(t.pts.length)map.fitBounds(bb,{padding:{top:90,bottom:Math.round(innerHeight*.55),left:40,right:40},duration:600,maxZoom:16});
   openSheet(`<div class="dsum"><h2>${fromList?'Drive summary':'Drive done'}</h2><div class="sub">${esc(new Date(t.t).toLocaleString([],{weekday:'long',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}))}</div>
-   <div class="big"><div><b>${fmtD(t.len)}</b>distance</div><div><b>${fmtHM(st.dur)}</b>time</div><div><b>${Math.round(st.kmh)||0} km/h</b>average</div></div>
+   <div class="big"><div><b>${fmtD(t.len)}</b>distance</div><div><b>${fmtHM(st.dur)}</b>time</div><div><b>${Math.round(st.kmh)||0} km/h</b>average</div></div>${t.top!=null?`<div class="big b2"><div><b>${Math.round(t.top||0)} km/h</b>top speed</div><div class="${t.over>30?'bad':''}"><b>${t.over>30?fmtHM(t.over*1000):t.over>0?Math.round(t.over)+' s':'None'}</b>over ${SPEED_LIMIT} km/h</div><div><b>${sp.length}</b>${sp.length===1?'kind of animal':'kinds of animal'}</div></div>`:''}
    ${(()=>{const b=BIG5.filter(w=>st.seen[w]).length;return `<div class="tally" style="margin-top:14px"><div class="tyh"><b>Big Five ${b}/5</b><small>${sp.length} kind${sp.length===1?'':'s'} of animal on this drive</small></div><div class="tyb">${BIG5.map(w=>`<span class="${st.seen[w]?'on':''}">${AN(w,30)}</span>`).join('')}</div></div>`})()}
    <div class="sub" style="margin-top:14px"><b>Animals seen</b></div>
    <div class="prof" style="margin-top:6px">${sp.length?sp.map(([w,v])=>`<div class="pr"><span>${AN(w,30)}</span><div>${esc(w)}${v.n>1?' ×'+v.n:''}<small>${esc(areaOf(v.ll)||'On the reserve')}</small></div></div>`).join(''):'<div class="pr"><span>'+LI('scope',20)+'</span><div>No sightings on this drive<small>Mark sightings while you drive and they show here</small></div></div>'}</div>
@@ -2380,6 +2424,7 @@ function handlePos(raw,acc,heading,speed,t){if((speed||0)>1.5)lastMoveT=Date.now
      if(mapReady&&trail.length>1)map.getSource('trail').setData({type:'Feature',geometry:{type:'LineString',coordinates:trail},properties:{}})}}
   const dn=(speedS||0)*3.6>8;if(dn!==drivingNow){drivingNow=dn;if(mapReady)applyDrive()}
   updateRoad();
+  if(recTrack){const k=(speedS||0)*3.6;if(k>(recTrack.top||0)&&k<120)recTrack.top=+k.toFixed(1);if(recTrack.lt&&k>SPEED_LIMIT+3&&inReserve(ll))recTrack.over=(recTrack.over||0)+Math.min(5,(t-recTrack.lt)/1000);recTrack.lt=t}
   if(recTrack){const L=recTrack.pts[recTrack.pts.length-1];if(!L||dist(L,ll)>6){recTrack.pts.push([+ll[0].toFixed(6),+ll[1].toFixed(6)]);if(recTrack.pts.length>1)recTrack.len+=L?dist(L,ll):0;$('recInfo').textContent=fmtD(recTrack.len);if(recTrack.pts.length%5===0){LS.set('rec',recTrack);refreshOverlays()}}}
   if(nav)navTick();
   if(follow===1&&!nav&&(speedS||0)*3.6>10){fastN++;if(fastN>=3&&!LS.get('noAutoDrive',false)){setFollow(2)}}else fastN=0;
@@ -2429,7 +2474,7 @@ function camTick(){
     const zt=flat?Math.max(camState.zl,18.1):nav&&nav.near&&!pvOn?Math.max(camState.zl,17.75):camState.zl;const kz=1-Math.exp(-dt/(flat||camState.wasFlat?1.1:2.6));camState.wasFlat=flat;camState.zoom=camState.zoom==null?map.getZoom():camState.zoom+(zt-camState.zoom)*kz;
     const p=tilt&&!NORTHUP?(flat?0:nav&&nav.near?46:60):0,pt=map.getPitch();
     const padT=innerHeight*(flat?0.3:0.42);camState.pad=camState.pad==null?padT:camState.pad+(padT-camState.pad)*(1-Math.exp(-dt/0.7));
-    map.jumpTo({center:anim.pos,bearing:NORTHUP?0:anim.camHd,pitch:Math.abs(p-pt)<.05?p:pt+(p-pt)*(1-Math.exp(-dt/(flat?0.45:0.7))),zoom:camState.zoom,padding:{top:Math.round(camState.pad),bottom:0,left:0,right:0}});
+    map.jumpTo({center:anim.pos,bearing:NORTHUP?0:anim.camHd,pitch:Math.abs(p-pt)<.05?p:pt+(p-pt)*(1-Math.exp(-dt/(flat?0.45:0.7))),zoom:camState.zoom,padding:{top:Math.round(LAND?innerHeight*(flat?0.2:0.3):camState.pad),bottom:0,left:LAND&&nav?Math.round(innerWidth*0.42):0,right:0}});
   }else anim.camHd=driving?anim.camHd:map.getBearing();
 }
 let userMoving=false,TOUCHING=false;
@@ -2618,10 +2663,10 @@ function renderResults(){
   const q=$('q').value.trim().toLowerCase();$('clearQ').classList.toggle('hide',!q);
   if(!q&&document.activeElement!==$('q')){$('results').classList.add('hide');return}
   let it=searchItems();
-  if(q)it=it.filter(x=>x.name.toLowerCase().includes(q)||x.sub.toLowerCase().includes(q)).sort((a,b)=>(a.name.toLowerCase().startsWith(q)?0:1)-(b.name.toLowerCase().startsWith(q)?0:1));
-  else it=it.filter(x=>x.kind==='home'||x.kind==='gate'||x.kind==='sight'||x.kind==='report').concat([{kind:'hint',name:'Tip',sub:'Type a road, dam or picnic spot'}]);
+  if(q){const sm=smartResults(q),seen=new Set(sm.map(x=>x.cid).filter(Boolean));it=sm.concat(it.filter(x=>!(x.cid&&seen.has(x.cid))&&(x.name.toLowerCase().includes(q)||x.sub.toLowerCase().includes(q))).sort((a,b)=>(a.name.toLowerCase().startsWith(q)?0:1)-(b.name.toLowerCase().startsWith(q)?0:1)))}
+  else{const fv=FAVS.slice(0,8),rc=RECENTS.filter(r=>!isFav(r)).slice(0,6);it=(fv.length?[{kind:'hdr',name:T('Saved')}].concat(fv):[]).concat(rc.length?[{kind:'hdr',name:T('Recent')}].concat(rc):[]).concat([{kind:'hdr',name:T('Nearby')}],it.filter(x=>x.kind==='home'||x.kind==='gate'||x.kind==='sight'||x.kind==='report'),[{kind:'hint',name:'Tip',sub:'Type a road, dam, picnic spot or an animal like lion'}])}
   it=it.slice(0,30);
-  $('results').innerHTML=it.length?it.map((x,i)=>{if(x.kind==='hint')return `<div class="res"><small>${esc(x.sub)}</small></div>`;const [c,g]=ICON_DOT[x.kind]||['#555','•'];const d=me?' · '+fmtD(dist(me.ll,itemLL(x)))+' away':'';return `<button class="res" style="width:100%;text-align:left" data-i="${i}"><span class="dot" style="background:${c}">${g}</span><span><b>${esc(x.name)}</b><small>${esc(x.sub)}${d}</small></span></button>`}).join(''):'<div class="res"><small>Nothing found</small></div>';
+  $('results').innerHTML=it.length?it.map((x,i)=>{if(x.kind==='hdr')return `<div class="rhdr">${esc(x.name)}</div>`;if(x.kind==='hint')return `<div class="res"><small>${esc(x.sub)}</small></div>`;const [c,g]=x.smart?['#c48a1a','★']:ICON_DOT[x.kind]||['#555','•'];const d=me?' · '+fmtD(dist(me.ll,itemLL(x)))+' away':'';return `<button class="res" style="width:100%;text-align:left" data-i="${i}"><span class="dot" style="background:${c}">${g}</span><span><b>${esc(x.name)}</b><small>${esc(x.sub)}${d}</small></span></button>`}).join(''):'<div class="res"><small>Nothing found</small></div>';
   $('results').classList.remove('hide');
   $('results').querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>{const x=it[+b.dataset.i];$('q').blur();$('results').classList.add('hide');showPlace(x)});
 }
@@ -2926,7 +2971,7 @@ function routePreview(x){
   const warn=allReports().filter(rp=>projectOnRoute(b.segs,rp.ll).d<45);
   const along=allSights().filter(s=>projectOnRoute(b.segs,s.ll).d<160&&dist(s.ll,target)>60).slice(0,4);
   const icon=x.kind==='sight'?AN(x.name,46):`<span class="rpi">${LI(x.kind==='home'?'home':x.kind==='report'?'alert':x.kind==='gate'?'gate':'pin',24)}</span>`;
-  openSheet(`<div class="rph">${icon}<div style="min-width:0"><small>Route to</small><b>${esc(x.name)}</b></div></div>
+  openSheet(`<div class="rph">${icon}<div style="min-width:0"><small>Route to</small><b>${esc(x.name)}</b></div></div>${rpDirs(x)}
    <div class="rpm"><div><b class="g">${fmtT(r.len/v)}</b><small>Drive</small></div><div><b>${fmtD(r.len)}</b><small>Distance</small></div><div><b>${eta.toTimeString().slice(0,5)}</b><small>Arrive</small></div><div><b>${turns}</b><small>${turns===1?'Turn':'Turns'}</small></div></div>
    <div class="rpv">${LI('route',17)}<span>${roads.slice(0,4).map(esc).join(' <i>›</i> ')}${roads.length>4?' <i>›</i> …':''}</span></div>
    ${warn.length?`<div class="rpw">${LI('alert',18)}<div><b>${warn.length===1?'Road report on this route':warn.length+' road reports on this route'}</b><small>${warn.map(w=>esc(w.kind)+(w.road?' on '+esc(w.road):'')+' · '+ago(w.t)).join('<br>')}</small></div></div>`:''}
@@ -3002,7 +3047,7 @@ function navTick(){
 /* ============ voice guidance ============ */
 let voiceOn=LS.get('voice',true);const spoken=new Set();
 const VOICE_ICON=on=>on?'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/></svg>':'<svg viewBox="0 0 24 24" fill="none" stroke="#5f6368" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M17 9l5 6M22 9l-5 6"/></svg>';
-function say(t,key){if(!voiceOn||!('speechSynthesis' in window))return;if(VMODE==='alerts'&&!(key&&/^(s\d+c|arr|rr|stop|gate)/.test(key)))return;if(key&&spoken.has(key))return;if(key)spoken.add(key);try{const u=new SpeechSynthesisUtterance(t);u.lang='en-ZA';u.rate=1.02;speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){}}
+function say(t,key){if(!voiceOn||!('speechSynthesis' in window))return;if(VMODE==='alerts'&&!(key&&/^(s\d+c|arr|rr|stop|gate|sa|off)/.test(key)))return;if(key&&spoken.has(key))return;if(key)spoken.add(key);try{const u=new SpeechSynthesisUtterance(t);u.lang='en-ZA';u.rate=1.02;speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){}}
 function speakStep(i,dd,txt){const base=txt;
   if(dd<=520&&dd>300)say('In 500 metres, '+base.toLowerCase(),'s'+i+'a');
   else if(dd<=260&&dd>80)say('In 250 metres, '+base.toLowerCase(),'s'+i+'b');
@@ -3078,13 +3123,14 @@ function navExtras(along,i,dd){
   if(nav.gatesR!==nav.r){nav.gatesR=nav.r;nav.gates=GATES.map(g=>{const p=projectOnRoute(nav.segs,g.ll);return p.d<35?{n:g.n,at:p.along}:null}).filter(Boolean)}
   const out=[];
   if(nav.stops&&nav.stops.length&&nav.r.legs){const left=nav.r.legs[0]-along;if(left<1500)out.push(['pin',T('Stop')+': '+nav.stops[0].name+' · '+fmtNav(left)])}
+  {const sa=sightAhead(along);if(sa){out.push(['an:'+sa.s.what,T(sa.s.what)+' · '+fmtD(Math.max(10,sa.ahead))+' · '+sa.side]);if(sa.ahead<400)say(sa.s.what+' '+fmtD(Math.max(10,Math.round(sa.ahead/50)*50))+' ahead, '+sa.side,'sa'+sa.s.cid)}}
   const g=nav.gates.find(g=>g.at>along-5&&g.at-along<700);if(g){out.push(['gate',T('Gate ahead')+' · '+fmtD(Math.max(10,g.at-along))]);if(g.at-along<250)say('Gate ahead','gate'+g.n)}
   const cur=i>0?nav.steps[i-1]:nav.steps[0];const rt=nav.steps.find(s=>s.startAt>along-5&&s.startAt-along<450&&TRACKN.has(s.road));if(rt&&!(cur&&TRACKN.has(cur.road)))out.push(['tyre',T('Rough track ahead')]);
   const rep=allReports().map(r=>({r,p:projectOnRoute(nav.segs,r.ll)})).filter(o=>o.p.d<45&&o.p.along>along&&o.p.along-along<1200).sort((a,b)=>a.p.along-b.p.along)[0];
   if(rep)out.push(['alert',rep.r.kind+' · '+fmtD(rep.p.along-along)]);
   if(FOCUS_ON&&!out.length)out.push(['scope',T('Focus mode')]);
-  const el=$('navChip');const h=PV.on?`<span class="nchip pvc">${LI('route',14)}${T('Preview')} · ${PV.i-(nav.curI>=0?nav.curI:nav.steps.length)+1} / ${nav.steps.length-(nav.curI>=0?nav.curI:nav.steps.length)+1}</span>`:out.slice(0,2).map(([ic,t])=>`<span class="nchip${ic==='alert'?' warn':''}">${LI(ic,14)}${esc(t)}</span>`).join('');
-  if(el.innerHTML!==h)el.innerHTML=h;el.style.display=h?'':'none'}
+  const el=$('navChip');const h=PV.on?`<span class="nchip pvc">${LI('route',14)}${T('Preview')} · ${PV.i-(nav.curI>=0?nav.curI:nav.steps.length)+1} / ${nav.steps.length-(nav.curI>=0?nav.curI:nav.steps.length)+1}</span>`:out.slice(0,2).map(([ic,t])=>`<span class="nchip${ic==='alert'?' warn':ic.startsWith('an:')?' anc':''}">${ic.startsWith('an:')?AN(ic.slice(3),18):LI(ic,14)}${esc(t)}</span>`).join('');
+  if(el.innerHTML!==h)el.innerHTML=h;el.style.display=h?'':'none';try{navStrip(along)}catch(e){}}
 
 /* ---- swipe the turn banner to preview the turns ahead ---- */
 function pvShow(i){if(!nav)return;const cur=nav.curI>=0?nav.curI:nav.steps.length;i=Math.max(cur,Math.min(nav.steps.length,i));
@@ -3128,7 +3174,7 @@ function bindVm(){document.querySelectorAll('[data-vm]').forEach(b=>b.onclick=()
 function navMore(){if(!nav)return;const along=nav.along||0;
   const rows=nav.steps.map((s,k)=>({s,k})).filter(o=>o.k>0&&o.s.startAt>along+3);
   openSheet(`<div class="nmh"><div><b>${esc($('navEta').textContent)}</b><small>${esc($('navMeta').textContent)}</small></div><small class="nmto">${T('to')} ${esc(nav.target.name)}</small></div>
-   <div class="nmb"><button id="nmStop">${LI('plus',20)}<span>${T('Add a stop')}</span></button><button id="nmOv">${LI('map',20)}<span>${T('Overview')}</span></button><button id="nmShare">${LI('share',20)}<span>${T('Share trip')}</span></button><button id="nmPin">${LI('ruler',20)}<span>${T('Measure')}</span></button><button id="nmFocus" class="${FOCUS_ON?'on':''}">${LI('scope',20)}<span>${T('Focus')}</span></button></div>
+   <div class="nmb"><button id="nmStop">${LI('plus',20)}<span>${T('Add a stop')}</span></button><button id="nmOv">${LI('map',20)}<span>${T('Overview')}</span></button><button id="nmShare">${LI('share',20)}<span>${T('Share trip')}</span></button><button id="nmPin">${LI('ruler',20)}<span>${T('Measure')}</span></button><button id="nmFocus" class="${FOCUS_ON?'on':''}">${LI('scope',20)}<span>${T('Focus')}</span></button><button id="nmAlong">${LI('binoc',20)}<span>${T('Along route')}</span></button></div>
    ${nav.stops&&nav.stops.length?`<div class="msec">${T('Stops')}</div><div class="list sgroup">${nav.stops.map((s,k)=>`<div class="it"><span class="stn">${k+1}</span><div style="flex:1;min-width:0"><b>${esc(s.name)}</b></div><button class="sm" data-rms="${k}">${LI('x',16)}</button></div>`).join('')}</div>`:''}
    <div class="msec">${T('Voice')}</div>${vmSeg('nmVm')}
    <div class="list sgroup" style="margin-top:10px">${TG('nmAvoid',T('Avoid rough tracks'),T('Stay on the main roads when there is another way'),AVOIDTRK)}</div>
@@ -3137,7 +3183,7 @@ function navMore(){if(!nav)return;const along=nav.along||0;
    <button class="mout" id="nmEnd">${T('End route')}</button>`,()=>{
     bindVm();$('nmEnd').onclick=()=>{closeSheet();endNav()};
     $('nmOv').onclick=()=>{closeSheet();setTimeout(()=>$('ovBtn').click(),250)};
-    $('nmPin').onclick=()=>{closeSheet();measStart(me?me.ll:map.getCenter().toArray())};$('nmFocus').onclick=()=>{if(FOCUS_ON){FOCUS_SKIP=true;if(FOCUSM==='on')FOCUSM='drive';applyFocus();toast(T('Showing everything until you stop'))}else{FOCUS_SKIP=false;if(FOCUSM==='off'){FOCUSM='drive';LS.set('focusMode','drive')}applyFocus();toast(T('Focus mode on'))}navMore()};
+    $('nmPin').onclick=()=>{closeSheet();measStart(me?me.ll:map.getCenter().toArray())};$('nmAlong').onclick=()=>alongSheet();$('nmFocus').onclick=()=>{if(FOCUS_ON){FOCUS_SKIP=true;if(FOCUSM==='on')FOCUSM='drive';applyFocus();toast(T('Showing everything until you stop'))}else{FOCUS_SKIP=false;if(FOCUSM==='off'){FOCUSM='drive';LS.set('focusMode','drive')}applyFocus();toast(T('Focus mode on'))}navMore()};
     $('nmShare').onclick=async()=>{const t=T('On my way to')+' '+nav.target.name+' · '+$('navMeta').textContent;try{if(navigator.share)await navigator.share({text:t});else{await navigator.clipboard.writeText(t);toast(T('Copied'))}}catch(e){}};
     $('nmStop').onclick=()=>stopPicker(it=>{nav.stops=nav.stops||[];nav.stops.unshift(it);const r=navRoute();if(r){const b=buildSteps(r);Object.assign(nav,{r,...b});nav.gatesR=null}drawStops(nav.stops);closeSheet();say('Stop added: '+it.name,'stop'+Date.now());navTick()},()=>navMore());
     $('nmAvoid').onclick=()=>{AVOIDTRK=!AVOIDTRK;LS.set('avoidTracks',AVOIDTRK);$('nmAvoid').classList.toggle('on',AVOIDTRK);const r=navRoute();if(r){const b=buildSteps(r);Object.assign(nav,{r,...b});nav.gatesR=null;navTick()}toast(AVOIDTRK?T('Avoiding rough tracks'):T('Rough tracks allowed'))};
@@ -3162,17 +3208,17 @@ function rpExtras(x,r,b){RP={x,r,b,alt:null};
   try{map.getSource('route-alt').setData(RP.alt?{type:'Feature',geometry:{type:'LineString',coordinates:RP.alt.pts},properties:{}}:empty)}catch(e){}
   drawStops(NAVSTOPS);
   const v=18/3.6,turns=b.steps.filter((s,k)=>k>0);
-  return `${NAVSTOPS.length?`<div class="msec" style="margin-top:14px">${T('Stops')} · ${T('drag to reorder')}</div><div class="list sgroup" id="rpStops">${NAVSTOPS.map((s,k)=>`<div class="it rps" data-i="${k}"><span class="hdl">${LI('more',18)}</span><span class="stn">${k+1}</span><div style="flex:1;min-width:0"><b>${esc(s.name)}</b></div><button class="sm" data-rm="${k}">${LI('x',16)}</button></div>`).join('')}</div>`:''}
-   <div class="rpo"><button class="chip" id="rpStop">${LI('plus',15)} ${T('Add stop')}</button><button class="chip${AVOIDTRK?' sel':''}" id="rpAvoid">${LI('tyre',15)} ${T('Avoid rough tracks')}</button></div>
+  return `
+   <div class="rpo"><button class="chip${AVOIDTRK?' sel':''}" id="rpAvoid">${LI('tyre',15)} ${T('Avoid rough tracks')}</button></div>
    ${RP.alt?`<button class="rpalt" id="rpAlt"><span class="altl"></span><div style="flex:1;min-width:0"><b>${T('Other way')} · ${fmtT(RP.alt.len/v)}</b><small>${fmtD(RP.alt.len)} · ${RP.alt.len>r.len?'+'+fmtT((RP.alt.len-r.len)/v):T('shorter')} · ${T('dotted on the map')}</small></div><span class="sm">${T('Use')}</span></button>`:''}
    ${turns.length?`<div class="msec" style="margin-top:14px">${T('Flick through the turns')}</div><div class="rpturns" id="rpTurns">${turns.map((s,k)=>`<div class="rpt" data-at="${s.startAt}"><svg viewBox="0 0 24 24"><path d="${ARROWS[s.icon||'straight']}"/></svg><b>${esc(s.road)}</b><small>${k+1}/${turns.length} · ${fmtD(s.startAt)}</small></div>`).join('')}</div>`:''}`}
 function rpBind(x){
-  $('rpStop').onclick=()=>stopPicker(it=>{NAVSTOPS.push(it);RPFORCE=null;routePreview(x)},()=>routePreview(x));
+  $('rpStop2').onclick=()=>stopPicker(it=>{NAVSTOPS.push(it);RPFORCE=null;routePreview(x)},()=>routePreview(x));
   $('rpAvoid').onclick=()=>{AVOIDTRK=!AVOIDTRK;LS.set('avoidTracks',AVOIDTRK);RPFORCE=null;routePreview(x)};
   if($('rpAlt'))$('rpAlt').onclick=()=>{RPFORCE=RP.alt;routePreview(x)};
   document.querySelectorAll('[data-rm]').forEach(b=>b.onclick=()=>{NAVSTOPS.splice(+b.dataset.rm,1);RPFORCE=null;routePreview(x)});
   // drag a stop by its handle
-  const box=$('rpStops');if(box)box.querySelectorAll('.hdl').forEach(h=>{let row,y0,from;
+  const box=$('rpDirs');if(box)box.querySelectorAll('.hdl').forEach(h=>{let row,y0,from;
     h.addEventListener('touchstart',e=>{row=h.closest('.rps');from=+row.dataset.i;y0=e.touches[0].clientY;row.classList.add('drag')},{passive:true});
     h.addEventListener('touchmove',e=>{if(!row)return;e.preventDefault();row.style.transform='translateY('+(e.touches[0].clientY-y0)+'px)'},{passive:false});
     h.addEventListener('touchend',e=>{if(!row)return;const dy=e.changedTouches[0].clientY-y0,hgt=row.offsetHeight||56;let to=Math.max(0,Math.min(NAVSTOPS.length-1,from+Math.round(dy/hgt)));row=null;
@@ -3192,11 +3238,12 @@ function pinSheet(ll){dropPin(ll);const ne=nearestEdge(ll,300),road=ne&&ne.d<80?
   openSheet(`<div class="rph"><span class="rpi pinr">${LI('pin',24)}</span><div style="min-width:0"><small>${T('Dropped pin')}</small><b>${road?esc(road):inReserve(ll)?T('Off road'):T('Outside the reserve')}</b></div></div>
    <div class="pinfo"><button class="pco" id="pnCo" data-notr>${co}</button>${d!=null?`<span>${fmtD(d)} ${compassName(bearing(me.ll,ll))} ${T('of you')}</span>`:''}${fm?`<span>${esc(fm)}</span>`:''}</div>
    <button class="btn pri" id="pnGo" style="width:100%;margin-top:14px">${LI('arrow',18)} ${T('Take me here')}</button>
+   ${nav||rpOn?`<button class="btn" id="pnStop" style="width:100%;margin-top:8px">${LI('plus',18)} ${T('Add as a stop')}</button>`:''}
    <div class="pgrid"><button class="btn" id="pnSight">${LI('binoc',18)}${T('Sighting')}</button><button class="btn" id="pnMeas">${LI('ruler',18)}${T('Measure')}</button><button class="btn" id="pnSave">${LI('star',18)}${T('Save spot')}</button><button class="btn" id="pnShare">${LI('share',18)}${T('Share')}</button></div>`,()=>{
     $('pnCo').onclick=async()=>{try{await navigator.clipboard.writeText(co)}catch(e){fallbackCopy(co)}toast(T('Copied'))};
     $('pnGo').onclick=()=>{closeSheet();setTimeout(()=>routePreview({kind:'pin',name:road?T('Pin on')+' '+road:T('Dropped pin'),ll}),200)};
     $('pnSight').onclick=()=>{closeSheet();setTimeout(()=>{if(DM.on)demoTapSheet(ll);else addSheet('sight',ll)},200)};
-    $('pnMeas').onclick=()=>{closeSheet();measStart(ll)};
+    $('pnMeas').onclick=()=>{closeSheet();measStart(ll)};if($('pnStop'))$('pnStop').onclick=()=>{const it={kind:'pin',name:road?T('Pin on')+' '+road:T('Dropped pin'),ll};if(nav){nav.stops=nav.stops||[];nav.stops.unshift(it);const r=navRoute();if(r){const b=buildSteps(r);Object.assign(nav,{r,...b});nav.gatesR=null}drawStops(nav.stops);closeSheet();toast(T('Stop added'));navTick()}else if(rpOn){const x=rpOn;NAVSTOPS.push(it);RPFORCE=null;closeSheet();setTimeout(()=>routePreview(x),200)}};
     $('pnSave').onclick=()=>{closeSheet();setTimeout(()=>noteSheet({ll},ll),200)};
     $('pnShare').onclick=async()=>{const t=(road?road+' · ':'')+co+'\nhttps://maps.google.com/?q='+ll[1].toFixed(6)+','+ll[0].toFixed(6);try{if(navigator.share)await navigator.share({text:t});else{await navigator.clipboard.writeText(t);toast(T('Copied'))}}catch(e){}}})}
 {const cc=map.getCanvasContainer();let tm=null,p0=null;const cancel=()=>{clearTimeout(tm);tm=null};
@@ -3279,6 +3326,115 @@ setInterval(()=>{applyFocus();if(FOCUS_ON&&mapReady)try{map.setFilter('sights',[
 for(const n of ['annPop','sugPop','storyAsk','whatsNew','weeklyPop','directPop']){const f=window[n];if(typeof f!=='function')continue;
   window[n]=function(...a){if(FOCUS_ON){clearTimeout(window[n].t);window[n].t=setTimeout(()=>window[n](...a),60000);return}return f.apply(this,a)}}
 
+/* ============ v95: Google Maps style extras on the drive ============ */
+var LAND=false,AUTOREC=LS.get('autoRec',true),OFFER=null,OFFER_SEEN=new Set();
+
+/* ---- 1. sightings ahead on your route ---- */
+function sightAhead(along){const now=Date.now();let best=null;
+  for(const s of allSights()){if(now-s.t>3*36e5||s.still)continue;const pr=projectOnRoute(nav.segs,s.ll);if(pr.d>70||pr.along<along+5||pr.along-along>1500)continue;
+    if(!best||pr.along<best.pr.along)best={s,pr}}
+  if(!best)return null;const a=pointAt(nav.segs,Math.max(0,best.pr.along-6)),b=pointAt(nav.segs,Math.min(nav.total,best.pr.along+6));
+  const rb=bearing(a,b),sb=bearing(best.pr.q,best.s.ll),diff=((sb-rb+540)%360)-180;
+  const side=best.pr.d<15?T('on the road'):diff<0?T('left side'):T('right side');return {s:best.s,ahead:best.pr.along-along,side}}
+
+/* ---- 2. route strip along the bottom bar ---- */
+let stripKey='',stripT=0;
+function navStrip(along){const box=$('nMarks');if(!box||!nav)return;const tot=Math.max(1,nav.total);
+  if(Date.now()-stripT>3000||stripKey!==String(nav.total)){stripT=Date.now();stripKey=String(nav.total);const M=[];
+    nav.steps.forEach((s,k)=>{if(k>0&&(s.icon||'straight')!=='straight')M.push({at:s.startAt,c:'turn',h:`<svg viewBox="0 0 24 24"><path d="${ARROWS[s.icon]}"/></svg>`})});
+    (nav.gates||[]).forEach(g=>M.push({at:g.at,c:'gate',h:LI('gate',11)}));
+    if(nav.stops&&nav.r.legs){let c=0;nav.stops.forEach((s,k)=>{c+=nav.r.legs[k]||0;M.push({at:c,c:'stop',h:String(k+1)})})}
+    allReports().forEach(r=>{const p=projectOnRoute(nav.segs,r.ll);if(p.d<45)M.push({at:p.along,c:'rep',h:'!'})});
+    const now=Date.now();allSights().forEach(s=>{if(now-s.t>3*36e5||s.still)return;const p=projectOnRoute(nav.segs,s.ll);if(p.d<70)M.push({at:p.along,c:'an',h:AN(s.what,16)})});
+    M.push({at:tot,c:'end',h:LI('pin',11)});
+    box.innerHTML=M.map(m=>`<span class="nm ${m.c}" data-at="${m.at}" style="left:${Math.max(0,Math.min(100,m.at/tot*100)).toFixed(2)}%">${m.h}</span>`).join('')}
+  box.querySelectorAll('.nm').forEach(el=>el.classList.toggle('past',+el.dataset.at<along-5))}
+
+/* ---- 3. one-tap road reports while driving ---- */
+const QREP=[['alert','Washed out','Washed out',''],['tree','Fallen tree','Fallen tree',''],['mud','Muddy','Muddy',''],['waves','Deep water','Deep water',''],['paw','Elephant on road','Blocked by animal','Elephant on the road'],['paw','Animals crossing','Other','Animals crossing the road'],['gate','Gate closed','Closed','Gate closed'],['tyre','Rough road','Other','Rough road']];
+function quickReport(i){const [,label,kind,note]=QREP[i];const ll=me?me.ll:map.getCenter().toArray();
+  if(!inArea(ll)){toast(T('Reports can only be added inside the reserve'));return}const w=cooldown('report');if(w>0){toast(T('Next report in')+' '+fmtCd(w));return}
+  const ne=nearestEdge(ll,80),road=ne?ROADS[ne.e.road].properties.name:null,cid=cidNew(),t=Date.now();
+  if(DM.on){demoAdd('report',kind,note,ll,road,false);closeSheet();return}
+  const r={cid,kind,note,road,ll,t};reports.unshift(r);LS.set('reports',reports);queue({op:'add',t:'reports',row:reportRow(r)});try{updateBlocked()}catch(e){}refreshOverlays();closeSheet();
+  toast(T(label)+' '+T('reported')+(road?' · '+road:''),4000);const tt=$('toast');if(tt){const u=document.createElement('button');u.className='tundo';u.textContent=T('Undo');u.onclick=()=>{resolveReport(cid);toast(T('Report removed'))};tt.appendChild(u)}}
+function quickSheet(){openSheet(`<h2>${T('Report')}</h2><div class="sub">${T('One tap. It is pinned where you are now')}${me&&curRoad?' · '+esc(curRoad):''}</div>
+   <div class="qrg">${QREP.map(([ic,l],i)=>`<button data-qr="${i}">${LI(ic,26)}<span>${T(l)}</span></button>`).join('')}</div>
+   <button class="btn" id="qrSight" style="width:100%;margin-top:12px">${LI('binoc',18)} ${T('Mark a sighting instead')}</button>`,()=>{
+    document.querySelectorAll('[data-qr]').forEach(b=>b.onclick=()=>quickReport(+b.dataset.qr));$('qrSight').onclick=()=>addSheet('sight')})}
+{const b=document.createElement('button');b.className='fab';b.id='qrBtn';b.setAttribute('aria-label','Report');b.innerHTML=LI('alert',22);b.onclick=quickSheet;const f=$('fabs');f.insertBefore(b,$('pinBtn'))}
+
+/* ---- 4. a better way offered while you drive ---- */
+function remLen(along){return Math.max(0,nav.total-along)}
+function offerCheck(){if(!nav||!me||PV.on||OFFER||DM.on&&false)return;const along=nav.along||0;
+  const hits=allReports().map(r=>({r,p:projectOnRoute(nav.segs,r.ll)})).filter(o=>BLOCKING.includes(o.r.kind)&&o.p.d<45&&o.p.along>along+30&&o.p.along-along<4000&&!OFFER_SEEN.has(o.r.cid));
+  const cur=remLen(along);let alt=null,why='',key='';
+  if(hits.length){const h=hits.sort((a,b)=>a.p.along-b.p.along)[0];const save=blockedNodes;blockedNodes=new Set(save);nodes.forEach((n,i)=>{if(dist(n,h.r.ll)<70)blockedNodes.add(i)});
+    try{alt=navRoute()}finally{blockedNodes=save}
+    if(alt){const b=buildSteps(alt);if(projectOnRoute(b.segs,h.r.ll).d<45)alt=null;else if(alt.len-cur>4000)alt=null}
+    if(alt){key=h.r.cid;why=T(h.r.kind)+(h.r.road?' '+T('on')+' '+h.r.road:'')+' '+T('ahead')}}
+  if(!alt){const r=navRoute();if(r&&r.len<cur*0.85&&cur-r.len>300){const k='f'+Math.round(r.len/100);if(!OFFER_SEEN.has(k)){alt=r;key=k;why=T('Faster way found')}}}
+  if(!alt)return;const v=18/3.6,dt=(alt.len-cur)/v,b=buildSteps(alt),first=(b.steps.find(s=>s.road&&s.road!==(nav.steps[(nav.curI>0?nav.curI-1:0)]||{}).road)||b.steps[0]||{}).road;
+  OFFER={key,r:alt,t:Date.now()};const el=$('navOffer');if(!LAND)el.style.top=Math.round($('nav').getBoundingClientRect().bottom+10)+'px';
+  el.innerHTML=`<div class="noh">${LI(key.startsWith('f')?'route':'alert',18)}<b>${esc(why)}</b></div><div class="nos">${first?T('Take')+' '+esc(first)+' '+T('instead')+'? ':''}<b class="${dt>0?'slow':'fast'}">${dt>0?'+'+fmtT(dt):T('saves')+' '+fmtT(-dt)}</b></div>
+   <div class="nob"><button id="noKeep">${T('Keep my route')}</button><button id="noGo" class="go">${T('Take it')}</button><i class="notm"></i></div>`;el.classList.add('on');
+  say(why+'. '+T('A better way is available'),'off'+key);
+  $('noGo').onclick=()=>{if(!OFFER)return;const r=OFFER.r;OFFER_SEEN.add(OFFER.key);OFFER=null;el.classList.remove('on');const bb=buildSteps(r);Object.assign(nav,{r,...bb});nav.gatesR=null;stripKey='';toast(T('New route'));navTick()};
+  $('noKeep').onclick=()=>{if(OFFER)OFFER_SEEN.add(OFFER.key);OFFER=null;el.classList.remove('on')};
+  const myT=OFFER.t;setTimeout(()=>{if(OFFER&&OFFER.t===myT&&$('noKeep'))$('noKeep').click()},15000)}
+setInterval(()=>{try{offerCheck()}catch(e){}},20000);
+
+/* ---- 9. landscape layout for a phone in a dashboard mount ---- */
+function landCheck(){const l=innerWidth>innerHeight&&innerHeight<560;if(l!==LAND){LAND=l;document.body.classList.toggle('land',l);try{map.resize()}catch(e){}}}
+addEventListener('resize',landCheck);addEventListener('orientationchange',()=>setTimeout(landCheck,300));landCheck();
+
+/* ---- 10. recent and saved places ---- */
+const RECENTS=LS.get('recents',[]),FAVS=LS.get('favs',[]);
+const placeKey2=x=>x.kind+'|'+x.name+'|'+(x.ll?x.ll.map(v=>v.toFixed(4)).join(','):x.road||'');
+const slim=x=>({kind:x.kind,name:x.name,sub:x.sub||'',ll:x.ll||null,road:x.road||null,cid:x.cid||null});
+function addRecent(x){if(!x||!x.name||x.kind==='hint'||x.kind==='report')return;const k=placeKey2(x);const i=RECENTS.findIndex(q=>placeKey2(q)===k);if(i>-1)RECENTS.splice(i,1);RECENTS.unshift(slim(x));RECENTS.length=Math.min(RECENTS.length,10);LS.set('recents',RECENTS)}
+const isFav=x=>FAVS.some(q=>placeKey2(q)===placeKey2(x));
+function toggleFav(x){const k=placeKey2(x),i=FAVS.findIndex(q=>placeKey2(q)===k);if(i>-1){FAVS.splice(i,1);toast(T('Removed from saved'))}else{FAVS.unshift(slim(x));toast(T('Saved'))}LS.set('favs',FAVS)}
+{const sp=showPlace;window.showPlace=function(x){addRecent(x);sp(x);try{const g=$('goBtn');if(g&&x.kind!=='report'){const b=document.createElement('button');b.className='btn favb'+(isFav(x)?' on':'');b.innerHTML=LI('star',18)+'<span>'+(isFav(x)?T('Saved'):T('Save'))+'</span>';b.onclick=()=>{toggleFav(x);b.classList.toggle('on',isFav(x));b.querySelector('span').textContent=isFav(x)?T('Saved'):T('Save')};g.parentNode.insertBefore(b,g.nextSibling)}}catch(e){}}}
+
+/* ---- 11. smart search: type an animal and get the freshest sighting ---- */
+function animalOf(q){q=q.toLowerCase().trim();if(q.length<3)return null;const qs=q.replace(/s$/,'');
+  const names=[...new Set([...ANIMALS.filter(a=>a!=='Other'),...SLOG.map(x=>x[1]),...allSights().map(s=>s.what)])];
+  for(const a of names){const al=a.toLowerCase(),af=(ANAF[a]||'').toLowerCase();if(al===q||al===qs||al.startsWith(q)||(af&&(af===q||af.startsWith(q))))return a}return null}
+function smartResults(q){const a=animalOf(q);if(!a)return [];const now=Date.now();
+  const cur=allSights().filter(s=>s.what===a&&!s.still).sort((x,y)=>y.t-x.t).slice(0,3).map(s=>({...sightPlace(s),sub:(now-s.t<36e5?T('Fresh')+' · ':'')+sightSub(s),smart:1}));
+  if(cur.length)return cur;
+  const h=SLOG.filter(x=>x[1]===a).sort((x,y)=>y[4]-x[4])[0];if(!h)return [{kind:'hint',name:'',sub:T('No')+' '+T(a).toLowerCase()+' '+T('seen on the reserve yet')}];
+  return [{kind:'pin',name:T(a)+' · '+T('last seen')+' '+ago(h[4]),sub:(areaOf([h[2],h[3]])||T('On the reserve'))+' · '+T('no fresh sighting'),ll:[h[2],h[3]],smart:1}]}
+
+/* ---- 13. search along your route ---- */
+const ALONG=[['picnic','Picnic spots',['picnic']],['water','Dams & pans',['water']],['hide','Hides & views',['hide','view']],['gate','Gates',['gate']],['sight','Sightings',['sight']]];
+function alongSheet(cat){if(!nav)return;cat=cat||'picnic';const along=nav.along||0,kinds=(ALONG.find(c=>c[0]===cat)||ALONG[0])[2];
+  const items=(cat==='sight'?allSights().filter(s=>!s.still&&Date.now()-s.t<6*36e5).map(sightPlace):DATA.pois.features.filter(f=>kinds.includes(f.properties.kind)).map(f=>({kind:f.properties.kind,name:f.properties.name,sub:PKIND[f.properties.kind]||'',ll:f.geometry.coordinates})))
+    .map(x=>{const p=projectOnRoute(nav.segs,x.ll);return {x,p}}).filter(o=>o.p.along>along-20&&o.p.d<1200).sort((a,b)=>a.p.along-b.p.along).slice(0,12)
+    .map(o=>{let det=o.p.d*2;try{const r=route(o.p.q,o.x.ll);if(r)det=r.len*2}catch(e){}return {...o,det}});
+  openSheet(`<div class="cmh"><button class="sm" id="alBack">‹ ${T('Back')}</button><b>${T('Along your route')}</b><span style="width:60px"></span></div>
+   <div class="osug fdf">${ALONG.map(([k,l])=>`<button class="osg${k===cat?' sel':''}" data-al="${k}">${T(l)}</button>`).join('')}</div>
+   <div class="list sgroup" style="margin-top:10px">${items.map((o,i)=>`<div class="it alr"><span class="lki" style="background:${COLORS[o.x.kind]||'#6d5a45'}">${o.x.kind==='sight'?AN(o.x.name,22):LI(o.x.kind==='picnic'?'picnic':o.x.kind==='gate'?'gate':o.x.kind==='water'?'drop':'eye',18)}</span><div style="flex:1;min-width:0"><b>${esc(o.x.name)}</b><br><small>${T('in')} ${fmtD(Math.max(10,o.p.along-along))} · ${o.det<60?T('on your route'):'+'+fmtT(o.det/(18/3.6))+' '+T('detour')}</small></div><button class="sm" data-as="${i}">${T('Add stop')}</button></div>`).join('')||`<div class="it"><small>${T('Nothing like that near your route')}</small></div>`}</div>`,()=>{
+    $('alBack').onclick=navMore;document.querySelectorAll('[data-al]').forEach(b=>b.onclick=()=>alongSheet(b.dataset.al));
+    document.querySelectorAll('[data-as]').forEach(b=>b.onclick=()=>{const o=items[+b.dataset.as];nav.stops=nav.stops||[];
+      // put the stop in the right order: before the first stop that is further along
+      let c=0,ix=nav.stops.length;if(nav.r.legs)for(let k=0;k<nav.stops.length;k++){c+=nav.r.legs[k]||0;if(o.p.along<c){ix=k;break}}
+      nav.stops.splice(ix,0,{kind:o.x.kind,name:o.x.name,ll:o.x.ll});const r=navRoute();if(r){const bb=buildSteps(r);Object.assign(nav,{r,...bb});nav.gatesR=null;stripKey=''}drawStops(nav.stops);closeSheet();toast(T('Stop added')+': '+o.x.name);navTick()})})}
+
+/* ---- the stops block in the route preview, like Google Maps: from, stops, to ---- */
+function rpDirs(x){const row=(cls,ic,lbl,extra)=>`<div class="drw ${cls}">${ic}<span class="dtx">${lbl}</span>${extra||''}</div>`;
+  return `<div class="dirs" id="rpDirs">${row('from','<i class="dd from"></i>',T('Your location'))}
+   ${NAVSTOPS.map((s,k)=>`<div class="drw stop rps" data-i="${k}"><span class="stn">${k+1}</span><span class="dtx">${esc(s.name)}</span><span class="hdl">${LI('grip',20)}</span><button class="dx" data-rm="${k}" aria-label="Remove">${LI('x',15)}</button></div>`).join('')}
+   ${row('to','<i class="dd to">'+LI('pin',13)+'</i>',esc(x.name))}
+   <button class="drw add" id="rpStop2">${LI('plus',16)}<span class="dtx">${T('Add stop')}</span></button></div>`}
+
+/* ---- record every drive by itself ---- */
+let arN=0;
+function autoRecTick(){if(!AUTOREC||DM.on||!me)return;const k=(speedS||0)*3.6;
+  if(!recTrack){if(k>12&&inReserve(me.ll)){if(++arN>=5){recTrack={pts:[me.ll],len:0,t:Date.now(),auto:true};LS.set('rec',recTrack);$('rec').classList.remove('hide');$('recInfo').textContent='';arN=0}}else arN=0;return}
+  if(recTrack.auto&&Date.now()-lastMoveT>8*6e4){if(recTrack.len>800)toggleRec();else{recTrack=null;LS.set('rec',null);$('rec').classList.add('hide');refreshOverlays()}}}
+setInterval(autoRecTick,4000);
 /* ============ sightings & road reports ============ */
 const OTHER_SUG=['Warthog','Impala','Wildebeest','Nyala','Waterbuck','Honey badger','Jackal','Baboon','Vervet monkey','Duiker','Steenbok','Bushbuck','Porcupine','Ostrich','Crocodile','Mongoose'];
 const otherSugs=()=>[...new Set([...LS.get('otherNames',[]),...OTHER_SUG])].slice(0,14);
@@ -3427,7 +3583,7 @@ function settingsSheet(){const m=Cloud.member;const notif='Notification' in wind
    <div class="list sgroup">${TG('sRedAuto','Red screen every night','Keeps your night vision. On after sunset, off at sunrise',redAuto)}${TG('sRed','Red screen now','',redOn)}</div>
    ${m?`<div class="msec">Alerts</div><div class="list sgroup">${TG('sAlert','New sighting alerts','Pop-up when someone else marks a sighting',alertOn)}${LK('sAW','Which animals alert me','',esc(alertWhatTxt()))}${TG('sSound','Alert sound','A bing with each alert',alertSound)}${TG('sQuiet','Quiet hours','No alert sounds or pop-ups from '+QUIET.from+' to '+QUIET.to+' unless you are out driving. SOS always comes through.',quietOn)}${notif?LK('sNotif','Phone notifications','Also alert you while the app is in the background','Turn on'):''}</div>`:''}
    <div class="msec">Location</div>${MS.admin_sees_all?'<div class="sub" style="margin:-4px 2px 8px;font-size:12.5px">'+LI('eye',12)+' Admins can see your car while you drive on the reserve, even with sharing off. Your home stays hidden.</div>':''}<div class="list sgroup">${m?LK('sLive','Share live location','',shareLoc?'On':'Off'):''}${LK('sHome','Home point','',home?'Set':'Not set')}${LK('sCal','Calibrate GPS','If your dot sits next to the road',calib[0]||calib[1]?'Active':'')}${isIOS?LK('sLoc','Stop the location question','If the map asks for your location every time',''):''}</div>
-   <div class="msec">Driving</div>${MS.rules&&MS.rules.lock?'<div class="sub" style="margin:-4px 2px 8px;font-size:12.5px">'+LI('lock',12)+' Speed warning, quiet hours and sunset reminder are set by an admin for everyone</div>':''}<div class="list sgroup">${TG('sSpd','Speed warning','Red alert over '+SPEED_LIMIT+' km/h on the reserve',speedWarn)}${TG('sSun','Sunset reminder',(SUNMIN===60?'1 hour':SUNMIN+' minutes')+' before sunset if you are still out and far from home',sunRemind)}${LK('sFocus','Focus mode','Only what you need on the map while you drive',{drive:'When driving',on:'Always',off:'Off'}[FOCUSM])}${TG('sTop','Top-down view at turns','From 100 m before a turn the map goes flat so you can see which way to go',TOPTURN)}${TG('sNorth','Keep north up while driving','The map stays north-up instead of turning with you',NORTHUP)}${TG('sSpdo','Show speedometer','',SHOWSPD)}${TG('sAwake','Keep screen on while driving','',KEEPAWAKE)}${TG('sAvoid','Avoid rough tracks','Routes stay on the main roads when there is another way',AVOIDTRK)}</div><div class="msec">Voice directions</div>${vmSeg('sVm')}<div class="sub" style="margin:6px 2px 4px;font-size:12.5px">Alerts only speaks at the turn itself and for gates, stops and rerouting</div>
+   <div class="msec">Driving</div>${MS.rules&&MS.rules.lock?'<div class="sub" style="margin:-4px 2px 8px;font-size:12.5px">'+LI('lock',12)+' Speed warning, quiet hours and sunset reminder are set by an admin for everyone</div>':''}<div class="list sgroup">${TG('sSpd','Speed warning','Red alert over '+SPEED_LIMIT+' km/h on the reserve',speedWarn)}${TG('sSun','Sunset reminder',(SUNMIN===60?'1 hour':SUNMIN+' minutes')+' before sunset if you are still out and far from home',sunRemind)}${LK('sFocus','Focus mode','Only what you need on the map while you drive',{drive:'When driving',on:'Always',off:'Off'}[FOCUSM])}${TG('sAutoRec','Record every drive','Saves each drive by itself with distance, top speed and the animals you saw',AUTOREC)}${TG('sTop','Top-down view at turns','From 100 m before a turn the map goes flat so you can see which way to go',TOPTURN)}${TG('sNorth','Keep north up while driving','The map stays north-up instead of turning with you',NORTHUP)}${TG('sSpdo','Show speedometer','',SHOWSPD)}${TG('sAwake','Keep screen on while driving','',KEEPAWAKE)}${TG('sAvoid','Avoid rough tracks','Routes stay on the main roads when there is another way',AVOIDTRK)}</div><div class="msec">Voice directions</div>${vmSeg('sVm')}<div class="sub" style="margin:6px 2px 4px;font-size:12.5px">Alerts only speaks at the turn itself and for gates, stops and rerouting</div>
    ${m?`<div class="msec">Account</div><div class="list sgroup">${Cloud.sess&&Cloud.sess.uid?`<button class="it lk" id="sUid"><div style="flex:1;min-width:0"><b>Account ID</b><br><small class="mono" data-notr style="word-break:break-all;font-size:12px">${esc(Cloud.sess.uid)}</small><br><small>The same ID Supabase shows for you · tap to copy</small></div></button>`:''}${m.role!=='guest'?LK('sRec','Recovery code','Get your exact account back on any phone, even if you are signed out','','key','#1f4d36'):''}</div>`:''}
    <div class="msec">Map data</div><div class="list sgroup">${LK('sOff','Offline map','',esc(offlineStatus()))}${m?LK('sShare','Sharing status',shareStatus(),''):''}${m&&m.role==='admin'?LK('sUpd','Require everyone to update','Version '+APP_BUILD,''):''}</div>
    ${m&&!m.locked?'<button class="mout" id="sOut">Sign out</button>':''}<div class="sub" style="text-align:center;font-size:11.5px;margin-top:10px">Khaya Ndlovu game drive map · version ${APP_BUILD}</div>`,()=>{
@@ -3440,7 +3596,7 @@ function settingsSheet(){const m=Cloud.member;const notif='Notification' in wind
     const locked=MS.rules&&MS.rules.lock;if(locked)['sQuiet','sSun','sSpd'].forEach(id=>{const b=$(id);if(b){b.style.opacity=.45;b.onclick=()=>toast('An admin set this for everyone')}});
     if(!locked){tg('sQuiet',()=>{quietOn=!quietOn;LS.set('quiet',quietOn)});tg('sSun',()=>{sunRemind=!sunRemind;LS.set('sunRemind',sunRemind)});
     tg('sSpd',()=>{speedWarn=!speedWarn;LS.set('speedWarn',speedWarn);if(me)speedCheck(me.ll)})}
-    if($('sFocus'))$('sFocus').onclick=focusSheet;bindVm();tg('sTop',()=>{TOPTURN=!TOPTURN;LS.set('topTurn',TOPTURN)});tg('sNorth',()=>{NORTHUP=!NORTHUP;LS.set('northUp',NORTHUP)});tg('sSpdo',()=>{SHOWSPD=!SHOWSPD;LS.set('showSpd',SHOWSPD);document.body.classList.toggle('nospd',!SHOWSPD)});tg('sAwake',()=>{KEEPAWAKE=!KEEPAWAKE;LS.set('keepAwake',KEEPAWAKE);wantWake(follow===2||!!nav)});tg('sAvoid',()=>{AVOIDTRK=!AVOIDTRK;LS.set('avoidTracks',AVOIDTRK)});
+    if($('sFocus'))$('sFocus').onclick=focusSheet;bindVm();tg('sAutoRec',()=>{AUTOREC=!AUTOREC;LS.set('autoRec',AUTOREC)});tg('sTop',()=>{TOPTURN=!TOPTURN;LS.set('topTurn',TOPTURN)});tg('sNorth',()=>{NORTHUP=!NORTHUP;LS.set('northUp',NORTHUP)});tg('sSpdo',()=>{SHOWSPD=!SHOWSPD;LS.set('showSpd',SHOWSPD);document.body.classList.toggle('nospd',!SHOWSPD)});tg('sAwake',()=>{KEEPAWAKE=!KEEPAWAKE;LS.set('keepAwake',KEEPAWAKE);wantWake(follow===2||!!nav)});tg('sAvoid',()=>{AVOIDTRK=!AVOIDTRK;LS.set('avoidTracks',AVOIDTRK)});
     tg('sRed',()=>setRed(!redOn));
     tg('sRedAuto',()=>{redAuto=!redAuto;LS.set('redAuto',redAuto);redCheck()});
     if($('sAW'))$('sAW').onclick=()=>alertWhatSheet();
@@ -3985,7 +4141,7 @@ function cloudSheetOld(){
   });
 }
 function toggleRec(){if(DM.on&&!recTrack){toast('Drive recording is off in demo mode');return}
-  if(recTrack){if(recTrack.pts.length>2){const t={cid:cidNew(),name:'Drive '+new Date(recTrack.t).toLocaleString([], {day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}),pts:recTrack.pts,len:recTrack.len,t:recTrack.t};t.end=Date.now();tracks.unshift(t);LS.set('tracks',tracks);queue({op:'add',t:'drives',row:driveRow(t)});setTimeout(()=>driveSummary(t),300)}else toast('Recording stopped');recTrack=null;LS.set('rec',null);$('rec').classList.add('hide')}
+  if(recTrack){if(recTrack.pts.length>2){const t={cid:cidNew(),name:'Drive '+new Date(recTrack.t).toLocaleString([], {day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}),pts:recTrack.pts,len:recTrack.len,t:recTrack.t,top:recTrack.top||0,over:Math.round(recTrack.over||0)};t.end=Date.now();tracks.unshift(t);LS.set('tracks',tracks);queue({op:'add',t:'drives',row:driveRow(t)});setTimeout(()=>driveSummary(t),300)}else toast('Recording stopped');recTrack=null;LS.set('rec',null);$('rec').classList.add('hide')}
   else{recTrack={pts:[],len:0,t:Date.now()};if(me)recTrack.pts.push(me.ll);LS.set('rec',recTrack);$('rec').classList.remove('hide');$('recInfo').textContent='';toast('Recording your drive')}
   refreshOverlays();
 }
