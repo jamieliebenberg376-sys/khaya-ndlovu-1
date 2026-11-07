@@ -842,6 +842,48 @@ body.night .nmb button{background:rgba(255,255,255,.08);color:#e8eaed}body.night
 .jx.sat:after{content:'';position:absolute;inset:0;z-index:0;background:radial-gradient(ellipse at 50% 58%,rgba(0,0,0,0) 0,rgba(0,0,0,.18) 45%,rgba(8,10,7,.72) 100%);pointer-events:none}
 .jx.sat>*:not(canvas){position:relative;z-index:1}.jx.sat .jr2,.jx.sat .js{color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.9)}.jx.sat .jr2.take,.jx.sat .js.take{color:#ffd36b}.jx.sat .jh{text-shadow:0 1px 3px rgba(0,0,0,.9)}
 .jx.sat .jd path[stroke^="rgba(255,255,255"]{stroke:rgba(255,255,255,.8)}
+/* ===== v91: the Feed ===== */
+.mfeed{display:flex;align-items:center;gap:12px;width:100%;margin:12px 0 2px;padding:13px 14px;border-radius:18px;text-align:left;background:linear-gradient(135deg,#1f4d36,#143223);color:#fff;box-shadow:0 8px 20px rgba(28,70,49,.25)}
+.mfeed .mfi{width:40px;height:40px;border-radius:13px;background:rgba(255,211,107,.16);color:#ffd36b;display:flex;align-items:center;justify-content:center;flex:none}
+.mfeed div{flex:1;min-width:0}.mfeed b{display:block;font-size:16px}.mfeed small{color:rgba(255,255,255,.7);font-size:12.5px}.mfeed .ar{color:#ffd36b;font-size:22px}
+.fdh{display:flex;align-items:center;justify-content:space-between}.fdh h2{margin:0}#fdRe.spin svg{animation:spin 1s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+.fcomp{display:flex;align-items:center;gap:10px;width:100%;margin-top:12px;padding:10px 12px;border-radius:18px;background:rgba(127,127,127,.07);box-shadow:inset 0 0 0 1px var(--hair);text-align:left}
+.fcomp .fcph{flex:1;padding:10px 14px;border-radius:20px;background:var(--card,#fff);color:var(--sub);font-size:15px;box-shadow:inset 0 0 0 1px var(--hair)}.fcomp .fcic{color:#2f8f4e}
+.fdf{margin-top:10px;flex-wrap:nowrap!important;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}.fdf::-webkit-scrollbar{display:none}.fdf .osg{flex:none;display:inline-flex;align-items:center;gap:4px}
+.post.wait{opacity:.75}.podots{flex:none;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--sub)}
+.poplace{cursor:pointer;text-decoration:underline;text-decoration-color:rgba(127,127,127,.35);text-underline-offset:2px}
+.pos.clip{display:-webkit-box;-webkit-line-clamp:6;-webkit-box-orient:vertical;overflow:hidden}.poseem{background:none;padding:2px 0;font:700 13.5px system-ui;color:var(--sub)}
+.pmg{display:grid;gap:3px;margin:10px -12px 0;overflow:hidden}.pmg.n1{grid-template-columns:1fr}.pmg.n2{grid-template-columns:1fr 1fr}.pmg.n3{grid-template-columns:2fr 1fr;grid-template-rows:1fr 1fr}.pmg.n3 .pmi:first-child{grid-row:1/3}.pmg.n4{grid-template-columns:1fr 1fr}
+.pmi{position:relative;background:linear-gradient(160deg,var(--sandA,#efe6d6),var(--sandB,#e2d3b9));min-height:120px;aspect-ratio:1;cursor:pointer;overflow:hidden}.pmg.n1 .pmi{aspect-ratio:4/3;max-height:70vh}.pmg.n3 .pmi:first-child{aspect-ratio:auto}
+.pmi img,.pmi video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}.pmi img{opacity:0;transition:opacity .3s}.pmi.ok img{opacity:1}.pmi.playing{background:#000}.pmi.playing video{object-fit:contain}
+.pmi.vid:not(.playing):after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 55%,rgba(0,0,0,.45))}
+.pplay{position:absolute;left:50%;top:50%;width:58px;height:58px;margin:-29px;border-radius:50%;background:rgba(14,18,13,.62);border:2px solid rgba(255,211,107,.85);color:#ffd36b;display:flex;align-items:center;justify-content:center;z-index:1;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.pdur{position:absolute;right:8px;bottom:8px;z-index:1;padding:2px 7px;border-radius:8px;background:rgba(0,0,0,.6);color:#fff;font:700 12px system-ui}
+.pmore{position:absolute;inset:0;background:rgba(0,0,0,.5);color:#fff;font:800 26px system-ui;display:flex;align-items:center;justify-content:center;z-index:2}
+.pocnt{display:flex;align-items:center;gap:5px;margin-top:10px;font-size:13px;color:var(--sub)}.pocnt button{background:none;padding:0;font-size:13px;color:var(--sub)}
+.pcl{width:19px;height:19px;border-radius:50%;background:linear-gradient(160deg,#ffd36b,#f2a516);color:#1d1406;display:inline-flex;align-items:center;justify-content:center}
+.poa2.fb{border-top:1px solid var(--hair);margin:8px -4px 0;padding-top:6px;gap:4px}.poa2.fb button{flex:1;justify-content:center;background:none!important;height:38px;border-radius:12px;font-size:13.5px}.poa2.fb button:active{background:rgba(127,127,127,.12)!important}
+.poa2.fb .pol.on{color:#c48a1a!important}.poa2.fb .pol.on svg{fill:rgba(255,194,61,.35)}
+.polc{display:flex;align-items:flex-start;gap:8px;width:100%;text-align:left;margin-top:6px;padding:0;background:none}.polc .lcb{flex:1;min-width:0;padding:7px 11px;border-radius:16px;background:rgba(127,127,127,.1);font-size:13.5px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.poa.sm{width:28px;height:28px;font-size:12px;line-height:28px}
+.cmh{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}.cmh b{font-size:17px}.cmh .btn.sm{height:38px!important;padding:0 18px!important;width:auto!important;flex:none!important;margin:0!important;border-radius:19px!important}
+.cmpost{display:flex;gap:10px;padding:10px 12px;border-radius:16px;background:rgba(127,127,127,.07)}.cmpost small{display:block;color:var(--sub);margin-top:2px}
+.cml{display:flex;flex-direction:column;gap:12px;margin-top:14px;padding-bottom:6px}.cmi{display:flex;gap:8px;align-items:flex-start}.cmi.wait{opacity:.7}.cmb{min-width:0;flex:1}
+.cmbub{display:inline-block;max-width:100%;padding:8px 12px;border-radius:18px;background:rgba(127,127,127,.1)}.cmbub b{display:block;font-size:13px}.cmbub span{font-size:14.5px;line-height:1.4;white-space:pre-wrap;word-wrap:break-word}
+.cmb small{display:block;margin:3px 0 0 12px;color:var(--sub);font-size:12px}.cmb small button{background:none;padding:0;color:var(--sub);font:700 12px system-ui}
+.cmin{position:sticky;bottom:0;display:flex;gap:8px;padding:10px 0 2px;background:inherit}.cmin .inp{flex:1;margin:0;height:46px;border-radius:23px}.cmin .btn{width:46px!important;height:46px!important;padding:0!important;border-radius:50%!important;flex:none!important;margin:0!important;display:flex;align-items:center;justify-content:center}
+#sheet:has(.cmin){background-clip:padding-box}
+.cph{display:flex;gap:10px;align-items:center}.cph small{display:block;color:var(--sub);font-size:12.5px}
+.cpt{height:130px!important;padding-top:12px!important;resize:none;margin-top:12px;font-size:16px}
+.cpm{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:10px}.cpi{position:relative;aspect-ratio:1;border-radius:12px;overflow:hidden;background:#000}.cpi img,.cpi video{width:100%;height:100%;object-fit:cover;display:block}
+.cpi button{position:absolute;right:5px;top:5px;width:26px;height:26px;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;display:flex;align-items:center;justify-content:center}.cpd{position:absolute;left:5px;bottom:5px;padding:1px 6px;border-radius:7px;background:rgba(0,0,0,.6);color:#fff;font:700 11px system-ui;display:flex;align-items:center;gap:3px}
+.cpadd{display:flex;align-items:center;gap:12px;margin-top:10px;padding:12px 14px;border-radius:16px;border:1.5px dashed rgba(47,143,78,.5);color:#2f8f4e;cursor:pointer}.cpadd b{display:block;color:var(--ink)}.cpadd small{color:var(--sub);font-size:12.5px}
+#fmv{display:none;position:fixed;inset:0;z-index:60;background:#000;color:#fff}#fmv.on{display:block}
+#fmv .fmc{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}#fmv .fmc img,#fmv .fmc video{max-width:100%;max-height:100%;object-fit:contain}
+#fmv .fx{position:absolute;right:14px;top:calc(var(--safe-t) + 12px);z-index:2;width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.14);color:#fff;display:flex;align-items:center;justify-content:center}
+#fmv .fmf{position:absolute;left:0;right:0;bottom:0;z-index:2;padding:16px 16px calc(var(--safe-b) + 16px);background:linear-gradient(0deg,rgba(0,0,0,.8),rgba(0,0,0,0));font-size:14px;pointer-events:none}
+#fmv .fnav{position:absolute;top:50%;margin-top:-26px;z-index:2;width:44px;height:52px;border-radius:14px;background:rgba(255,255,255,.12);color:#fff;font-size:30px}#fmv .fnav.l{left:8px}#fmv .fnav.r{right:8px}
+body.night .fcomp .fcph{background:rgba(255,255,255,.06)}body.night .poa2.fb .pol.on{color:#ffd36b!important}
 </style>
 </head>
 <body>
@@ -865,7 +907,7 @@ body.night .nmb button{background:rgba(255,255,255,.08);color:#e8eaed}body.night
     <button class="ib hide" id="clearQ" aria-label="Clear"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     
   </div>
-  <div id="chips"><button id="homeBtn" class="chip2" data-c="home"><i data-li="home"></i>Home</button><button class="chip2 hide" id="chipOut"><i data-li="live"></i>Out now <b>0</b></button><button class="chip2" data-c="sight"><i data-li="binoc"></i>Sightings</button><button class="chip2" data-c="Picnic spot"><i data-li="picnic"></i>Picnic</button><button class="chip2" data-c="Dam"><i data-li="drop"></i>Water</button><button class="chip2" data-c="Viewpoint"><i data-li="eye"></i>Viewpoints</button><button class="chip2" data-c="Gate"><i data-li="gate"></i>Gates</button></div>
+  <div id="chips"><button id="homeBtn" class="chip2" data-c="home"><i data-li="home"></i>Home</button><button class="chip2 hide" id="chipOut"><i data-li="live"></i>Out now <b>0</b></button><button class="chip2" data-c="feed"><i data-li="msg"></i>Feed</button><button class="chip2" data-c="sight"><i data-li="binoc"></i>Sightings</button><button class="chip2" data-c="Picnic spot"><i data-li="picnic"></i>Picnic</button><button class="chip2" data-c="Dam"><i data-li="drop"></i>Water</button><button class="chip2" data-c="Viewpoint"><i data-li="eye"></i>Viewpoints</button><button class="chip2" data-c="Gate"><i data-li="gate"></i>Gates</button></div>
   <div id="results" class="hide"></div>
   <div id="roadCard" class="hide"><span class="pin"></span><div style="min-width:0"><div class="rn" id="rn">-</div><div class="rs" id="rs"></div></div></div>
 </div>
@@ -930,7 +972,7 @@ const HOUSE2=((DATA.pois.features.find(f=>f.properties.kind==='home')||{}).geome
 const ORIG_POIS=JSON.parse(JSON.stringify(DATA.pois.features));
 const PKIND={water:'Dam / waterhole',hide:'Bird hide',picnic:'Picnic spot',view:'Viewpoint',gate:'Gate',lodge:'Lodge',other:'Place'};let POIS_BY_NAME={};
 /* ============ Khaya Ndlovu icon set: animal badges, report badges, line icons, weather ============ */
-const LI_P={plus:'<path d="M12 5v14M5 12h14"/>',share:'<circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/><path d="M8.3 10.8l7.4-4.4M8.3 13.2l7.4 4.4"/>',ruler:'<path d="M3 16.5 16.5 3 21 7.5 7.5 21z"/><path d="M7.5 12l2 2M10.5 9l2 2M13.5 6l2 2"/>',picnic:'<path d="M4 9h16M6.5 9 4 19M17.5 9 20 19M3 14h18"/>',gate:'<path d="M4 21V5M20 21V5M4 8h16M4 13h16M8 8v5M12 8v5M16 8v5"/>',binoc:'<circle cx="6.5" cy="16" r="3.5"/><circle cx="17.5" cy="16" r="3.5"/><path d="M10 16h4M3.6 14.6 6 6.5h3l1.2 6.8M20.4 14.6 18 6.5h-3l-1.2 6.8M9.5 6.5V4.5h-2v2M16.5 6.5V4.5h-2v2"/>',
+const LI_P={like:'<path d="M7 10.5V20H4.2a1 1 0 0 1-1-1v-7.5a1 1 0 0 1 1-1z"/><path d="M7 10.5 10.6 3.4a1.9 1.9 0 0 1 3.4 1.2V9h5a2 2 0 0 1 2 2.3l-1.2 6.9A2.2 2.2 0 0 1 17.6 20H7"/>',plus:'<path d="M12 5v14M5 12h14"/>',share:'<circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/><path d="M8.3 10.8l7.4-4.4M8.3 13.2l7.4 4.4"/>',ruler:'<path d="M3 16.5 16.5 3 21 7.5 7.5 21z"/><path d="M7.5 12l2 2M10.5 9l2 2M13.5 6l2 2"/>',picnic:'<path d="M4 9h16M6.5 9 4 19M17.5 9 20 19M3 14h18"/>',gate:'<path d="M4 21V5M20 21V5M4 8h16M4 13h16M8 8v5M12 8v5M16 8v5"/>',binoc:'<circle cx="6.5" cy="16" r="3.5"/><circle cx="17.5" cy="16" r="3.5"/><path d="M10 16h4M3.6 14.6 6 6.5h3l1.2 6.8M20.4 14.6 18 6.5h-3l-1.2 6.8M9.5 6.5V4.5h-2v2M16.5 6.5V4.5h-2v2"/>',
  rec:'<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3.8" fill="currentColor"/>',stop:'<rect x="6" y="6" width="12" height="12" rx="2.5" fill="currentColor"/>',
  sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
  home:'<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/>',users:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.6a3.5 3.5 0 0 1 0 6.8M18 14.2a6.5 6.5 0 0 1 3.5 5.8"/>',
@@ -1506,6 +1548,7 @@ async function sync(){
       try{
       if(o.op==='add'){const post=row=>api('/rest/v1/'+o.t+'?on_conflict=client_id',{method:'POST',headers:{Prefer:'resolution=ignore-duplicates,return=minimal'},body:JSON.stringify(row)});try{await post(o.row)}catch(e){const m=String(e.message);if(/kn_reject/.test(m)){const why=/outside/.test(m)?'it was outside the reserve':'too many were sent in a short time';toast((o.t==='reports'?'A road report':'A sighting')+' was not shared: '+why,4500)}else if(o.t==='sightings'&&/^400/.test(m)&&('photo' in o.row||'still' in o.row||'kill' in o.row)){const r2={...o.row};delete r2.kill;try{await post(r2)}catch(e2){delete r2.photo;delete r2.still;await post(r2)}}else if(!((o.t==='animal_misses'||o.t==='sos')&&/^(404|400)/.test(m)))throw e}}
       else if(o.op==='photo'){await uploadPhoto(o.cid)}
+      else if(o.op==='fcom'){try{await rpc('add_comment',{p_id:o.id,p_post:o.post,p_body:o.body})}catch(e){const m=String(e.message);if(/That post is gone|Write a comment|members only|bad comment/.test(m)){toast('A comment was not sent: '+m.replace(/^\d+:\s*/,''),4000)}else throw e}}
       else if(o.op==='story'){try{await rpc('set_story',{p_cid:o.cid,p_text:o.text})}catch(e){if(!/^(4\d\d)/.test(String(e.message))&&!/own sightings/.test(String(e.message)))throw e}}
       else if(o.op==='pp'){try{await rpc('add_place_photo',{p_cid:o.cid,p_key:o.key,p_caption:o.cap})}catch(e){if(!/^(4\d\d)/.test(String(e.message))&&!/Only owners/.test(String(e.message)))throw e}}
       else if(o.op==='note'){await api('/rest/v1/private_notes?on_conflict=client_id',{method:'POST',headers:{Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify(o.row)})}
@@ -1639,6 +1682,7 @@ function annPop(){const a=ANN.filter(x=>!annSeen.has(x.client_id)&&(!x.expires_a
 
 /* ============ what's new: shown once to owners and admins after an update ============ */
 const WHATS_NEW=[
+ [91,'msg','The Feed has its own button','Tap Feed at the top of the map. Post photos and videos, like posts and comment on them, just like Facebook. Posts made without signal go up by themselves later.'],
  [90,'route','Driving like Google Maps','Swipe the turn banner to see the turns ahead. Long press the map to drop a pin, get directions there or measure a distance. Add stops, pick the other way, avoid rough tracks, and tap the blue dot to calibrate the compass.'],
  [88,'msg','The Feed','Sightings › Feed shows every sighting on the reserve as a post. Add the story later (the app reminds you), add a star to ones you like, and see recent posts on each animal profile and place.'],
  [87,'cam','Photos of places','Tap any picnic spot, dam, hide or viewpoint to see everyone\'s photos and who posted them. Owners and admins can add photos, and add new places with a photo too.'],
@@ -2551,7 +2595,7 @@ $('clearQ').onclick=()=>{$('q').value='';renderResults();$('q').focus()};
 $('homeBtn').onclick=()=>homeSheet();
 /* Google style browse layout: chips, avatar, bottom bar */
 document.querySelectorAll('[data-li]').forEach(i=>i.outerHTML=LI(i.dataset.li,17));
-document.querySelectorAll('#chips .chip2[data-c]').forEach(b=>{if(b.id==='homeBtn')return;b.onclick=()=>{const c=b.dataset.c;if(c==='sight'){sightHub();return}$('q').value=c;renderResults();$('results').scrollTop=0}});
+document.querySelectorAll('#chips .chip2[data-c]').forEach(b=>{if(b.id==='homeBtn')return;b.onclick=()=>{const c=b.dataset.c;if(c==='feed'){feedHome();return}if(c==='sight'){sightHub();return}$('q').value=c;renderResults();$('results').scrollTop=0}});
 $('pkTap').onclick=()=>$('menuBtn').click();$('chipOut').onclick=()=>outSheet();
 (()=>{let y0=null;const pk=$('peek');pk.addEventListener('touchstart',e=>{y0=e.touches[0].clientY},{passive:true});pk.addEventListener('touchend',e=>{if(y0!=null&&y0-e.changedTouches[0].clientY>30)$('menuBtn').click();y0=null},{passive:true})})();
 function syncPeek(){try{const m=Cloud.member;
@@ -2618,40 +2662,164 @@ async function placePhotos(x){const box=$('ppBox');if(!box)return;const key=plac
 /* ============ the feed: every sighting is a post. Story, photo, likes, where and who ============ */
 const FEED={list:[],what:'',near:false,more:true,busy:false};
 function postPlace(p){const ll=[p.lng,p.lat],e=nearestEdge(ll,250),a=areaOf(ll);return e?ROADS[e.e.road].properties.name+(a&&a!=='Khaya Ndlovu'?' · '+a:''):(a||'On the reserve')}
-function postCard(p){const t=Date.parse(p.t),ini=esc((p.by||'?').trim()[0]||'?').toUpperCase();
-  return `<div class="post" data-post="${esc(p.c)}"><div class="poh"><span class="poa" style="background:${mateCol(p.by||'x')}">${ini}</span><div class="pom"><b>${esc(p.mine?'You':p.by||'Someone')}</b><small>${esc(ago(t))} · ${esc(postPlace(p))}</small></div><span class="pow">${AN(p.w,26)}<span>${esc(p.w)}</span></span></div>
+/* ============ FEED (like Facebook): sightings and posts with photos and videos, likes and comments ============ */
+var FPQ=LS.get('fpq',[]),FPB=false;
+const myName=()=>(Cloud.member&&Cloud.member.name)||'You';
+const iniOf=n=>esc((n||'?').trim()[0]||'?').toUpperCase();
+const fmtSec=s=>{s=Math.round(s||0);return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')};
+const FMC={};
+async function fmImg(f){if(!f)return null;if(FMC[f])return FMC[f];let b=await photoGet(f);
+  if(!b&&Cloud.sess&&navigator.onLine){try{await ensureSession();const r=await fetch(SUPA.url+'/storage/v1/object/authenticated/feedmedia/'+f,{headers:{apikey:SUPA.key,Authorization:'Bearer '+Cloud.sess.access_token}});if(r.ok){b=await r.blob();if(b.size<5e6)photoPut(f,b).catch(()=>{})}}catch(e){}}
+  return b?(FMC[f]=URL.createObjectURL(b)):null}
+async function fmVid(f){if(FMC[f])return FMC[f];const b=await photoGet(f);if(b)return FMC[f]=URL.createObjectURL(b);
+  if(!Cloud.sess||!navigator.onLine)return null;
+  try{await ensureSession();const r=await fetch(SUPA.url+'/storage/v1/object/sign/feedmedia/'+f,{method:'POST',headers:{apikey:SUPA.key,Authorization:'Bearer '+Cloud.sess.access_token,'Content-Type':'application/json'},body:JSON.stringify({expiresIn:21600})});
+    if(!r.ok)return null;const j=await r.json(),u=j.signedURL||j.signedUrl;return u?(FMC[f]=SUPA.url+'/storage/v1'+(u[0]==='/'?u:'/'+u)):null}catch(e){return null}}
+async function fmUpload(f,ct){const b=await photoGet(f);if(!b)return 'gone';await ensureSession();const ac=new AbortController(),tm=setTimeout(()=>ac.abort(),/\.jpg$/.test(f)?90000:900000);
+  try{const r=await fetch(SUPA.url+'/storage/v1/object/feedmedia/'+f,{signal:ac.signal,method:'POST',headers:{apikey:SUPA.key,Authorization:'Bearer '+Cloud.sess.access_token,'Content-Type':ct||b.type||'application/octet-stream','x-upsert':'true'},body:b});
+    if(!r.ok){const t=await r.text();if(r.status===413||/too large|exceed|maximum allowed size/i.test(t))return 'big';if(/Bucket not found/i.test(t))throw new Error('setup');throw new Error(r.status+': '+t.slice(0,120))}return 'ok'}finally{clearTimeout(tm)}}
+
+/* posts wait on the phone until there's signal, then the photos and videos go up one by one, then the post. Kept apart from the sightings queue so a big video never holds up a sighting. */
+async function fpostPump(){if(FPB||!FPQ.length||!Cloud.member||!navigator.onLine)return;FPB=true;let sent=0;
+  try{while(FPQ.length){const o=FPQ[0];
+      for(const m of o.media.slice()){for(const [f,ct] of [[m.f,m.k==='img'?'image/jpeg':m.ct],[m.p,'image/jpeg']]){if(!f||o.done[f])continue;
+          const r=await fmUpload(f,ct);if(r==='big'){o.media=o.media.filter(x=>x!==m);toast(T('A video was too big to share and was left out'),4500);break}o.done[f]=1;LS.set('fpq',FPQ)}}
+      if(!o.body&&!o.media.length){FPQ.shift();LS.set('fpq',FPQ);continue}
+      try{await rpc('add_post',{p_id:o.id,p_body:o.body,p_what:o.what,p_media:o.media.map(({k,f,p,d,w,h})=>({k,f,...(p?{p}:{}),...(d?{d}:{}),...(w?{w,h}:{})})),p_lat:o.lat,p_lng:o.lng})}
+      catch(e){const m=String(e.message);if(/members only|bad |Up to 6|Write something/.test(m)){FPQ.shift();LS.set('fpq',FPQ);toast(T('A post could not be shared')+': '+m.replace(/^\d+:\s*/,''),4500);continue}throw e}
+      FPQ.shift();LS.set('fpq',FPQ);sent++}
+  }catch(e){if(/setup|PGRST202|Could not find|404/.test(String(e.message))&&isAdm())toast(T('Posts are waiting: run the latest all_in_one.sql in Supabase to turn on the feed posts'),5000);setTimeout(fpostPump,60000)}
+  finally{FPB=false;if(sent){toast(sent===1?T('Your post is up'):sent+' '+T('posts are up'));try{rtSend('changed',{t:'feed'})}catch(e){}if($('fdList')&&$('sheet').classList.contains('open'))feedLoad(true).then(feedDraw)}}}
+setInterval(fpostPump,30000);window.addEventListener('online',()=>setTimeout(fpostPump,1500));setTimeout(fpostPump,6000);
+const pendPosts=()=>FPQ.map(o=>({kind:'p',c:o.id,w:o.what,by:myName(),t:new Date(o.t).toISOString(),s:o.body,lat:o.lat,lng:o.lng,media:o.media,mine:true,wait:true,local:true}));
+
+/* ---- one post ---- */
+function mediaHtml(p){const M=p.media||[];if(!M.length)return '';const n=M.length;
+  return `<div class="pmg n${Math.min(n,4)}">${M.slice(0,4).map((m,k)=>`<div class="pmi${m.k==='vid'?' vid':''}" data-fm="${esc(p.c)}" data-k="${k}"${n===1&&m.w&&m.h?` style="aspect-ratio:${Math.max(.6,Math.min(1.9,m.w/m.h)).toFixed(3)}"`:''}>${m.k==='vid'?(m.p?`<img alt="" data-fsrc="${esc(m.p)}">`:'')+`<span class="pplay">${LI('play',26)}</span>${m.d?`<span class="pdur">${fmtSec(m.d)}</span>`:''}`:`<img alt="" data-fsrc="${esc(m.f)}">`}${k===3&&n>4?`<span class="pmore">+${n-4}</span>`:''}</div>`).join('')}</div>`}
+function postCard(p){const t=Date.parse(p.t),isP=p.kind==='p',place=p.lat!=null&&p.lng!=null?postPlace(p):'',likes=+p.likes||0,cm=+p.cm||0,long=p.s&&p.s.length>320;
+  return `<div class="post${p.wait?' wait':''}" data-post="${esc(p.c)}"><div class="poh"><span class="poa" style="background:${mateCol(p.by||'x')}">${iniOf(p.by)}</span><div class="pom"><b>${esc(p.mine?T('You'):p.by||'Someone')}</b><small>${esc(ago(t))}${place?` · <span class="poplace" data-pmap="${esc(p.c)}">${esc(place)}</span>`:''}${p.wait?' · '+T('Waiting to post'):''}</small></div>${p.w?`<span class="pow">${AN(p.w,26)}<span>${esc(p.w)}</span></span>`:''}${isP&&(p.can||p.mine)&&!p.wait?`<button class="podots" data-pdel="${esc(p.c)}" aria-label="More">${LI('more',18)}</button>`:''}</div>
    ${p.k?'<span class="tag t-kill" style="margin:8px 0 0">On a kill</span>':''}
-   ${p.s?`<div class="pos">${esc(p.s)}</div>`:p.mine?`<button class="poadd" data-story="${esc(p.c)}" data-w="${esc(p.w)}">${LI('msg',15)} Add the story of this sighting</button>`:''}
-   ${p.ph?`<div class="pop"><img alt="" data-pimg="${esc(p.c)}"></div>`:''}
-   <div class="poa2">${p.local?'':`<button class="pol${p.liked?' on':''}" data-like="${esc(p.c)}">${LI('star',16)}<span>${p.likes||''}</span></button>`}<button class="pob" data-pmap="${esc(p.c)}">${LI('pin',16)} Map</button><button class="pob" data-pgo="${esc(p.c)}">${LI('route',16)} Go</button></div></div>`}
+   ${p.s?`<div class="pos${long?' clip':''}">${esc(p.s)}</div>${long?`<button class="poseem" data-seem>${T('See more')}</button>`:''}`:!isP&&p.mine?`<button class="poadd" data-story="${esc(p.c)}" data-w="${esc(p.w)}">${LI('msg',15)} ${T('Add the story of this sighting')}</button>`:''}
+   ${!isP&&p.ph?`<div class="pop"><img alt="" data-pimg="${esc(p.c)}"></div>`:''}${isP?mediaHtml(p):''}
+   ${(likes||cm)&&!p.local?`<div class="pocnt">${likes?`<span class="pcl">${LI('like',12)}</span><span>${likes}</span>`:''}<span style="flex:1"></span>${cm?`<button data-pcm="${esc(p.c)}">${cm} ${cm===1?T('comment'):T('comments')}</button>`:''}</div>`:''}
+   <div class="poa2 fb">${p.local?'':`<button class="pol${p.liked?' on':''}" data-like="${esc(p.c)}">${LI('like',17)}<span>${T('Like')}</span></button><button class="pob" data-pcm="${esc(p.c)}">${LI('msg',17)}<span>${T('Comment')}</span></button>`}${p.lat!=null?`<button class="pob" data-pgo="${esc(p.c)}">${LI('route',17)}<span>${T('Go')}</span></button>`:''}</div>
+   ${p.lc&&!p.local?`<button class="polc" data-pcm="${esc(p.c)}"><span class="poa sm" style="background:${mateCol(p.lc.by||'x')}">${iniOf(p.lc.by)}</span><span class="lcb"><b>${esc(p.lc.by)}</b> ${esc(p.lc.s)}</span></button>`:''}</div>`}
 function bindPosts(root,list,again){
-  root.querySelectorAll('[data-pimg]').forEach(im=>photoURL(im.dataset.pimg).then(u=>{if(u){im.src=u;im.parentNode.classList.add('ok')}else im.parentNode.remove()}));
-  root.querySelectorAll('.pop').forEach(d=>d.onclick=()=>{const c=d.querySelector('img').dataset.pimg,p=list.find(q=>q.c===c);lightbox([c],0,(p.w||'')+' · '+(p.by||'')+(p.s?' · '+p.s:''))});
-  root.querySelectorAll('[data-like]').forEach(b=>b.onclick=async()=>{if(!navigator.onLine){toast('You need signal to do this');return}try{const r=await rpc('like_post',{p_cid:b.dataset.like});const p=list.find(q=>q.c===b.dataset.like);if(p){p.likes=r.n;p.liked=r.me}b.classList.toggle('on',r.me);b.querySelector('span').textContent=r.n||''}catch(e){toast(errTxt(e),4000)}});
-  const ll=c=>{const p=list.find(q=>q.c===c);return p?[p.lng,p.lat]:null};
-  root.querySelectorAll('[data-pmap]').forEach(b=>b.onclick=()=>{const q=ll(b.dataset.pmap);if(!q)return;closeSheet();setFollow(0);map.easeTo({center:q,zoom:Math.max(map.getZoom(),15.5),duration:700});dropPin(q)});
-  root.querySelectorAll('[data-pgo]').forEach(b=>b.onclick=()=>{const p=list.find(q=>q.c===b.dataset.pgo);if(!p)return;closeSheet();startNav({kind:'pin',name:p.w+' sighting',ll:[p.lng,p.lat]})});
-  root.querySelectorAll('[data-story]').forEach(b=>b.onclick=()=>storySheet(b.dataset.story,b.dataset.w,again))}
+  const find=c=>list.find(q=>q.c===c)||FEED.list.find(q=>q.c===c)||pendPosts().find(q=>q.c===c);
+  const redo=c=>{const p=find(c),el=root.querySelector(`.post[data-post="${CSS.escape(c)}"]`);if(!p||!el)return;const w=document.createElement('div');w.innerHTML=postCard(p);const n=w.firstChild;el.replaceWith(n);bindPosts(n,list,again)};
+  const scope=root.classList&&root.classList.contains('post')?[root]:root.querySelectorAll('.post');
+  scope.forEach(card=>{
+  card.querySelectorAll('[data-pimg]').forEach(im=>photoURL(im.dataset.pimg).then(u=>{if(u){im.src=u;im.parentNode.classList.add('ok')}else im.parentNode.remove()}));
+  card.querySelectorAll('.pop').forEach(d=>d.onclick=()=>{const c=d.querySelector('img').dataset.pimg,p=find(c);lightbox([c],0,(p.w||'')+' · '+(p.by||'')+(p.s?' · '+p.s:''))});
+  card.querySelectorAll('[data-fsrc]').forEach(im=>fmImg(im.dataset.fsrc).then(u=>{if(u){im.src=u;im.closest('.pmi').classList.add('ok')}}));
+  card.querySelectorAll('[data-fm]').forEach(d=>d.onclick=async()=>{const p=find(d.dataset.fm),k=+d.dataset.k,m=p&&p.media[k];if(!m)return;
+    if(m.k==='vid'&&p.media.length===1){if(d.querySelector('video'))return;const u=await fmVid(m.f);if(!u){toast(T('The video needs signal'));return}
+      d.innerHTML=`<video src="${u}" controls playsinline autoplay ${m.p&&FMC[m.p]?`poster="${FMC[m.p]}"`:''}></video>`;d.classList.add('ok','playing');return}
+    fmView(p,k)});
+  card.querySelectorAll('[data-seem]').forEach(b=>b.onclick=()=>{b.previousElementSibling.classList.remove('clip');b.remove()});
+  card.querySelectorAll('[data-like]').forEach(b=>b.onclick=async()=>{if(!navigator.onLine){toast(T('You need signal to do this'));return}const p=find(b.dataset.like);if(p){p.liked=!p.liked;p.likes=(+p.likes||0)+(p.liked?1:-1);redo(p.c)}
+    try{const r=await rpc('like_post',{p_cid:b.dataset.like});if(p){p.likes=r.n;p.liked=r.me;redo(p.c)}}catch(e){if(p){p.liked=!p.liked;p.likes=(+p.likes||0)+(p.liked?1:-1);redo(p.c)}toast(errTxt(e),4000)}});
+  card.querySelectorAll('[data-pcm]').forEach(b=>b.onclick=()=>{const p=find(b.dataset.pcm);if(p)commentsSheet(p,again)});
+  card.querySelectorAll('[data-pdel]').forEach(b=>b.onclick=()=>{const p=find(b.dataset.pdel);if(p)postMenu(p,again)});
+  card.querySelectorAll('[data-pmap]').forEach(b=>b.onclick=e=>{e.stopPropagation();const p=find(b.dataset.pmap);if(!p||p.lat==null)return;closeSheet();setFollow(0);const q=[p.lng,p.lat];map.easeTo({center:q,zoom:Math.max(map.getZoom(),15.5),duration:700});dropPin(q)});
+  card.querySelectorAll('[data-pgo]').forEach(b=>b.onclick=()=>{const p=find(b.dataset.pgo);if(!p)return;closeSheet();startNav({kind:'pin',name:p.w?p.w+(p.kind==='p'?'':' sighting'):T('Post by')+' '+p.by,ll:[p.lng,p.lat]})});
+  card.querySelectorAll('[data-story]').forEach(b=>b.onclick=()=>storySheet(b.dataset.story,b.dataset.w,again))})}
+/* full-screen photos and videos */
+async function fmView(p,k){let box=$('fmv');if(!box){box=document.createElement('div');box.id='fmv';document.body.appendChild(box)}const M=p.media;
+  const show=async()=>{const m=M[k];box.innerHTML=`<button class="fx" id="fmX">${LI('x',22)}</button><div class="fmc" id="fmC"><div class="sub" style="color:#fff">...</div></div>
+    <div class="fmf"><b>${esc(p.mine?T('You'):p.by)}</b> · ${esc(ago(Date.parse(p.t)))}${M.length>1?` · ${k+1} / ${M.length}`:''}${p.s?`<div>${esc(p.s.slice(0,200))}</div>`:''}</div>${M.length>1?`<button class="fnav l" id="fmL">‹</button><button class="fnav r" id="fmR">›</button>`:''}`;
+    box.classList.add('on');$('fmX').onclick=()=>{box.classList.remove('on');box.innerHTML=''};if($('fmL')){$('fmL').onclick=()=>{k=(k-1+M.length)%M.length;show()};$('fmR').onclick=()=>{k=(k+1)%M.length;show()}}
+    const c=$('fmC');if(m.k==='vid'){const u=await fmVid(m.f);c.innerHTML=u?`<video src="${u}" controls playsinline autoplay></video>`:`<div class="sub" style="color:#fff">${T('The video needs signal')}</div>`}
+    else{const u=await fmImg(m.f);c.innerHTML=u?`<img src="${u}" alt="">`:`<div class="sub" style="color:#fff">${T('The photo needs signal')}</div>`}};
+  let x0=null;box.ontouchstart=e=>{x0=e.touches[0].clientX};box.ontouchend=e=>{if(x0==null||M.length<2)return;const dx=e.changedTouches[0].clientX-x0;x0=null;if(Math.abs(dx)>60&&!e.target.closest('video')){k=(k+(dx<0?1:-1)+M.length)%M.length;show()}};
+  show()}
+/* delete your post (or any post, for admins) */
+function postMenu(p,back){openSheet(`<h2>${T('Your post')}</h2><div class="sub">${esc((p.s||'').slice(0,90))}</div>
+   <button class="btn red" id="pmDel" style="width:100%;margin-top:14px">${LI('x',17)} ${p.mine?T('Delete this post'):T('Delete this post')+' ('+T('admin')+')'}</button><button class="btn" id="pmNo" style="width:100%;margin-top:8px">${T('Cancel')}</button>`,()=>{
+    $('pmNo').onclick=()=>back?back():feedHome();
+    $('pmDel').onclick=async()=>{if(!navigator.onLine){toast(T('You need signal to do this'));return}$('pmDel').textContent='...';
+      try{const r=await rpc('delete_post',{p_id:p.c});const fs=(r&&r.media||p.media||[]).flatMap(m=>[m.f,m.p]).filter(Boolean);
+        if(fs.length)try{await ensureSession();await fetch(SUPA.url+'/storage/v1/object/feedmedia',{method:'DELETE',headers:{apikey:SUPA.key,Authorization:'Bearer '+Cloud.sess.access_token,'Content-Type':'application/json'},body:JSON.stringify({prefixes:fs})})}catch(e){}
+        FEED.list=FEED.list.filter(q=>q.c!==p.c);toast(T('Post deleted'));feedDraw()}catch(e){toast(errTxt(e),4000);$('pmDel').textContent=T('Delete this post')}}})}
+
+/* ---- comments ---- */
+async function commentsSheet(p,back){let L=null,err=false;
+  const draw=keep=>{const pend=(Cloud.outbox||[]).filter(o=>o.op==='fcom'&&o.post===p.c&&!(L||[]).some(c=>c.id===o.id)).map(o=>({id:o.id,by:myName(),t:new Date(o.at).toISOString(),s:o.body,mine:true,wait:true}));const all=(L||[]).concat(pend);const typed=keep&&$('cmT')?$('cmT').value:'';
+    openSheet(`<div class="cmh"><button class="sm" id="cmBack">‹ ${T('Back')}</button><b>${T('Comments')}${all.length?' · '+all.length:''}</b><span style="width:60px"></span></div>
+     <div class="cmpost"><span class="poa sm" style="background:${mateCol(p.by||'x')}">${iniOf(p.by)}</span><div><b>${esc(p.mine?T('You'):p.by)}</b>${p.w?' · '+esc(p.w):''}<small>${esc((p.s||'').slice(0,140))}${(p.s||'').length>140?'…':''}</small></div></div>
+     <div class="cml">${L===null&&!err?`<div class="sub">${T('Loading...')}</div>`:all.map(c=>`<div class="cmi${c.wait?' wait':''}"><span class="poa sm" style="background:${mateCol(c.by||'x')}">${iniOf(c.by)}</span><div class="cmb"><div class="cmbub"><b>${esc(c.mine?T('You'):c.by)}</b><span>${esc(c.s)}</span></div><small>${esc(ago(Date.parse(c.t)))}${c.wait?' · '+T('Sending...'):''}${(c.can||c.mine)&&!c.wait?` · <button data-cdel="${esc(c.id)}">${T('Delete')}</button>`:''}</small></div></div>`).join('')||`<div class="sub" style="margin:14px 0">${err?T('Comments need signal.'):T('No comments yet. Be the first.')}</div>`}</div>
+     <form class="cmin" id="cmF"><input class="inp" id="cmT" maxlength="1000" placeholder="${T('Write a comment...')}" autocomplete="off" enterkeyhint="send"><button class="btn pri" id="cmGo" type="submit" aria-label="Send">${LI('arrow',18)}</button></form>`,()=>{
+      if(typed)$('cmT').value=typed;
+      $('cmBack').onclick=()=>back?back():feedHome();
+      $('cmF').onsubmit=e=>{e.preventDefault();const body=$('cmT').value.trim();if(!body)return;if(!Cloud.member){toast(T('Join the map first'));return}
+        const o={op:'fcom',id:'fc-'+cidNew(),post:p.c,body,at:Date.now()};queue(o);L=(L||[]).concat([{id:o.id,by:myName(),t:new Date().toISOString(),s:body,mine:true,wait:true}]);p.cm=(+p.cm||0)+1;p.lc={by:myName(),s:body,t:new Date().toISOString()};draw();
+        const el=document.querySelector('.cml');if(el)el.lastElementChild&&el.lastElementChild.scrollIntoView({block:'end'});setTimeout(load,3000)};
+      document.querySelectorAll('[data-cdel]').forEach(b=>b.onclick=async()=>{try{await rpc('delete_comment',{p_id:b.dataset.cdel});L=L.filter(c=>c.id!==b.dataset.cdel);p.cm=Math.max(0,(+p.cm||1)-1);p.lc=L.length?{by:L[L.length-1].by,s:L[L.length-1].s}:null;draw()}catch(e){toast(errTxt(e),4000)}})})};
+  const load=async()=>{if(!Cloud.member||!navigator.onLine){err=true;L=L||[];draw(true);return}try{const keep=(L||[]).filter(c=>c.wait);L=await rpc('comments',{p_post:p.c})||[];L=L.concat(keep.filter(c=>!L.some(q=>q.id===c.id)&&(Cloud.outbox||[]).some(o=>o.id===c.id)));err=false;p.cm=L.length+(Cloud.outbox||[]).filter(o=>o.op==='fcom'&&o.post===p.c&&!L.some(c=>c.id===o.id)).length}catch(e){err=true;L=L||[]}if($('cmF'))draw(true)};
+  draw();load()}
+
+/* ---- write a post ---- */
+function vidMeta(f){return new Promise(res=>{const v=document.createElement('video');v.muted=true;v.playsInline=true;v.preload='auto';let done=false;const fin=x=>{if(!done){done=true;res(x)}};
+  v.onloadedmetadata=()=>{try{v.currentTime=Math.min(.6,(v.duration||1)/3)}catch(e){}};
+  v.onseeked=()=>{try{const M=900,k=Math.min(1,M/Math.max(v.videoWidth||1,v.videoHeight||1)),c=document.createElement('canvas');c.width=Math.round((v.videoWidth||320)*k);c.height=Math.round((v.videoHeight||180)*k);c.getContext('2d').drawImage(v,0,0,c.width,c.height);c.toBlob(b=>fin({d:v.duration,w:v.videoWidth,h:v.videoHeight,poster:b}),'image/jpeg',.72)}catch(e){fin({d:v.duration,w:v.videoWidth,h:v.videoHeight,poster:null})}};
+  v.onerror=()=>fin(null);setTimeout(()=>fin(isFinite(v.duration)&&v.duration?{d:v.duration,w:v.videoWidth,h:v.videoHeight,poster:null}:null),9000);v.src=URL.createObjectURL(f)})}
+function composeSheet(pre){if(!Cloud.member){toast(T('Join the map first'));return}const C={text:'',what:(pre&&pre.what)||'',items:[],here:!!(me&&inArea(me.ll))};
+  const draw=()=>{openSheet(`<div class="cmh"><button class="sm" id="cpX">${T('Cancel')}</button><b>${T('New post')}</b><button class="btn pri sm" id="cpGo">${T('Post')}</button></div>
+    <div class="cph"><span class="poa" style="background:${mateCol(myName())}">${iniOf(myName())}</span><div><b>${esc(myName())}</b><small>${C.here&&me?LI('pin',11)+' '+esc(postPlace({lat:me.ll[1],lng:me.ll[0]})):T('Everyone on the map can see it')}</small></div></div>
+    <textarea class="inp cpt" id="cpT" maxlength="2000" placeholder="${T('What did you see today?')}">${esc(C.text)}</textarea>
+    ${C.items.length?`<div class="cpm">${C.items.map((it,k)=>`<div class="cpi">${it.k==='vid'?`<video src="${it.url}" muted playsinline preload="metadata"></video><span class="cpd">${LI('play',11)} ${fmtSec(it.d)}</span>`:`<img src="${it.url}" alt="">`}<button data-rmi="${k}" aria-label="Remove">${LI('x',14)}</button></div>`).join('')}</div>`:''}
+    <label class="cpadd">${LI('cam',20)}<div><b>${T('Photo or video')}</b><small>${T('Up to 6. Videos up to 3 minutes and 50 MB')}</small></div><input type="file" id="cpF" accept="image/*,video/*" multiple hidden></label>
+    <div class="msec">${T('Tag an animal')}</div><div class="osug">${ANIMALS.filter(a=>a!=='Other').map(a=>`<button class="osg${C.what===a?' sel':''}" data-cw="${a}">${AN(a,18)} ${T(a)}</button>`).join('')}</div>
+    <div class="list sgroup" style="margin-top:10px">${TG('cpHere',T('Add where I am'),me?T('Shows the road on your post, and people can drive there'):T('Waiting for GPS'),C.here)}</div>`,()=>{
+      $('cpT').oninput=e=>C.text=e.target.value;$('cpX').onclick=()=>feedHome();
+      $('cpHere').onclick=()=>{if(!me){toast(T('Waiting for GPS...'));return}C.here=!C.here;draw()};
+      document.querySelectorAll('[data-cw]').forEach(b=>b.onclick=()=>{C.what=C.what===b.dataset.cw?'':b.dataset.cw;draw()});
+      document.querySelectorAll('[data-rmi]').forEach(b=>b.onclick=()=>{C.items.splice(+b.dataset.rmi,1);draw()});
+      $('cpF').onchange=async e=>{const fs=[...e.target.files];e.target.value='';$('cpGo').disabled=true;toast(T('Getting it ready...'),1500);
+        for(const f of fs){if(C.items.length>=6){toast(T('Up to 6 photos or videos'));break}
+          if(/^video\//.test(f.type)||/\.(mov|mp4|webm|m4v)$/i.test(f.name)){if(f.size>50*1048576){toast(T('That video is too big. Keep it under 50 MB, about a minute'),5000);continue}
+            const v=await vidMeta(f);if(!v){toast(T('Could not read that video'));continue}if(v.d>185){toast(T('Keep videos under 3 minutes'),4000);continue}
+            C.items.push({k:'vid',file:f,url:URL.createObjectURL(f),d:v.d,w:v.w,h:v.h,poster:v.poster,ct:f.type||(/\.mov$/i.test(f.name)?'video/quicktime':'video/mp4')})}
+          else{try{const b=await shrinkPhoto(f);const im=await new Promise(r=>{const i=new Image();i.onload=()=>r(i);i.onerror=()=>r(null);i.src=URL.createObjectURL(b)});C.items.push({k:'img',blob:b,url:im?im.src:URL.createObjectURL(b),w:im&&im.naturalWidth,h:im&&im.naturalHeight})}catch(er){toast(T('Could not read that photo'))}}}
+        draw()};
+      $('cpGo').onclick=async()=>{const body=(C.text||'').trim();if(!body&&!C.items.length){toast(T('Write something or add a photo or video'));return}$('cpGo').disabled=true;$('cpGo').textContent='...';
+        const id='fp-'+cidNew().replace(/[^A-Za-z0-9_-]/g,''),base='fm-'+id.slice(3),media=[];
+        try{for(let k=0;k<C.items.length;k++){const it=C.items[k];
+            if(it.k==='img'){const f=base+'-'+k+'.jpg';await photoPut(f,it.blob);media.push({k:'img',f,w:it.w,h:it.h})}
+            else{const ext=/quicktime/.test(it.ct)?'mov':/webm/.test(it.ct)?'webm':'mp4',f=base+'-'+k+'.'+ext,m={k:'vid',f,d:Math.round(it.d),w:it.w,h:it.h,ct:it.ct};await photoPut(f,it.file);if(it.poster){m.p=base+'-'+k+'p.jpg';await photoPut(m.p,it.poster)}media.push(m)}}}
+        catch(e){toast(T('Not enough space on this phone to keep that video'),4500);$('cpGo').disabled=false;$('cpGo').textContent=T('Post');return}
+        const ll=C.here&&me?me.ll:null;FPQ.push({id,body,what:C.what||null,media,lat:ll?+ll[1].toFixed(6):null,lng:ll?+ll[0].toFixed(6):null,t:Date.now(),done:{}});LS.set('fpq',FPQ);
+        toast(navigator.onLine?T('Posting...'):T('Saved. It posts by itself when you have signal'),3500);feedHome();fpostPump()}})};
+  draw()}
+
+/* ---- the Feed screen ---- */
 async function feedLoad(reset){if(FEED.busy)return;FEED.busy=true;if(reset){FEED.list=[];FEED.more=true}
-  try{const before=FEED.list.length?FEED.list[FEED.list.length-1].t:null;const nm=FEED.near&&me;
-    let L=null;FEED.local=false;
-    if(Cloud.member&&navigator.onLine){try{L=await rpc('feed',{p_before:before,p_what:FEED.what||null,p_lat:nm?me.ll[1]:null,p_lng:nm?me.ll[0]:null,p_km:nm?3:null,p_limit:25})||[]}catch(e){L=null}}
-    // no signal, or the feed isn't set up in Supabase yet: show the sightings this phone already has
+  try{const before=FEED.list.length?FEED.list[FEED.list.length-1].t:null;const nm=FEED.near&&me;let L=null;FEED.local=false;
+    if(Cloud.member&&navigator.onLine){try{const a={p_before:before,p_what:FEED.what||null,p_lat:nm?me.ll[1]:null,p_lng:nm?me.ll[0]:null,p_km:nm?3:null,p_limit:25};if(FEED.kind)a.p_kind=FEED.kind;L=await rpc('feed',a)||[]}catch(e){L=null}}
     if(L===null){FEED.local=true;FEED.more=false;if(before){return}
-      L=allSights().flatMap(x=>(x.chain||[x])).filter(x=>!x.still&&(!FEED.what||x.what===FEED.what)&&(!nm||dist(me.ll,x.ll)<3000)).sort((a,b)=>b.t-a.t).slice(0,40)
-        .map(x=>({c:x.cid,w:x.what,by:x.mine?'You':x.by||'Someone',t:new Date(x.t).toISOString(),s:x.note||null,ph:!!x.photo,k:!!x.kill,lat:x.ll[1],lng:x.ll[0],mine:!!x.mine,likes:0,liked:false,local:true}))}
+      L=FEED.kind==='post'||FEED.kind==='video'?[]:allSights().flatMap(x=>(x.chain||[x])).filter(x=>!x.still&&(!FEED.what||x.what===FEED.what)&&(!nm||dist(me.ll,x.ll)<3000)).sort((a,b)=>b.t-a.t).slice(0,40)
+        .map(x=>({kind:'s',c:x.cid,w:x.what,by:x.mine?'You':x.by||'Someone',t:new Date(x.t).toISOString(),s:x.note||null,ph:!!x.photo,k:!!x.kill,lat:x.ll[1],lng:x.ll[0],mine:!!x.mine,likes:0,liked:false,local:true}))}
     FEED.list=FEED.list.concat(L.filter(p=>!FEED.list.some(q=>q.c===p.c)));if(!FEED.local&&L.length<25)FEED.more=false}catch(e){FEED.more=false}finally{FEED.busy=false}}
-async function postFeed(){openSheet(hubSeg('feed')+'<h2>Feed</h2><div class="sub">Loading...</div>',bindHub);await feedLoad(true);feedDraw()}
-function feedDraw(){const kinds=[...new Set(SLOG.map(x=>x[1]))].filter(w=>w!=='Other').slice(0,14);
-  openSheet(hubSeg('feed')+`<h2>Feed</h2><div class="sub">Every sighting on the reserve, newest first. Tap a star if you like it.</div>
-   <div class="osug" style="margin-top:10px"><button class="osg${!FEED.what&&!FEED.near?' sel':''}" data-ff="">Everything</button><button class="osg${FEED.near?' sel':''}" data-fn="1">${LI('pin',13)} Near me</button>${kinds.map(k=>`<button class="osg${FEED.what===k?' sel':''}" data-ff="${esc(k)}">${esc(k)}</button>`).join('')}</div>
-   ${FEED.local?`<div class="sub" style="margin-top:8px;font-size:12.5px">${LI('clock',12)} Showing the sightings on this phone${isAdm()?'. Run the latest all_in_one.sql in Supabase to turn on the full feed with stories and stars.':'. The full feed comes back with signal.'}</div>`:''}
-   <div id="fdList">${FEED.list.length?FEED.list.map(postCard).join(''):`<div class="sub" style="margin-top:16px">${navigator.onLine?'No sightings here yet. Mark one and it shows up for everyone.':'The feed needs signal.'}</div>`}</div>
-   ${FEED.more&&FEED.list.length?'<button class="btn" id="fdMore" style="width:100%;margin-top:10px">Show older</button>':''}`,()=>{
-    bindHub();bindPosts($('sheetBody'),FEED.list,()=>postFeed());
-    document.querySelectorAll('[data-ff]').forEach(b=>b.onclick=async()=>{FEED.what=b.dataset.ff;FEED.near=false;await feedLoad(true);feedDraw()});
-    document.querySelectorAll('[data-fn]').forEach(b=>b.onclick=async()=>{if(!me){toast('Waiting for GPS...');return}FEED.near=!FEED.near;FEED.what='';await feedLoad(true);feedDraw()});
+async function feedHome(){FEED.open=true;openSheet(`<h2>${T('Feed')}</h2><div class="sub">${T('Loading...')}</div>`);await feedLoad(true);feedDraw()}
+const postFeed=feedHome;
+function feedDraw(){FEED.open=true;const kinds=[...new Set(SLOG.map(x=>x[1]))].filter(w=>w!=='Other').slice(0,14);
+  const pend=pendPosts().filter(p=>(!FEED.what||p.w===FEED.what)&&FEED.kind!=='sight'&&(FEED.kind!=='video'||p.media.some(m=>m.k==='vid')));
+  const all=pend.concat(FEED.list.filter(p=>!pend.some(q=>q.c===p.c)));
+  const chip=(attr,val,label,on)=>`<button class="osg${on?' sel':''}" ${attr}="${esc(val)}">${label}</button>`;
+  openSheet(`<div class="fdh"><h2>${T('Feed')}</h2><button class="sm" id="fdRe" aria-label="Refresh">${LI('clock',16)}</button></div>
+   ${Cloud.member?`<button class="fcomp" id="fdNew"><span class="poa" style="background:${mateCol(myName())}">${iniOf(myName())}</span><span class="fcph">${T('What did you see today?')}</span><span class="fcic">${LI('cam',20)}</span></button>`:''}
+   <div class="osug fdf">${chip('data-fk','',T('Everything'),!FEED.kind&&!FEED.what&&!FEED.near)}${chip('data-fk','post',LI('msg',13)+' '+T('Posts'),FEED.kind==='post')}${chip('data-fk','video',LI('play',13)+' '+T('Videos'),FEED.kind==='video')}${chip('data-fk','sight',LI('binoc',13)+' '+T('Sightings'),FEED.kind==='sight')}${chip('data-fn','1',LI('pin',13)+' '+T('Near me'),FEED.near)}${kinds.map(k=>chip('data-ff',k,esc(T(k)),FEED.what===k)).join('')}</div>
+   ${FEED.local?`<div class="sub" style="margin-top:8px;font-size:12.5px">${LI('clock',12)} ${T('Showing the sightings on this phone')}${isAdm()?'. '+T('Run the latest all_in_one.sql in Supabase to turn on posts, videos, likes and comments.'):'. '+T('The full feed comes back with signal.')}</div>`:''}
+   <div id="fdList">${all.length?all.map(postCard).join(''):`<div class="sub" style="margin-top:16px">${navigator.onLine?T('Nothing here yet. Post a photo or video, or mark a sighting, and it shows up for everyone.'):T('The feed needs signal.')}</div>`}</div>
+   ${FEED.more&&FEED.list.length?`<button class="btn" id="fdMore" style="width:100%;margin-top:10px">${T('Show older')}</button>`:''}`,()=>{
+    bindPosts($('sheetBody'),all,()=>feedDraw());
+    if($('fdNew'))$('fdNew').onclick=()=>composeSheet({what:FEED.what});
+    $('fdRe').onclick=async()=>{$('fdRe').classList.add('spin');await feedLoad(true);feedDraw()};
+    document.querySelectorAll('[data-fk]').forEach(b=>b.onclick=async()=>{FEED.kind=b.dataset.fk;if(!FEED.kind){FEED.what='';FEED.near=false}await feedLoad(true);feedDraw()});
+    document.querySelectorAll('[data-ff]').forEach(b=>b.onclick=async()=>{FEED.what=FEED.what===b.dataset.ff?'':b.dataset.ff;await feedLoad(true);feedDraw()});
+    document.querySelectorAll('[data-fn]').forEach(b=>b.onclick=async()=>{if(!me){toast(T('Waiting for GPS...'));return}FEED.near=!FEED.near;await feedLoad(true);feedDraw()});
     if($('fdMore'))$('fdMore').onclick=async()=>{$('fdMore').textContent='...';await feedLoad(false);feedDraw()}})}
+
 // the story: write it later, the app reminds you once you've stopped
 function storySheet(cid,what,back){openSheet(`<div style="text-align:center"><div style="display:inline-flex">${AN(what,54)}</div><h2 style="margin:6px 0 2px">The ${esc(String(what).toLowerCase())} story</h2><div class="sub">What happened? It shows on your post in the feed and on the ${esc(String(what).toLowerCase())} profile.</div></div>
    <textarea class="inp" id="stBody" maxlength="500" placeholder="e.g. Female on the termite mound, then walked into the drainage line" style="height:120px;padding-top:12px;resize:none;margin-top:12px"></textarea>
@@ -3140,6 +3308,7 @@ $('menuBtn').onclick=()=>{
   openSheet(`<div class="mhead"><div class="mav av-${(m&&m.role)||'owner'}">${esc(((m&&m.name)||'?').trim()[0]||'?').toUpperCase()}</div><div class="mt"><b>${m?esc(m.name):'Not signed in'}</b> ${role}<small>${esc(cloudStatus())}</small></div>
     <button class="mset" id="mSet" aria-label="Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1A1.7 1.7 0 0 0 4.6 9a1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button></div>
    ${tallyHtml(true)}
+   <button class="mfeed" id="tFeed"><span class="mfi">${LI('msg',22)}</span><div><b>Feed</b><small>Posts, photos and videos from everyone on the reserve</small></div><span class="ar">›</span></button>
    <div class="tiles">
     ${TILE('tSight',LI('binoc',24),'Sightings',today?today+' today':now?now+' on the map':'None yet',today||'','','#e37400')}
     ${TILE('tRec',LI(recTrack?'stop':'rec',24),recTrack?'Stop drive':'Record drive',recTrack?fmtD(recTrack.len)+' so far':'Save your route','',recTrack?'rec':'','#d93025')}
@@ -3159,7 +3328,7 @@ $('menuBtn').onclick=()=>{
    </div>
    ${m&&!m.locked?'<button class="mout" id="mOut">Sign out</button>':''}`,()=>{
     $('mSet').onclick=()=>settingsSheet();
-    $('tSight').onclick=()=>sightHub('feed');
+    $('tSight').onclick=()=>sightHub();$('tFeed').onclick=()=>feedHome();
     $('tRec').onclick=()=>{closeSheet();toggleRec()};
     $('tBest').onclick=()=>bestSheet();
     if($('tAnn'))$('tAnn').onclick=()=>{loadAnn();annSheet()};
@@ -3387,9 +3556,9 @@ function qrSheet(G,back){openSheet(`<h2>Scan to join</h2><div class="sub">Let th
    <div class="qrw">${qrSvg(guestLink(G),240)}<div class="qrc mono">${esc(G.code)}</div><small>${G.label?esc(G.label)+' · ':''}${(G.kind||'guest')==='guest'?'Guest pass · valid until '+esc(fmtExp(G.exp)):'One-time '+(G.kind==='admin'?'admin':'owner')+' invite'}</small></div>
    <button class="btn" id="qrBack" style="width:100%;margin-top:12px">Back</button>`,()=>{$('qrBack').onclick=()=>back?back():sendGuest(G)})}
 /* ============ sightings hub: Today · On the map · Animals ============ */
-function hubSeg(tab){return `<div class="seg" style="margin:2px 0 12px">${[['feed','Feed'],['today','Today'],['map','Map'],['animals','Animals'],['photos','Photos']].map(([k,l])=>`<button data-hub="${k}" class="${tab===k?'sel':''}">${l}</button>`).join('')}</div>`}
+function hubSeg(tab){return `<div class="seg" style="margin:2px 0 12px">${[['today','Today'],['map','Map'],['animals','Animals'],['photos','Photos']].map(([k,l])=>`<button data-hub="${k}" class="${tab===k?'sel':''}">${l}</button>`).join('')}</div>`}
 function bindHub(){document.querySelectorAll('[data-hub]').forEach(b=>b.onclick=()=>sightHub(b.dataset.hub))}
-function sightHub(tab){tab=tab||(Cloud.member&&navigator.onLine?'feed':'today');if(tab==='photos')return albumSheet();if(tab==='feed')return postFeed();
+function sightHub(tab){tab=tab||'today';if(tab==='photos')return albumSheet();if(tab==='feed')return postFeed();
   if(tab==='today')return feedSheet(hubSeg('today'));
   if(tab==='map')return openSheet(hubSeg('map')+sightsSheet(),()=>{bindSights();bindHub()});
   openSheet(hubSeg('animals')+(profilesHtml()||'<h2>Animal profiles</h2><div class="sub">Nothing learned yet. Profiles build up as people mark sightings.</div>'),()=>{bindSights();bindHub()})}

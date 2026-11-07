@@ -1895,6 +1895,128 @@ returns json language sql stable security definer set search_path = public as $$
     order by l.created_at desc limit least(greatest(coalesce(p_limit, 30), 1), 60)) x), '[]'::json) end $$;
 grant execute on function public.feed(timestamptz, text, double precision, double precision, double precision, int) to authenticated;
 
+-- ================= FEED 2: posts with photos and videos, likes and comments (like Facebook) =================
+do $$ begin
+  insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+  values ('feedmedia', 'feedmedia', false, 52428800, array['image/jpeg','video/mp4','video/quicktime','video/webm'])
+  on conflict (id) do update set file_size_limit = excluded.file_size_limit, allowed_mime_types = excluded.allowed_mime_types;
+exception when others then raise notice 'Feed media bucket skipped: %', sqlerrm; end $$;
+do $$ begin
+  drop policy if exists kn_fm_read on storage.objects;
+  drop policy if exists kn_fm_add on storage.objects;
+  drop policy if exists kn_fm_upd on storage.objects;
+  drop policy if exists kn_fm_del on storage.objects;
+  create policy kn_fm_read on storage.objects for select to authenticated using (bucket_id = 'feedmedia' and public.is_member());
+  create policy kn_fm_add on storage.objects for insert to authenticated with check (bucket_id = 'feedmedia' and public.is_member() and name like 'fm-%');
+  create policy kn_fm_upd on storage.objects for update to authenticated using (bucket_id = 'feedmedia' and owner = auth.uid()) with check (bucket_id = 'feedmedia' and public.is_member());
+  create policy kn_fm_del on storage.objects for delete to authenticated using (bucket_id = 'feedmedia' and (owner = auth.uid() or public.is_admin()));
+exception when others then raise notice 'Feed media permissions skipped: %', sqlerrm; end $$;
+
+create table if not exists public.feed_posts (
+  id text primary key, user_id uuid not null default auth.uid(), name text, body text, what text,
+  media jsonb not null default '[]'::jsonb, lat double precision, lng double precision, created_at timestamptz not null default now());
+alter table public.feed_posts enable row level security;
+revoke all on public.feed_posts from anon, authenticated;
+create index if not exists feed_posts_t on public.feed_posts (created_at desc);
+
+create table if not exists public.feed_comments (
+  id text primary key, post text not null, user_id uuid not null default auth.uid(), name text, body text not null, created_at timestamptz not null default now());
+alter table public.feed_comments enable row level security;
+revoke all on public.feed_comments from anon, authenticated;
+create index if not exists feed_comments_post on public.feed_comments (post, created_at);
+
+create or replace function public.add_post(p_id text, p_body text, p_what text default null, p_media jsonb default '[]'::jsonb, p_lat double precision default null, p_lng double precision default null)
+returns json language plpgsql security definer set search_path = public as $$
+declare b text := left(nullif(btrim(coalesce(p_body, '')), ''), 2000); m jsonb := coalesce(p_media, '[]'::jsonb); e jsonb;
+begin
+  if not public.is_member() then raise exception 'members only'; end if;
+  if p_id !~ '^fp-[A-Za-z0-9_-]{4,60}$' then raise exception 'bad post id'; end if;
+  if exists (select 1 from public.feed_posts where id = p_id) then return json_build_object('ok', true, 'dup', true); end if;
+  if jsonb_typeof(m) <> 'array' or jsonb_array_length(m) > 6 then raise exception 'Up to 6 photos or videos per post'; end if;
+  for e in select * from jsonb_array_elements(m) loop
+    if coalesce(e->>'k', '') not in ('img', 'vid') or coalesce(e->>'f', '') !~ '^fm-[A-Za-z0-9_-]+\.(jpg|mp4|mov|webm)$' or (e ? 'p' and e->>'p' !~ '^fm-[A-Za-z0-9_-]+\.jpg$') then raise exception 'bad media'; end if;
+  end loop;
+  if b is null and jsonb_array_length(m) = 0 then raise exception 'Write something or add a photo or video'; end if;
+  if (select count(*) from public.feed_posts where user_id = auth.uid() and created_at > now() - interval '1 day') >= 40 then raise exception 'That is a lot of posts today. Try again tomorrow'; end if;
+  insert into public.feed_posts (id, name, body, what, media, lat, lng)
+  values (p_id, (select name from public.members where user_id = auth.uid()), b, nullif(left(btrim(coalesce(p_what, '')), 30), ''), m, p_lat, p_lng);
+  return json_build_object('ok', true);
+end $$;
+grant execute on function public.add_post(text, text, text, jsonb, double precision, double precision) to authenticated;
+
+create or replace function public.delete_post(p_id text)
+returns json language plpgsql security definer set search_path = public as $$
+declare m jsonb;
+begin
+  select media into m from public.feed_posts where id = p_id and (user_id = auth.uid() or public.is_admin());
+  if not found then raise exception 'You can only delete your own posts'; end if;
+  delete from public.feed_posts where id = p_id; delete from public.feed_comments where post = p_id; delete from public.feed_likes where client_id = p_id;
+  return json_build_object('ok', true, 'media', m);
+end $$;
+grant execute on function public.delete_post(text) to authenticated;
+
+create or replace function public.add_comment(p_id text, p_post text, p_body text)
+returns json language plpgsql security definer set search_path = public as $$
+declare b text := left(nullif(btrim(coalesce(p_body, '')), ''), 1000);
+begin
+  if not public.is_member() then raise exception 'members only'; end if;
+  if p_id !~ '^fc-[A-Za-z0-9_-]{4,60}$' then raise exception 'bad comment id'; end if;
+  if b is null then raise exception 'Write a comment first'; end if;
+  if exists (select 1 from public.feed_comments where id = p_id) then return json_build_object('ok', true, 'dup', true); end if;
+  if not exists (select 1 from public.feed_posts where id = p_post) and not exists (select 1 from public.sightings_log where client_id = p_post) then raise exception 'That post is gone'; end if;
+  if (select count(*) from public.feed_comments where user_id = auth.uid() and created_at > now() - interval '1 hour') >= 60 then raise exception 'Too many comments, wait a bit'; end if;
+  insert into public.feed_comments (id, post, name, body) values (p_id, p_post, (select name from public.members where user_id = auth.uid()), b);
+  return json_build_object('ok', true, 'n', (select count(*) from public.feed_comments where post = p_post));
+end $$;
+grant execute on function public.add_comment(text, text, text) to authenticated;
+
+create or replace function public.comments(p_post text)
+returns json language sql stable security definer set search_path = public as $$
+  select case when not public.is_member() then '[]'::json else coalesce((select json_agg(json_build_object('id', c.id, 'by', coalesce(c.name, m.name, 'Someone'), 't', c.created_at, 's', c.body, 'mine', c.user_id = auth.uid(),
+      'can', c.user_id = auth.uid() or public.is_admin() or exists (select 1 from public.feed_posts p where p.id = c.post and p.user_id = auth.uid()) or exists (select 1 from public.sightings_log l where l.client_id = c.post and l.user_id = auth.uid())) order by c.created_at)
+    from public.feed_comments c left join public.members m on m.user_id = c.user_id where c.post = p_post), '[]'::json) end $$;
+grant execute on function public.comments(text) to authenticated;
+
+create or replace function public.delete_comment(p_id text)
+returns void language plpgsql security definer set search_path = public as $$
+begin
+  if not exists (select 1 from public.feed_comments c where c.id = p_id and (c.user_id = auth.uid() or public.is_admin()
+      or exists (select 1 from public.feed_posts p where p.id = c.post and p.user_id = auth.uid())
+      or exists (select 1 from public.sightings_log l where l.client_id = c.post and l.user_id = auth.uid()))) then raise exception 'You can only delete your own comments'; end if;
+  delete from public.feed_comments where id = p_id;
+end $$;
+grant execute on function public.delete_comment(text) to authenticated;
+
+-- the feed: sightings and posts together, newest first, with likes, comment count and the newest comment
+drop function if exists public.feed(timestamptz, text, double precision, double precision, double precision, int);
+create or replace function public.feed(p_before timestamptz default null, p_what text default null, p_lat double precision default null, p_lng double precision default null, p_km double precision default null, p_limit int default 30, p_kind text default null)
+returns json language sql stable security definer set search_path = public as $$
+  select case when not public.is_member() then '[]'::json else coalesce((select json_agg(row_to_json(x) order by x.t desc) from (
+    select * from (
+      select 's' kind, l.client_id c, l.what w, coalesce(l.name, m.name, 'Someone') by, l.created_at t, l.story s, l.photo ph, coalesce(l.kill, false) k, l.lat, l.lng, '[]'::jsonb media,
+             l.user_id = auth.uid() mine, false can
+      from public.sightings_log l left join public.members m on m.user_id = l.user_id
+      where coalesce(p_kind, '') in ('', 'sight') and not l.still and l.created_at < coalesce(p_before, now() + interval '1 minute') and l.created_at > now() - interval '400 days'
+        and (p_what is null or l.what = p_what)
+        and (p_km is null or (abs(l.lat - p_lat) < p_km / 111.0 and abs(l.lng - p_lng) < p_km / (111.0 * cos(radians(p_lat)))))
+        and (public.is_admin() or l.user_id = auth.uid() or not public.kn_hidden_animal(l.what))
+      union all
+      select 'p', p.id, p.what, coalesce(p.name, m.name, 'Someone'), p.created_at, p.body, false, false, p.lat, p.lng, p.media,
+             p.user_id = auth.uid(), p.user_id = auth.uid() or public.is_admin()
+      from public.feed_posts p left join public.members m on m.user_id = p.user_id
+      where coalesce(p_kind, '') in ('', 'post', 'video') and p.created_at < coalesce(p_before, now() + interval '1 minute') and p.created_at > now() - interval '400 days'
+        and (p_kind is distinct from 'video' or p.media @> '[{"k":"vid"}]'::jsonb)
+        and (p_what is null or p.what = p_what)
+        and (p_km is null or (p.lat is not null and abs(p.lat - p_lat) < p_km / 111.0 and abs(p.lng - p_lng) < p_km / (111.0 * cos(radians(p_lat)))))
+        and (p.what is null or public.is_admin() or p.user_id = auth.uid() or not public.kn_hidden_animal(p.what))
+    ) u order by u.t desc limit least(greatest(coalesce(p_limit, 30), 1), 60)) b
+    cross join lateral (select b.*,
+      (select count(*) from public.feed_likes f where f.client_id = b.c) likes,
+      exists (select 1 from public.feed_likes f where f.client_id = b.c and f.user_id = auth.uid()) liked,
+      (select count(*) from public.feed_comments fc where fc.post = b.c) cm,
+      (select json_build_object('by', coalesce(fc.name, 'Someone'), 's', fc.body, 't', fc.created_at) from public.feed_comments fc where fc.post = b.c order by fc.created_at desc limit 1) lc) x), '[]'::json) end $$;
+grant execute on function public.feed(timestamptz, text, double precision, double precision, double precision, int, text) to authenticated;
+
 -- ---------- SUGGESTIONS: anyone on the map can send one, only the protected account can read them ----------
 create table if not exists public.suggestions (
   id bigserial primary key,
@@ -2190,7 +2312,7 @@ notify pgrst, 'reload schema';
 
 
 -- =====================================================================
--- PUSH THE UPDATE (version 89)
+-- PUSH THE UPDATE (version 91)
 -- =====================================================================
 
 alter table private.config add column if not exists min_build int not null default 0;
@@ -2248,8 +2370,8 @@ begin
 end $$;
 grant execute on function public.set_min_build(int) to authenticated;
 
--- push it now: require version 89 and post the news (as the first admin, so it shows who sent it)
-update private.config set min_build = 89;
+-- push it now: require version 91 and post the news (as the first admin, so it shows who sent it)
+update private.config set min_build = 91;
 do $$
 declare adm uuid := (select user_id from public.members where role = 'admin' order by joined_at limit 1);
 begin
@@ -2263,13 +2385,13 @@ notify pgrst, 'reload schema';
 
 
 -- ===================== CHECK: every line should say YES =====================
-select 'Tables: members, sightings, reports, drives, news, SOS, live location, places, notes, suggestions' as "check",
-  case when (select count(*) from information_schema.tables where table_schema = 'public' and table_name in ('members','sightings','reports','drives','announcements','sos','live_locs','animal_misses','places','road_closures','private_notes','suggestions')) = 12 then 'YES' else 'NO' end as result
+select 'Tables: members, sightings, reports, drives, news, SOS, live location, places, notes, suggestions, feed posts and comments' as "check",
+  case when (select count(*) from information_schema.tables where table_schema = 'public' and table_name in ('members','sightings','reports','drives','announcements','sos','live_locs','animal_misses','places','road_closures','private_notes','suggestions','feed_posts','feed_comments')) = 14 then 'YES' else 'NO' end as result
 union all select 'Codes and logins self-test', case when (select count(*) from public.kn_selftest() where result not like 'PASS%') = 0 then 'YES' else 'NO: ' || (select string_agg(test, ', ') from public.kn_selftest() where result not like 'PASS%') end
 union all select 'Protected account (9fb4d097...) locked as admin', case when exists (select 1 from public.members where locked and role = 'admin') then 'YES' else 'NO: that account is not on the map yet. Open the map on that phone, then run this again' end
 union all select 'Your Database code (keep it secret, it gives full control)', (select db_code from private.config limit 1)
 union all select 'Backend self-test', case when (select count(*) from public.kn_backend_selftest() where result not like 'PASS%') = 0 then 'YES' else 'NO: ' || (select string_agg(test, ', ') from public.kn_backend_selftest() where result not like 'PASS%') end
-union all select 'Everyone must be on version 89', case when (select min_build from private.config limit 1) = 89 then 'YES' else 'NO' end
-union all select 'Update news posted (only old versions see it)', case when exists (select 1 from public.announcements where for_old_build = 89 and not removed) then 'YES' else 'NO' end
+union all select 'Everyone must be on version 91', case when (select min_build from private.config limit 1) = 91 then 'YES' else 'NO' end
+union all select 'Update news posted (only old versions see it)', case when exists (select 1 from public.announcements where for_old_build = 91 and not removed) then 'YES' else 'NO' end
 union all select 'Your owner code (unchanged)', (select upper(invite_code) from private.config limit 1)
-union all select 'People who still need to update', (select count(*)::text from public.members where coalesce(app_build, 0) < 89 and (role <> 'guest' or expires_at > now()));
+union all select 'People who still need to update', (select count(*)::text from public.members where coalesce(app_build, 0) < 91 and (role <> 'guest' or expires_at > now()));
