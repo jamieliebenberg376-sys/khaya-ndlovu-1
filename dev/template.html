@@ -935,6 +935,18 @@ body.land #nav .jx,body.land #nav .nchips .nchip:nth-child(n+2){display:none!imp
 body.land #nav .tx .ins{font-size:18px!important}
 body.land.navon #sosBtn{left:calc(40% + 26px + env(safe-area-inset-left,0px))!important;bottom:118px!important}
 #nav.flat .jx{display:none!important}
+
+/* ===== v97: demo chooser and live demo ===== */
+.dmc{display:flex;align-items:center;gap:12px;width:100%;margin-top:12px;padding:14px;border-radius:20px;text-align:left;background:var(--sandA,rgba(127,127,127,.08));box-shadow:inset 0 0 0 1px var(--hair)}
+.dmc .dmi{width:46px;height:46px;border-radius:15px;flex:none;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,#2f6f4c,#143223);color:#ffd36b}
+.dmc.live .dmi{background:linear-gradient(160deg,#ffd36b,#f2a516);color:#2a1c08}.dmc div{flex:1;min-width:0}.dmc b{display:block;font-size:16px}.dmc small{color:var(--sub);font-size:12.5px;line-height:1.35}.dmc .ar{color:var(--sub);font-size:22px}
+.dmnow{margin-top:10px;padding:9px 12px;border-radius:14px;background:rgba(255,194,61,.16);color:#8a5a00;font:700 13px system-ui;display:flex;align-items:center;gap:6px}
+.lvcard{padding:14px;border-radius:18px;background:rgba(127,127,127,.07);box-shadow:inset 0 0 0 1px var(--hair)}.lvh{display:flex;gap:10px;align-items:center}.lvh .li{color:#2f8f4e;flex:none}.lvh b{display:block;font-size:16px}.lvh small{color:var(--sub)}
+#liveBar{position:fixed;left:50%;transform:translateX(-50%);top:calc(var(--safe-t) + 118px);z-index:11;display:flex;align-items:center;gap:8px;padding:6px 6px 6px 12px;border-radius:18px;background:rgba(14,18,13,.88);color:#fff;border:1px solid rgba(255,194,61,.4);box-shadow:0 6px 18px rgba(0,0,0,.35);font:700 13px system-ui;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+#liveBar .dmd{width:9px;height:9px;border-radius:50%;background:#ffc23d;box-shadow:0 0 0 3px rgba(255,194,61,.25)}#liveBar .lvn{color:rgba(255,255,255,.6);font-weight:600}#liveBar button{background:rgba(255,255,255,.12);color:#ffd36b;border-radius:12px;padding:5px 11px;font:700 13px system-ui}
+body.livedemo #focusPill{top:calc(var(--safe-t) + 156px)}
+body.night .dmc{background:rgba(255,255,255,.07);box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}body.night .dmc b{color:#f1ece4}body.night .dmc small{color:rgba(241,236,228,.62)}body.night .lvcard{background:rgba(255,255,255,.06)}body.night .dmnow{color:#ffd36b}
+#liveBar{white-space:nowrap}
 </style>
 </head>
 <body>
@@ -1019,6 +1031,10 @@ const SPOTIFY_ID = __SPOTIFY__;
 const MAP_VERSION = __MAPVER__;
 let DATA = __DATA__;
 try{const v=+localStorage.getItem('kn_mapVer')||0,d=localStorage.getItem('kn_mapdata');if(d&&v>MAP_VERSION)DATA=JSON.parse(d)}catch(e){}
+/* live demo: a real town map (every road from OpenStreetMap) instead of the reserve, saved on this phone */
+const LIVEMAP=(()=>{try{if(localStorage.getItem('kn_liveOn')!=='true')return null;const d=localStorage.getItem('kn_liveMap');return d?JSON.parse(d):null}catch(e){return null}})();
+if(LIVEMAP)DATA=LIVEMAP.data;
+const LIVEK=new Set(['sights','reports','tracks','rec','slog','recents','favs','offline','home','demCached','stQ','storyQ','seen','trailKey']);
 /* House No. 2 is not shown on the map (it is only used as the end point of the demo drive) */
 const HOUSE2=((DATA.pois.features.find(f=>f.properties.kind==='home')||{}).geometry||{}).coordinates||null;DATA.pois.features=DATA.pois.features.filter(f=>f.properties.kind!=='home');
 const ORIG_POIS=JSON.parse(JSON.stringify(DATA.pois.features));
@@ -1105,7 +1121,8 @@ function moonSvg(ill,waxing,size){size=size||28;const r=13,cx=16,cy=16,k=Math.ab
 "use strict";
 /* ============ helpers ============ */
 const $=id=>document.getElementById(id);
-const LS={get(k,d){try{const v=localStorage.getItem('kn_'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('kn_'+k,JSON.stringify(v))}catch(e){}}};
+const lk=k=>LIVEMAP&&LIVEK.has(k)?'live_'+k:k;
+const LS={get(k,d){k=lk(k);try{const v=localStorage.getItem('kn_'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){k=lk(k);try{localStorage.setItem('kn_'+k,JSON.stringify(v))}catch(e){}}};
 /* ============ Afrikaans ============ */
 const ANAF={Lion:'Leeu',Leopard:'Luiperd',Elephant:'Olifant',Rhino:'Renoster',Cheetah:'Jagluiperd','Wild dog':'Wildehond',Hippo:'Seekoei',Buffalo:'Buffel',Hyena:'Hiëna',Giraffe:'Kameelperd',Zebra:'Sebra',Kudu:'Koedoe',Other:'Ander',
  Warthog:'Vlakvark',Impala:'Rooibok',Wildebeest:'Blouwildebees',Nyala:'Njala',Waterbuck:'Waterbok','Honey badger':'Ratel',Jackal:'Jakkals',Baboon:'Bobbejaan','Vervet monkey':'Blouaap',Porcupine:'Ystervark',Duiker:'Duiker',Steenbok:'Steenbok',Bushbuck:'Bosbok',Ostrich:'Volstruis',Eland:'Eland',Tsessebe:'Tsessebe',Sable:'Swartwitpens',Crocodile:'Krokodil',Serval:'Tierboskat',Caracal:'Rooikat',Civet:'Siwet',Genet:'Muskejaatkat',Mongoose:'Muishond','Bush pig':'Bosvark',Klipspringer:'Klipspringer',Reedbuck:'Rietbok'};
@@ -1540,7 +1557,7 @@ let tracks=LS.get('tracks',[]);
 let calib=LS.get('calib',[0,0]);
 let curRoad=null, nav=null, recTrack=null, sim=null, offCount=0, lastPos=null, speedS=0;
 const DM={on:false,ll:null,hd:0,spd:0,segs:null,along:0,v:7,sights:[],reports:[],iv:null,bt:0,peers:{},host:false,lastCars:{}};
-const DEMO_END=HOUSE2||DATA.pois.features[0].geometry.coordinates;
+const DEMO_END=HOUSE2||((DATA.pois.features[0]||{}).geometry||{coordinates:DATA.boundary.geometry.coordinates[0][0]}).coordinates;
 const homeLL=()=>home?home.ll:DEMO_END;
 
 /* ============ shared database (Supabase) ============ */
@@ -1589,7 +1606,7 @@ async function api(path,opt={},retry=true){
   if(r.status===401&&retry){Cloud.sess.expires_at=0;return api(path,opt,false)}
   const t=await r.text();if(!r.ok)throw new Error(r.status+': '+t.slice(0,160));return t?JSON.parse(t):null;
 }
-function queue(op){if(!Cloud.on||!Cloud.member)return;if(DM.on&&(op.t==='drives'||op.t==='animal_misses'))return;{const id=String((op.row&&op.row.client_id)||op.cid||op.id||'');if(id.startsWith('demo-'))return}Cloud.outbox.push(op);saveCloud();sync();clearTimeout(queue.t);queue.t=setTimeout(()=>{if(Cloud.outbox.length)sync()},2500)}
+function queue(op){if(!Cloud.on||!Cloud.member)return;if(LIVEMAP&&op.op!=='fcom')return;if(DM.on&&(op.t==='drives'||op.t==='animal_misses'))return;{const id=String((op.row&&op.row.client_id)||op.cid||op.id||'');if(id.startsWith('demo-'))return}Cloud.outbox.push(op);saveCloud();sync();clearTimeout(queue.t);queue.t=setTimeout(()=>{if(Cloud.outbox.length)sync()},2500)}
 async function joinReserve(name,code){
   await ensureSession();
   let res;
@@ -1730,7 +1747,7 @@ $('wxBtn').onclick=()=>wxSheet();
 setInterval(()=>loadWx(),15*6e4);window.addEventListener('online',()=>loadWx());document.addEventListener('visibilitychange',()=>{if(!document.hidden)loadWx()});
 /* ============ speed warning: 40 km/h on the reserve ============ */
 let SPEED_LIMIT=40;const QUIET={from:'19:30',to:'06:00'};let SUNMIN=40;let spdOverT=0,spdSaid=0,spdOn=false;
-function speedCheck(ll){const el=$('speed');if(!el.querySelector('.ring')){el.insertAdjacentHTML('afterbegin','<svg class="ring" viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" class="rt"/><circle cx="50" cy="50" r="44" class="rv" id="spdArc"/></svg>')}
+function speedCheck(ll){if(LIVEMAP)return;const el=$('speed');if(!el.querySelector('.ring')){el.insertAdjacentHTML('afterbegin','<svg class="ring" viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" class="rt"/><circle cx="50" cy="50" r="44" class="rv" id="spdArc"/></svg>')}
   {const kmh0=(speedS||0)*3.6,f=Math.min(1,kmh0/60),arc=$('spdArc');if(arc){arc.style.strokeDashoffset=(276.5*(1-f*.75)).toFixed(1);arc.style.stroke=kmh0>SPEED_LIMIT+2?'#ff5a4f':kmh0>SPEED_LIMIT-6?'#ffc23d':'#3ddc84'}}const onRes=!!ll&&inReserve(ll);el.classList.toggle('inres',onRes&&speedWarn);
   if(!el.querySelector('.lim')){const l=document.createElement('div');l.className='lim';l.textContent=SPEED_LIMIT;el.appendChild(l)}
   const kmh=(speedS||0)*3.6,now=Date.now();
@@ -1756,6 +1773,7 @@ function annPop(){const a=ANN.filter(x=>!annSeen.has(x.client_id)&&(!x.expires_a
 
 /* ============ what's new: shown once to owners and admins after an update ============ */
 const WHATS_NEW=[
+ [97,'car','Demo live','Menu › Demo mode now has two choices: Demo on the farm, or Demo live, which swaps in Stellenbosch with every real road so you can test the whole app driving for real. It saves on your phone for offline.'],
  [95,'route','Smarter drives','Sightings coming up on your route are called out, a strip along the bottom shows every turn, gate and sighting ahead, one tap reports, a better way is offered if a road is blocked, stops like Google Maps, search along your route, saved and recent places, smart animal search, landscape layout, and every drive saved with top speed.'],
  [94,'route','Top-down view at turns','From 100 metres before a turn the map goes flat and zooms in, so you can see exactly which turn to take. Once you are through it tilts back to the driving view.'],
  [93,'scope','Focus mode','When you start driving the map hides the clutter: no heatmap, guesses, notes, borders, old trails or pop-ups. You still see roads, fresh sightings, reports, picnic spots, gates, dams and other cars. Change it in Settings › Driving.'],
@@ -1842,7 +1860,7 @@ function sosBeep(f,ms,n){try{unlockAudio();const t=actx.currentTime;for(let i=0;
 function sosSay(t){try{if('speechSynthesis' in window){speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='en-ZA';u.rate=1.05;speechSynthesis.speak(u)}}catch(e){}}
 function sosOv(html,alarm){const o=$('sosOv');$('sosIn').innerHTML=html;o.classList.remove('hide');o.classList.toggle('alarm',!!alarm)}
 function sosClose(){$('sosOv').classList.add('hide');$('sosOv').classList.remove('alarm');clearInterval(sosT);sirenStop()}
-function sosStart(){if(DM.on)stopDemo();if(!Cloud.member){toast('Join the map first');return}if(SOS&&!SOS.resolved){sosActiveSheet();return}
+function sosStart(){if(LIVEMAP){toast('SOS is off in the live demo. Exit the demo for the real SOS.',4000);return}if(DM.on)stopDemo();if(!Cloud.member){toast('Join the map first');return}if(SOS&&!SOS.resolved){sosActiveSheet();return}
   unlockAudio();let n=3;const tick=()=>{if(n===0){clearInterval(sosT);sosSlide();return}
     sosOv(`<h1>SOS</h1><div class="sosNum">${n}</div><p>Sending your exact location to everyone on the map</p><button class="sosBtnW w" id="sosCancel">Cancel</button>`);
     $('sosCancel').onclick=()=>{sosClose();toast('SOS cancelled')};
@@ -1984,7 +2002,7 @@ function myLiveState(){
   const e=nearestEdge(me.ll,60),road=e?ROADS[e.e.road].properties.name:null;
   const st=near&&still>20000?'viewing:'+near.what:(me.speed||0)>1.5?'driving'+(road?':'+road:''):'stopped'+(road?':'+road:'');
   return {st}}
-async function liveTick(){
+async function liveTick(){if(LIVEMAP)return;
   const want=myLiveState(),now=Date.now();
   if(!navigator.onLine||!Cloud.sess||LS_.missing)return;
   try{
@@ -3436,6 +3454,66 @@ function autoRecTick(){if(!AUTOREC||DM.on||!me)return;const k=(speedS||0)*3.6;
   if(!recTrack){if(k>12&&inReserve(me.ll)){if(++arN>=5){recTrack={pts:[me.ll],len:0,t:Date.now(),auto:true};LS.set('rec',recTrack);$('rec').classList.remove('hide');$('recInfo').textContent='';arN=0}}else arN=0;return}
   if(recTrack.auto&&Date.now()-lastMoveT>8*6e4){if(recTrack.len>800)toggleRec();else{recTrack=null;LS.set('rec',null);$('rec').classList.add('hide');refreshOverlays()}}}
 setInterval(autoRecTick,4000);
+/* ============ LIVE DEMO: drive a real town map (every road from OpenStreetMap) with your real GPS ============ */
+const LIVE_AREA_DEF={name:'Stellenbosch',poly:[[18.82592944272841,-33.99287067953024],[18.87480649121362,-33.99143959746813],[18.85560725493548,-33.96913653949414],[18.85757894216173,-33.96834307735884],[18.86162967184059,-33.97194999707956],[18.86726657726011,-33.96745861691329],[18.85633442277812,-33.95863756233319],[18.8513844994166,-33.95779812188217],[18.84875259364738,-33.96296511567339],[18.84303508432259,-33.96726066876835],[18.83903907855849,-33.9755344692923],[18.8347559954802,-33.98201914684191],[18.82875392043441,-33.985236614958],[18.82526091984751,-33.98962587478456],[18.82592944272841,-33.99287067953024]]};
+const liveArea=()=>LS.get('liveArea',null)||LIVE_AREA_DEF;
+const liveSaved=()=>{try{const s=localStorage.getItem('kn_liveMap');if(!s)return null;const j=JSON.parse(s);return {name:j.name,t:j.t,n:j.n,kb:Math.round(s.length/1024)}}catch(e){return null}};
+const OVERPASS=['https://overpass-api.de/api/interpreter','https://overpass.kumi.systems/api/interpreter','https://maps.mail.ru/osm/tools/overpass/api/interpreter'];
+async function liveFetch(area,onp){const P=area.poly.map(p=>p[1].toFixed(6)+' '+p[0].toFixed(6)).join(' ');
+  const q=`[out:json][timeout:120];(way["highway"~"^(motorway|motorway_link|trunk|trunk_link|primary|primary_link|secondary|secondary_link|tertiary|tertiary_link|unclassified|residential|living_street|service|track|road)$"]["service"!~"^(driveway|parking_aisle|drive-through|emergency_access)$"]["access"!~"^(private|no)$"](poly:"${P}");way["natural"="water"](poly:"${P}");way["waterway"~"^(river|stream|canal)$"](poly:"${P}");node["tourism"~"^(picnic_site|viewpoint)$"](poly:"${P}");node["amenity"="fuel"](poly:"${P}"););out geom;`;
+  let j=null,err='';for(const u of OVERPASS){try{onp&&onp(T('Downloading the roads...'));const ac=new AbortController(),tm=setTimeout(()=>ac.abort(),150000);
+      const r=await fetch(u,{method:'POST',body:'data='+encodeURIComponent(q),headers:{'Content-Type':'application/x-www-form-urlencoded'},signal:ac.signal});clearTimeout(tm);
+      if(!r.ok){err=r.status+'';continue}j=await r.json();break}catch(e){err=String(e.message||e)}}
+  if(!j)throw new Error(err||'no answer');onp&&onp(T('Building the map...'));
+  const R=x=>+x.toFixed(6),roads=[],water=[],river=[],pois=[];
+  const label={motorway:'Freeway',trunk:'Main road',primary:'Main road',secondary:'Road',tertiary:'Road',unclassified:'Road',residential:'Street',living_street:'Street',service:'Service road',track:'Track',road:'Road'};
+  for(const e of j.elements||[]){const g=e.geometry,t=e.tags||{};
+    if(e.type==='way'&&g&&g.length>1){const c=g.map(p=>[R(p.lon),R(p.lat)]);
+      if(t.highway){const hw=t.highway.replace('_link','');roads.push({type:'Feature',properties:{name:t.name||t.ref||(label[hw]||'Road'),check:false,restricted:false,track:hw==='track'||hw==='service',farm:'LIVE',hw},geometry:{type:'LineString',coordinates:c}})}
+      else if(t.natural==='water'&&c.length>3){if(c[0][0]!==c[c.length-1][0]||c[0][1]!==c[c.length-1][1])c.push(c[0]);let a=0;for(let i=0;i<c.length-1;i++)a+=c[i][0]*c[i+1][1]-c[i+1][0]*c[i][1];if(a<0)c.reverse();
+        water.push({type:'Feature',properties:{dam:true,name:t.name||'Water'},geometry:{type:'Polygon',coordinates:[c]}});
+        if(t.name){let x=0,y=0;c.forEach(p=>{x+=p[0];y+=p[1]});pois.push({type:'Feature',properties:{kind:'water',name:t.name},geometry:{type:'Point',coordinates:[R(x/c.length),R(y/c.length)]}})}}
+      else if(t.waterway){const w=t.waterway==='river'?10:t.waterway==='canal'?5:3;river.push({type:'Feature',properties:{w},geometry:{type:'LineString',coordinates:c}})}}
+    else if(e.type==='node'&&e.lat!=null){const k=t.tourism==='picnic_site'?'picnic':t.tourism==='viewpoint'?'view':'other';pois.push({type:'Feature',properties:{kind:k,name:t.name||(k==='picnic'?'Picnic spot':k==='view'?'Viewpoint':'Fuel'+(t.brand?' · '+t.brand:''))},geometry:{type:'Point',coordinates:[R(e.lon),R(e.lat)]}})}}
+  if(roads.length<5)throw new Error(T('No roads found in that area'));
+  const L={};roads.forEach(f=>{const c=f.geometry.coordinates;let s=0;for(let i=1;i<c.length;i++)s+=dist(c[i-1],c[i]);L[f.properties.name]=(L[f.properties.name]||0)+s});roads.forEach(f=>f.properties.len=Math.round(L[f.properties.name]));
+  const ring=area.poly.slice();if(ring[0][0]!==ring[ring.length-1][0]||ring[0][1]!==ring[ring.length-1][1])ring.push(ring[0]);
+  const fc=f=>({type:'FeatureCollection',features:f});
+  return {name:area.name,t:Date.now(),n:roads.length,data:{roads:fc(roads),boundary:{type:'Feature',properties:{},geometry:{type:'Polygon',coordinates:[ring]}},water:fc(water),river:fc(river),crossings:fc([]),pois:fc(pois),farms:fc([])}}}
+function liveStart(withSat){LS.set('liveOn',true);if(withSat)LS.set('liveSat',1);toast(T('Opening the live demo...'));setTimeout(()=>location.reload(),500)}
+function liveExit(){LS.set('liveOn',false);toast(T('Back to Khaya Ndlovu...'));setTimeout(()=>location.reload(),500)}
+function kmlPoly(txt){const m=/<coordinates>([\s\S]*?)<\/coordinates>/i.exec(txt);if(!m)return null;const P=m[1].trim().split(/\s+/).map(s=>s.split(',').map(Number)).filter(p=>p.length>=2&&isFinite(p[0])&&isFinite(p[1])).map(p=>[p[0],p[1]]);return P.length>=4?P:null}
+function demoChoose(){openSheet(`<h2>${T('Demo')}</h2><div class="sub">${T('Try everything without changing anything on the real map')}</div>
+   ${LIVEMAP?`<div class="dmnow">${LI('live',16)} ${T('You are in the live demo')} · ${esc(LIVEMAP.name)}</div>`:''}
+   <button class="dmc" id="dcFarm"><span class="dmi">${LI('tree',24)}</span><div><b>${T('Demo on the farm')}</b><small>${T('Pretend to be anywhere on Khaya Ndlovu, with demo cars and sightings. Others in demo mode see you')}</small></div><span class="ar">›</span></button>
+   <button class="dmc live" id="dcLive"><span class="dmi">${LI('car',24)}</span><div><b>${T('Demo live')}</b><small>${esc(liveArea().name)} · ${T('every real road, and you drive it for real with your GPS')}</small></div><span class="ar">›</span></button>
+   ${LIVEMAP?`<button class="mout" id="dcExit">${T('Exit the live demo')}</button>`:''}`,()=>{
+    $('dcFarm').onclick=()=>{if(LIVEMAP){toast(T('Exit the live demo first'));return}closeSheet();startDemo()};$('dcLive').onclick=liveSheetD;if($('dcExit'))$('dcExit').onclick=liveExit})}
+function liveSheetD(){const s=liveSaved(),a=liveArea();
+  openSheet(`<div class="cmh"><button class="sm" id="lvBack">‹ ${T('Back')}</button><b>${T('Demo live')}</b><span style="width:60px"></span></div>
+   <div class="lvcard"><div class="lvh">${LI('map',22)}<div><b>${esc(a.name)}</b><small>${s&&s.name===a.name?s.n+' '+T('roads saved on this phone')+' · '+new Date(s.t).toLocaleDateString([],{day:'numeric',month:'short'})+' · '+(s.kb>1024?(s.kb/1024).toFixed(1)+' MB':s.kb+' KB'):T('Not downloaded yet')}</small></div></div>
+    <div class="sub" style="margin-top:8px;font-size:13px;line-height:1.45">${T('The app swaps the reserve for this area with every real road, so you can search, plan routes with stops and follow the turn by turn with your real GPS. Nothing you do here goes onto the real reserve map.')}</div></div>
+   <div class="list sgroup" style="margin-top:12px">${TG('lvSat',T('Save the satellite map for offline too'),T('About 10 to 20 MB. Downloads once the live demo opens'),LS.get('liveSatPref',true))}</div>
+   <div class="sub" id="lvMsg" style="margin-top:8px;text-align:center"></div>
+   ${s&&s.name===a.name?`<button class="btn pri" id="lvGo" style="width:100%;margin-top:10px">${LI('arrow',18)} ${LIVEMAP?T('Restart the live demo'):T('Start the live demo')}</button><button class="btn" id="lvDl" style="width:100%;margin-top:8px">${LI('down',18)} ${T('Update the roads')}</button>`:`<button class="btn pri" id="lvDl" style="width:100%;margin-top:10px">${LI('down',18)} ${T('Download the map')}</button>`}
+   <label class="btn" style="width:100%;margin-top:8px;display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer">${LI('pin',18)} ${T('Use another area (KML file)')}<input type="file" id="lvKml" accept=".kml,application/vnd.google-earth.kml+xml,text/xml" hidden></label>
+   ${a.name!==LIVE_AREA_DEF.name?`<button class="btn" id="lvReset" style="width:100%;margin-top:8px">${T('Back to Stellenbosch')}</button>`:''}`,()=>{
+    $('lvBack').onclick=demoChoose;$('lvSat').onclick=()=>{const v=!LS.get('liveSatPref',true);LS.set('liveSatPref',v);$('lvSat').classList.toggle('on',v)};
+    if($('lvGo'))$('lvGo').onclick=()=>liveStart(LS.get('liveSatPref',true));
+    $('lvDl').onclick=async()=>{if(!navigator.onLine){toast(T('You need signal to download the map'));return}const b=$('lvDl');b.disabled=true;const msg=t=>{if($('lvMsg'))$('lvMsg').textContent=t};
+      try{const m=await liveFetch(liveArea(),msg);const s=JSON.stringify(m);try{localStorage.setItem('kn_liveMap',s)}catch(e){throw new Error(T('Not enough space on this phone for that area. Try a smaller one'))}
+        msg(m.n+' '+T('roads saved'));toast(T('Map saved on this phone'));setTimeout(liveSheetD,600)}
+      catch(e){msg(T('Could not download')+': '+String(e.message||e).slice(0,120));b.disabled=false}};
+    $('lvKml').onchange=async e=>{const f=e.target.files&&e.target.files[0];if(!f)return;const P=kmlPoly(await f.text());if(!P){toast(T('No area found in that file'),4000);return}
+      const nm=(/<name>([^<]{1,40})<\/name>/.exec(await f.text())||[])[1]||f.name.replace(/\.kml$/i,'');LS.set('liveArea',{name:nm==='Untitled KML file'?T('My area'):nm,poly:P});toast(T('Area loaded. Now download the map'));liveSheetD()};
+    if($('lvReset'))$('lvReset').onclick=()=>{LS.set('liveArea',null);liveSheetD()}})}
+/* while in the live demo: a pill at the top, and nothing goes to the real reserve */
+function liveBar(){if(!LIVEMAP)return;let b=$('liveBar');if(!b){b=document.createElement('div');b.id='liveBar';document.body.appendChild(b)}
+  b.innerHTML=`<span class="dmd"></span><b>${T('Live demo')}</b><span class="lvn">${esc(LIVEMAP.name)}</span><button id="lvX">${T('Exit')}</button>`;b.onclick=demoChoose;$('lvX').onclick=e=>{e.stopPropagation();liveExit()}}
+if(LIVEMAP){document.body.classList.add('livedemo');setTimeout(liveBar,800);
+  setInterval(()=>{const b=$('liveBar');if(!b)return;const n=$('nav');b.style.top=document.body.classList.contains('navon')&&n?Math.round(n.getBoundingClientRect().bottom+8)+'px':''},700);
+  if(LS.get('liveSat',0)){LS.set('liveSat',0);setTimeout(()=>{if(navigator.onLine){toast(T('Saving the satellite map for offline...'),4000);downloadOffline().then(r=>{if(r&&r.n)toast(T('Satellite map saved')+' · '+r.mb+' MB',4000)}).catch(()=>{})}},6000)}}
+
 /* ============ sightings & road reports ============ */
 const OTHER_SUG=['Warthog','Impala','Wildebeest','Nyala','Waterbuck','Honey badger','Jackal','Baboon','Vervet monkey','Duiker','Steenbok','Bushbuck','Porcupine','Ostrich','Crocodile','Mongoose'];
 const otherSugs=()=>[...new Set([...LS.get('otherNames',[]),...OTHER_SUG])].slice(0,14);
@@ -3547,7 +3625,7 @@ $('menuBtn').onclick=()=>{
     ${m&&m.locked?LK('lSug','Suggestions',SUG.list.length?SUG.list.length+' from people on the map':'Nothing yet',SUG.list.filter(x=>!x.read).length?'<span class="tag t-new">'+SUG.list.filter(x=>!x.read).length+' new</span>':'','msg','#0b8043'):m?LK('lSug','Suggest something','Ideas, problems or wishes for the map','','msg','#0b8043'):''}
     ${m&&isAdm2()&&!m.viewAs?LK('lAdm','Admin tools',MS.paused?'The map is paused':'Pause, rules, guest limits, reports','','shield','#b06000'):''}
     ${LK('lOff','Offline map',esc(offlineStatus()),'','down','#00796b')}
-    ${LK('lDemo',DM.on?'Demo mode':'Demo mode',DM.on?'You are in demo mode · tap to see who is in it':(()=>{const L=Object.values(DEMO.outside).filter(p=>Date.now()-p.t<20000);return L.length?L.map(p=>p.name).slice(0,2).join(' and ')+(L.length>2?' and others':'')+(L.length>1?' are':' is')+' in demo mode now · tap to join':'Pretend to be anywhere and test everything'})(),'','play','#5f6368')}
+    ${LK('lDemo',LIVEMAP?'Live demo · '+esc(LIVEMAP.name):'Demo mode',LIVEMAP?'Tap to exit or switch area':DM.on?'You are in demo mode · tap to see who is in it':(()=>{const L=Object.values(DEMO.outside).filter(p=>Date.now()-p.t<20000);return L.length?L.map(p=>p.name).slice(0,2).join(' and ')+(L.length>2?' and others':'')+(L.length>1?' are':' is')+' in demo mode now · tap to join':'Pretend to be anywhere and test everything'})(),'','play','#5f6368')}
    </div>
    ${m&&!m.locked?'<button class="mout" id="mOut">Sign out</button>':''}`,()=>{
     $('mSet').onclick=()=>settingsSheet();
@@ -3562,7 +3640,7 @@ $('menuBtn').onclick=()=>{
     $('tDrives').onclick=()=>openSheet(tracksSheet(),bindTracks);
     if($('lLive'))$('lLive').onclick=()=>liveSheet();
     $('lOff').onclick=()=>offlineSheet(false);
-    $('lDemo').onclick=()=>{if(DM.on){demoPeopleSheet();return}closeSheet();startDemo()};
+    $('lDemo').onclick=()=>{if(DM.on){demoPeopleSheet();return}demoChoose()};
     if($('lAdm'))$('lAdm').onclick=()=>adminSheet();
     if($('lSug'))$('lSug').onclick=()=>Cloud.member&&Cloud.member.locked?sugInbox():sugSheet();
     if($('mOut'))$('mOut').onclick=()=>signOutSheet();
@@ -4554,9 +4632,11 @@ function offlineSheet(first){
 let mapReady=false,prog=0;
 function setProg(p,t){prog=Math.max(prog,p);$('barFill').style.width=prog+'%';if(t)$('gpsTxt').textContent=t}
 setProg(15,'Loading map...');
-map.on('load',()=>{mapReady=true;setTimeout(()=>{applyPlaces();drawNotes()},100);setTimeout(()=>document.querySelectorAll('.maplibregl-compact-show').forEach(e=>e.classList.remove('maplibregl-compact-show')),50);checkNight();applyMode();if(trail.length>1)map.getSource('trail').setData({type:'Feature',geometry:{type:'LineString',coordinates:trail},properties:{}});setInterval(checkNight,60000);setTimeout(precacheTerrain,8000);sights.forEach(x=>logSight(x.cid,x.what,x.ll,x.t));refreshOverlays();loadWx();map.on('zoom',wxZoom);setProg(55,'Finding satellites...');
+function onMapLoad(){if(mapReady)return;mapReady=true;try{map.setFilter('pan',['all',['==',['get','kind'],'water'],['!',['in',['get','name'],['literal',DATA.water.features.map(f=>f.properties.name).concat(['Hippo Dam','Wild Dog Dam'])]]]])}catch(e){}setTimeout(()=>{applyPlaces();drawNotes()},100);setTimeout(()=>document.querySelectorAll('.maplibregl-compact-show').forEach(e=>e.classList.remove('maplibregl-compact-show')),50);checkNight();applyMode();if(trail.length>1)map.getSource('trail').setData({type:'Feature',geometry:{type:'LineString',coordinates:trail},properties:{}});setInterval(checkNight,60000);setTimeout(precacheTerrain,8000);sights.forEach(x=>logSight(x.cid,x.what,x.ll,x.t));refreshOverlays();loadWx();map.on('zoom',wxZoom);setProg(55,'Finding satellites...');
   const r=LS.get('rec',null);if(r){recTrack=r;$('rec').classList.remove('hide');$('recInfo').textContent=fmtD(r.len)}
-  startGPS();bootWait();netEval();try{$('sunTxt').textContent=sunLine()}catch(e){}});
+  startGPS();bootWait();netEval();try{$('sunTxt').textContent=sunLine()}catch(e){}}
+/* if the map finished loading before we got here, start straight away */
+if(map.loaded()&&map.isStyleLoaded())setTimeout(onMapLoad,0);else map.on('load',onMapLoad);{let n=0;const iv=setInterval(()=>{if(mapReady||++n>60){clearInterval(iv);return}if(map.isStyleLoaded()&&map.loaded())onMapLoad()},500)}
 function bootWait(){
   const t0=Date.now();const maxWait=LS.get('booted',false)?3500:6000;
   const iv=setInterval(()=>{const el=Date.now()-t0;
