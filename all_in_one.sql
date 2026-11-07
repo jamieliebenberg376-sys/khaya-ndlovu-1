@@ -2375,8 +2375,8 @@ begin
 end $$;
 grant execute on function public.set_min_build(int) to authenticated;
 
--- push it now: require version 101 and post the news (as the first admin, so it shows who sent it)
-update private.config set min_build = 101;
+-- push it now: require version 102 and post the news (as the first admin, so it shows who sent it)
+update private.config set min_build = 102;
 do $$
 declare adm uuid := (select user_id from public.members where role = 'admin' order by joined_at limit 1);
 begin
