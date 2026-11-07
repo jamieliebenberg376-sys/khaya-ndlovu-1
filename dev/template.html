@@ -885,6 +885,13 @@ body.night .nmb button{background:rgba(255,255,255,.08);color:#e8eaed}body.night
 #fmv .fnav{position:absolute;top:50%;margin-top:-26px;z-index:2;width:44px;height:52px;border-radius:14px;background:rgba(255,255,255,.12);color:#fff;font-size:30px}#fmv .fnav.l{left:8px}#fmv .fnav.r{right:8px}
 body.night .fcomp .fcph{background:rgba(255,255,255,.06)}body.night .poa2.fb .pol.on{color:#ffd36b!important}
 .wnh{text-align:center;padding-top:4px}.wnh h2{margin:8px 0 2px}.wni{width:64px;height:64px;margin:0 auto;border-radius:20px;background:linear-gradient(160deg,#2f6f4c,#143223);color:#ffd36b;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 24px rgba(28,70,49,.3)}
+
+/* ===== v93: focus mode ===== */
+#focusPill{display:none;position:fixed;left:50%;transform:translateX(-50%);top:calc(var(--safe-t) + 118px);z-index:9;align-items:center;gap:6px;padding:6px 12px;border-radius:15px;background:rgba(14,18,13,.82);color:#ffd36b;border:1px solid rgba(255,194,61,.35);font:700 12.5px system-ui;box-shadow:0 4px 14px rgba(0,0,0,.3);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+#focusPill.on{display:flex}
+body.focus #chips,body.focus #spot:not(.open),body.focus #wxBtn,body.focus .phpin,body.focus #chipOut{display:none!important}
+body.focus #gpsWeak{top:calc(var(--safe-t) + 150px)}body.focus #scaleBar{top:calc(var(--safe-t) + 182px)}
+.nmb{grid-template-columns:repeat(5,1fr)!important}.nmb button{font-size:11px!important;padding:11px 2px!important}.nmb button.on{background:linear-gradient(160deg,#2f6f4c,#1c4631)!important;color:#ffd36b!important}.nmb button.on .li{color:#ffd36b!important}
 </style>
 </head>
 <body>
@@ -1447,7 +1454,7 @@ function applyMode(){
   map.setLayoutProperty('heat','visibility',showHeat?'visible':'none');map.setPaintProperty('est-lbl','text-halo-color',sat||n?'rgba(0,0,0,.85)':'#fff');for(const id of['est-fill','est-line','est-lbl'])map.setLayoutProperty(id,'visibility',showEst?'visible':'none');
   for(const id of['lw-lbl','lw-center']){map.setPaintProperty(id,'text-color',sat||n?'#ff6b5e':'#c5221f');map.setPaintProperty(id,'text-halo-color',sat||n?'rgba(0,0,0,.85)':'#fff')}
   map.setPaintProperty('poi','text-color',sat||n?'#fff':['match',['get','kind'],'picnic','#137333','gate','#202124','view','#6a1b9a','home','#c5221f','#3c4043']);
-  applyDrive();calloutState='';try{updatePill()}catch(e){}
+  applyDrive();calloutState='';try{updatePill()}catch(e){}try{if(FOCUS_ON)setTimeout(()=>applyFocus(true),0)}catch(e){}
   map.setPaintProperty('water-lbl','text-color',sat||n?'#bfe3ff':'#1967d2');
   map.setPaintProperty('cross-lbl','text-color',sat?'#bfe3ff':'#1967d2');
   map.setPaintProperty('sights','text-color',sat?'#ffd28a':'#b45309');
@@ -1705,6 +1712,7 @@ function annPop(){const a=ANN.filter(x=>!annSeen.has(x.client_id)&&(!x.expires_a
 
 /* ============ what's new: shown once to owners and admins after an update ============ */
 const WHATS_NEW=[
+ [93,'scope','Focus mode','When you start driving the map hides the clutter: no heatmap, guesses, notes, borders, old trails or pop-ups. You still see roads, fresh sightings, reports, picnic spots, gates, dams and other cars. Change it in Settings › Driving.'],
  [92,'map','A better looking map','Roads follow their real curves, dams are proper blue water with shallows and a muddy edge, rivers show the sandy bed with the water in it, and every pan is drawn as a little pond.'],
  [91,'msg','The Feed has its own button','Tap Feed at the top of the map. Post photos and videos, like posts and comment on them, just like Facebook. Posts made without signal go up by themselves later.'],
  [90,'route','Driving like Google Maps','Swipe the turn banner to see the turns ahead. Long press the map to drop a pin, get directions there or measure a distance. Add stops, pick the other way, avoid rough tracks, and tap the blue dot to calibrate the compass.'],
@@ -2323,7 +2331,7 @@ function updateBlocked(){blockedNodes=new Set();allReports().filter(r=>BLOCKING.
 function refreshOverlays(){
   map.getSource('home').setData(home?{type:'Feature',geometry:{type:'Point',coordinates:home.ll},properties:{}}:empty);
   const AS=allSights();
-  map.getSource('sights').setData({type:'FeatureCollection',features:AS.map(s=>({type:'Feature',properties:{cid:s.cid,what:ANI[s.what]?s.what:'Other',op:sightOp(s)*(missedAfter(s)?.5:1),iop:(s.chain||[s]).some(c=>c.photo)?0:sightOp(s)*(missedAfter(s)?.5:1),kill:onKill(s),label:T(s.what+(onKill(s)?' · ON A KILL':'')+'\n'+(new Date(s.t).toDateString()===new Date().toDateString()?'Last seen '+lastSeen(s.t):'Last seen here '+lastSeen(s.t)))},geometry:{type:'Point',coordinates:s.ll}}))});
+  map.getSource('sights').setData({type:'FeatureCollection',features:AS.map(s=>({type:'Feature',properties:{age:Math.round((Date.now()-s.t)/6e4),flabel:T(s.what+(onKill(s)?' · ON A KILL':''))+'\n'+lastSeen(s.t),cid:s.cid,what:ANI[s.what]?s.what:'Other',op:sightOp(s)*(missedAfter(s)?.5:1),iop:(s.chain||[s]).some(c=>c.photo)?0:sightOp(s)*(missedAfter(s)?.5:1),kill:onKill(s),label:T(s.what+(onKill(s)?' · ON A KILL':'')+'\n'+(new Date(s.t).toDateString()===new Date().toDateString()?'Last seen '+lastSeen(s.t):'Last seen here '+lastSeen(s.t)))},geometry:{type:'Point',coordinates:s.ll}}))});
   try{photoPins(AS)}catch(e){console.warn('photo pins',e)}
   map.getSource('heat').setData(showHeat?heatData():empty);
   const ES=estimates();map.getSource('est').setData({type:'FeatureCollection',features:ES.map(e=>({type:'Feature',properties:{id:e.id,col:e.col},geometry:circlePoly(e.ll,e.r).geometry||circlePoly(e.ll,e.r)}))});
@@ -2568,7 +2576,7 @@ $('scrim').onclick=closeSheet;
     e.preventDefault();sh.classList.add('drag');sh.style.transform='translateY('+dy+'px)'},{passive:false});
   sh.addEventListener('touchend',()=>{if(y0==null)return;const v=dy/Math.max(1,Date.now()-t0);sh.classList.remove('drag');y0=null;
     if(dy>110||(dy>45&&v>.5)){sh.style.transform='translateY(110%)';closeSheet();setTimeout(()=>{if(!sh.classList.contains('open'))sh.style.transform=''},340)}else sh.style.transform=''})})();
-function layerSheet(){setTimeout(()=>{document.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{mode=b.dataset.mode;LS.set('mode',mode);applyMode();closeSheet()});const ft=$('farmTog');if(ft)ft.onclick=()=>{showFarms=!showFarms;LS.set('farms',showFarms);applyMode();openSheet(layerSheet())};
+function layerSheet(){setTimeout(()=>{if($('lyFocus'))$('lyFocus').onclick=focusSheet;document.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{mode=b.dataset.mode;LS.set('mode',mode);applyMode();closeSheet()});const ft=$('farmTog');if(ft)ft.onclick=()=>{showFarms=!showFarms;LS.set('farms',showFarms);applyMode();openSheet(layerSheet())};
   document.querySelectorAll('[data-th]').forEach(b=>b.onclick=()=>{theme=b.dataset.th;LS.set('theme',theme);checkNight();applyMode();openSheet(layerSheet())});
   if($('spdTog'))$('spdTog').onclick=()=>{speedWarn=!speedWarn;LS.set('speedWarn',speedWarn);if(me)speedCheck(me.ll);openSheet(layerSheet())};
   if($('redTog'))$('redTog').onclick=()=>{setRed(!redOn);openSheet(layerSheet())};
@@ -2583,6 +2591,7 @@ function layerSheet(){setTimeout(()=>{document.querySelectorAll('[data-mode]').f
   $('trailClr').onclick=()=>{trail=[];try{localStorage.removeItem('kn_trail')}catch(e){}map.getSource('trail').setData(empty);toast('Trail cleared')}},0);
  return `<h2>Map style</h2><div class="sub">Satellite needs signal to load new areas. Areas you have viewed stay saved.</div><div class="seg"><button data-mode="map" class="${mode==='map'?'sel':''}">Map</button><button data-mode="sat" class="${mode==='sat'?'sel':''}">Satellite</button><button data-mode="roads" class="${mode==='roads'?'sel':''}">Roads only</button></div>
 <div class="list" style="margin-top:10px">
+<button class="it lk" id="lyFocus"><div style="flex:1"><b>Focus mode</b><br><small>Only what you need while you drive</small></div><small>${({drive:'When driving',on:'Always',off:'Off'})[FOCUSM]}</small><span class="ar">›</span></button>
 <div class="it"><div><b>Farm borders</b><br><small>Show the border and name of each farm</small></div><button class="tgl ${showFarms?'on':''}" id="farmTog"><i></i></button></div><div class="it" style="flex-wrap:wrap"><div style="flex:1"><b>Sightings heatmap</b><br><small>Where animals are seen most, from every sighting</small></div><button class="tgl ${showHeat?'on':''}" id="heatTog"><i></i></button>${showHeat?`<div class="heatChips" style="width:100%">${['All',...ANIMALS.filter(a=>a!=='Other')].map(a=>`<button class="chip${heatWhat===a?' sel':''}" data-hw="${a}">${a==='All'?'All animals':(EMO[a]||'')+' '+a}</button>`).join('')}</div>`:''}</div><div class="it"><div><b>Likely animal spots</b><br><small>Where animals are probably found when nobody has seen them for 24 h</small></div><button class="tgl ${showEst?'on':''}" id="estTog"><i></i></button></div>
 <div class="it"><div><b>My private notes</b><br><small>Pins only you can see</small></div><button class="tgl ${showNotes?'on':''}" id="notesTog"><i></i></button></div>
 <div class="it"><div><b>Terrain shading</b><br><small>Hills, ridges and riverbanks</small></div><button class="tgl ${showHill?'on':''}" id="hillTog"><i></i></button></div>
@@ -3069,6 +3078,7 @@ function navExtras(along,i,dd){
   const cur=i>0?nav.steps[i-1]:nav.steps[0];const rt=nav.steps.find(s=>s.startAt>along-5&&s.startAt-along<450&&TRACKN.has(s.road));if(rt&&!(cur&&TRACKN.has(cur.road)))out.push(['tyre',T('Rough track ahead')]);
   const rep=allReports().map(r=>({r,p:projectOnRoute(nav.segs,r.ll)})).filter(o=>o.p.d<45&&o.p.along>along&&o.p.along-along<1200).sort((a,b)=>a.p.along-b.p.along)[0];
   if(rep)out.push(['alert',rep.r.kind+' · '+fmtD(rep.p.along-along)]);
+  if(FOCUS_ON&&!out.length)out.push(['scope',T('Focus mode')]);
   const el=$('navChip');const h=PV.on?`<span class="nchip pvc">${LI('route',14)}${T('Preview')} · ${PV.i-(nav.curI>=0?nav.curI:nav.steps.length)+1} / ${nav.steps.length-(nav.curI>=0?nav.curI:nav.steps.length)+1}</span>`:out.slice(0,2).map(([ic,t])=>`<span class="nchip${ic==='alert'?' warn':''}">${LI(ic,14)}${esc(t)}</span>`).join('');
   if(el.innerHTML!==h)el.innerHTML=h;el.style.display=h?'':'none'}
 
@@ -3114,7 +3124,7 @@ function bindVm(){document.querySelectorAll('[data-vm]').forEach(b=>b.onclick=()
 function navMore(){if(!nav)return;const along=nav.along||0;
   const rows=nav.steps.map((s,k)=>({s,k})).filter(o=>o.k>0&&o.s.startAt>along+3);
   openSheet(`<div class="nmh"><div><b>${esc($('navEta').textContent)}</b><small>${esc($('navMeta').textContent)}</small></div><small class="nmto">${T('to')} ${esc(nav.target.name)}</small></div>
-   <div class="nmb"><button id="nmStop">${LI('plus',20)}<span>${T('Add a stop')}</span></button><button id="nmOv">${LI('map',20)}<span>${T('Overview')}</span></button><button id="nmShare">${LI('share',20)}<span>${T('Share trip')}</span></button><button id="nmPin">${LI('ruler',20)}<span>${T('Measure')}</span></button></div>
+   <div class="nmb"><button id="nmStop">${LI('plus',20)}<span>${T('Add a stop')}</span></button><button id="nmOv">${LI('map',20)}<span>${T('Overview')}</span></button><button id="nmShare">${LI('share',20)}<span>${T('Share trip')}</span></button><button id="nmPin">${LI('ruler',20)}<span>${T('Measure')}</span></button><button id="nmFocus" class="${FOCUS_ON?'on':''}">${LI('scope',20)}<span>${T('Focus')}</span></button></div>
    ${nav.stops&&nav.stops.length?`<div class="msec">${T('Stops')}</div><div class="list sgroup">${nav.stops.map((s,k)=>`<div class="it"><span class="stn">${k+1}</span><div style="flex:1;min-width:0"><b>${esc(s.name)}</b></div><button class="sm" data-rms="${k}">${LI('x',16)}</button></div>`).join('')}</div>`:''}
    <div class="msec">${T('Voice')}</div>${vmSeg('nmVm')}
    <div class="list sgroup" style="margin-top:10px">${TG('nmAvoid',T('Avoid rough tracks'),T('Stay on the main roads when there is another way'),AVOIDTRK)}</div>
@@ -3123,7 +3133,7 @@ function navMore(){if(!nav)return;const along=nav.along||0;
    <button class="mout" id="nmEnd">${T('End route')}</button>`,()=>{
     bindVm();$('nmEnd').onclick=()=>{closeSheet();endNav()};
     $('nmOv').onclick=()=>{closeSheet();setTimeout(()=>$('ovBtn').click(),250)};
-    $('nmPin').onclick=()=>{closeSheet();measStart(me?me.ll:map.getCenter().toArray())};
+    $('nmPin').onclick=()=>{closeSheet();measStart(me?me.ll:map.getCenter().toArray())};$('nmFocus').onclick=()=>{if(FOCUS_ON){FOCUS_SKIP=true;if(FOCUSM==='on')FOCUSM='drive';applyFocus();toast(T('Showing everything until you stop'))}else{FOCUS_SKIP=false;if(FOCUSM==='off'){FOCUSM='drive';LS.set('focusMode','drive')}applyFocus();toast(T('Focus mode on'))}navMore()};
     $('nmShare').onclick=async()=>{const t=T('On my way to')+' '+nav.target.name+' · '+$('navMeta').textContent;try{if(navigator.share)await navigator.share({text:t});else{await navigator.clipboard.writeText(t);toast(T('Copied'))}}catch(e){}};
     $('nmStop').onclick=()=>stopPicker(it=>{nav.stops=nav.stops||[];nav.stops.unshift(it);const r=navRoute();if(r){const b=buildSteps(r);Object.assign(nav,{r,...b});nav.gatesR=null}drawStops(nav.stops);closeSheet();say('Stop added: '+it.name,'stop'+Date.now());navTick()},()=>navMore());
     $('nmAvoid').onclick=()=>{AVOIDTRK=!AVOIDTRK;LS.set('avoidTracks',AVOIDTRK);$('nmAvoid').classList.toggle('on',AVOIDTRK);const r=navRoute();if(r){const b=buildSteps(r);Object.assign(nav,{r,...b});nav.gatesR=null;navTick()}toast(AVOIDTRK?T('Avoiding rough tracks'):T('Rough tracks allowed'))};
@@ -3236,6 +3246,34 @@ function compSheet(){askCompass();let iv=null;
     const upd=()=>{const el=$('cmpQ');if(!el){clearInterval(iv);return}if(compassHd==null){el.innerHTML=`<span class="aq f">${T('Waiting for the compass')}</span>`;return}
       const a=compassAcc,q=a<0?[T('Working'),'g']:a<=15?[T('Good'),'g']:a<=30?[T('Fair'),'f']:[T('Poor, keep going'),'w'];el.innerHTML=`<span class="aq ${q[1]}">${T('Compass')} ${q[0]}${a>=0?' · ±'+Math.round(a)+'°':''}</span><span>${T('Facing')} ${compassName(compassHd)}</span>`};
     upd();iv=setInterval(upd,500);$('cmpOk').onclick=()=>{clearInterval(iv);closeSheet()}})}
+
+/* ============ FOCUS MODE: while you drive the map shows only what you need ============
+   Kept: roads, your route, fresh sightings (last 3 hours, kills always), road reports, picnic spots, gates, dams, pans, hides, home, other cars, SOS.
+   Hidden: heatmap, likely-spot guesses, private notes, farm borders, other people's driven trails, old sighting paths, photo pins, the chips row,
+   Spotify and weather bubbles, and pop-ups (news, suggestions, story reminders, what's new, weekly report). Those wait until focus mode ends. */
+var FOCUSM=LS.get('focusMode','drive'),FOCUS_ON=false,FOCUS_SKIP=false;const FOCUS_AGE=180;
+const FOCUS_HIDE=['heat','est-fill','est-line','est-lbl','note-dot','note-lbl','trail-case','trail-line','spath','spath-arrow','spath-start','farm-line','farm-lbl','zone-line','zone-lbl','mate-plan','cross-lbl'];
+function focusWant(){if(FOCUSM==='on')return true;if(FOCUSM==='drive'){const d=drivingNow||!!nav;if(!d)FOCUS_SKIP=false;return d&&!FOCUS_SKIP}return false}
+function applyFocus(force){const on=!!focusWant()&&!calMode;if(on===FOCUS_ON&&!force)return;FOCUS_ON=on;document.body.classList.toggle('focus',on);if(!mapReady)return;
+  if(on){FOCUS_HIDE.forEach(id=>{try{map.setLayoutProperty(id,'visibility','none')}catch(e){}});
+    try{map.setFilter('sights',['any',['get','kill'],['<=',['get','age'],FOCUS_AGE]]);map.setFilter('kill-ring',['==',['get','kill'],true]);map.setPaintProperty('sights','icon-opacity',['get','op']);map.setLayoutProperty('sights','text-field',['get','flabel']);map.setPaintProperty('farm-tint','fill-opacity',0)}catch(e){}}
+  else{FOCUS_HIDE.forEach(id=>{try{map.setLayoutProperty(id,'visibility','visible')}catch(e){}});
+    try{map.setFilter('sights',null);map.setPaintProperty('sights','icon-opacity',['get','iop']);map.setLayoutProperty('sights','text-field',['get','label'])}catch(e){}
+    applyMode();refreshOverlays();drawNotes();try{drawTrails()}catch(e){}}
+  focusPill()}
+function focusPill(){let el=$('focusPill');if(!el){el=document.createElement('button');el.id='focusPill';el.onclick=focusSheet;document.body.appendChild(el)}
+  el.innerHTML=LI('scope',15)+'<span>'+T('Focus mode')+'</span>';el.classList.toggle('on',FOCUS_ON&&!nav)}
+function focusSheet(){openSheet(`<div class="wnh"><div class="wni">${LI('scope',32)}</div><h2>${T('Focus mode')}</h2><div class="sub">${T('While you drive the map only shows what you need: roads, fresh sightings, road reports, picnic spots, gates, dams and other cars. Pop-ups wait until you stop.')}</div></div>
+   <div class="seg" style="margin-top:14px">${[['drive','When driving'],['on','Always'],['off','Off']].map(([k,l])=>`<button data-fm="${k}" class="${FOCUSM===k?'sel':''}">${T(l)}</button>`).join('')}</div>
+   ${FOCUS_ON&&FOCUSM==='drive'?`<button class="btn" id="fcSkip" style="width:100%;margin-top:10px">${T('Show everything for this drive')}</button>`:''}
+   <button class="btn pri" id="fcOk" style="width:100%;margin-top:10px">${T('Done')}</button>`,()=>{
+    document.querySelectorAll('[data-fm]').forEach(b=>b.onclick=()=>{setFocusMode(b.dataset.fm);focusSheet()});
+    if($('fcSkip'))$('fcSkip').onclick=()=>{FOCUS_SKIP=true;applyFocus();closeSheet();toast(T('Showing everything until you stop'))};$('fcOk').onclick=closeSheet})}
+function setFocusMode(m){FOCUSM=m;LS.set('focusMode',m);FOCUS_SKIP=false;applyFocus();toast(m==='off'?T('Focus mode off'):m==='on'?T('Focus mode on'):T('Focus mode turns on when you drive'))}
+setInterval(()=>{applyFocus();if(FOCUS_ON&&mapReady)try{map.setFilter('sights',['any',['get','kill'],['<=',['get','age'],FOCUS_AGE]])}catch(e){}},5000);
+/* pop-ups wait until focus mode ends */
+for(const n of ['annPop','sugPop','storyAsk','whatsNew','weeklyPop','directPop']){const f=window[n];if(typeof f!=='function')continue;
+  window[n]=function(...a){if(FOCUS_ON){clearTimeout(window[n].t);window[n].t=setTimeout(()=>window[n](...a),60000);return}return f.apply(this,a)}}
 
 /* ============ sightings & road reports ============ */
 const OTHER_SUG=['Warthog','Impala','Wildebeest','Nyala','Waterbuck','Honey badger','Jackal','Baboon','Vervet monkey','Duiker','Steenbok','Bushbuck','Porcupine','Ostrich','Crocodile','Mongoose'];
@@ -3385,7 +3423,7 @@ function settingsSheet(){const m=Cloud.member;const notif='Notification' in wind
    <div class="list sgroup">${TG('sRedAuto','Red screen every night','Keeps your night vision. On after sunset, off at sunrise',redAuto)}${TG('sRed','Red screen now','',redOn)}</div>
    ${m?`<div class="msec">Alerts</div><div class="list sgroup">${TG('sAlert','New sighting alerts','Pop-up when someone else marks a sighting',alertOn)}${LK('sAW','Which animals alert me','',esc(alertWhatTxt()))}${TG('sSound','Alert sound','A bing with each alert',alertSound)}${TG('sQuiet','Quiet hours','No alert sounds or pop-ups from '+QUIET.from+' to '+QUIET.to+' unless you are out driving. SOS always comes through.',quietOn)}${notif?LK('sNotif','Phone notifications','Also alert you while the app is in the background','Turn on'):''}</div>`:''}
    <div class="msec">Location</div>${MS.admin_sees_all?'<div class="sub" style="margin:-4px 2px 8px;font-size:12.5px">'+LI('eye',12)+' Admins can see your car while you drive on the reserve, even with sharing off. Your home stays hidden.</div>':''}<div class="list sgroup">${m?LK('sLive','Share live location','',shareLoc?'On':'Off'):''}${LK('sHome','Home point','',home?'Set':'Not set')}${LK('sCal','Calibrate GPS','If your dot sits next to the road',calib[0]||calib[1]?'Active':'')}${isIOS?LK('sLoc','Stop the location question','If the map asks for your location every time',''):''}</div>
-   <div class="msec">Driving</div>${MS.rules&&MS.rules.lock?'<div class="sub" style="margin:-4px 2px 8px;font-size:12.5px">'+LI('lock',12)+' Speed warning, quiet hours and sunset reminder are set by an admin for everyone</div>':''}<div class="list sgroup">${TG('sSpd','Speed warning','Red alert over '+SPEED_LIMIT+' km/h on the reserve',speedWarn)}${TG('sSun','Sunset reminder',(SUNMIN===60?'1 hour':SUNMIN+' minutes')+' before sunset if you are still out and far from home',sunRemind)}${TG('sNorth','Keep north up while driving','The map stays north-up instead of turning with you',NORTHUP)}${TG('sSpdo','Show speedometer','',SHOWSPD)}${TG('sAwake','Keep screen on while driving','',KEEPAWAKE)}${TG('sAvoid','Avoid rough tracks','Routes stay on the main roads when there is another way',AVOIDTRK)}</div><div class="msec">Voice directions</div>${vmSeg('sVm')}<div class="sub" style="margin:6px 2px 4px;font-size:12.5px">Alerts only speaks at the turn itself and for gates, stops and rerouting</div>
+   <div class="msec">Driving</div>${MS.rules&&MS.rules.lock?'<div class="sub" style="margin:-4px 2px 8px;font-size:12.5px">'+LI('lock',12)+' Speed warning, quiet hours and sunset reminder are set by an admin for everyone</div>':''}<div class="list sgroup">${TG('sSpd','Speed warning','Red alert over '+SPEED_LIMIT+' km/h on the reserve',speedWarn)}${TG('sSun','Sunset reminder',(SUNMIN===60?'1 hour':SUNMIN+' minutes')+' before sunset if you are still out and far from home',sunRemind)}${LK('sFocus','Focus mode','Only what you need on the map while you drive',{drive:'When driving',on:'Always',off:'Off'}[FOCUSM])}${TG('sNorth','Keep north up while driving','The map stays north-up instead of turning with you',NORTHUP)}${TG('sSpdo','Show speedometer','',SHOWSPD)}${TG('sAwake','Keep screen on while driving','',KEEPAWAKE)}${TG('sAvoid','Avoid rough tracks','Routes stay on the main roads when there is another way',AVOIDTRK)}</div><div class="msec">Voice directions</div>${vmSeg('sVm')}<div class="sub" style="margin:6px 2px 4px;font-size:12.5px">Alerts only speaks at the turn itself and for gates, stops and rerouting</div>
    ${m?`<div class="msec">Account</div><div class="list sgroup">${Cloud.sess&&Cloud.sess.uid?`<button class="it lk" id="sUid"><div style="flex:1;min-width:0"><b>Account ID</b><br><small class="mono" data-notr style="word-break:break-all;font-size:12px">${esc(Cloud.sess.uid)}</small><br><small>The same ID Supabase shows for you · tap to copy</small></div></button>`:''}${m.role!=='guest'?LK('sRec','Recovery code','Get your exact account back on any phone, even if you are signed out','','key','#1f4d36'):''}</div>`:''}
    <div class="msec">Map data</div><div class="list sgroup">${LK('sOff','Offline map','',esc(offlineStatus()))}${m?LK('sShare','Sharing status',shareStatus(),''):''}${m&&m.role==='admin'?LK('sUpd','Require everyone to update','Version '+APP_BUILD,''):''}</div>
    ${m&&!m.locked?'<button class="mout" id="sOut">Sign out</button>':''}<div class="sub" style="text-align:center;font-size:11.5px;margin-top:10px">Khaya Ndlovu game drive map · version ${APP_BUILD}</div>`,()=>{
@@ -3398,7 +3436,7 @@ function settingsSheet(){const m=Cloud.member;const notif='Notification' in wind
     const locked=MS.rules&&MS.rules.lock;if(locked)['sQuiet','sSun','sSpd'].forEach(id=>{const b=$(id);if(b){b.style.opacity=.45;b.onclick=()=>toast('An admin set this for everyone')}});
     if(!locked){tg('sQuiet',()=>{quietOn=!quietOn;LS.set('quiet',quietOn)});tg('sSun',()=>{sunRemind=!sunRemind;LS.set('sunRemind',sunRemind)});
     tg('sSpd',()=>{speedWarn=!speedWarn;LS.set('speedWarn',speedWarn);if(me)speedCheck(me.ll)})}
-    bindVm();tg('sNorth',()=>{NORTHUP=!NORTHUP;LS.set('northUp',NORTHUP)});tg('sSpdo',()=>{SHOWSPD=!SHOWSPD;LS.set('showSpd',SHOWSPD);document.body.classList.toggle('nospd',!SHOWSPD)});tg('sAwake',()=>{KEEPAWAKE=!KEEPAWAKE;LS.set('keepAwake',KEEPAWAKE);wantWake(follow===2||!!nav)});tg('sAvoid',()=>{AVOIDTRK=!AVOIDTRK;LS.set('avoidTracks',AVOIDTRK)});
+    if($('sFocus'))$('sFocus').onclick=focusSheet;bindVm();tg('sNorth',()=>{NORTHUP=!NORTHUP;LS.set('northUp',NORTHUP)});tg('sSpdo',()=>{SHOWSPD=!SHOWSPD;LS.set('showSpd',SHOWSPD);document.body.classList.toggle('nospd',!SHOWSPD)});tg('sAwake',()=>{KEEPAWAKE=!KEEPAWAKE;LS.set('keepAwake',KEEPAWAKE);wantWake(follow===2||!!nav)});tg('sAvoid',()=>{AVOIDTRK=!AVOIDTRK;LS.set('avoidTracks',AVOIDTRK)});
     tg('sRed',()=>setRed(!redOn));
     tg('sRedAuto',()=>{redAuto=!redAuto;LS.set('redAuto',redAuto);redCheck()});
     if($('sAW'))$('sAW').onclick=()=>alertWhatSheet();
