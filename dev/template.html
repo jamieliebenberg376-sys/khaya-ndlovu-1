@@ -3095,7 +3095,7 @@ let calloutState='';
 function setCallouts(on){const key=on+'|'+curRoad+'|'+isNight;if(key===calloutState||!mapReady)return;calloutState=key;
   map.setLayoutProperty('road-callout','visibility',on?'visible':'none');
   for(const id of['road-lbl-1','road-lbl-2','road-lbl-3'])map.setLayoutProperty(id,'visibility',on?'none':'visible');
-  map.setFilter('road-callout',curRoad?['!=',['get','name'],curRoad]:null);
+  {const nf=LIVEMAP?['!=',['get','noname'],true]:null;map.setFilter('road-callout',curRoad?(nf?['all',['!=',['get','name'],curRoad],nf]:['!=',['get','name'],curRoad]):nf)}
   map.setLayoutProperty('road-callout','icon-image',isNight?'pill-n':'pill');map.setPaintProperty('road-callout','text-color',isNight?'#e8eaed':'#202124')}
 function updatePill(){const el=$('roadPill');const on=follow===2&&me&&!calMode;document.body.classList.toggle('drivecam',!!on);setCallouts(!!on);
   if(!on){el.classList.add('hide');return}
@@ -3479,7 +3479,7 @@ async function liveFetch(area,onp){const P=area.poly.map(p=>p[1].toFixed(6)+' '+
   const label={motorway:'Freeway',trunk:'Main road',primary:'Main road',secondary:'Road',tertiary:'Road',unclassified:'Road',residential:'Street',living_street:'Street',service:'Service road',track:'Track',road:'Road'};
   for(const e of j.elements||[]){const g=e.geometry,t=e.tags||{};
     if(e.type==='way'&&g&&g.length>1){const c=g.map(p=>[R(p.lon),R(p.lat)]);
-      if(t.highway){const hw=t.highway.replace('_link','');roads.push({type:'Feature',properties:{name:t.name||t.ref||(label[hw]||'Road'),check:false,restricted:false,track:hw==='track'||hw==='service',farm:'LIVE',hw},geometry:{type:'LineString',coordinates:c}})}
+      if(t.highway){const hw=t.highway.replace('_link','');roads.push({type:'Feature',properties:{name:t.name||t.ref||(label[hw]||'Road'),noname:!(t.name||t.ref),check:false,restricted:false,track:hw==='track'||hw==='service',farm:'LIVE',hw},geometry:{type:'LineString',coordinates:c}})}
       else if(t.natural==='water'&&c.length>3){if(c[0][0]!==c[c.length-1][0]||c[0][1]!==c[c.length-1][1])c.push(c[0]);let a=0;for(let i=0;i<c.length-1;i++)a+=c[i][0]*c[i+1][1]-c[i+1][0]*c[i][1];if(a<0)c.reverse();
         water.push({type:'Feature',properties:{dam:true,name:t.name||'Water'},geometry:{type:'Polygon',coordinates:[c]}});
         if(t.name){let x=0,y=0;c.forEach(p=>{x+=p[0];y+=p[1]});pois.push({type:'Feature',properties:{kind:'water',name:t.name},geometry:{type:'Point',coordinates:[R(x/c.length),R(y/c.length)]}})}}
@@ -3501,18 +3501,24 @@ function livePreview(){const a=liveArea(),bb=liveBBox(a.poly),dx=bb[2]-bb[0],dy=
   const img=navigator.onLine?`https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=${bb.join(',')}&bboxSR=4326&imageSR=4326&size=${W},${H}&format=jpg&f=image`:'';
   return `<div class="lvmap" style="aspect-ratio:${(dx*k/dy).toFixed(4)}">${img?`<img src="${img}" alt="" onerror="this.remove()">`:''}<svg viewBox="0 0 1000 1000" preserveAspectRatio="none"><path d="${path(a.poly)}Z" class="ar"/>${roads}<path d="${path(a.poly)}Z" class="bd"/></svg><span class="lvlbl">${esc(a.name)}</span></div>`}
 let LVDL=null;
-async function liveDownload(withSat,onp){if(LVDL)return LVDL;LVDL=(async()=>{const area=liveArea(),t0=Date.now(),RW=withSat?.22:1;
-  // 1) the roads: the server doesn't say how long it takes, so the bar follows the usual time (about 25 s)
-  let est=setInterval(()=>{const t=(Date.now()-t0)/1000;onp(RW*.95*(1-Math.exp(-t/11)),T('Downloading the roads')+' · '+(t<25?T('about')+' '+Math.max(3,Math.round(26-t))+' s '+T('left'):T('almost done')))},400);
-  let m;try{m=await liveFetch(area,()=>{})}finally{clearInterval(est)}
-  try{localStorage.setItem('kn_liveMap',JSON.stringify(m))}catch(e){throw new Error(T('Not enough space on this phone for the roads'))}
-  onp(RW,m.n+' '+T('roads saved'));if(!withSat)return {roads:m.n};
-  // 2) the satellite photos for offline, with a real count
-  const urls=tileList(area.poly);let done=0,ok=0,bytes=0,i=0;const N=urls.length,t1=Date.now();
-  const worker=async()=>{while(i<N){const u=urls[i++];try{const r=await fetch(u,{mode:'cors'});if(r.ok){ok++;bytes+=(await r.clone().blob()).size}}catch(e){}done++;
-    const el=(Date.now()-t1)/1000,left=done>5?el/done*(N-done):null;onp(RW+(1-RW)*done/N,T('Satellite map')+' · '+done+' / '+N+' · '+(bytes/1048576).toFixed(1)+' MB'+(left!=null?' · '+(left>60?T('about')+' '+Math.round(left/60)+' min':T('about')+' '+Math.max(1,Math.round(left))+' s')+' '+T('left'):''))}};
-  await Promise.all(Array.from({length:6},worker));const res={t:Date.now(),n:ok,total:N,mb:Math.max(1,Math.round(bytes/1048576))};
-  try{localStorage.setItem('kn_liveOffline',JSON.stringify(res))}catch(e){}onp(1,T('Done')+' · '+m.n+' '+T('roads')+' · '+res.mb+' MB '+T('satellite'));return {roads:m.n,sat:res}})();
+async function liveRoads(area){
+  // the Stellenbosch roads come ready-made with the app (about 1 second); only fall back to OpenStreetMap if that file can't be reached
+  if(area.name===LIVE_AREA_DEF.name){try{const ac=new AbortController(),tm=setTimeout(()=>ac.abort(),15000);const r=await fetch('./stellenbosch.json?v='+APP_BUILD,{signal:ac.signal});clearTimeout(tm);
+    if(r.ok){const m=await r.json();if(m&&m.data&&m.data.roads&&m.data.roads.features.length>5){m.t=Date.now();return m}}}catch(e){}}
+  return await liveFetch(area,()=>{})}
+async function liveDownload(withSat,onp){if(LVDL)return LVDL;LVDL=(async()=>{const area=liveArea(),t0=Date.now();
+  let roadsDone=false,rn=0,tilesF=0,tTxt='';const RW=withSat?.06:1;
+  const show=()=>{const f=withSat?RW*(roadsDone?1:Math.min(.9,(Date.now()-t0)/2500))+(1-RW)*tilesF:(roadsDone?1:Math.min(.95,(Date.now()-t0)/2500));
+    onp(f,(roadsDone?rn+' '+T('roads saved'):T('Getting the roads...'))+(withSat&&tTxt?' · '+tTxt:''))};
+  const tick=setInterval(show,300);
+  // roads and the satellite photos download at the same time
+  const roadsJob=(async()=>{const m=await liveRoads(area);try{localStorage.setItem('kn_liveMap',JSON.stringify(m))}catch(e){throw new Error(T('Not enough space on this phone for the roads'))}rn=m.n;roadsDone=true;show();return m})();
+  const tilesJob=withSat?(async()=>{const urls=tileList(area.poly,true);let done=0,ok=0,bytes=0,i=0;const N=urls.length,t1=Date.now();
+    const worker=async()=>{while(i<N){const u=urls[i++];try{const r=await fetch(u,{mode:'cors'});if(r.ok){ok++;bytes+=(await r.clone().blob()).size}}catch(e){}done++;tilesF=done/N;
+      const el=(Date.now()-t1)/1000,left=done>8?el/done*(N-done):null;tTxt=T('satellite')+' '+done+'/'+N+' · '+(bytes/1048576).toFixed(1)+' MB'+(left!=null?' · '+(left>60?Math.round(left/60)+' min':Math.max(1,Math.round(left))+' s')+' '+T('left'):'')}};
+    await Promise.all(Array.from({length:14},worker));const res={t:Date.now(),n:ok,total:N,mb:Math.max(1,Math.round(bytes/1048576))};try{localStorage.setItem('kn_liveOffline',JSON.stringify(res))}catch(e){}return res})():Promise.resolve(null);
+  try{const [m,sat]=await Promise.all([roadsJob,tilesJob]);clearInterval(tick);onp(1,T('Done')+' · '+m.n+' '+T('roads')+(sat?' · '+sat.mb+' MB '+T('satellite'):''));return {roads:m.n,sat}}
+  finally{clearInterval(tick)}})();
   try{return await LVDL}finally{LVDL=null}}
 function swapSheet(){const s=liveSaved(),o=liveOff(),a=liveArea(),have=s&&s.name===a.name;
   openSheet(`<div class="cmh"><span style="width:60px"></span><b>${LIVEMAP?T('Stellenbosch map'):T('Swap to')+' '+esc(a.name)}</b><span style="width:60px"></span></div>
@@ -4615,13 +4621,13 @@ else if(needGate())showGate();else{armExpiry();setTimeout(armHandover,3000);setT
 
 /* ============ offline download ============ */
 const isStandalone=()=>window.matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
-function tileList(R0){const urls=[];const R=R0||B;let minX=1e9,minY=1e9,maxX=-1e9,maxY=-1e9;R.forEach(([x,y])=>{minX=Math.min(minX,x);maxX=Math.max(maxX,x);minY=Math.min(minY,y);maxY=Math.max(maxY,y)});const tx=(lng,lat,z)=>{const n=2**z,s=Math.sin(lat*Math.PI/180);return[Math.floor((lng+180)/360*n),Math.floor((0.5-Math.log((1+s)/(1-s))/(4*Math.PI))*n)]};
+function tileList(R0,noDem){const urls=[];const R=R0||B;let minX=1e9,minY=1e9,maxX=-1e9,maxY=-1e9;R.forEach(([x,y])=>{minX=Math.min(minX,x);maxX=Math.max(maxX,x);minY=Math.min(minY,y);maxY=Math.max(maxY,y)});const tx=(lng,lat,z)=>{const n=2**z,s=Math.sin(lat*Math.PI/180);return[Math.floor((lng+180)/360*n),Math.floor((0.5-Math.log((1+s)/(1-s))/(4*Math.PI))*n)]};
   for(let z=11;z<=17;z++){const a=tx(minX-.005,maxY+.005,z),b=tx(maxX+.005,minY-.005,z);const n=2**z;
     for(let x=a[0];x<=b[0];x++)for(let y=a[1];y<=b[1];y++){
       if(z>=15){const lng=(x+.5)/n*360-180,lat=Math.atan(Math.sinh(Math.PI*(1-2*(y+.5)/n)))*180/Math.PI;const half=360/n*.75;
         if(!pip(R,[lng,lat])&&!pip(R,[lng+half,lat])&&!pip(R,[lng-half,lat])&&!pip(R,[lng,lat+half*.9])&&!pip(R,[lng,lat-half*.9]))continue}
       urls.push(`https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${z}/${y}/${x}`)}}
-  for(let z=10;z<=14;z++){const a=tx(minX-.02,maxY+.02,z),b=tx(maxX+.02,minY-.02,z);for(let x=a[0];x<=b[0];x++)for(let y=a[1];y<=b[1];y++)urls.push(`https://s3.amazonaws.com/elevation-tiles-prod/terrarium/${z}/${x}/${y}.png`)}
+  if(!noDem)for(let z=10;z<=14;z++){const a=tx(minX-.02,maxY+.02,z),b=tx(maxX+.02,minY-.02,z);for(let x=a[0];x<=b[0];x++)for(let y=a[1];y<=b[1];y++)urls.push(`https://s3.amazonaws.com/elevation-tiles-prod/terrarium/${z}/${x}/${y}.png`)}
   return urls}
 let dl=null;
 async function downloadOffline(onp){if(dl)return dl;dl=(async()=>{
@@ -4656,7 +4662,7 @@ function offlineSheet(first){
 let mapReady=false,prog=0;
 function setProg(p,t){prog=Math.max(prog,p);$('barFill').style.width=prog+'%';if(t)$('gpsTxt').textContent=t}
 setProg(15,'Loading map...');
-function onMapLoad(){if(mapReady)return;mapReady=true;try{map.setFilter('pan',['all',['==',['get','kind'],'water'],['!',['in',['get','name'],['literal',DATA.water.features.map(f=>f.properties.name).concat(['Hippo Dam','Wild Dog Dam'])]]]])}catch(e){}setTimeout(()=>{applyPlaces();drawNotes()},100);setTimeout(()=>document.querySelectorAll('.maplibregl-compact-show').forEach(e=>e.classList.remove('maplibregl-compact-show')),50);checkNight();applyMode();if(trail.length>1)map.getSource('trail').setData({type:'Feature',geometry:{type:'LineString',coordinates:trail},properties:{}});setInterval(checkNight,60000);setTimeout(precacheTerrain,8000);sights.forEach(x=>logSight(x.cid,x.what,x.ll,x.t));refreshOverlays();loadWx();map.on('zoom',wxZoom);setProg(55,'Finding satellites...');
+function onMapLoad(){if(mapReady)return;mapReady=true;if(LIVEMAP)try{for(const id of['road-lbl-1','road-lbl-2','road-lbl-3']){const f=map.getFilter(id);map.setFilter(id,f?['all',f,['!=',['get','noname'],true]]:['!=',['get','noname'],true])}const cf=map.getFilter('road-callout');map.setFilter('road-callout',cf?['all',cf,['!=',['get','noname'],true]]:['!=',['get','noname'],true])}catch(e){}try{map.setFilter('pan',['all',['==',['get','kind'],'water'],['!',['in',['get','name'],['literal',DATA.water.features.map(f=>f.properties.name).concat(['Hippo Dam','Wild Dog Dam'])]]]])}catch(e){}setTimeout(()=>{applyPlaces();drawNotes()},100);setTimeout(()=>document.querySelectorAll('.maplibregl-compact-show').forEach(e=>e.classList.remove('maplibregl-compact-show')),50);checkNight();applyMode();if(trail.length>1)map.getSource('trail').setData({type:'Feature',geometry:{type:'LineString',coordinates:trail},properties:{}});setInterval(checkNight,60000);setTimeout(precacheTerrain,8000);sights.forEach(x=>logSight(x.cid,x.what,x.ll,x.t));refreshOverlays();loadWx();map.on('zoom',wxZoom);setProg(55,'Finding satellites...');
   const r=LS.get('rec',null);if(r){recTrack=r;$('rec').classList.remove('hide');$('recInfo').textContent=fmtD(r.len)}
   startGPS();bootWait();netEval();try{$('sunTxt').textContent=sunLine()}catch(e){}}
 /* if the map finished loading before we got here, start straight away */
