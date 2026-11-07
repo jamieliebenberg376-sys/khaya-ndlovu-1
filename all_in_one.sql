@@ -1257,6 +1257,24 @@ do $$ begin
     or coalesce((select m.app_build from public.members m where m.user_id = auth.uid()), 0) < for_old_build));
 exception when undefined_table then null; end $$;
 
+-- the "please update" news always comes from the database itself, never from a person
+alter table public.announcements alter column user_id drop not null;
+create or replace function public.kn_update_news(b int)
+returns void language plpgsql security definer set search_path = public as $$
+declare cid text := 'upd-' || b || '-' || left(md5(random()::text || clock_timestamp()::text), 12);
+begin
+  if coalesce(b, 0) = 0 then return; end if;
+  update public.announcements set removed = true where for_old_build is not null and not removed;
+  insert into public.announcements (client_id, body, expires_at, for_old_build)
+  values (cid,
+    'A new version of the map is out and your phone still has the old one, so you may miss sightings and alerts. ' ||
+    'Tap Reinstall now below. Your settings, places and the map you were on come with you. Open the link, delete the old map icon, ' ||
+    'then add the map to your Home Screen again. You are signed in straight away.',
+    now() + interval '14 days', b);
+  update public.announcements set user_id = null, name = 'Khaya Ndlovu database' where client_id = cid;
+end $$;
+revoke all on function public.kn_update_news(int) from public, anon, authenticated;
+
 create or replace function public.announce_update()
 returns int language plpgsql security definer set search_path = public, private as $$
 declare b int; n int;
@@ -1264,13 +1282,7 @@ begin
   if not public.is_admin() then raise exception 'admins only'; end if;
   select min_build into b from private.config limit 1;
   if coalesce(b, 0) = 0 then return 0; end if;
-  update public.announcements set removed = true where for_old_build is not null and not removed;
-  insert into public.announcements (client_id, body, expires_at, for_old_build)
-  values ('upd-' || b || '-' || left(md5(random()::text || clock_timestamp()::text), 12),
-    'A new version of the map is out and your phone still has the old one, so you may miss sightings and alerts. ' ||
-    'Tap Reinstall now below. You get your own link with your name and access already in it: open it, delete the old map icon, ' ||
-    'then add the map to your Home Screen again. You are signed in straight away and your old copy is removed.',
-    now() + interval '14 days', b);
+  perform public.kn_update_news(b);
   select count(*) into n from public.members where coalesce(app_build, 0) < b and (role <> 'guest' or expires_at > now());
   return n;
 end $$;
@@ -2344,7 +2356,7 @@ grant execute on function public.take_carry(text) to authenticated;
 
 
 -- =====================================================================
--- PUSH THE UPDATE (version 103)
+-- PUSH THE UPDATE (version 104)
 -- =====================================================================
 
 alter table private.config add column if not exists min_build int not null default 0;
@@ -2373,6 +2385,24 @@ drop policy if exists an_read on public.announcements;
 create policy an_read on public.announcements for select to authenticated using (public.is_member() and (for_old_build is null or public.is_admin()
   or coalesce((select m.app_build from public.members m where m.user_id = auth.uid()), 0) < for_old_build));
 
+-- the "please update" news always comes from the database itself, never from a person
+alter table public.announcements alter column user_id drop not null;
+create or replace function public.kn_update_news(b int)
+returns void language plpgsql security definer set search_path = public as $$
+declare cid text := 'upd-' || b || '-' || left(md5(random()::text || clock_timestamp()::text), 12);
+begin
+  if coalesce(b, 0) = 0 then return; end if;
+  update public.announcements set removed = true where for_old_build is not null and not removed;
+  insert into public.announcements (client_id, body, expires_at, for_old_build)
+  values (cid,
+    'A new version of the map is out and your phone still has the old one, so you may miss sightings and alerts. ' ||
+    'Tap Reinstall now below. Your settings, places and the map you were on come with you. Open the link, delete the old map icon, ' ||
+    'then add the map to your Home Screen again. You are signed in straight away.',
+    now() + interval '14 days', b);
+  update public.announcements set user_id = null, name = 'Khaya Ndlovu database' where client_id = cid;
+end $$;
+revoke all on function public.kn_update_news(int) from public, anon, authenticated;
+
 create or replace function public.announce_update()
 returns int language plpgsql security definer set search_path = public, private as $$
 declare b int; n int;
@@ -2380,13 +2410,7 @@ begin
   if not public.is_admin() then raise exception 'admins only'; end if;
   select min_build into b from private.config limit 1;
   if coalesce(b, 0) = 0 then return 0; end if;
-  update public.announcements set removed = true where for_old_build is not null and not removed;
-  insert into public.announcements (client_id, body, expires_at, for_old_build)
-  values ('upd-' || b || '-' || left(md5(random()::text || clock_timestamp()::text), 12),
-    'A new version of the map is out and your phone still has the old one, so you may miss sightings and alerts. ' ||
-    'Tap Reinstall now below. You get your own link with your name and access already in it: open it, delete the old map icon, ' ||
-    'then add the map to your Home Screen again. You are signed in straight away and your old copy is removed.',
-    now() + interval '14 days', b);
+  perform public.kn_update_news(b);
   select count(*) into n from public.members where coalesce(app_build, 0) < b and (role <> 'guest' or expires_at > now());
   return n;
 end $$;
@@ -2402,16 +2426,9 @@ begin
 end $$;
 grant execute on function public.set_min_build(int) to authenticated;
 
--- push it now: require version 103 and post the news (as the first admin, so it shows who sent it)
-update private.config set min_build = 103;
-do $$
-declare adm uuid := (select user_id from public.members where role = 'admin' order by joined_at limit 1);
-begin
-  if adm is null then raise notice 'No admin found, news not posted'; return; end if;
-  perform set_config('request.jwt.claim.sub', adm::text, true);
-  perform set_config('request.jwt.claims', json_build_object('sub', adm)::text, true);
-  perform public.announce_update();
-end $$;
+-- push it now: require version 104 and post the news. It is sent by the database, not by any person.
+update private.config set min_build = 104;
+select public.kn_update_news(104);
 
 notify pgrst, 'reload schema';
 
@@ -2423,7 +2440,7 @@ union all select 'Codes and logins self-test', case when (select count(*) from p
 union all select 'Protected account (9fb4d097...) locked as admin', case when exists (select 1 from public.members where locked and role = 'admin') then 'YES' else 'NO: that account is not on the map yet. Open the map on that phone, then run this again' end
 union all select 'Your Database code (keep it secret, it gives full control)', (select db_code from private.config limit 1)
 union all select 'Backend self-test', case when (select count(*) from public.kn_backend_selftest() where result not like 'PASS%') = 0 then 'YES' else 'NO: ' || (select string_agg(test, ', ') from public.kn_backend_selftest() where result not like 'PASS%') end
-union all select 'Everyone must be on version 103', case when (select min_build from private.config limit 1) = 103 then 'YES' else 'NO' end
-union all select 'Update news posted (only old versions see it)', case when exists (select 1 from public.announcements where for_old_build = 103 and not removed) then 'YES' else 'NO' end
+union all select 'Everyone must be on version 104', case when (select min_build from private.config limit 1) = 104 then 'YES' else 'NO' end
+union all select 'Update news posted (only old versions see it)', case when exists (select 1 from public.announcements where for_old_build = 104 and not removed) then 'YES' else 'NO' end
 union all select 'Your owner code (unchanged)', (select upper(invite_code) from private.config limit 1)
-union all select 'People who still need to update', (select count(*)::text from public.members where coalesce(app_build, 0) < 103 and (role <> 'guest' or expires_at > now()));
+union all select 'People who still need to update', (select count(*)::text from public.members where coalesce(app_build, 0) < 104 and (role <> 'guest' or expires_at > now()));

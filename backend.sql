@@ -341,6 +341,24 @@ do $$ begin
     or coalesce((select m.app_build from public.members m where m.user_id = auth.uid()), 0) < for_old_build));
 exception when undefined_table then null; end $$;
 
+-- the "please update" news always comes from the database itself, never from a person
+alter table public.announcements alter column user_id drop not null;
+create or replace function public.kn_update_news(b int)
+returns void language plpgsql security definer set search_path = public as $$
+declare cid text := 'upd-' || b || '-' || left(md5(random()::text || clock_timestamp()::text), 12);
+begin
+  if coalesce(b, 0) = 0 then return; end if;
+  update public.announcements set removed = true where for_old_build is not null and not removed;
+  insert into public.announcements (client_id, body, expires_at, for_old_build)
+  values (cid,
+    'A new version of the map is out and your phone still has the old one, so you may miss sightings and alerts. ' ||
+    'Tap Reinstall now below. Your settings, places and the map you were on come with you. Open the link, delete the old map icon, ' ||
+    'then add the map to your Home Screen again. You are signed in straight away.',
+    now() + interval '14 days', b);
+  update public.announcements set user_id = null, name = 'Khaya Ndlovu database' where client_id = cid;
+end $$;
+revoke all on function public.kn_update_news(int) from public, anon, authenticated;
+
 create or replace function public.announce_update()
 returns int language plpgsql security definer set search_path = public, private as $$
 declare b int; n int;
@@ -348,13 +366,7 @@ begin
   if not public.is_admin() then raise exception 'admins only'; end if;
   select min_build into b from private.config limit 1;
   if coalesce(b, 0) = 0 then return 0; end if;
-  update public.announcements set removed = true where for_old_build is not null and not removed;
-  insert into public.announcements (client_id, body, expires_at, for_old_build)
-  values ('upd-' || b || '-' || left(md5(random()::text || clock_timestamp()::text), 12),
-    'A new version of the map is out and your phone still has the old one, so you may miss sightings and alerts. ' ||
-    'Tap Reinstall now below. You get your own link with your name and access already in it: open it, delete the old map icon, ' ||
-    'then add the map to your Home Screen again. You are signed in straight away and your old copy is removed.',
-    now() + interval '14 days', b);
+  perform public.kn_update_news(b);
   select count(*) into n from public.members where coalesce(app_build, 0) < b and (role <> 'guest' or expires_at > now());
   return n;
 end $$;
