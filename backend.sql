@@ -1199,14 +1199,14 @@ begin
 end $$;
 grant execute on function public.kn_daily() to anon, authenticated;
 
--- photos of sightings that are gone (the app deletes these files; the database is not allowed to)
+-- photos of sightings that are gone (the app deletes these files; the database is not allowed to). Sighting photos stay a year so the Feed keeps them.
 create or replace function public.orphan_photos()
 returns json language plpgsql stable security definer set search_path = public, storage as $$
 begin
   if not public.is_member() then return '[]'::json; end if;
   return coalesce((select json_agg(o.name) from (select name from storage.objects
     where bucket_id = 'sightings' and not exists (select 1 from public.sightings s where s.client_id || '.jpg' = storage.objects.name)
-      and not exists (select 1 from public.sightings_log l where l.client_id || '.jpg' = storage.objects.name and l.created_at > now() - interval '30 days')
+      and not exists (select 1 from public.sightings_log l where l.client_id || '.jpg' = storage.objects.name and l.created_at > now() - interval '365 days')
       and storage.objects.name not like 'pp-%'
       and not exists (select 1 from public.sightings_log l2 where l2.client_id || '.jpg' = storage.objects.name and l2.story is not null and l2.created_at > now() - interval '365 days') limit 200) o), '[]'::json);
 end $$;
@@ -1215,7 +1215,7 @@ do $$ begin
   drop policy if exists kn_photo_del on storage.objects;
   create policy kn_photo_del on storage.objects for delete to authenticated using (bucket_id = 'sightings' and public.is_member()
     and (owner = auth.uid() or (not exists (select 1 from public.sightings s where s.client_id || '.jpg' = name)
-      and not exists (select 1 from public.sightings_log l where l.client_id || '.jpg' = name and l.created_at > now() - interval '30 days')
+      and not exists (select 1 from public.sightings_log l where l.client_id || '.jpg' = name and l.created_at > now() - interval '365 days')
       and (name not like 'pp-%' or not exists (select 1 from public.place_photos pp where pp.cid || '.jpg' = name))
       and not exists (select 1 from public.sightings_log l2 where l2.client_id || '.jpg' = name and l2.story is not null and l2.created_at > now() - interval '365 days'))));
 exception when others then null; end $$;

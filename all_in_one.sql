@@ -2115,14 +2115,14 @@ begin
 end $$;
 grant execute on function public.kn_daily() to anon, authenticated;
 
--- photos of sightings that are gone (the app deletes these files; the database is not allowed to)
+-- photos of sightings that are gone (the app deletes these files; the database is not allowed to). Sighting photos stay a year so the Feed keeps them.
 create or replace function public.orphan_photos()
 returns json language plpgsql stable security definer set search_path = public, storage as $$
 begin
   if not public.is_member() then return '[]'::json; end if;
   return coalesce((select json_agg(o.name) from (select name from storage.objects
     where bucket_id = 'sightings' and not exists (select 1 from public.sightings s where s.client_id || '.jpg' = storage.objects.name)
-      and not exists (select 1 from public.sightings_log l where l.client_id || '.jpg' = storage.objects.name and l.created_at > now() - interval '30 days')
+      and not exists (select 1 from public.sightings_log l where l.client_id || '.jpg' = storage.objects.name and l.created_at > now() - interval '365 days')
       and storage.objects.name not like 'pp-%'
       and not exists (select 1 from public.sightings_log l2 where l2.client_id || '.jpg' = storage.objects.name and l2.story is not null and l2.created_at > now() - interval '365 days') limit 200) o), '[]'::json);
 end $$;
@@ -2131,7 +2131,7 @@ do $$ begin
   drop policy if exists kn_photo_del on storage.objects;
   create policy kn_photo_del on storage.objects for delete to authenticated using (bucket_id = 'sightings' and public.is_member()
     and (owner = auth.uid() or (not exists (select 1 from public.sightings s where s.client_id || '.jpg' = name)
-      and not exists (select 1 from public.sightings_log l where l.client_id || '.jpg' = name and l.created_at > now() - interval '30 days')
+      and not exists (select 1 from public.sightings_log l where l.client_id || '.jpg' = name and l.created_at > now() - interval '365 days')
       and (name not like 'pp-%' or not exists (select 1 from public.place_photos pp where pp.cid || '.jpg' = name))
       and not exists (select 1 from public.sightings_log l2 where l2.client_id || '.jpg' = name and l2.story is not null and l2.created_at > now() - interval '365 days'))));
 exception when others then null; end $$;
@@ -2317,7 +2317,7 @@ notify pgrst, 'reload schema';
 
 
 -- =====================================================================
--- PUSH THE UPDATE (version 101)
+-- PUSH THE UPDATE (version 102)
 -- =====================================================================
 
 alter table private.config add column if not exists min_build int not null default 0;
@@ -2375,8 +2375,8 @@ begin
 end $$;
 grant execute on function public.set_min_build(int) to authenticated;
 
--- push it now: require version 100 and post the news (as the first admin, so it shows who sent it)
-update private.config set min_build = 100;
+-- push it now: require version 101 and post the news (as the first admin, so it shows who sent it)
+update private.config set min_build = 101;
 do $$
 declare adm uuid := (select user_id from public.members where role = 'admin' order by joined_at limit 1);
 begin
@@ -2396,7 +2396,7 @@ union all select 'Codes and logins self-test', case when (select count(*) from p
 union all select 'Protected account (9fb4d097...) locked as admin', case when exists (select 1 from public.members where locked and role = 'admin') then 'YES' else 'NO: that account is not on the map yet. Open the map on that phone, then run this again' end
 union all select 'Your Database code (keep it secret, it gives full control)', (select db_code from private.config limit 1)
 union all select 'Backend self-test', case when (select count(*) from public.kn_backend_selftest() where result not like 'PASS%') = 0 then 'YES' else 'NO: ' || (select string_agg(test, ', ') from public.kn_backend_selftest() where result not like 'PASS%') end
-union all select 'Everyone must be on version 101', case when (select min_build from private.config limit 1) = 101 then 'YES' else 'NO' end
-union all select 'Update news posted (only old versions see it)', case when exists (select 1 from public.announcements where for_old_build = 101 and not removed) then 'YES' else 'NO' end
+union all select 'Everyone must be on version 102', case when (select min_build from private.config limit 1) = 102 then 'YES' else 'NO' end
+union all select 'Update news posted (only old versions see it)', case when exists (select 1 from public.announcements where for_old_build = 102 and not removed) then 'YES' else 'NO' end
 union all select 'Your owner code (unchanged)', (select upper(invite_code) from private.config limit 1)
-union all select 'People who still need to update', (select count(*)::text from public.members where coalesce(app_build, 0) < 101 and (role <> 'guest' or expires_at > now()));
+union all select 'People who still need to update', (select count(*)::text from public.members where coalesce(app_build, 0) < 102 and (role <> 'guest' or expires_at > now()));

@@ -59,7 +59,7 @@ end $$;
 grant execute on function public.set_min_build(int) to authenticated;
 
 -- push it now: require version 101 and post the news (as the first admin, so it shows who sent it)
-update private.config set min_build = 101;
+update private.config set min_build = 102;
 do $$
 declare adm uuid := (select user_id from public.members where role = 'admin' order by joined_at limit 1);
 begin
@@ -76,5 +76,5 @@ select 'Update functions installed' as "check", case when count(*) = 6 then 'YES
   from pg_proc p join pg_namespace n on n.oid = p.pronamespace
   where n.nspname = 'public' and p.proname in ('app_min_build','report_build','member_versions','announce_update','set_min_build','is_admin')
 union all select 'Everyone must be on version 101', case when (select min_build from private.config limit 1) = 101 then 'YES' else 'NO' end
-union all select 'Update news posted (only old versions see it)', case when exists (select 1 from public.announcements where for_old_build = 101 and not removed) then 'YES' else 'NO' end
+union all select 'Update news posted (only old versions see it)', case when exists (select 1 from public.announcements where for_old_build = 102 and not removed) then 'YES' else 'NO' end
 union all select 'People who still need to update', (select count(*)::text from public.members where coalesce(app_build, 0) < 101 and (role <> 'guest' or expires_at > now()));
