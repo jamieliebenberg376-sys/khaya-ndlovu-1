@@ -934,6 +934,7 @@ body.land.navon #junc{display:none!important}
 body.land #nav .jx,body.land #nav .nchips .nchip:nth-child(n+2){display:none!important}
 body.land #nav .tx .ins{font-size:18px!important}
 body.land.navon #sosBtn{left:calc(40% + 26px + env(safe-area-inset-left,0px))!important;bottom:118px!important}
+#nav.flat .jx{display:none!important}
 </style>
 </head>
 <body>
@@ -2471,7 +2472,7 @@ function camTick(){
   if(driving&&!userMoving){
     const kmh=(speedS||0)*3.6;{const z=camState.zl||17.4;camState.zl=z===17.4?(kmh>29?16.9:17.4):z===16.9?(kmh>50?16.4:kmh<20?17.4:16.9):(kmh<38?16.9:16.4)}/* approaching a turn: from 100 m the camera goes flat and top-down so you can see exactly which turn it is, then tilts back once you're through */
     const pvOn=PV&&PV.on,flat=TOPTURN&&nav&&!pvOn&&(nav.near2||(nav.nearT&&Date.now()-nav.nearT<2500));
-    const zt=flat?Math.max(camState.zl,18.1):nav&&nav.near&&!pvOn?Math.max(camState.zl,17.75):camState.zl;const kz=1-Math.exp(-dt/(flat||camState.wasFlat?1.1:2.6));camState.wasFlat=flat;camState.zoom=camState.zoom==null?map.getZoom():camState.zoom+(zt-camState.zoom)*kz;
+    const zt=flat?Math.max(camState.zl,18.1):nav&&nav.near&&!pvOn?Math.max(camState.zl,17.75):camState.zl;const kz=1-Math.exp(-dt/(flat||camState.wasFlat?1.1:2.6));if(flat!==camState.wasFlat)$('nav').classList.toggle('flat',!!flat);camState.wasFlat=flat;camState.zoom=camState.zoom==null?map.getZoom():camState.zoom+(zt-camState.zoom)*kz;
     const p=tilt&&!NORTHUP?(flat?0:nav&&nav.near?46:60):0,pt=map.getPitch();
     const padT=innerHeight*(flat?0.3:0.42);camState.pad=camState.pad==null?padT:camState.pad+(padT-camState.pad)*(1-Math.exp(-dt/0.7));
     map.jumpTo({center:anim.pos,bearing:NORTHUP?0:anim.camHd,pitch:Math.abs(p-pt)<.05?p:pt+(p-pt)*(1-Math.exp(-dt/(flat?0.45:0.7))),zoom:camState.zoom,padding:{top:Math.round(LAND?innerHeight*(flat?0.2:0.3):camState.pad),bottom:0,left:LAND&&nav?Math.round(innerWidth*0.42):0,right:0}});
@@ -2998,7 +2999,7 @@ function beginNav(x){
   setFollow(2);
   applyDrive();spoken.clear();say('Starting route to '+x.name);navTick();
 }
-function endNav(msg){nav=null;if(PV)PV.on=false;$('nav').classList.remove('pv');try{manSet(null);nrbSet(null);drawStops([]);$('navChip').innerHTML=''}catch(e){}try{showJx(null);ovOn=false}catch(e){}document.body.classList.remove('navon');$('junc').classList.add('hide');$('junc').style.top='';spoken.clear();if(window.speechSynthesis)speechSynthesis.cancel();setTimeout(applyDrive,0);map.getSource('route').setData(empty);$('nav').classList.add('hide');$('navBottom').classList.add('hide');$('top').classList.remove('hide');$('fabs').style.bottom='';$('speed').style.bottom='';if(msg)toast(msg,3500);setFollow(me?1:0);updateRoad()}
+function endNav(msg){nav=null;try{$('nav').classList.remove('flat');camState.wasFlat=false}catch(e){}if(PV)PV.on=false;$('nav').classList.remove('pv');try{manSet(null);nrbSet(null);drawStops([]);$('navChip').innerHTML=''}catch(e){}try{showJx(null);ovOn=false}catch(e){}document.body.classList.remove('navon');$('junc').classList.add('hide');$('junc').style.top='';spoken.clear();if(window.speechSynthesis)speechSynthesis.cancel();setTimeout(applyDrive,0);map.getSource('route').setData(empty);$('nav').classList.add('hide');$('navBottom').classList.add('hide');$('top').classList.remove('hide');$('fabs').style.bottom='';$('speed').style.bottom='';if(msg)toast(msg,3500);setFollow(me?1:0);updateRoad()}
 $('navEnd').onclick=()=>endNav();
 function arrivedSheet(n,secs){const x=n.target;
   openSheet(`<div class="arv"><div class="arvi">${x.kind==='sight'?AN(x.name,54):LI('check',30)}</div><small>You've arrived</small><h2>${esc(x.name)}</h2>
@@ -3340,8 +3341,8 @@ function sightAhead(along){const now=Date.now();let best=null;
 /* ---- 2. route strip along the bottom bar ---- */
 let stripKey='',stripT=0;
 function navStrip(along){const box=$('nMarks');if(!box||!nav)return;const tot=Math.max(1,nav.total);
-  if(Date.now()-stripT>3000||stripKey!==String(nav.total)){stripT=Date.now();stripKey=String(nav.total);const M=[];
-    nav.steps.forEach((s,k)=>{if(k>0&&(s.icon||'straight')!=='straight')M.push({at:s.startAt,c:'turn',h:`<svg viewBox="0 0 24 24"><path d="${ARROWS[s.icon]}"/></svg>`})});
+  if(Date.now()-stripT>3000||stripKey!==String(nav.total)){/* rebuilt every few seconds so the 2 km window moves with you */stripT=Date.now();stripKey=String(nav.total);const M=[];
+    nav.steps.forEach((s,k)=>{if(k>0&&(s.icon||'straight')!=='straight'&&s.startAt>along-5&&s.startAt-along<2000)M.push({at:s.startAt,c:'turn',h:`<svg viewBox="0 0 24 24"><path d="${ARROWS[s.icon]}"/></svg>`})});
     (nav.gates||[]).forEach(g=>M.push({at:g.at,c:'gate',h:LI('gate',11)}));
     if(nav.stops&&nav.r.legs){let c=0;nav.stops.forEach((s,k)=>{c+=nav.r.legs[k]||0;M.push({at:c,c:'stop',h:String(k+1)})})}
     allReports().forEach(r=>{const p=projectOnRoute(nav.segs,r.ll);if(p.d<45)M.push({at:p.along,c:'rep',h:'!'})});
