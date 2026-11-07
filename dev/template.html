@@ -947,6 +947,16 @@ body.land.navon #sosBtn{left:calc(40% + 26px + env(safe-area-inset-left,0px))!im
 body.livedemo #focusPill{top:calc(var(--safe-t) + 156px)}
 body.night .dmc{background:rgba(255,255,255,.07);box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}body.night .dmc b{color:#f1ece4}body.night .dmc small{color:rgba(241,236,228,.62)}body.night .lvcard{background:rgba(255,255,255,.06)}body.night .dmnow{color:#ffd36b}
 #liveBar{white-space:nowrap}
+
+.lvmap{position:relative;width:100%;margin-top:4px;border-radius:18px;overflow:hidden;background:#1b2016;box-shadow:inset 0 0 0 1px var(--hair)}
+.lvmap img{position:absolute;inset:0;width:100%;height:100%;object-fit:fill}.lvmap svg{position:absolute;inset:0;width:100%;height:100%}
+.lvmap .ar{fill:rgba(255,194,61,.12)}.lvmap .bd{fill:none;stroke:#ffc23d;stroke-width:5;stroke-dasharray:14 9;vector-effect:non-scaling-stroke;stroke-width:2.5}
+.lvmap path.r{fill:none;stroke:#fff6dc;stroke-width:1.6;vector-effect:non-scaling-stroke;opacity:.9}.lvmap path.t{fill:none;stroke:#fff6dc;stroke-width:1;vector-effect:non-scaling-stroke;opacity:.55}
+.lvlbl{position:absolute;left:10px;bottom:10px;padding:4px 10px;border-radius:10px;background:rgba(14,18,13,.8);color:#ffd36b;font:800 13px system-ui}
+.lvst{display:flex;align-items:center;gap:6px;margin-top:10px;font:700 13.5px system-ui;color:var(--ink)}.lvst .li{color:#2f8f4e}
+.lvprog{margin-top:12px}.lvbar{height:10px;border-radius:5px;background:rgba(127,127,127,.18);overflow:hidden}.lvbar i{display:block;height:100%;width:0;border-radius:5px;background:linear-gradient(90deg,#2f8f4e,#ffc23d);transition:width .35s}
+.lvpt{display:flex;justify-content:space-between;gap:10px;margin-top:6px;font-size:12.5px;color:var(--sub)}.lvpt b{color:var(--ink)}
+body.night .lvst,body.night .lvpt b{color:#f1ece4}
 </style>
 </head>
 <body>
@@ -1773,7 +1783,7 @@ function annPop(){const a=ANN.filter(x=>!annSeen.has(x.client_id)&&(!x.expires_a
 
 /* ============ what's new: shown once to owners and admins after an update ============ */
 const WHATS_NEW=[
- [97,'car','Demo live','Menu › Demo mode now has two choices: Demo on the farm, or Demo live, which swaps in Stellenbosch with every real road so you can test the whole app driving for real. It saves on your phone for offline.'],
+ [98,'map','Swap to Stellenbosch','Menu › Swap to Stellenbosch shows the area with its border, downloads every real road and the satellite map with a progress bar, then swaps the map so you can test everything driving for real. Swap back any time.'],
  [95,'route','Smarter drives','Sightings coming up on your route are called out, a strip along the bottom shows every turn, gate and sighting ahead, one tap reports, a better way is offered if a road is blocked, stops like Google Maps, search along your route, saved and recent places, smart animal search, landscape layout, and every drive saved with top speed.'],
  [94,'route','Top-down view at turns','From 100 metres before a turn the map goes flat and zooms in, so you can see exactly which turn to take. Once you are through it tilts back to the driving view.'],
  [93,'scope','Focus mode','When you start driving the map hides the clutter: no heatmap, guesses, notes, borders, old trails or pop-ups. You still see roads, fresh sightings, reports, picnic spots, gates, dams and other cars. Change it in Settings › Driving.'],
@@ -3456,7 +3466,7 @@ function autoRecTick(){if(!AUTOREC||DM.on||!me)return;const k=(speedS||0)*3.6;
 setInterval(autoRecTick,4000);
 /* ============ LIVE DEMO: drive a real town map (every road from OpenStreetMap) with your real GPS ============ */
 const LIVE_AREA_DEF={name:'Stellenbosch',poly:[[18.82592944272841,-33.99287067953024],[18.87480649121362,-33.99143959746813],[18.85560725493548,-33.96913653949414],[18.85757894216173,-33.96834307735884],[18.86162967184059,-33.97194999707956],[18.86726657726011,-33.96745861691329],[18.85633442277812,-33.95863756233319],[18.8513844994166,-33.95779812188217],[18.84875259364738,-33.96296511567339],[18.84303508432259,-33.96726066876835],[18.83903907855849,-33.9755344692923],[18.8347559954802,-33.98201914684191],[18.82875392043441,-33.985236614958],[18.82526091984751,-33.98962587478456],[18.82592944272841,-33.99287067953024]]};
-const liveArea=()=>LS.get('liveArea',null)||LIVE_AREA_DEF;
+const liveArea=()=>LIVE_AREA_DEF;
 const liveSaved=()=>{try{const s=localStorage.getItem('kn_liveMap');if(!s)return null;const j=JSON.parse(s);return {name:j.name,t:j.t,n:j.n,kb:Math.round(s.length/1024)}}catch(e){return null}};
 const OVERPASS=['https://overpass-api.de/api/interpreter','https://overpass.kumi.systems/api/interpreter','https://maps.mail.ru/osm/tools/overpass/api/interpreter'];
 async function liveFetch(area,onp){const P=area.poly.map(p=>p[1].toFixed(6)+' '+p[0].toFixed(6)).join(' ');
@@ -3480,39 +3490,53 @@ async function liveFetch(area,onp){const P=area.poly.map(p=>p[1].toFixed(6)+' '+
   const ring=area.poly.slice();if(ring[0][0]!==ring[ring.length-1][0]||ring[0][1]!==ring[ring.length-1][1])ring.push(ring[0]);
   const fc=f=>({type:'FeatureCollection',features:f});
   return {name:area.name,t:Date.now(),n:roads.length,data:{roads:fc(roads),boundary:{type:'Feature',properties:{},geometry:{type:'Polygon',coordinates:[ring]}},water:fc(water),river:fc(river),crossings:fc([]),pois:fc(pois),farms:fc([])}}}
-function liveStart(withSat){LS.set('liveOn',true);if(withSat)LS.set('liveSat',1);toast(T('Opening the live demo...'));setTimeout(()=>location.reload(),500)}
-function liveExit(){LS.set('liveOn',false);toast(T('Back to Khaya Ndlovu...'));setTimeout(()=>location.reload(),500)}
-function kmlPoly(txt){const m=/<coordinates>([\s\S]*?)<\/coordinates>/i.exec(txt);if(!m)return null;const P=m[1].trim().split(/\s+/).map(s=>s.split(',').map(Number)).filter(p=>p.length>=2&&isFinite(p[0])&&isFinite(p[1])).map(p=>[p[0],p[1]]);return P.length>=4?P:null}
-function demoChoose(){openSheet(`<h2>${T('Demo')}</h2><div class="sub">${T('Try everything without changing anything on the real map')}</div>
-   ${LIVEMAP?`<div class="dmnow">${LI('live',16)} ${T('You are in the live demo')} · ${esc(LIVEMAP.name)}</div>`:''}
-   <button class="dmc" id="dcFarm"><span class="dmi">${LI('tree',24)}</span><div><b>${T('Demo on the farm')}</b><small>${T('Pretend to be anywhere on Khaya Ndlovu, with demo cars and sightings. Others in demo mode see you')}</small></div><span class="ar">›</span></button>
-   <button class="dmc live" id="dcLive"><span class="dmi">${LI('car',24)}</span><div><b>${T('Demo live')}</b><small>${esc(liveArea().name)} · ${T('every real road, and you drive it for real with your GPS')}</small></div><span class="ar">›</span></button>
-   ${LIVEMAP?`<button class="mout" id="dcExit">${T('Exit the live demo')}</button>`:''}`,()=>{
-    $('dcFarm').onclick=()=>{if(LIVEMAP){toast(T('Exit the live demo first'));return}closeSheet();startDemo()};$('dcLive').onclick=liveSheetD;if($('dcExit'))$('dcExit').onclick=liveExit})}
-function liveSheetD(){const s=liveSaved(),a=liveArea();
-  openSheet(`<div class="cmh"><button class="sm" id="lvBack">‹ ${T('Back')}</button><b>${T('Demo live')}</b><span style="width:60px"></span></div>
-   <div class="lvcard"><div class="lvh">${LI('map',22)}<div><b>${esc(a.name)}</b><small>${s&&s.name===a.name?s.n+' '+T('roads saved on this phone')+' · '+new Date(s.t).toLocaleDateString([],{day:'numeric',month:'short'})+' · '+(s.kb>1024?(s.kb/1024).toFixed(1)+' MB':s.kb+' KB'):T('Not downloaded yet')}</small></div></div>
-    <div class="sub" style="margin-top:8px;font-size:13px;line-height:1.45">${T('The app swaps the reserve for this area with every real road, so you can search, plan routes with stops and follow the turn by turn with your real GPS. Nothing you do here goes onto the real reserve map.')}</div></div>
-   <div class="list sgroup" style="margin-top:12px">${TG('lvSat',T('Save the satellite map for offline too'),T('About 10 to 20 MB. Downloads once the live demo opens'),LS.get('liveSatPref',true))}</div>
-   <div class="sub" id="lvMsg" style="margin-top:8px;text-align:center"></div>
-   ${s&&s.name===a.name?`<button class="btn pri" id="lvGo" style="width:100%;margin-top:10px">${LI('arrow',18)} ${LIVEMAP?T('Restart the live demo'):T('Start the live demo')}</button><button class="btn" id="lvDl" style="width:100%;margin-top:8px">${LI('down',18)} ${T('Update the roads')}</button>`:`<button class="btn pri" id="lvDl" style="width:100%;margin-top:10px">${LI('down',18)} ${T('Download the map')}</button>`}
-   <label class="btn" style="width:100%;margin-top:8px;display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer">${LI('pin',18)} ${T('Use another area (KML file)')}<input type="file" id="lvKml" accept=".kml,application/vnd.google-earth.kml+xml,text/xml" hidden></label>
-   ${a.name!==LIVE_AREA_DEF.name?`<button class="btn" id="lvReset" style="width:100%;margin-top:8px">${T('Back to Stellenbosch')}</button>`:''}`,()=>{
-    $('lvBack').onclick=demoChoose;$('lvSat').onclick=()=>{const v=!LS.get('liveSatPref',true);LS.set('liveSatPref',v);$('lvSat').classList.toggle('on',v)};
-    if($('lvGo'))$('lvGo').onclick=()=>liveStart(LS.get('liveSatPref',true));
-    $('lvDl').onclick=async()=>{if(!navigator.onLine){toast(T('You need signal to download the map'));return}const b=$('lvDl');b.disabled=true;const msg=t=>{if($('lvMsg'))$('lvMsg').textContent=t};
-      try{const m=await liveFetch(liveArea(),msg);const s=JSON.stringify(m);try{localStorage.setItem('kn_liveMap',s)}catch(e){throw new Error(T('Not enough space on this phone for that area. Try a smaller one'))}
-        msg(m.n+' '+T('roads saved'));toast(T('Map saved on this phone'));setTimeout(liveSheetD,600)}
-      catch(e){msg(T('Could not download')+': '+String(e.message||e).slice(0,120));b.disabled=false}};
-    $('lvKml').onchange=async e=>{const f=e.target.files&&e.target.files[0];if(!f)return;const P=kmlPoly(await f.text());if(!P){toast(T('No area found in that file'),4000);return}
-      const nm=(/<name>([^<]{1,40})<\/name>/.exec(await f.text())||[])[1]||f.name.replace(/\.kml$/i,'');LS.set('liveArea',{name:nm==='Untitled KML file'?T('My area'):nm,poly:P});toast(T('Area loaded. Now download the map'));liveSheetD()};
-    if($('lvReset'))$('lvReset').onclick=()=>{LS.set('liveArea',null);liveSheetD()}})}
+function liveStart(){LS.set('liveOn',true);toast(T('Swapping to Stellenbosch...'));setTimeout(()=>location.reload(),500)}
+function liveExit(){LS.set('liveOn',false);toast(T('Swapping back to Khaya Ndlovu...'));setTimeout(()=>location.reload(),500)}
+/* ============ swap to Stellenbosch: the area from the KML, every real road, downloaded with a progress bar ============ */
+const liveOff=()=>{try{return JSON.parse(localStorage.getItem('kn_liveOffline')||'null')}catch(e){return null}};
+function liveBBox(P){let a=1e9,b=1e9,c=-1e9,d=-1e9;P.forEach(p=>{a=Math.min(a,p[0]);b=Math.min(b,p[1]);c=Math.max(c,p[0]);d=Math.max(d,p[1])});const mx=(c-a)*.08,my=(d-b)*.08;return [a-mx,b-my,c+mx,d+my]}
+function livePreview(){const a=liveArea(),bb=liveBBox(a.poly),dx=bb[2]-bb[0],dy=bb[3]-bb[1],k=Math.cos((bb[1]+bb[3])/2*Math.PI/180),W=640,H=Math.round(W*dy/dx);
+  const X=p=>((p[0]-bb[0])/dx*1000).toFixed(1),Y=p=>((bb[3]-p[1])/dy*1000).toFixed(1),path=P=>'M'+P.map(p=>X(p)+' '+Y(p)).join('L');
+  let roads='';try{const s=localStorage.getItem('kn_liveMap');if(s){const m=JSON.parse(s);roads=m.data.roads.features.map(f=>`<path d="${path(f.geometry.coordinates)}" class="${f.properties.track?'t':'r'}"/>`).join('')}}catch(e){}
+  const img=navigator.onLine?`https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=${bb.join(',')}&bboxSR=4326&imageSR=4326&size=${W},${H}&format=jpg&f=image`:'';
+  return `<div class="lvmap" style="aspect-ratio:${(dx*k/dy).toFixed(4)}">${img?`<img src="${img}" alt="" onerror="this.remove()">`:''}<svg viewBox="0 0 1000 1000" preserveAspectRatio="none"><path d="${path(a.poly)}Z" class="ar"/>${roads}<path d="${path(a.poly)}Z" class="bd"/></svg><span class="lvlbl">${esc(a.name)}</span></div>`}
+let LVDL=null;
+async function liveDownload(withSat,onp){if(LVDL)return LVDL;LVDL=(async()=>{const area=liveArea(),t0=Date.now(),RW=withSat?.22:1;
+  // 1) the roads: the server doesn't say how long it takes, so the bar follows the usual time (about 25 s)
+  let est=setInterval(()=>{const t=(Date.now()-t0)/1000;onp(RW*.95*(1-Math.exp(-t/11)),T('Downloading the roads')+' · '+(t<25?T('about')+' '+Math.max(3,Math.round(26-t))+' s '+T('left'):T('almost done')))},400);
+  let m;try{m=await liveFetch(area,()=>{})}finally{clearInterval(est)}
+  try{localStorage.setItem('kn_liveMap',JSON.stringify(m))}catch(e){throw new Error(T('Not enough space on this phone for the roads'))}
+  onp(RW,m.n+' '+T('roads saved'));if(!withSat)return {roads:m.n};
+  // 2) the satellite photos for offline, with a real count
+  const urls=tileList(area.poly);let done=0,ok=0,bytes=0,i=0;const N=urls.length,t1=Date.now();
+  const worker=async()=>{while(i<N){const u=urls[i++];try{const r=await fetch(u,{mode:'cors'});if(r.ok){ok++;bytes+=(await r.clone().blob()).size}}catch(e){}done++;
+    const el=(Date.now()-t1)/1000,left=done>5?el/done*(N-done):null;onp(RW+(1-RW)*done/N,T('Satellite map')+' · '+done+' / '+N+' · '+(bytes/1048576).toFixed(1)+' MB'+(left!=null?' · '+(left>60?T('about')+' '+Math.round(left/60)+' min':T('about')+' '+Math.max(1,Math.round(left))+' s')+' '+T('left'):''))}};
+  await Promise.all(Array.from({length:6},worker));const res={t:Date.now(),n:ok,total:N,mb:Math.max(1,Math.round(bytes/1048576))};
+  try{localStorage.setItem('kn_liveOffline',JSON.stringify(res))}catch(e){}onp(1,T('Done')+' · '+m.n+' '+T('roads')+' · '+res.mb+' MB '+T('satellite'));return {roads:m.n,sat:res}})();
+  try{return await LVDL}finally{LVDL=null}}
+function swapSheet(){const s=liveSaved(),o=liveOff(),a=liveArea(),have=s&&s.name===a.name;
+  openSheet(`<div class="cmh"><span style="width:60px"></span><b>${LIVEMAP?T('Stellenbosch map'):T('Swap to')+' '+esc(a.name)}</b><span style="width:60px"></span></div>
+   ${livePreview()}
+   <div class="lvst">${LI('map',16)}<span>${have?s.n+' '+T('roads')+' · '+T('saved')+' '+new Date(s.t).toLocaleDateString([],{day:'numeric',month:'short'})+(o&&o.n?' · '+T('satellite')+' '+o.mb+' MB':''):T('Not downloaded yet')}</span></div>
+   <div class="sub" style="margin-top:6px;font-size:13px;line-height:1.45">${LIVEMAP?T('You are on the Stellenbosch map. Sightings, reports and drives here stay on this phone and never go onto the reserve map.'):T('Swaps the reserve for this area with every real road, so you can test the whole app driving for real with your GPS. Nothing you do there goes onto the reserve map.')}</div>
+   ${LIVEMAP?'':`<div class="list sgroup" style="margin-top:10px">${TG('lvSat',T('Save the satellite map for offline'),T('About 10 to 20 MB'),LS.get('liveSatPref',true))}</div>`}
+   <div class="lvprog hide" id="lvProg"><div class="lvbar"><i id="lvFill"></i></div><div class="lvpt"><span id="lvTxt"></span><b id="lvPct">0%</b></div></div>
+   ${LIVEMAP?`<button class="btn pri" id="lvBack2" style="width:100%;margin-top:12px">${LI('home',18)} ${T('Swap back to Khaya Ndlovu')}</button><button class="btn" id="lvDl" style="width:100%;margin-top:8px">${LI('down',18)} ${T('Update the map')}</button>`
+     :have?`<button class="btn pri" id="lvGo" style="width:100%;margin-top:12px">${LI('arrow',18)} ${T('Swap to')} ${esc(a.name)}</button><button class="btn" id="lvDl" style="width:100%;margin-top:8px">${LI('down',18)} ${T('Update the map')}</button>`
+     :`<button class="btn pri" id="lvDl" style="width:100%;margin-top:12px">${LI('down',18)} ${T('Download')} ${esc(a.name)}</button>`}`,()=>{
+    if($('lvSat'))$('lvSat').onclick=()=>{const v=!LS.get('liveSatPref',true);LS.set('liveSatPref',v);$('lvSat').classList.toggle('on',v)};
+    if($('lvGo'))$('lvGo').onclick=()=>liveStart(false);if($('lvBack2'))$('lvBack2').onclick=liveExit;
+    $('lvDl').onclick=async()=>{if(!navigator.onLine){toast(T('You need signal to download the map'));return}const b=$('lvDl');b.disabled=true;b.style.opacity=.5;
+      const pr=$('lvProg');pr.classList.remove('hide');const set=(f,t)=>{if(!$('lvFill'))return;$('lvFill').style.width=(f*100).toFixed(1)+'%';$('lvPct').textContent=Math.round(f*100)+'%';$('lvTxt').textContent=t};
+      try{await liveDownload(LIVEMAP?!!liveOff():LS.get('liveSatPref',true),set);toast(T('Stellenbosch saved on this phone'));setTimeout(()=>{if($('lvProg'))swapSheet()},1200)}
+      catch(e){set(0,T('Could not download')+': '+String(e.message||e).slice(0,100));b.disabled=false;b.style.opacity=1}}})}
+
 /* while in the live demo: a pill at the top, and nothing goes to the real reserve */
 function liveBar(){if(!LIVEMAP)return;let b=$('liveBar');if(!b){b=document.createElement('div');b.id='liveBar';document.body.appendChild(b)}
-  b.innerHTML=`<span class="dmd"></span><b>${T('Live demo')}</b><span class="lvn">${esc(LIVEMAP.name)}</span><button id="lvX">${T('Exit')}</button>`;b.onclick=demoChoose;$('lvX').onclick=e=>{e.stopPropagation();liveExit()}}
+  b.innerHTML=`<span class="dmd"></span><b>${esc(LIVEMAP.name)}</b><span class="lvn">${T('test map')}</span><button id="lvX">${T('Swap back')}</button>`;b.onclick=swapSheet;$('lvX').onclick=e=>{e.stopPropagation();liveExit()}}
 if(LIVEMAP){document.body.classList.add('livedemo');setTimeout(liveBar,800);
   setInterval(()=>{const b=$('liveBar');if(!b)return;const n=$('nav');b.style.top=document.body.classList.contains('navon')&&n?Math.round(n.getBoundingClientRect().bottom+8)+'px':''},700);
-  if(LS.get('liveSat',0)){LS.set('liveSat',0);setTimeout(()=>{if(navigator.onLine){toast(T('Saving the satellite map for offline...'),4000);downloadOffline().then(r=>{if(r&&r.n)toast(T('Satellite map saved')+' · '+r.mb+' MB',4000)}).catch(()=>{})}},6000)}}
+}
 
 /* ============ sightings & road reports ============ */
 const OTHER_SUG=['Warthog','Impala','Wildebeest','Nyala','Waterbuck','Honey badger','Jackal','Baboon','Vervet monkey','Duiker','Steenbok','Bushbuck','Porcupine','Ostrich','Crocodile','Mongoose'];
@@ -3625,7 +3649,7 @@ $('menuBtn').onclick=()=>{
     ${m&&m.locked?LK('lSug','Suggestions',SUG.list.length?SUG.list.length+' from people on the map':'Nothing yet',SUG.list.filter(x=>!x.read).length?'<span class="tag t-new">'+SUG.list.filter(x=>!x.read).length+' new</span>':'','msg','#0b8043'):m?LK('lSug','Suggest something','Ideas, problems or wishes for the map','','msg','#0b8043'):''}
     ${m&&isAdm2()&&!m.viewAs?LK('lAdm','Admin tools',MS.paused?'The map is paused':'Pause, rules, guest limits, reports','','shield','#b06000'):''}
     ${LK('lOff','Offline map',esc(offlineStatus()),'','down','#00796b')}
-    ${LK('lDemo',LIVEMAP?'Live demo · '+esc(LIVEMAP.name):'Demo mode',LIVEMAP?'Tap to exit or switch area':DM.on?'You are in demo mode · tap to see who is in it':(()=>{const L=Object.values(DEMO.outside).filter(p=>Date.now()-p.t<20000);return L.length?L.map(p=>p.name).slice(0,2).join(' and ')+(L.length>2?' and others':'')+(L.length>1?' are':' is')+' in demo mode now · tap to join':'Pretend to be anywhere and test everything'})(),'','play','#5f6368')}
+    ${LK('lSwap',LIVEMAP?'Swap to Khaya Ndlovu':'Swap to Stellenbosch',LIVEMAP?'You are on the Stellenbosch test map':liveSaved()?'Every real road, saved on this phone':'Every real road · drive it with your GPS','','map','#c48a1a')}${LK('lDemo','Demo mode',DM.on?'You are in demo mode · tap to see who is in it':(()=>{const L=Object.values(DEMO.outside).filter(p=>Date.now()-p.t<20000);return L.length?L.map(p=>p.name).slice(0,2).join(' and ')+(L.length>2?' and others':'')+(L.length>1?' are':' is')+' in demo mode now · tap to join':'Pretend to be anywhere and test everything'})(),'','play','#5f6368')}
    </div>
    ${m&&!m.locked?'<button class="mout" id="mOut">Sign out</button>':''}`,()=>{
     $('mSet').onclick=()=>settingsSheet();
@@ -3640,7 +3664,7 @@ $('menuBtn').onclick=()=>{
     $('tDrives').onclick=()=>openSheet(tracksSheet(),bindTracks);
     if($('lLive'))$('lLive').onclick=()=>liveSheet();
     $('lOff').onclick=()=>offlineSheet(false);
-    $('lDemo').onclick=()=>{if(DM.on){demoPeopleSheet();return}demoChoose()};
+    $('lDemo').onclick=()=>{if(LIVEMAP){toast(T('Swap back to Khaya Ndlovu to use demo mode'));return}if(DM.on){demoPeopleSheet();return}closeSheet();startDemo()};$('lSwap').onclick=swapSheet;
     if($('lAdm'))$('lAdm').onclick=()=>adminSheet();
     if($('lSug'))$('lSug').onclick=()=>Cloud.member&&Cloud.member.locked?sugInbox():sugSheet();
     if($('mOut'))$('mOut').onclick=()=>signOutSheet();
@@ -4591,8 +4615,8 @@ else if(needGate())showGate();else{armExpiry();setTimeout(armHandover,3000);setT
 
 /* ============ offline download ============ */
 const isStandalone=()=>window.matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
-function tileList(){const urls=[];const tx=(lng,lat,z)=>{const n=2**z,s=Math.sin(lat*Math.PI/180);return[Math.floor((lng+180)/360*n),Math.floor((0.5-Math.log((1+s)/(1-s))/(4*Math.PI))*n)]};
-  const R=B;for(let z=11;z<=17;z++){const a=tx(minX-.005,maxY+.005,z),b=tx(maxX+.005,minY-.005,z);const n=2**z;
+function tileList(R0){const urls=[];const R=R0||B;let minX=1e9,minY=1e9,maxX=-1e9,maxY=-1e9;R.forEach(([x,y])=>{minX=Math.min(minX,x);maxX=Math.max(maxX,x);minY=Math.min(minY,y);maxY=Math.max(maxY,y)});const tx=(lng,lat,z)=>{const n=2**z,s=Math.sin(lat*Math.PI/180);return[Math.floor((lng+180)/360*n),Math.floor((0.5-Math.log((1+s)/(1-s))/(4*Math.PI))*n)]};
+  for(let z=11;z<=17;z++){const a=tx(minX-.005,maxY+.005,z),b=tx(maxX+.005,minY-.005,z);const n=2**z;
     for(let x=a[0];x<=b[0];x++)for(let y=a[1];y<=b[1];y++){
       if(z>=15){const lng=(x+.5)/n*360-180,lat=Math.atan(Math.sinh(Math.PI*(1-2*(y+.5)/n)))*180/Math.PI;const half=360/n*.75;
         if(!pip(R,[lng,lat])&&!pip(R,[lng+half,lat])&&!pip(R,[lng-half,lat])&&!pip(R,[lng,lat+half*.9])&&!pip(R,[lng,lat-half*.9]))continue}
