@@ -784,7 +784,7 @@ body.red #storyQ{background:#1a0606!important}
 .pow{flex:none;display:inline-flex;align-items:center;gap:6px;font:700 13.5px system-ui;padding:3px 10px 3px 3px;border-radius:999px;background:rgba(127,127,127,.1)}
 .pos{margin-top:8px;font-size:15px;line-height:1.45;white-space:pre-wrap}
 .poadd{display:flex;align-items:center;gap:6px;margin-top:8px;background:none;color:#1f4d36;font:700 13.5px system-ui;padding:0}
-.pop{margin-top:10px;border-radius:14px;overflow:hidden;background:linear-gradient(160deg,var(--sandA),var(--sandB));min-height:120px;cursor:pointer}.pop img{width:100%;max-height:320px;object-fit:cover;display:block;opacity:0;transition:opacity .3s}.pop.ok img{opacity:1}
+.post .pop{margin-top:10px;border-radius:14px;overflow:hidden;background:linear-gradient(160deg,var(--sandA),var(--sandB));min-height:120px;cursor:pointer}.post .pop img{width:100%;max-height:320px;object-fit:cover;display:block;opacity:0;transition:opacity .3s}.post .pop.ok img{opacity:1}
 .poa2{display:flex;gap:8px;margin-top:10px}.poa2 button{height:34px;padding:0 12px;border-radius:17px;background:rgba(127,127,127,.1);font:700 13px system-ui;display:inline-flex;align-items:center;gap:5px;color:inherit}
 .pol.on{background:linear-gradient(160deg,#ffd36b,#f2a516)!important;color:#1d1406!important}
 /* ===== v90: Google-style driving extras ===== */
@@ -1712,6 +1712,7 @@ function annPop(){const a=ANN.filter(x=>!annSeen.has(x.client_id)&&(!x.expires_a
 
 /* ============ what's new: shown once to owners and admins after an update ============ */
 const WHATS_NEW=[
+ [94,'route','Top-down view at turns','From 100 metres before a turn the map goes flat and zooms in, so you can see exactly which turn to take. Once you are through it tilts back to the driving view.'],
  [93,'scope','Focus mode','When you start driving the map hides the clutter: no heatmap, guesses, notes, borders, old trails or pop-ups. You still see roads, fresh sightings, reports, picnic spots, gates, dams and other cars. Change it in Settings › Driving.'],
  [92,'map','A better looking map','Roads follow their real curves, dams are proper blue water with shallows and a muddy edge, rivers show the sandy bed with the water in it, and every pan is drawn as a little pond.'],
  [91,'msg','The Feed has its own button','Tap Feed at the top of the map. Post photos and videos, like posts and comment on them, just like Facebook. Posts made without signal go up by themselves later.'],
@@ -2423,9 +2424,12 @@ function camTick(){
   meMk.setLngLat(anim.pos);meMk.setRotation(anim.hd);
   const driving=follow===2;meEl.classList.toggle('nav',driving||!!nav);
   if(driving&&!userMoving){
-    const kmh=(speedS||0)*3.6;{const z=camState.zl||17.4;camState.zl=z===17.4?(kmh>29?16.9:17.4):z===16.9?(kmh>50?16.4:kmh<20?17.4:16.9):(kmh<38?16.9:16.4)}const zt=nav&&nav.near&&!(PV&&PV.on)?Math.max(camState.zl,17.75):camState.zl;const kz=1-Math.exp(-dt/2.6);camState.zoom=camState.zoom==null?map.getZoom():camState.zoom+(zt-camState.zoom)*kz;
-    const p=tilt&&!NORTHUP?(nav&&nav.near?46:60):0,pt=map.getPitch();
-    map.jumpTo({center:anim.pos,bearing:NORTHUP?0:anim.camHd,pitch:Math.abs(p-pt)<.05?p:pt+(p-pt)*(1-Math.exp(-dt/0.6)),zoom:camState.zoom,padding:{top:Math.round(innerHeight*0.42),bottom:0,left:0,right:0}});
+    const kmh=(speedS||0)*3.6;{const z=camState.zl||17.4;camState.zl=z===17.4?(kmh>29?16.9:17.4):z===16.9?(kmh>50?16.4:kmh<20?17.4:16.9):(kmh<38?16.9:16.4)}/* approaching a turn: from 100 m the camera goes flat and top-down so you can see exactly which turn it is, then tilts back once you're through */
+    const pvOn=PV&&PV.on,flat=TOPTURN&&nav&&!pvOn&&(nav.near2||(nav.nearT&&Date.now()-nav.nearT<2500));
+    const zt=flat?Math.max(camState.zl,18.1):nav&&nav.near&&!pvOn?Math.max(camState.zl,17.75):camState.zl;const kz=1-Math.exp(-dt/(flat||camState.wasFlat?1.1:2.6));camState.wasFlat=flat;camState.zoom=camState.zoom==null?map.getZoom():camState.zoom+(zt-camState.zoom)*kz;
+    const p=tilt&&!NORTHUP?(flat?0:nav&&nav.near?46:60):0,pt=map.getPitch();
+    const padT=innerHeight*(flat?0.3:0.42);camState.pad=camState.pad==null?padT:camState.pad+(padT-camState.pad)*(1-Math.exp(-dt/0.7));
+    map.jumpTo({center:anim.pos,bearing:NORTHUP?0:anim.camHd,pitch:Math.abs(p-pt)<.05?p:pt+(p-pt)*(1-Math.exp(-dt/(flat?0.45:0.7))),zoom:camState.zoom,padding:{top:Math.round(camState.pad),bottom:0,left:0,right:0}});
   }else anim.camHd=driving?anim.camHd:map.getBearing();
 }
 let userMoving=false,TOUCHING=false;
@@ -2978,7 +2982,7 @@ function navTick(){
   if(i===-1){txt='Continue to '+nav.target.name;icon='arrive';dd=left;then=''}
   else{const st=nav.steps[i];txt=st.text;icon=st.icon||'straight';dd=st.startAt-along;const nx=nav.steps[i+1];then=nx?'Then '+nx.text.toLowerCase().replace(/ onto .*/,'')+' onto '+nx.road:'Then arrive at '+nav.target.name;
     const curStep=nav.steps[i-1];if(dd>250&&curStep&&curStep.road){then='On '+curStep.road+' · '+then}}
-  nav.curI=i;nav.curDD=dd;nav.along=along;nav.near=i>=0&&dd<170&&(icon||'straight')!=='straight';
+  nav.curI=i;nav.curDD=dd;nav.along=along;nav.near=i>=0&&dd<170&&(icon||'straight')!=='straight';nav.near2=nav.near&&dd<=100;if(nav.near2)nav.nearT=Date.now();
   if(!PV.on){
   $('navArr').innerHTML=`<path fill="#fff" d="${ARROWS[icon]||ARROWS.straight}"/>`;
   $('navDist').textContent=fmtNav(dd);{const road=txt.replace(/^(Turn|Bear|Sharp|Continue) (left |right )?onto /,'').replace(/^Continue to /,'')||txt;const pre=/^Continue to/.test(txt)?'to':(icon==='straight'?'towards':'onto');$('navIns').innerHTML='<span class="pre">'+pre+'</span> '+esc(road)}
@@ -3027,7 +3031,7 @@ let calMode=false;
 /* ============ Google-style driving: rounded countdown, turn arrow, next-road bubble, swipe turn cards, stops, other way, long press pin, measure, scale bar, blue dot sheet ============ */
 var TRACKR=new Set(),TRACKN=new Set(),AVOIDTRK=LS.get('avoidTracks',false),ALTPEN=null,RPFORCE=null,NAVSTOPS=[],RP=null;
 {const by={};ROADS.forEach((f,i)=>{const n=f.properties.name;if(f.properties.track)TRACKR.add(i);(by[n]=by[n]||[]).push(!!f.properties.track)});for(const n in by)if(by[n].every(Boolean))TRACKN.add(n)}
-var VMODE=LS.get('vmode',voiceOn?'on':'off'),NORTHUP=LS.get('northUp',false),SHOWSPD=LS.get('showSpd',true),KEEPAWAKE=LS.get('keepAwake',true);
+var TOPTURN=LS.get('topTurn',true),VMODE=LS.get('vmode',voiceOn?'on':'off'),NORTHUP=LS.get('northUp',false),SHOWSPD=LS.get('showSpd',true),KEEPAWAKE=LS.get('keepAwake',true);
 var PV={on:false,i:0,t:0},MEAS=null,lpAt=0,dotTap=0,tapT=null,lastTouch=0,compassAcc=-1;
 document.body.classList.toggle('nospd',!SHOWSPD);
 function rpPen(u,to,road,w){return (AVOIDTRK&&TRACKR.has(road)?w*5:0)+(ALTPEN&&ALTPEN.has(u+'_'+to)?w*1.4:0)}
@@ -3070,7 +3074,7 @@ function navExtras(along,i,dd){
     const r=navRoute();if(r){const b=buildSteps(r);Object.assign(nav,{r,...b});nav.gatesR=null}drawStops(nav.stops);return navTick()}
   const st=i>=0?nav.steps[i]:null,turn=st&&(st.icon||'straight')!=='straight';
   if(!PV.on){if(st&&turn&&dd<700)manSet(nav.segs,st.startAt,nav.total);else manSet(null);
-    if(st&&turn&&dd<900)nrbSet(pointAt(nav.segs,Math.min(nav.total,st.startAt+14)),st.road);else nrbSet(null)}
+    if(st&&turn&&dd<900)nrbSet(pointAt(nav.segs,Math.min(nav.total,st.startAt+38)),st.road);else nrbSet(null)}
   if(nav.gatesR!==nav.r){nav.gatesR=nav.r;nav.gates=GATES.map(g=>{const p=projectOnRoute(nav.segs,g.ll);return p.d<35?{n:g.n,at:p.along}:null}).filter(Boolean)}
   const out=[];
   if(nav.stops&&nav.stops.length&&nav.r.legs){const left=nav.r.legs[0]-along;if(left<1500)out.push(['pin',T('Stop')+': '+nav.stops[0].name+' · '+fmtNav(left)])}
@@ -3094,7 +3098,7 @@ function pvShow(i){if(!nav)return;const cur=nav.curI>=0?nav.curI:nav.steps.lengt
   showJx(null);
   const p=pointAt(nav.segs,at),pb=pointAt(nav.segs,Math.max(0,at-45));
   if(follow)setFollow(0);$('recenter').classList.remove('hide');ovOn=false;
-  if(st)manSet(nav.segs,at,nav.total);else manSet(null);if(st)nrbSet(pointAt(nav.segs,Math.min(nav.total,at+14)),st.road);else nrbSet(null);
+  if(st)manSet(nav.segs,at,nav.total);else manSet(null);if(st)nrbSet(pointAt(nav.segs,Math.min(nav.total,at+38)),st.road);else nrbSet(null);
   const top=$('nav').getBoundingClientRect().bottom+20,bot=innerHeight-$('navBottom').getBoundingClientRect().top+30;
   try{map.setPadding({top:0,bottom:0,left:0,right:0})}catch(e){}
   map.easeTo({center:p,zoom:17.6,pitch:0,bearing:at>20?bearing(pb,p):map.getBearing(),padding:{top,bottom:bot,left:20,right:20},duration:850,essential:true});
@@ -3423,7 +3427,7 @@ function settingsSheet(){const m=Cloud.member;const notif='Notification' in wind
    <div class="list sgroup">${TG('sRedAuto','Red screen every night','Keeps your night vision. On after sunset, off at sunrise',redAuto)}${TG('sRed','Red screen now','',redOn)}</div>
    ${m?`<div class="msec">Alerts</div><div class="list sgroup">${TG('sAlert','New sighting alerts','Pop-up when someone else marks a sighting',alertOn)}${LK('sAW','Which animals alert me','',esc(alertWhatTxt()))}${TG('sSound','Alert sound','A bing with each alert',alertSound)}${TG('sQuiet','Quiet hours','No alert sounds or pop-ups from '+QUIET.from+' to '+QUIET.to+' unless you are out driving. SOS always comes through.',quietOn)}${notif?LK('sNotif','Phone notifications','Also alert you while the app is in the background','Turn on'):''}</div>`:''}
    <div class="msec">Location</div>${MS.admin_sees_all?'<div class="sub" style="margin:-4px 2px 8px;font-size:12.5px">'+LI('eye',12)+' Admins can see your car while you drive on the reserve, even with sharing off. Your home stays hidden.</div>':''}<div class="list sgroup">${m?LK('sLive','Share live location','',shareLoc?'On':'Off'):''}${LK('sHome','Home point','',home?'Set':'Not set')}${LK('sCal','Calibrate GPS','If your dot sits next to the road',calib[0]||calib[1]?'Active':'')}${isIOS?LK('sLoc','Stop the location question','If the map asks for your location every time',''):''}</div>
-   <div class="msec">Driving</div>${MS.rules&&MS.rules.lock?'<div class="sub" style="margin:-4px 2px 8px;font-size:12.5px">'+LI('lock',12)+' Speed warning, quiet hours and sunset reminder are set by an admin for everyone</div>':''}<div class="list sgroup">${TG('sSpd','Speed warning','Red alert over '+SPEED_LIMIT+' km/h on the reserve',speedWarn)}${TG('sSun','Sunset reminder',(SUNMIN===60?'1 hour':SUNMIN+' minutes')+' before sunset if you are still out and far from home',sunRemind)}${LK('sFocus','Focus mode','Only what you need on the map while you drive',{drive:'When driving',on:'Always',off:'Off'}[FOCUSM])}${TG('sNorth','Keep north up while driving','The map stays north-up instead of turning with you',NORTHUP)}${TG('sSpdo','Show speedometer','',SHOWSPD)}${TG('sAwake','Keep screen on while driving','',KEEPAWAKE)}${TG('sAvoid','Avoid rough tracks','Routes stay on the main roads when there is another way',AVOIDTRK)}</div><div class="msec">Voice directions</div>${vmSeg('sVm')}<div class="sub" style="margin:6px 2px 4px;font-size:12.5px">Alerts only speaks at the turn itself and for gates, stops and rerouting</div>
+   <div class="msec">Driving</div>${MS.rules&&MS.rules.lock?'<div class="sub" style="margin:-4px 2px 8px;font-size:12.5px">'+LI('lock',12)+' Speed warning, quiet hours and sunset reminder are set by an admin for everyone</div>':''}<div class="list sgroup">${TG('sSpd','Speed warning','Red alert over '+SPEED_LIMIT+' km/h on the reserve',speedWarn)}${TG('sSun','Sunset reminder',(SUNMIN===60?'1 hour':SUNMIN+' minutes')+' before sunset if you are still out and far from home',sunRemind)}${LK('sFocus','Focus mode','Only what you need on the map while you drive',{drive:'When driving',on:'Always',off:'Off'}[FOCUSM])}${TG('sTop','Top-down view at turns','From 100 m before a turn the map goes flat so you can see which way to go',TOPTURN)}${TG('sNorth','Keep north up while driving','The map stays north-up instead of turning with you',NORTHUP)}${TG('sSpdo','Show speedometer','',SHOWSPD)}${TG('sAwake','Keep screen on while driving','',KEEPAWAKE)}${TG('sAvoid','Avoid rough tracks','Routes stay on the main roads when there is another way',AVOIDTRK)}</div><div class="msec">Voice directions</div>${vmSeg('sVm')}<div class="sub" style="margin:6px 2px 4px;font-size:12.5px">Alerts only speaks at the turn itself and for gates, stops and rerouting</div>
    ${m?`<div class="msec">Account</div><div class="list sgroup">${Cloud.sess&&Cloud.sess.uid?`<button class="it lk" id="sUid"><div style="flex:1;min-width:0"><b>Account ID</b><br><small class="mono" data-notr style="word-break:break-all;font-size:12px">${esc(Cloud.sess.uid)}</small><br><small>The same ID Supabase shows for you · tap to copy</small></div></button>`:''}${m.role!=='guest'?LK('sRec','Recovery code','Get your exact account back on any phone, even if you are signed out','','key','#1f4d36'):''}</div>`:''}
    <div class="msec">Map data</div><div class="list sgroup">${LK('sOff','Offline map','',esc(offlineStatus()))}${m?LK('sShare','Sharing status',shareStatus(),''):''}${m&&m.role==='admin'?LK('sUpd','Require everyone to update','Version '+APP_BUILD,''):''}</div>
    ${m&&!m.locked?'<button class="mout" id="sOut">Sign out</button>':''}<div class="sub" style="text-align:center;font-size:11.5px;margin-top:10px">Khaya Ndlovu game drive map · version ${APP_BUILD}</div>`,()=>{
@@ -3436,7 +3440,7 @@ function settingsSheet(){const m=Cloud.member;const notif='Notification' in wind
     const locked=MS.rules&&MS.rules.lock;if(locked)['sQuiet','sSun','sSpd'].forEach(id=>{const b=$(id);if(b){b.style.opacity=.45;b.onclick=()=>toast('An admin set this for everyone')}});
     if(!locked){tg('sQuiet',()=>{quietOn=!quietOn;LS.set('quiet',quietOn)});tg('sSun',()=>{sunRemind=!sunRemind;LS.set('sunRemind',sunRemind)});
     tg('sSpd',()=>{speedWarn=!speedWarn;LS.set('speedWarn',speedWarn);if(me)speedCheck(me.ll)})}
-    if($('sFocus'))$('sFocus').onclick=focusSheet;bindVm();tg('sNorth',()=>{NORTHUP=!NORTHUP;LS.set('northUp',NORTHUP)});tg('sSpdo',()=>{SHOWSPD=!SHOWSPD;LS.set('showSpd',SHOWSPD);document.body.classList.toggle('nospd',!SHOWSPD)});tg('sAwake',()=>{KEEPAWAKE=!KEEPAWAKE;LS.set('keepAwake',KEEPAWAKE);wantWake(follow===2||!!nav)});tg('sAvoid',()=>{AVOIDTRK=!AVOIDTRK;LS.set('avoidTracks',AVOIDTRK)});
+    if($('sFocus'))$('sFocus').onclick=focusSheet;bindVm();tg('sTop',()=>{TOPTURN=!TOPTURN;LS.set('topTurn',TOPTURN)});tg('sNorth',()=>{NORTHUP=!NORTHUP;LS.set('northUp',NORTHUP)});tg('sSpdo',()=>{SHOWSPD=!SHOWSPD;LS.set('showSpd',SHOWSPD);document.body.classList.toggle('nospd',!SHOWSPD)});tg('sAwake',()=>{KEEPAWAKE=!KEEPAWAKE;LS.set('keepAwake',KEEPAWAKE);wantWake(follow===2||!!nav)});tg('sAvoid',()=>{AVOIDTRK=!AVOIDTRK;LS.set('avoidTracks',AVOIDTRK)});
     tg('sRed',()=>setRed(!redOn));
     tg('sRedAuto',()=>{redAuto=!redAuto;LS.set('redAuto',redAuto);redCheck()});
     if($('sAW'))$('sAW').onclick=()=>alertWhatSheet();
