@@ -1437,5 +1437,28 @@ begin
 end $$;
 grant execute on function public.take_carry(text) to authenticated;
 
+-- ---------- DRY RIVERS AND DAMS (v106) ----------
+-- admins mark a river, stream or dam as dried out; every phone then draws it as a sandy bed instead of water
+alter table private.config add column if not exists dry text[] not null default '{}';
+create or replace function public.map_state()
+returns json language sql stable security definer set search_path = public, private as $$
+  select case when public.is_member() then json_build_object('paused', c.paused, 'pause_msg', c.pause_msg, 'paused_by', c.paused_by, 'paused_at', c.paused_at,
+    'rules', c.rules, 'admin_only', c.admin_only, 'guest_max_days', c.guest_max_days, 'guest_max_per_owner', c.guest_max_per_owner, 'admin_sees_all', c.admin_sees_all,
+    'dry', coalesce(c.dry, '{}'))
+  else json_build_object('paused', false) end from private.config c limit 1 $$;
+grant execute on function public.map_state() to authenticated;
+create or replace function public.set_dry(p_ids text[], p_dry boolean)
+returns void language plpgsql security definer set search_path = public, private as $$
+declare ids text[];
+begin
+  if not public.is_admin() then raise exception 'admins only'; end if;
+  select coalesce(array_agg(distinct left(x, 60)), '{}') into ids from unnest(coalesce(p_ids, '{}')) x where x ~ '^(sandspruit|stream-[0-9]{1,3}|dam:[A-Za-z0-9 ''-]{1,40})$';
+  if array_length(ids, 1) is null then raise exception 'nothing to change'; end if;
+  if p_dry then update private.config set dry = (select array_agg(distinct v) from unnest(coalesce(dry, '{}') || ids) v);
+  else update private.config set dry = coalesce((select array_agg(v) from unnest(coalesce(dry, '{}')) v where v <> all(ids)), '{}'); end if;
+  begin perform public.kn_log('admin', case when p_dry then 'marked as dry: ' else 'marked as having water: ' end || array_to_string(ids, ', ')); exception when others then null; end;
+end $$;
+grant execute on function public.set_dry(text[], boolean) to authenticated;
+
 select * from public.kn_backend_selftest();
 

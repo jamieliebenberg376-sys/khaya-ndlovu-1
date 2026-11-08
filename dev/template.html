@@ -1364,8 +1364,14 @@ let trail=[];try{const t=JSON.parse(localStorage.getItem('kn_trail')||'null');if
 const empty={type:'FeatureCollection',features:[]};
 const COLORS={other:'#6d5a45',report:'#c5221f',home:'#d93025',lodge:'#8d5524',gate:'#3c4043',water:'#1a73e8',picnic:'#188038',view:'#7b1fa2',hide:'#00796b',sight:'#e37400'};
 
+/* contour lines: worked out on the phone from the same height tiles the hill shading uses (saved for offline too) */
+let CONTOUR=null;try{if(window.mlcontour){const ds=new mlcontour.DemSource({url:'https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png',encoding:'terrarium',maxzoom:14,worker:true,cacheSize:60});ds.setupMaplibre(maplibregl);
+  CONTOUR=ds.contourProtocolUrl({multiplier:1,thresholds:{11:[25,100],12:[10,50],13:[10,50],14:[5,25],15:[5,25]},elevationKey:'ele',levelKey:'level',contourLayer:'contours',buffer:1})}}catch(e){console.warn('contours',e)}
+let SHOWCONT=LS.get('contours',true);
+let DRY0=(()=>{try{const s=JSON.parse(localStorage.getItem('kn_mapState')||'{}');return Array.isArray(s.dry)?s.dry:[]}catch(e){return []}})();
 function style(){return{version:8,glyphs:'local://{fontstack}/{range}',
  sources:{
+  ...(CONTOUR?{contours:{type:'vector',tiles:[CONTOUR],maxzoom:15}}:{}),
   dem:{type:'raster-dem',tiles:['https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'],encoding:'terrarium',tileSize:256,maxzoom:14,attribution:'Terrain: Mapzen/AWS'},
   trail:{type:'geojson',data:empty,lineMetrics:true},
   sat:{type:'raster',tiles:['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],tileSize:256,maxzoom:18,attribution:'Imagery © Esri, Maxar, Earthstar Geographics'},
@@ -1373,6 +1379,7 @@ function style(){return{version:8,glyphs:'local://{fontstack}/{range}',
   boundary:{type:'geojson',data:DATA.boundary},
   water:{type:'geojson',data:DATA.water},
   river:{type:'geojson',data:DATA.river||empty},
+  rticks:{type:'geojson',data:empty},
   farms:{type:'geojson',data:DATA.farms||empty},
   roads:{type:'geojson',data:DATA.roads},
   crossings:{type:'geojson',data:DATA.crossings},
@@ -1390,14 +1397,12 @@ function style(){return{version:8,glyphs:'local://{fontstack}/{range}',
  layers:[
   {id:'bg',type:'background',paint:{'background-color':'#eeebe5'}},
   {id:'sat',type:'raster',source:'sat',layout:{visibility:'none'},paint:{'raster-fade-duration':150}},
-  {id:'res-fill',type:'fill',source:'boundary',paint:{'fill-color':'#fdfcfa'}},{id:'bush',type:'fill',source:'boundary',paint:{'fill-pattern':'bushD','fill-opacity':['interpolate',['linear'],['zoom'],11,.35,14,.8,17,1]}},
+  {id:'res-fill',type:'fill',source:'boundary',paint:{'fill-color':'#fdfcfa'}},{id:'bush',type:'fill',source:'boundary',paint:{'fill-pattern':'bushD','fill-opacity':['interpolate',['linear'],['zoom'],11,.35,14,.8,17,1]}},...(CONTOUR?[{id:'contour',type:'line',source:'contours','source-layer':'contours',minzoom:12,layout:{'line-join':'round',visibility:SHOWCONT?'visible':'none'},paint:{'line-color':'#8c8058','line-opacity':['case',['>',['get','level'],0],.42,.22],'line-width':['interpolate',['linear'],['zoom'],12,['case',['>',['get','level'],0],.6,.3],16,['case',['>',['get','level'],0],1.2,.7]]}},{id:'contour-lbl',type:'symbol',source:'contours','source-layer':'contours',minzoom:14,filter:['>',['get','level'],0],layout:{visibility:SHOWCONT?'visible':'none','symbol-placement':'line','text-field':['concat',['number-format',['get','ele'],{}],' m'],'text-font':['Sans Regular'],'text-size':10,'symbol-spacing':360,'text-max-angle':25},paint:{'text-color':'#7a6e4a','text-halo-color':'rgba(255,255,255,.75)','text-halo-width':1.2}}]:[]),
   {id:'farm-tint',type:'fill',source:'farms',filter:['all',['==',['get','kind'],'farm'],['!=',['get','name'],'Leadwood (restricted)']],paint:{'fill-color':['match',['get','name'],'Khaya Ndlovu','#f0b45c','Bloubank','#5c9fdc','#b07cc6'],'fill-opacity':.3}},
   {id:'lw-hatch',type:'fill',source:'farms',filter:['==',['get','name'],'Leadwood (restricted)'],paint:{'fill-pattern':'hatch-red','fill-opacity':['interpolate',['linear'],['zoom'],11,.55,16,.4]}},
   {id:'hill',type:'hillshade',source:'dem',paint:{'hillshade-exaggeration':.45,'hillshade-shadow-color':'#5a4a3a','hillshade-highlight-color':'#ffffff','hillshade-accent-color':'#8a7a6a','hillshade-illumination-direction':315}},
   {id:'outside-dim',type:'fill',source:'outside',layout:{visibility:'none'},paint:{'fill-color':'#000','fill-opacity':.28}},
-  {id:'river-bank',type:'line',source:'river',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#c9d9a8','line-opacity':.75,'line-blur':['interpolate',['linear'],['zoom'],12,1,17,6],'line-width':['interpolate',['exponential',2],['zoom'],10,['*',['get','w'],0.03016],20,['*',['get','w'],30.870]]}},
-  {id:'river',type:'line',source:'river',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#ecdcb6','line-width':['interpolate',['exponential',2],['zoom'],10,['*',['get','w'],0.01508],20,['*',['get','w'],15.435]]}},
-  {id:'river-water',type:'line',source:'river',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#7cbfe6','line-opacity':.9,'line-width':['interpolate',['exponential',2],['zoom'],10,['*',['get','w'],0.00460],20,['*',['get','w'],4.704]]}},
+  {id:'river-bank',type:'line',source:'river',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#c9d9a8','line-opacity':.75,'line-blur':['interpolate',['linear'],['zoom'],12,1,17,6],'line-width':['interpolate',['exponential',2],['zoom'],10,['case',['==',['get','k'],'stream'],['max',1.2,['*',['get','w'],0.022471]],['max',0,['*',['get','w'],0.03015999]]],20,['case',['==',['get','k'],'stream'],['max',4.8,['*',['get','w'],23]],['max',0,['*',['get','w'],30.87]]]]}},{id:'river',type:'line',source:'river',filter:['!',['==',['get','k'],'stream']],layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#ecdcb6','line-width':['interpolate',['exponential',2],['zoom'],10,['max',0.8,['*',['get','w'],0.015079995]],20,['max',3.2,['*',['get','w'],15.435]]]}},{id:'river-dry',type:'line',source:'river',filter:['in',['get','rid'],['literal',DRY0]],layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#a8865a','line-opacity':.85,'line-dasharray':[1.6,1.4],'line-width':['interpolate',['linear'],['zoom'],12,.8,16,1.8,19,3]}},{id:'river-water',type:'line',source:'river',filter:['!',['in',['get','rid'],['literal',DRY0]]],layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#7cbfe6','line-opacity':.9,'line-width':['interpolate',['exponential',2],['zoom'],10,['case',['==',['get','k'],'stream'],['max',0.9,['*',['get','w'],0.0083045]],['max',1,['*',['get','w'],0.004595808]]],20,['case',['==',['get','k'],'stream'],['max',3.6,['*',['get','w'],8.5]],['max',4,['*',['get','w'],4.704]]]]}},
   {id:'water-mud',type:'line',source:'water',layout:{'line-join':'round'},paint:{'line-color':'#e3d2a8','line-opacity':.9,'line-blur':2,'line-offset':['interpolate',['linear'],['zoom'],13,1,17,4],'line-width':['interpolate',['linear'],['zoom'],13,2,17,8]}},
   {id:'water',type:'fill',source:'water',paint:{'fill-color':'#6fb5e0','fill-opacity':1,'fill-antialias':true}},
   {id:'water-shallow',type:'line',source:'water',layout:{'line-join':'round'},paint:{'line-color':'#b9e1f5','line-opacity':.85,'line-blur':['interpolate',['linear'],['zoom'],13,3,17,12],'line-offset':['interpolate',['linear'],['zoom'],13,-3,17,-10],'line-width':['interpolate',['linear'],['zoom'],13,6,17,22]}},
@@ -1437,11 +1442,13 @@ function style(){return{version:8,glyphs:'local://{fontstack}/{range}',
   {id:'pan',type:'circle',source:'pois',filter:['all',['==',['get','kind'],'water'],['!',['in',['get','name'],['literal',['Hippo Dam','Wild Dog Dam']]]]],paint:{'circle-radius':['interpolate',['exponential',2],['zoom'],12,1.6,20,330],'circle-color':'#6fb5e0','circle-stroke-color':'#e3d2a8','circle-stroke-width':['interpolate',['linear'],['zoom'],12,.5,17,3.5],'circle-pitch-alignment':'map','circle-blur':.08}},
   {id:'cross-dot',type:'circle',source:'crossings',minzoom:13.5,paint:{'circle-radius':['interpolate',['linear'],['zoom'],13.5,3.5,17,8],'circle-color':'#1a73e8','circle-stroke-color':'#fff','circle-stroke-width':1.5}},
   {id:'cross-lbl',type:'symbol',source:'crossings',minzoom:15.3,layout:{'text-field':T('Water crossing'),'text-font':['Sans Bold'],'text-size':11,'text-offset':[0,1.2],'text-anchor':'top','text-optional':true},paint:{'text-color':'#1967d2','text-halo-color':'#fff','text-halo-width':1.6}},
+  {id:'rtick-dot',type:'circle',source:'rticks',paint:{'circle-radius':['interpolate',['linear'],['zoom'],13,2.5,17,4.5],'circle-color':'#ffffff','circle-stroke-color':'#1a73e8','circle-stroke-width':2,'circle-pitch-alignment':'map'}},
+  {id:'rtick-lbl',type:'symbol',source:'rticks',layout:{'text-field':['get','t'],'text-font':['Sans Bold'],'text-size':['interpolate',['linear'],['zoom'],13,10.5,17,12.5],'text-offset':[0,-1.1],'text-anchor':'bottom','text-pitch-alignment':'viewport','text-allow-overlap':false,'text-padding':4},paint:{'text-color':'#1557b0','text-halo-color':'#ffffff','text-halo-width':2}},
   CALLOUT,
   lbl('road-lbl-1',13,['>=',['get','len'],1500]),
   lbl('road-lbl-2',13.7,['all',['<',['get','len'],1500],['>=',['get','len'],600]]),
   lbl('road-lbl-3',14.5,['<',['get','len'],600]),
-  {id:'water-lbl',type:'symbol',source:'pois',minzoom:14.6,filter:['==',['get','kind'],'water'],layout:{'text-field':['get','name'],'text-font':['Sans Italic'],'text-size':12,'text-offset':[0,.9],'text-anchor':'top','text-optional':true},paint:{'text-color':'#1967d2','text-halo-color':'#fff','text-halo-width':1.5}},
+  {id:'river-lbl',type:'symbol',source:'river',minzoom:13.6,filter:['!=',['get','name'],''],layout:{'symbol-placement':'line','text-field':['case',['in',['get','rid'],['literal',DRY0]],['concat',['get','name'],' (dry)'],['get','name']],'text-font':['Sans Italic'],'text-size':['interpolate',['linear'],['zoom'],13.6,11,17,13.5],'symbol-spacing':420,'text-max-angle':30,'text-letter-spacing':.06,'text-pitch-alignment':'viewport'},paint:{'text-color':'#1967d2','text-halo-color':'#fff','text-halo-width':1.6}},{id:'water-lbl',type:'symbol',source:'pois',minzoom:13.8,filter:['==',['get','kind'],'water'],layout:{'text-field':['get','name'],'text-font':['Sans Italic'],'text-size':12,'text-offset':[0,.9],'text-anchor':'top','text-optional':true},paint:{'text-color':'#1967d2','text-halo-color':'#fff','text-halo-width':1.5}},
   {id:'poi',type:'symbol',source:'pois',filter:['!=',['get','kind'],'water'],layout:{'icon-image':['get','kind'],'icon-size':['interpolate',['linear'],['zoom'],12,.42,15,.62],'icon-allow-overlap':true,'text-field':['step',['zoom'],'',14,['get','name']],'text-font':['Sans Bold'],'text-size':12,'text-offset':[0,1.25],'text-anchor':'top','text-optional':true,'symbol-sort-key':['match',['get','kind'],'home',0,'gate',1,'lodge',2,5]},paint:{'text-color':['match',['get','kind'],'picnic','#137333','gate','#202124','view','#6a1b9a','home','#c5221f','#3c4043'],'text-halo-color':'#fff','text-halo-width':1.6}},
   {id:'home',type:'symbol',source:'home',layout:{'icon-image':'home','icon-size':['interpolate',['linear'],['zoom'],12,.5,15,.72],'icon-allow-overlap':true,'text-field':T('Home'),'text-font':['Sans Bold'],'text-size':12.5,'text-offset':[0,1.3],'text-anchor':'top','text-optional':true},paint:{'text-color':'#c5221f','text-halo-color':'#fff','text-halo-width':1.8}},
   {id:'heat',type:'heatmap',source:'heat',layout:{visibility:'none'},paint:{'heatmap-weight':['coalesce',['get','w'],1],'heatmap-intensity':['interpolate',['linear'],['zoom'],11,.8,16,2],'heatmap-radius':['interpolate',['exponential',2],['zoom'],11,['min',200,['max',10,['*',['coalesce',['get','r'],220],.02]]],14,['min',200,['max',18,['*',['coalesce',['get','r'],220],.16]]],17,['min',200,['max',36,['*',['coalesce',['get','r'],220],1.29]]]],'heatmap-opacity':.72,'heatmap-color':['interpolate',['linear'],['heatmap-density'],0,'rgba(255,235,59,0)',.2,'rgba(255,235,59,.55)',.45,'#ffb300',.7,'#f4511e',1,'#b71c1c']}},
@@ -1470,7 +1477,7 @@ function style(){return{version:8,glyphs:'local://{fontstack}/{range}',
   {id:'meas-pt',type:'circle',source:'meas',filter:['==',['get','k'],'p'],paint:{'circle-radius':6,'circle-color':'#fff','circle-stroke-color':'#2a1c08','circle-stroke-width':2.5}}
  ]}}
 const CALLOUT={id:'road-callout',type:'symbol',source:'roads',minzoom:12,layout:{visibility:'none','symbol-placement':'line-center','text-field':['get','name'],'text-font':['Sans Bold'],'text-size':14,'text-rotation-alignment':'viewport','text-pitch-alignment':'viewport','icon-image':'pill','icon-text-fit':'both','icon-text-fit-padding':[3,9,3,9],'icon-rotation-alignment':'viewport','icon-pitch-alignment':'viewport','text-padding':10,'symbol-sort-key':['-',0,['get','len']],'text-max-width':12},paint:{'text-color':'#202124'}};
-function lbl(id,minz,filter){return{id,type:'symbol',source:'roads',minzoom:minz,filter,layout:{'symbol-placement':'line','text-field':['get','name'],'text-font':['Sans Bold'],'text-size':['interpolate',['linear'],['zoom'],13,10.5,17,14.5],'text-letter-spacing':.02,'symbol-spacing':260,'text-max-angle':55,'text-padding':6,'symbol-sort-key':['-',0,['get','len']]},paint:{'text-color':'#4a4036','text-halo-color':'#ffffff','text-halo-width':1.8}}}
+function lbl(id,minz,filter){return{id,type:'symbol',source:'roads',minzoom:minz,filter,layout:{'symbol-placement':'line','text-field':['get','name'],'text-font':['Sans Bold'],'text-size':['interpolate',['linear'],['zoom'],13,10.5,17,14.5],'text-letter-spacing':.02,'symbol-spacing':260,'text-max-angle':55,'text-padding':6,'text-pitch-alignment':'viewport','text-keep-upright':true,'symbol-sort-key':['-',0,['get','len']]},paint:{'text-color':'#4a4036','text-halo-color':'#ffffff','text-halo-width':1.8}}}
 
 const CAM0=(()=>{const c=LS.get('cam',null);return c&&Date.now()-c.t<14*864e5&&Array.isArray(c.c)?c:null})();
 const map=new maplibregl.Map({container:'map',style:style(),...(CAM0?{center:CAM0.c,zoom:CAM0.z}:{bounds:RES_BOUNDS,fitBoundsOptions:{padding:40}}),maxBounds:[[minX-.12,minY-.1],[maxX+.12,maxY+.1]],minZoom:11,maxZoom:19,attributionControl:false,pitchWithRotate:false,dragRotate:true,touchPitch:true,fadeDuration:120});
@@ -1541,7 +1548,8 @@ function applyMode(){
   map.setPaintProperty('hill','hillshade-highlight-color',n?'#2a332b':'rgba(255,255,240,.9)');map.setPaintProperty('hill','hillshade-shadow-color',n?'#000000':'#4d5a3a');
   
   for(const id of['farm-line','farm-lbl','zone-line','zone-lbl'])map.setLayoutProperty(id,'visibility',showFarms?'visible':'none');
-  mapLook(sat,n);
+  mapLook(sat,n);applyDry();
+  try{if(map.getLayer('contour')){const v=SHOWCONT&&!sat&&mode!=='roads'?'visible':'none';for(const id of['contour','contour-lbl'])map.setLayoutProperty(id,'visibility',v);map.setPaintProperty('contour','line-color',n?'#56614a':'#8c8058');map.setPaintProperty('contour-lbl','text-color',n?'#8e9a7c':'#7a6e4a');map.setPaintProperty('contour-lbl','text-halo-color',n?'rgba(0,0,0,.7)':'rgba(255,255,255,.75)')}}catch(e){}
   map.setPaintProperty('res-line','line-color',sat?'#ffe08a':n?'#7d8a6c':'#5d6b4a');
   map.setPaintProperty('res-edge','line-opacity',sat?0:.55);map.setPaintProperty('res-edge','line-color',n?'#2c3a2a':'#b9c99a');
   for(const id of['road-lbl-1','road-lbl-2','road-lbl-3']){map.setPaintProperty(id,'text-color',sat||n?'#f1ece4':'#4a4036');map.setPaintProperty(id,'text-halo-color',sat?'rgba(0,0,0,.85)':n?'#121416':'#ffffff')}
@@ -1808,6 +1816,7 @@ function annPop(){const a=ANN.filter(x=>!annSeen.has(x.client_id)&&(!x.expires_a
 
 /* ============ what's new: shown once to owners and admins after an update ============ */
 const WHATS_NEW=[
+ [106,'waves','Rivers redrawn, contour lines and more','The rivers are redrawn from the satellite photos and Google\'s river map, with every stream in the reserve. The Map view has contour lines (switch them in Layers), river and dam names, road names that stay upright while you drive and distance markers along your route. Admins can mark a river, dam or pan as dry: tap it on the map, or use Admin tools.'],
  [105,'route','Smoother driving and a blue route','The map no longer shakes while you drive: the arrow glides steadily instead of hopping back and forth with the GPS. Your route is now blue like Google Maps, the road you are on glows softly white, and satellite roads are white instead of yellow.'],
  [104,'map','A better looking map','The Map view now shows the bush: green bushveld with trees and grass, softer hills, greener riverbanks and roads that stand out. Update news now comes from the Khaya Ndlovu database.'],
  [103,'map','Updates keep your stuff','When you update with the reinstall link, your settings, saved and recent places, home, drives, the map you were on and where you were looking all come with you. The Stellenbosch swap map is now a real map: everyone who swaps there sees each other live and sightings are shared.'],
@@ -2704,6 +2713,7 @@ function layerSheet(){setTimeout(()=>{if($('lyFocus'))$('lyFocus').onclick=focus
   if($('spdTog'))$('spdTog').onclick=()=>{speedWarn=!speedWarn;LS.set('speedWarn',speedWarn);if(me)speedCheck(me.ll);openSheet(layerSheet())};
   if($('redTog'))$('redTog').onclick=()=>{setRed(!redOn);openSheet(layerSheet())};
   if($('redAutoTog'))$('redAutoTog').onclick=()=>{redAuto=!redAuto;LS.set('redAuto',redAuto);toast(redAuto?'Red screen will turn on every night after sunset':'Automatic red screen off');redCheck();openSheet(layerSheet())};
+  if($('contTog'))$('contTog').onclick=()=>{SHOWCONT=!SHOWCONT;LS.set('contours',SHOWCONT);applyMode();openSheet(layerSheet())};
   $('heatTog').onclick=()=>{showHeat=!showHeat;LS.set('showHeat',showHeat);applyMode();refreshOverlays();openSheet(layerSheet())};
   document.querySelectorAll('[data-hw]').forEach(b=>b.onclick=()=>{heatWhat=b.dataset.hw;LS.set('heatWhat',heatWhat);refreshOverlays();openSheet(layerSheet())});
   $('estTog').onclick=()=>{showEst=!showEst;LS.set('showEst',showEst);applyMode();refreshOverlays();openSheet(layerSheet())};
@@ -2715,7 +2725,7 @@ function layerSheet(){setTimeout(()=>{if($('lyFocus'))$('lyFocus').onclick=focus
  return `<h2>Map style</h2><div class="sub">Satellite needs signal to load new areas. Areas you have viewed stay saved.</div><div class="seg"><button data-mode="map" class="${mode==='map'?'sel':''}">Map</button><button data-mode="sat" class="${mode==='sat'?'sel':''}">Satellite</button><button data-mode="roads" class="${mode==='roads'?'sel':''}">Roads only</button></div>
 <div class="list" style="margin-top:10px">
 <button class="it lk" id="lyFocus"><div style="flex:1"><b>Focus mode</b><br><small>Only what you need while you drive</small></div><small>${({drive:'When driving',on:'Always',off:'Off'})[FOCUSM]}</small><span class="ar">›</span></button>
-<div class="it"><div><b>Farm borders</b><br><small>Show the border and name of each farm</small></div><button class="tgl ${showFarms?'on':''}" id="farmTog"><i></i></button></div><div class="it" style="flex-wrap:wrap"><div style="flex:1"><b>Sightings heatmap</b><br><small>Where animals are seen most, from every sighting</small></div><button class="tgl ${showHeat?'on':''}" id="heatTog"><i></i></button>${showHeat?`<div class="heatChips" style="width:100%">${['All',...ANIMALS.filter(a=>a!=='Other')].map(a=>`<button class="chip${heatWhat===a?' sel':''}" data-hw="${a}">${a==='All'?'All animals':(EMO[a]||'')+' '+a}</button>`).join('')}</div>`:''}</div><div class="it"><div><b>Likely animal spots</b><br><small>Where animals are probably found when nobody has seen them for 24 h</small></div><button class="tgl ${showEst?'on':''}" id="estTog"><i></i></button></div>
+<div class="it"><div><b>Contour lines</b><br><small>Height lines on the Map view, so you can see hills and riverbeds</small></div><button class="tgl ${SHOWCONT?'on':''}" id="contTog"><i></i></button></div><div class="it"><div><b>Farm borders</b><br><small>Show the border and name of each farm</small></div><button class="tgl ${showFarms?'on':''}" id="farmTog"><i></i></button></div><div class="it" style="flex-wrap:wrap"><div style="flex:1"><b>Sightings heatmap</b><br><small>Where animals are seen most, from every sighting</small></div><button class="tgl ${showHeat?'on':''}" id="heatTog"><i></i></button>${showHeat?`<div class="heatChips" style="width:100%">${['All',...ANIMALS.filter(a=>a!=='Other')].map(a=>`<button class="chip${heatWhat===a?' sel':''}" data-hw="${a}">${a==='All'?'All animals':(EMO[a]||'')+' '+a}</button>`).join('')}</div>`:''}</div><div class="it"><div><b>Likely animal spots</b><br><small>Where animals are probably found when nobody has seen them for 24 h</small></div><button class="tgl ${showEst?'on':''}" id="estTog"><i></i></button></div>
 <div class="it"><div><b>My private notes</b><br><small>Pins only you can see</small></div><button class="tgl ${showNotes?'on':''}" id="notesTog"><i></i></button></div>
 <div class="it"><div><b>Terrain shading</b><br><small>Hills, ridges and riverbanks</small></div><button class="tgl ${showHill?'on':''}" id="hillTog"><i></i></button></div>
 <div class="it"><div><b>Today's trail</b><br><small>Fading line of where you've driven</small></div><button class="sm red" id="trailClr">Clear</button></div>
@@ -3088,8 +3098,16 @@ $('ovBtn').onclick=()=>{if(!nav||!me)return;if(ovOn){ovOn=false;setFollow(2);ret
   const top=$('nav').getBoundingClientRect().bottom+30,bot=innerHeight-$('navBottom').getBoundingClientRect().top+40;
   requestAnimationFrame(()=>map.fitBounds(b,{padding:{top:$('nav').querySelector('.r1').getBoundingClientRect().bottom+40,bottom:bot,left:80,right:90},bearing:0,pitch:0,duration:900,maxZoom:16.5}))};
 const ARROWS={straight:'M12 3l6 7h-4v11h-4V10H6z',left:'M4 10l7-6v4h5a4 4 0 0 1 4 4v9h-4v-9h-5v4z',right:'M20 10l-7-6v4H8a4 4 0 0 0-4 4v9h4v-9h5v4z','slight-left':'M6 4h8l-3 3 6 6v8h-4v-6.5L8 9l-2 2z','slight-right':'M18 4h-8l3 3-6 6v8h4v-6.5L16 9l2 2z','sharp-left':'M5 15l3-8 2 3.5 6 3.5V21h-4v-5.5L8 13l-1 3z','sharp-right':'M19 15l-3-8-2 3.5-6 3.5V21h4v-5.5l4-2.5 1 3z',arrive:'M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z',depart:'M12 3l6 7h-4v11h-4V10H6z'};
+
+/* distance markers on the route ahead: fixed spots every 500 m, each showing how far it is from the car */
+let RTK={at:-1e9,key:''};
+function routeTicks(){if(!mapReady||!map.getSource('rticks'))return;if(!nav||!nav.segs||!me){if(RTK.key!==''){RTK={at:-1e9,key:''};map.getSource('rticks').setData(empty)}return}
+  let a=0;try{a=projectOnRoute(nav.segs,me.ll).along}catch(e){return}if(Math.abs(a-RTK.at)<15&&RTK.key===String(nav.total))return;RTK={at:a,key:String(nav.total)};
+  const F=[];for(let s=Math.ceil((a+120)/500)*500;s<Math.min(nav.total-120,a+3000);s+=500){const d=s-a,txt=d<950?Math.round(d/50)*50+' m':(d/1000).toFixed(1).replace('.0','')+' km';F.push({type:'Feature',properties:{t:txt},geometry:{type:'Point',coordinates:pointAt(nav.segs,s)}})}
+  RTK.f=F;map.getSource('rticks').setData({type:'FeatureCollection',features:F})}
+setInterval(routeTicks,1500);
 function navTick(){
-  if(!nav||!me)return;
+  if(!nav||!me)return;try{routeTicks()}catch(e){}
   const pr=projectOnRoute(nav.segs,me.ll);
   if(pr.d>45){offCount++;if(offCount>=3){offCount=0;const r=navRoute();if(r){const b=buildSteps(r);Object.assign(nav,{r,...b});toast('Rerouting...',1500);say('Rerouting','rr'+Date.now());return navTick()}}}else offCount=0;
   const along=pr.along,left=Math.max(0,nav.total-along);
@@ -3716,13 +3734,50 @@ map.on('click','trail-line',e=>{const u=e.features[0].properties.uid;const r=LIV
 map.on('click','reports',e=>{const r=allReports().find(x=>x.cid===e.features[0].properties.cid);if(r)showPlace({kind:'report',name:r.kind,sub:'Road report · '+ago(r.t)+' · '+r.by+(r.road?' · '+r.road:'')+confTxt(r)+(r.note?' · '+r.note:''),ll:r.ll,cid:r.cid,mine:r.mine})});
 map.on('click','est-fill',e=>{if(map.queryRenderedFeatures(e.point,{layers:['sights','reports','poi','home']}).length)return;const id=e.features[0].properties.id,x=estimates().find(q=>q.id===id);if(x){e.preventDefault&&e.preventDefault();e.originalEvent&&(e.originalEvent._est=1);estSheet(x)}});
 map.on('click','poi',e=>{const f=e.features[0];showPlace({kind:f.properties.kind,name:f.properties.name,sub:(PKIND[f.properties.kind]||'')+(f.properties.note?' · '+f.properties.note:''),ll:f.geometry.coordinates,pid:f.properties.pid||'',base:f.properties.base||''})});
-map.on('click',e=>{if(tapGuard(e))return;const f=map.queryRenderedFeatures(e.point,{layers:['sights','reports','poi','home','est-fill','trail-line','note-dot','closed-roads','mate-dot','mate-lbl','mate-arrow']});if(f.length)return;tapLater(()=>{
+map.on('click',e=>{if(tapGuard(e))return;const f=map.queryRenderedFeatures(e.point,{layers:['sights','reports','poi','home','est-fill','trail-line','note-dot','closed-roads','mate-dot','mate-lbl','mate-arrow']});if(f.length)return;if(isAdm()){const pt=e.point;if(!map.queryRenderedFeatures([[pt.x-8,pt.y-8],[pt.x+8,pt.y+8]],{layers:['road']}).length&&(map.queryRenderedFeatures([[pt.x-8,pt.y-8],[pt.x+8,pt.y+8]],{layers:['river-water','river','river-dry']}).length||map.queryRenderedFeatures(pt,{layers:['water','pan']}).length))return}tapLater(()=>{
   const ll=e.lngLat.toArray();
   // on a route: tapping the map adds a sighting there without moving the map or stopping the route
   if(nav){if(DM.on){demoTapSheet(ll);return}addSheet('sight',ll);return}
   if(follow)setFollow(0);
   if(DM.on){demoTapSheet(ll);return}addSheet('sight',ll);map.easeTo({center:ll,offset:[0,-innerHeight*0.22],duration:500})})});
 for(const l of['sights','reports','poi','road','road-check'])map.on('mouseenter',l,()=>map.getCanvas().style.cursor='pointer'),map.on('mouseleave',l,()=>map.getCanvas().style.cursor='');
+
+
+/* ============ dried-out rivers and dams (admins switch them; everyone sees it) ============ */
+const DAMID=f=>'dam:'+((f.properties||{}).name||'');
+function riverGroups(){const g={};(DATA.river&&DATA.river.features||[]).forEach(f=>{const r=f.properties.rid;if(r)g[r]=g[r]||{rid:r,name:f.properties.name||'',n:0,len:0};if(r){g[r].n++;g[r].len+=lineLen(f.geometry.coordinates)}});return Object.values(g)}
+function lineLen(c){let s=0;for(let i=1;i<c.length;i++)s+=dist(c[i-1],c[i]);return s}
+function riverName(rid){if(rid==='sandspruit')return 'Sandspruit';if(rid&&rid.startsWith('dam:'))return rid.slice(4);return 'Stream'}
+function applyDry(){if(!mapReady)return;const D=['literal',DRY0.slice()],isDry=['in',['get','rid'],D],damDry=['in',['concat','dam:',['get','name']],D];
+  try{map.setFilter('river-water',['!',isDry]);map.setFilter('river-dry',isDry);
+    map.setLayoutProperty('river-lbl','text-field',['case',isDry,['concat',['get','name'],' (dry)'],['get','name']]);
+    const sat=mode==='sat',n=isNight&&!sat,wc=sat?'#3d8fc8':n?'#1d4a6c':'#6fb5e0',dc=sat?'rgba(214,190,140,.55)':n?'#3a3326':'#e6d6ae';
+    map.setPaintProperty('water','fill-color',['case',damDry,dc,wc]);map.setPaintProperty('water-shallow','line-opacity',['case',damDry,0,sat?.25:.85]);
+    map.setPaintProperty('water-line','line-color',['case',damDry,n?'#6b5a3e':'#b39566',sat?'#9bdcff':n?'#4f9bd1':'#3f8fc4']);
+    map.setPaintProperty('water-line','line-dasharray',[1,0]);
+    map.setPaintProperty('pan','circle-color',['case',['in',['concat','dam:',['get','name']],D],dc,wc]);
+    map.setPaintProperty('river-dry','line-color',sat?'#f0dcae':n?'#8a7350':'#a8865a');
+    map.setPaintProperty('water-lbl','text-color',['case',['in',['concat','dam:',['get','name']],D],sat||n?'#e6cf9e':'#8a6a3c',sat||n?'#bfe3ff':'#1967d2'])}catch(e){}}
+async function setDry(ids,on){if(!isAdm()){toast('Only admins can change this');return}if(!navigator.onLine){toast('You need signal to do this');return}
+  try{await rpc('set_dry',{p_ids:ids,p_dry:on});rtPing();await loadMapState();toast(on?(ids.length>1?'Marked as dry':riverName(ids[0])+' marked as dry'):(ids.length>1?'Marked as having water':riverName(ids[0])+' has water again'))}catch(e){toast(errTxt(e),5000)}}
+function drySheet(rid,ll){const dry=DRY0.includes(rid),name=riverName(rid),dam=rid.startsWith('dam:');
+  openSheet(`<div class="arv"><div class="arvi" style="color:${dry?'#a8865a':'var(--blue)'}">${LI('waves',30)}</div><small>${dam?'Dam':rid==='sandspruit'?'River':'Stream'}</small><h2>${esc(name)}</h2></div>
+   <div class="sub" style="text-align:center;margin-top:4px">${dry?'Marked as dry. It shows as a sandy bed on everyone\'s map.':'Shows with water on everyone\'s map.'}</div>
+   ${isAdm()?`<div class="list sgroup" style="margin-top:12px"><div class="it"><div style="flex:1"><b>Dried out</b><br><small>Everyone sees it as a dry ${dam?'dam':'riverbed'} instead of water</small></div><button class="tgl${dry?' on':''}" id="dryT" aria-label="Dried out"><i></i></button></div></div>`:''}
+   ${ll?`<button class="btn" id="dryAdd" style="width:100%;margin-top:10px">${LI('binoc',18)} Add a sighting here</button>`:''}`,()=>{
+    if($('dryT'))$('dryT').onclick=async()=>{const on=!DRY0.includes(rid);$('dryT').classList.toggle('on',on);await setDry([rid],on);if($('dryT'))drySheet(rid,ll)};
+    if($('dryAdd'))$('dryAdd').onclick=()=>{closeSheet();addSheet('sight',ll)}})}
+function dryAdminSheet(){const G=riverGroups(),streams=G.filter(g=>g.rid!=='sandspruit').map(g=>g.rid),dams=[...new Set([...(DATA.water&&DATA.water.features||[]).map(DAMID),...(DATA.pois&&DATA.pois.features||[]).filter(f=>f.properties.kind==='water').map(DAMID)])];
+  const row=(id,label,sub,on)=>`<div class="it"><div style="flex:1"><b>${esc(label)}</b><br><small>${sub}</small></div><button class="tgl${on?' on':''}" data-dry="${esc(id)}" aria-label="${esc(label)} dried out"><i></i></button></div>`;
+  const allS=streams.length&&streams.every(r=>DRY0.includes(r));
+  openSheet(`<h2>Dry rivers and dams</h2><div class="sub" style="margin-top:4px">Switch on what has dried out. Everyone sees it as a sandy bed instead of water. You can also tap a river on the map.</div>
+   <div class="list sgroup" style="margin-top:12px">${row('sandspruit','Sandspruit','The main river',DRY0.includes('sandspruit'))}${row('__streams','All the small streams',streams.length+' streams',allS)}${dams.map(d=>row(d,d.slice(4),/pan|wallow/i.test(d)?'Pan':'Dam',DRY0.includes(d))).join('')}</div>`,()=>{
+    document.querySelectorAll('[data-dry]').forEach(b=>b.onclick=async()=>{const id=b.dataset.dry,ids=id==='__streams'?streams:[id];const on=!b.classList.contains('on');b.classList.toggle('on',on);await setDry(ids,on);if(document.querySelector('[data-dry]'))dryAdminSheet()})})}
+// admins: tapping a river or dam opens its dry switch
+map.on('click',e=>{if(!isAdm()||tapGuard(e))return;const pt=e.point,box=[[pt.x-8,pt.y-8],[pt.x+8,pt.y+8]];
+  if(map.queryRenderedFeatures(box,{layers:['sights','reports','poi','home','note-dot','closed-roads','mate-dot','mate-lbl','mate-arrow','road']}).length)return;
+  const r=map.queryRenderedFeatures(box,{layers:['river-water','river','river-dry']})[0]||map.queryRenderedFeatures(pt,{layers:['water','pan']})[0];if(!r)return;
+  e.originalEvent&&(e.originalEvent._est=1);const rid=r.layer.id==='water'||r.layer.id==='pan'?DAMID(r):r.properties.rid;if(!rid)return;e._river=1;drySheet(rid,e.lngLat.toArray())});
 
 /* ============ menu ============ */
 const MI=(id,icon,t,s)=>`<button class="mi" id="${id}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${icon}</svg><span>${t}${s?`<small>${s}</small>`:''}</span></button>`;
@@ -4126,7 +4181,7 @@ function personSheet(x,back){const admin=Cloud.member&&Cloud.member.role==='admi
 let MS=LS.get('mapState',{paused:false,rules:{},admin_only:[]});
 const isAdm2=()=>Cloud.member&&(Cloud.member.realRole||Cloud.member.role)==='admin';
 async function loadMapState(){if(!Cloud.member||!navigator.onLine)return;try{const s=await rpc('map_state',{});if(s&&typeof s==='object'){MS=s;LS.set('mapState',s);applyMapState()}}catch(e){}}
-function applyMapState(){const R=MS.rules||{};
+function applyMapState(){{const nd=Array.isArray(MS.dry)?MS.dry:[];if(JSON.stringify(nd)!==JSON.stringify(DRY0)){DRY0=nd;applyDry()}}const R=MS.rules||{};
   // reserve rules: one set for every phone
   SPEED_LIMIT=R.speed>0?R.speed:40;QUIET.from=R.qfrom||'19:30';QUIET.to=R.qto||'06:00';SUNMIN=R.sunmin>0?R.sunmin:40;
   if(R.lock){speedWarn=R.speed!==0;quietOn=R.quiet!==false;sunRemind=R.sunmin!==0}
@@ -4196,6 +4251,7 @@ async function adminSheet(){const R=MS.rules||{};let removed=[],bans=[];if(navig
    <div class="row"><button class="btn" id="aDbCopy">Copy code</button><button class="btn" id="aDbNew">Change code</button></div>`:''}
    <div class="msec" style="margin-top:14px">Pause the map</div><div class="list sgroup"><div class="it"><div style="flex:1;min-width:0"><b>${MS.paused?'The map is paused':'Pause the map for everyone'}</b><br><small>${MS.paused?'Only admins can use it right now':'Everyone except admins sees a pause screen. SOS keeps working.'}</small></div><button class="tgl ${MS.paused?'on':''}" id="aPause"><i></i></button></div></div>
    ${MS.paused?'':'<input class="inp" id="aPauseMsg" maxlength="300" placeholder="Message (optional), e.g. Fire on the eastern boundary" style="margin-top:8px">'}
+   <div class="msec" style="margin-top:16px">Rivers and dams</div><div class="list sgroup"><div class="it" id="aDry" style="cursor:pointer"><div style="flex:1;min-width:0"><b>Dry rivers and dams</b><br><small>${DRY0.length?DRY0.length+' marked as dry':'Everything shows with water'}</small></div>${LI('chev',18)}</div></div>
    <div class="msec" style="margin-top:16px">Reserve rules</div>
    <div class="sub" style="margin:2px 0 6px">Speed limit</div>${chips('speed',[[0,'Off'],[30,'30 km/h'],[40,'40 km/h'],[50,'50 km/h']],R.speed==null?40:R.speed)}
    <div class="sub" style="margin:10px 0 6px">Quiet hours</div>${chips('quiet',[['off','Off'],['19:00-06:00','19:00 to 06:00'],['19:30-06:00','19:30 to 06:00'],['21:00-05:30','21:00 to 05:30']],R.quiet===false?'off':(R.qfrom||'19:30')+'-'+(R.qto||'06:00'))}
@@ -4229,6 +4285,7 @@ async function adminSheet(){const R=MS.rules||{};let removed=[],bans=[];if(navig
     document.querySelectorAll('[data-ao]').forEach(b=>b.onclick=()=>b.classList.toggle('sel'));
     const run=async(fn,args,msg)=>{if(!navigator.onLine){toast('You need signal to do this');return false}try{await rpc(fn,args);rtPing();await loadMapState();toast(msg);return true}catch(e){toast(errTxt(e),5000);return false}};
     $('aPause').onclick=async()=>{const on=!MS.paused;if(await run('set_pause',{p_on:on,p_msg:on&&$('aPauseMsg')?$('aPauseMsg').value:null},on?'The map is paused for everyone except admins':'The map is back on for everyone'))adminSheet()};
+    if($('aDry'))$('aDry').onclick=dryAdminSheet;
     $('aRules').onclick=()=>{const q=sel('quiet');run('set_rules',{p_rules:{speed:+sel('speed'),quiet:q!=='off',qfrom:q!=='off'?q.split('-')[0]:null,qto:q!=='off'?q.split('-')[1]:null,sunmin:+sel('sun'),lock:$('aLock').classList.contains('on')}},'Reserve rules saved')};
     $('aAO').onclick=()=>run('set_admin_only',{p_animals:[...document.querySelectorAll('[data-ao].sel')].map(b=>b.dataset.ao)},'Saved');
     $('aGL').onclick=()=>run('set_guest_limits',{p_days:+sel('gdays'),p_max:+sel('gmax')},'Guest limits saved');
