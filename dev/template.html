@@ -1354,7 +1354,7 @@ let minX=1e9,minY=1e9,maxX=-1e9,maxY=-1e9;B.forEach(([x,y])=>{minX=Math.min(minX
 const RES_BOUNDS=[[minX,minY],[maxX,maxY]];
 const outside={type:'Feature',geometry:{type:'Polygon',coordinates:[[[minX-.2,minY-.2],[maxX+.2,minY-.2],[maxX+.2,maxY+.2],[minX-.2,maxY+.2],[minX-.2,minY-.2]],B.slice().reverse()]}};
 let mode='sat'; /* always open on satellite; you can switch during the session */
-let speedWarn=LS.get('speedWarn',true),showFarms=LS.get('farms',false),showEst=LS.get('showEst',true),showHeat=LS.get('showHeat',false),heatWhat=LS.get('heatWhat','All'),redOn=LS.get('redOn',false),redAuto=LS.get('redAuto',false),redManual=LS.get('redOn',false);
+let speedWarn=LS.get('speedWarn',true),showFarms=LS.get('farms',false),showEst=LS.get('showEst',true),showHeat=false,redOn=LS.get('redOn',false),redAuto=LS.get('redAuto',false),redManual=LS.get('redOn',false);
 let theme=LS.get('theme','auto');      // auto | day | night
 let showHill=LS.get('hill',true);
 let driveMode=LS.get('drive','auto'); // auto | on | off
@@ -1390,7 +1390,7 @@ function style(){return{version:8,glyphs:'local://{fontstack}/{range}',
   mates:{type:'geojson',data:empty},mateplan:{type:'geojson',data:empty},
   notes:{type:'geojson',data:empty},
   tracks:{type:'geojson',data:empty},
-  sights:{type:'geojson',data:empty},est:{type:'geojson',data:empty},redq:{type:'geojson',data:{type:'Feature',properties:{},geometry:{type:'Polygon',coordinates:[[[-179,-85],[179,-85],[179,85],[-179,85],[-179,-85]]]}}},heat:{type:'geojson',data:empty},estpt:{type:'geojson',data:empty},spath:{type:'geojson',data:empty},sprev:{type:'geojson',data:empty},
+  sights:{type:'geojson',data:empty},est:{type:'geojson',data:empty},redq:{type:'geojson',data:{type:'Feature',properties:{},geometry:{type:'Polygon',coordinates:[[[-179,-85],[179,-85],[179,85],[-179,85],[-179,-85]]]}}},estpt:{type:'geojson',data:empty},spath:{type:'geojson',data:empty},sprev:{type:'geojson',data:empty},
   reports:{type:'geojson',data:empty},
   home:{type:'geojson',data:empty},
   acc:{type:'geojson',data:empty}},
@@ -1451,7 +1451,6 @@ function style(){return{version:8,glyphs:'local://{fontstack}/{range}',
   {id:'river-lbl',type:'symbol',source:'river',minzoom:13.6,filter:['!=',['get','name'],''],layout:{'symbol-placement':'line','text-field':['case',['in',['get','rid'],['literal',DRY0]],['concat',['get','name'],' (dry)'],['get','name']],'text-font':['Sans Italic'],'text-size':['interpolate',['linear'],['zoom'],13.6,11,17,13.5],'symbol-spacing':420,'text-max-angle':30,'text-letter-spacing':.06,'text-pitch-alignment':'viewport'},paint:{'text-color':'#1967d2','text-halo-color':'#fff','text-halo-width':1.6}},{id:'water-lbl',type:'symbol',source:'pois',minzoom:13.8,filter:['==',['get','kind'],'water'],layout:{'text-field':['get','name'],'text-font':['Sans Italic'],'text-size':12,'text-offset':[0,.9],'text-anchor':'top','text-optional':true},paint:{'text-color':'#1967d2','text-halo-color':'#fff','text-halo-width':1.5}},
   {id:'poi',type:'symbol',source:'pois',filter:['!=',['get','kind'],'water'],layout:{'icon-image':['get','kind'],'icon-size':['interpolate',['linear'],['zoom'],12,.42,15,.62],'icon-allow-overlap':true,'text-field':['step',['zoom'],'',14,['get','name']],'text-font':['Sans Bold'],'text-size':12,'text-offset':[0,1.25],'text-anchor':'top','text-optional':true,'symbol-sort-key':['match',['get','kind'],'home',0,'gate',1,'lodge',2,5]},paint:{'text-color':['match',['get','kind'],'picnic','#137333','gate','#202124','view','#6a1b9a','home','#c5221f','#3c4043'],'text-halo-color':'#fff','text-halo-width':1.6}},
   {id:'home',type:'symbol',source:'home',layout:{'icon-image':'home','icon-size':['interpolate',['linear'],['zoom'],12,.5,15,.72],'icon-allow-overlap':true,'text-field':T('Home'),'text-font':['Sans Bold'],'text-size':12.5,'text-offset':[0,1.3],'text-anchor':'top','text-optional':true},paint:{'text-color':'#c5221f','text-halo-color':'#fff','text-halo-width':1.8}},
-  {id:'heat',type:'heatmap',source:'heat',layout:{visibility:'none'},paint:{'heatmap-weight':['coalesce',['get','w'],1],'heatmap-intensity':['interpolate',['linear'],['zoom'],11,.8,16,2],'heatmap-radius':['interpolate',['exponential',2],['zoom'],11,['min',200,['max',10,['*',['coalesce',['get','r'],220],.02]]],14,['min',200,['max',18,['*',['coalesce',['get','r'],220],.16]]],17,['min',200,['max',36,['*',['coalesce',['get','r'],220],1.29]]]],'heatmap-opacity':.72,'heatmap-color':['interpolate',['linear'],['heatmap-density'],0,'rgba(255,235,59,0)',.2,'rgba(255,235,59,.55)',.45,'#ffb300',.7,'#f4511e',1,'#b71c1c']}},
   {id:'est-fill',type:'fill',source:'est',paint:{'fill-color':['get','col'],'fill-opacity':.13}},
   {id:'est-line',type:'line',source:'est',paint:{'line-color':['get','col'],'line-width':2,'line-dasharray':[2,2],'line-opacity':.8}},
   {id:'est-lbl',type:'symbol',source:'estpt',layout:{'text-field':['get','label'],'text-font':['Sans Bold'],'text-size':12.5,'text-line-height':1.15,'text-allow-overlap':false,'text-padding':4},paint:{'text-color':['get','col'],'text-halo-color':'#fff','text-halo-width':2}},
@@ -1554,7 +1553,7 @@ function applyMode(){
   map.setPaintProperty('res-edge','line-opacity',sat?0:.55);map.setPaintProperty('res-edge','line-color',n?'#2c3a2a':'#b9c99a');
   for(const id of['road-lbl-1','road-lbl-2','road-lbl-3']){map.setPaintProperty(id,'text-color',sat||n?'#f1ece4':'#4a4036');map.setPaintProperty(id,'text-halo-color',sat?'rgba(0,0,0,.85)':n?'#121416':'#ffffff')}
   for(const id of['poi','sights','reports','home','water-lbl','cross-lbl','farm-lbl','zone-lbl']){map.setPaintProperty(id,'text-halo-color',sat||n?'rgba(0,0,0,.85)':'#fff')}
-  map.setLayoutProperty('heat','visibility',showHeat?'visible':'none');map.setPaintProperty('est-lbl','text-halo-color',sat||n?'rgba(0,0,0,.85)':'#fff');for(const id of['est-fill','est-line','est-lbl'])map.setLayoutProperty(id,'visibility',showEst?'visible':'none');
+  map.setPaintProperty('est-lbl','text-halo-color',sat||n?'rgba(0,0,0,.85)':'#fff');for(const id of['est-fill','est-line','est-lbl'])map.setLayoutProperty(id,'visibility',showEst?'visible':'none');
   for(const id of['lw-lbl','lw-center']){map.setPaintProperty(id,'text-color',sat||n?'#ff6b5e':'#c5221f');map.setPaintProperty(id,'text-halo-color',sat||n?'rgba(0,0,0,.85)':'#fff')}
   map.setPaintProperty('poi','text-color',sat||n?'#fff':['match',['get','kind'],'picnic','#137333','gate','#202124','view','#6a1b9a','home','#c5221f','#3c4043']);
   applyDrive();calloutState='';try{updatePill()}catch(e){}try{if(FOCUS_ON)setTimeout(()=>applyFocus(true),0)}catch(e){}
@@ -1681,7 +1680,7 @@ async function sync(){
       try{
       if(o.op==='add'){const post=row=>api('/rest/v1/'+o.t+'?on_conflict=client_id',{method:'POST',headers:{Prefer:'resolution=ignore-duplicates,return=minimal'},body:JSON.stringify(row)});try{await post(o.row)}catch(e){const m=String(e.message);if(/kn_reject/.test(m)){const why=/outside/.test(m)?'it was outside the reserve':'too many were sent in a short time';toast((o.t==='reports'?'A road report':'A sighting')+' was not shared: '+why,4500)}else if(o.t==='sightings'&&/^400/.test(m)&&('photo' in o.row||'still' in o.row||'kill' in o.row||'video' in o.row)){const r2={...o.row};delete r2.kill;delete r2.video;try{await post(r2)}catch(e2){delete r2.photo;delete r2.still;await post(r2)}}else if(!((o.t==='animal_misses'||o.t==='sos')&&/^(404|400)/.test(m)))throw e}}
       else if(o.op==='photo'){await uploadPhoto(o.cid)}
-      else if(o.op==='svid'){const r=await fmUpload(o.f,o.ct);if(r==='big')toast('A sighting video was too big to share',4000)}
+      else if(o.op==='svid'){const r=await fmUpload(o.f,o.ct);if(r==='big'||r==='gone'){if(r==='big')toast('A sighting video was too big to share',4000);Cloud.outbox.forEach(q=>{if(q.op==='add'&&q.row&&q.row.client_id===o.cid)delete q.row.video})}}
       else if(o.op==='fcom'){try{await rpc('add_comment',{p_id:o.id,p_post:o.post,p_body:o.body})}catch(e){const m=String(e.message);if(/That post is gone|Write a comment|members only|bad comment/.test(m)){toast('A comment was not sent: '+m.replace(/^\d+:\s*/,''),4000)}else throw e}}
       else if(o.op==='story'){try{await rpc('set_story',{p_cid:o.cid,p_text:o.text})}catch(e){if(!/^(4\d\d)/.test(String(e.message))&&!/own sightings/.test(String(e.message)))throw e}}
       else if(o.op==='pp'){try{await rpc('add_place_photo',{p_cid:o.cid,p_key:o.key,p_caption:o.cap})}catch(e){if(!/^(4\d\d)/.test(String(e.message))&&!/Only owners/.test(String(e.message)))throw e}}
@@ -1816,17 +1815,18 @@ function annPop(){const a=ANN.filter(x=>!annSeen.has(x.client_id)&&(!x.expires_a
 
 /* ============ what's new: shown once to owners and admins after an update ============ */
 const WHATS_NEW=[
+ [107,'cam','Sighting photos and videos open straight away','Photos and videos now go up before the sighting itself, and every phone saves them as soon as a sighting arrives. So they open instantly, even with no signal and even if the person who posted them is offline. The heatmap is gone, as most owners asked.'],
  [106,'waves','Rivers redrawn, contour lines and more','The rivers are redrawn from the satellite photos and Google\'s river map, with every stream in the reserve. The Map view has contour lines (switch them in Layers), river and dam names, road names that stay upright while you drive and distance markers along your route. Admins can mark a river, dam or pan as dry: tap it on the map, or use Admin tools.'],
  [105,'route','Smoother driving and a blue route','The map no longer shakes while you drive: the arrow glides steadily instead of hopping back and forth with the GPS. Your route is now blue like Google Maps, the road you are on glows softly white, and satellite roads are white instead of yellow.'],
  [104,'map','A better looking map','The Map view now shows the bush: green bushveld with trees and grass, softer hills, greener riverbanks and roads that stand out. Update news now comes from the Khaya Ndlovu database.'],
  [103,'map','Updates keep your stuff','When you update with the reinstall link, your settings, saved and recent places, home, drives, the map you were on and where you were looking all come with you. The Stellenbosch swap map is now a real map: everyone who swaps there sees each other live and sightings are shared.'],
- [102,'binoc','Heatmap for animals on the move','The sightings heatmap now works for lions, leopards, cheetahs, wild dogs and hyenas. Each sighting glows over the area they roam and the way they moved between sightings is filled in. After 24 hours a sighting leaves the map but stays in the Feed.'],
+ [102,'binoc','Sightings stay in the Feed','After 24 hours a sighting leaves the map but stays in the Feed and the animal history.'],
  [101,'play','Videos on sightings','When you add a sighting you can add a video of up to 10 seconds. If your video is longer, slide to choose which 10 seconds to keep. It shows on the sighting and in the Feed.'],
  [100,'live','Which way you are facing','Your blue dot now has a beam showing which way your phone is pointing, even when you stand still, like Google Maps. A narrow beam means the compass is sure, a wide one means it needs calibrating (tap the dot).'],
  [98,'map','Swap to Stellenbosch','Menu › Swap to Stellenbosch shows the area with its border, downloads every real road and the satellite map with a progress bar, then swaps the map so you can test everything driving for real. Swap back any time.'],
  [95,'route','Smarter drives','Sightings coming up on your route are called out, a strip along the bottom shows every turn, gate and sighting ahead, one tap reports, a better way is offered if a road is blocked, stops like Google Maps, search along your route, saved and recent places, smart animal search, landscape layout, and every drive saved with top speed.'],
  [94,'route','Top-down view at turns','From 100 metres before a turn the map goes flat and zooms in, so you can see exactly which turn to take. Once you are through it tilts back to the driving view.'],
- [93,'scope','Focus mode','When you start driving the map hides the clutter: no heatmap, guesses, notes, borders, old trails or pop-ups. You still see roads, fresh sightings, reports, picnic spots, gates, dams and other cars. Change it in Settings › Driving.'],
+ [93,'scope','Focus mode','When you start driving the map hides the clutter: no guesses, notes, borders, old trails or pop-ups. You still see roads, fresh sightings, reports, picnic spots, gates, dams and other cars. Change it in Settings › Driving.'],
  [92,'map','A better looking map','Roads follow their real curves, dams are proper blue water with shallows and a muddy edge, rivers show the sandy bed with the water in it, and every pan is drawn as a little pond.'],
  [91,'msg','The Feed has its own button','Tap Feed at the top of the map. Post photos and videos, like posts and comment on them, just like Facebook. Posts made without signal go up by themselves later.'],
  [90,'route','Driving like Google Maps','Swipe the turn banner to see the turns ahead. Long press the map to drop a pin, get directions there or measure a distance. Add stops, pick the other way, avoid rough tracks, and tap the blue dot to calibrate the compass.'],
@@ -2129,7 +2129,7 @@ function bing(){if(!alertSound)return;try{unlockAudio();const t=actx.currentTime
 let quietOn=LS.get('quiet',true),lastMoveT=0;
 function isQuiet(){if(!quietOn)return false;const d=new Date(),m=d.getHours()*60+d.getMinutes();{const hm=t=>{const [h,mm]=t.split(':').map(Number);return h*60+mm},f=hm(QUIET.from),to=hm(QUIET.to);if(!(f>to?(m>=f||m<to):(m>=f&&m<to)))return false}
   const driving=nav||follow===2||Date.now()-lastMoveT<5*6e4;return !driving}
-function alertNew(list){
+function alertNew(list){setTimeout(prefetchMedia,1500);
   const seen=LS.get('seenT',0),uid=Cloud.sess&&Cloud.sess.uid;let top=seen;
   const fresh=list.filter(x=>{const t=Date.parse(x.created_at);if(t>top)top=t;return t>seen&&x.user_id!==uid&&(x.kill||!alertWhat||alertWhat.includes(ANIMALS.includes(x.what)?x.what:'Other'))});
   LS.set('seenT',Math.max(top,seen||Date.now()));
@@ -2238,7 +2238,7 @@ function bindSightExtras(x){
   $('sAddPh').onclick=e=>{if(!me||dist(me.ll,x.ll)>400){e.preventDefault();toast('Get within 400 m of the sighting to add a photo',3000)}};
   $('sAddPh').onchange=async e=>{const f=e.target.files&&e.target.files[0];if(!f)return;toast('Adding photo...');let b;try{b=await shrinkPhoto(f)}catch(z){toast('Could not read that photo');return}
     const cid=cidNew(),t=Date.now(),sg={cid,what:x.name,note:'',ll:x.ll.slice(),t,still:true,photo:true};await photoPut(cid,b);sights.unshift(sg);LS.set('sights',sights);
-    const share=!(x.name==='Rhino'&&!shareRhino);if(share){queue({op:'add',t:'sightings',row:sightRow(sg)});queue({op:'photo',cid})}refreshOverlays();showPlace(sightPlace(allSights().find(q=>q.cid===cid)||sg));toast('Photo added'+(navigator.onLine?'':'. It uploads when you have signal'),3000)};
+    const share=!(x.name==='Rhino'&&!shareRhino);if(share){queue({op:'photo',cid});queue({op:'add',t:'sightings',row:sightRow(sg)})}refreshOverlays();showPlace(sightPlace(allSights().find(q=>q.cid===cid)||sg));toast('Photo added'+(navigator.onLine?'':'. It uploads when you have signal'),3000)};
   $('stillBtn').onclick=()=>{if(!me||dist(me.ll,x.ll)>400){toast('Get within 400 m of the sighting first',3000);return}confirmStill(x.name,x.ll);closeSheet();toast('Thanks! '+x.name+' marked as still here')}}
 function confirmStill(what,ll){if(DM.on){demoAdd('sight',what,'',ll.slice(),null,false,true);return}markSeen(what);const cid=cidNew(),t=Date.now(),sg={cid,what,note:'',ll:ll.slice(),t,still:true};sights.unshift(sg);LS.set('sights',sights);
   if(!(what==='Rhino'&&!shareRhino))queue({op:'add',t:'sightings',row:sightRow(sg)});refreshOverlays()}
@@ -2275,17 +2275,6 @@ function stillAsk(){if(!me||SQ.cur||Date.now()-SQ.last<45000)return;if($('sheet'
   $('sqNo').onclick=()=>{reportGone(c.what,c.ll);done("Thanks, noted that it's gone")};
   SQ.t=setTimeout(()=>done(),8000)}
 setInterval(stillAsk,3000);
-/* ============ sightings heatmap ============ */
-/* heatmap: animals that roam (lions, leopards, cheetahs, wild dogs, hyenas) glow over a home-range sized area and the way they moved between
-   sightings is filled in, so a handful of scattered sightings still shows where they live. Animals that stay put keep a tight glow. */
-const HEAT_R={Lion:650,Leopard:500,Cheetah:850,'Wild dog':1100,Hyena:600,Elephant:450,Buffalo:350,Rhino:300,Hippo:150};
-function heatData(){const now=Date.now(),F=[],L=SLOG.filter(x=>x[1]!=='Other'&&(heatWhat==='All'||x[1]===heatWhat)).slice().sort((a,b)=>a[4]-b[4]);
-  const w=t=>Math.max(.25,Math.exp(-(now-t)/(120*864e5)));
-  L.forEach(x=>F.push({type:'Feature',properties:{w:w(x[4]),r:HEAT_R[x[1]]||220},geometry:{type:'Point',coordinates:[x[2],x[3]]}}));
-  const last={};L.forEach(x=>{const p=last[x[1]],R=HEAT_R[x[1]]||0;if(p&&R>=450&&x[4]-p[4]<864e5){const d=dist([p[2],p[3]],[x[2],x[3]]);if(d>150&&d<6000){const n=Math.min(25,Math.ceil(d/180));for(let i=1;i<n;i++){const f=i/n;F.push({type:'Feature',properties:{w:w(x[4])*.18,r:R*.6},geometry:{type:'Point',coordinates:[p[2]+(x[2]-p[2])*f,p[3]+(x[3]-p[3])*f]}})}}}last[x[1]]=x});
-  const k=Math.max(1,Math.min(4,6/Math.sqrt(Math.max(1,L.length))));
-  try{map.setPaintProperty('heat','heatmap-intensity',['interpolate',['linear'],['zoom'],11,.8*k,16,2*Math.min(k,3)])}catch(e){}
-  return {type:'FeatureCollection',features:F}}
 /* ============ night drive red screen ============ */
 const redSaved={};
 function applyRedMap(){if(!mapReady)return;const st=map.getStyle();if(!st)return;
@@ -2456,7 +2445,6 @@ function refreshOverlays(){
   const AS=allSights();
   map.getSource('sights').setData({type:'FeatureCollection',features:AS.map(s=>({type:'Feature',properties:{age:Math.round((Date.now()-s.t)/6e4),flabel:T(s.what+(onKill(s)?' · ON A KILL':''))+'\n'+lastSeen(s.t),cid:s.cid,what:ANI[s.what]?s.what:'Other',op:sightOp(s)*(missedAfter(s)?.5:1),iop:(s.chain||[s]).some(c=>c.photo)?0:sightOp(s)*(missedAfter(s)?.5:1),kill:onKill(s),label:T(s.what+(onKill(s)?' · ON A KILL':'')+'\n'+(new Date(s.t).toDateString()===new Date().toDateString()?'Last seen '+lastSeen(s.t):'Last seen here '+lastSeen(s.t)))},geometry:{type:'Point',coordinates:s.ll}}))});
   try{photoPins(AS)}catch(e){console.warn('photo pins',e)}
-  map.getSource('heat').setData(showHeat?heatData():empty);
   const ES=estimates();map.getSource('est').setData({type:'FeatureCollection',features:ES.map(e=>({type:'Feature',properties:{id:e.id,col:e.col},geometry:circlePoly(e.ll,e.r).geometry||circlePoly(e.ll,e.r)}))});
   map.getSource('estpt').setData({type:'FeatureCollection',features:ES.map(e=>({type:'Feature',properties:{id:e.id,col:e.col,label:T(e.what+'?\n'+e.pct+'% likely')},geometry:{type:'Point',coordinates:e.ll}}))});
   map.getSource('spath').setData({type:'FeatureCollection',features:AS.filter(s=>s.chain&&s.chain.length>1).map(s=>({type:'Feature',properties:{op:sightOp(s)},geometry:{type:'LineString',coordinates:s.chain.map(c=>c.ll)}}))});
@@ -2714,8 +2702,6 @@ function layerSheet(){setTimeout(()=>{if($('lyFocus'))$('lyFocus').onclick=focus
   if($('redTog'))$('redTog').onclick=()=>{setRed(!redOn);openSheet(layerSheet())};
   if($('redAutoTog'))$('redAutoTog').onclick=()=>{redAuto=!redAuto;LS.set('redAuto',redAuto);toast(redAuto?'Red screen will turn on every night after sunset':'Automatic red screen off');redCheck();openSheet(layerSheet())};
   if($('contTog'))$('contTog').onclick=()=>{SHOWCONT=!SHOWCONT;LS.set('contours',SHOWCONT);applyMode();openSheet(layerSheet())};
-  $('heatTog').onclick=()=>{showHeat=!showHeat;LS.set('showHeat',showHeat);applyMode();refreshOverlays();openSheet(layerSheet())};
-  document.querySelectorAll('[data-hw]').forEach(b=>b.onclick=()=>{heatWhat=b.dataset.hw;LS.set('heatWhat',heatWhat);refreshOverlays();openSheet(layerSheet())});
   $('estTog').onclick=()=>{showEst=!showEst;LS.set('showEst',showEst);applyMode();refreshOverlays();openSheet(layerSheet())};
   $('notesTog').onclick=()=>{showNotes=!showNotes;LS.set('showNotes',showNotes);drawNotes();openSheet(layerSheet())};
   $('hillTog').onclick=()=>{showHill=!showHill;LS.set('hill',showHill);applyMode();openSheet(layerSheet())};
@@ -2725,7 +2711,7 @@ function layerSheet(){setTimeout(()=>{if($('lyFocus'))$('lyFocus').onclick=focus
  return `<h2>Map style</h2><div class="sub">Satellite needs signal to load new areas. Areas you have viewed stay saved.</div><div class="seg"><button data-mode="map" class="${mode==='map'?'sel':''}">Map</button><button data-mode="sat" class="${mode==='sat'?'sel':''}">Satellite</button><button data-mode="roads" class="${mode==='roads'?'sel':''}">Roads only</button></div>
 <div class="list" style="margin-top:10px">
 <button class="it lk" id="lyFocus"><div style="flex:1"><b>Focus mode</b><br><small>Only what you need while you drive</small></div><small>${({drive:'When driving',on:'Always',off:'Off'})[FOCUSM]}</small><span class="ar">›</span></button>
-<div class="it"><div><b>Contour lines</b><br><small>Height lines on the Map view, so you can see hills and riverbeds</small></div><button class="tgl ${SHOWCONT?'on':''}" id="contTog"><i></i></button></div><div class="it"><div><b>Farm borders</b><br><small>Show the border and name of each farm</small></div><button class="tgl ${showFarms?'on':''}" id="farmTog"><i></i></button></div><div class="it" style="flex-wrap:wrap"><div style="flex:1"><b>Sightings heatmap</b><br><small>Where animals are seen most, from every sighting</small></div><button class="tgl ${showHeat?'on':''}" id="heatTog"><i></i></button>${showHeat?`<div class="heatChips" style="width:100%">${['All',...ANIMALS.filter(a=>a!=='Other')].map(a=>`<button class="chip${heatWhat===a?' sel':''}" data-hw="${a}">${a==='All'?'All animals':(EMO[a]||'')+' '+a}</button>`).join('')}</div>`:''}</div><div class="it"><div><b>Likely animal spots</b><br><small>Where animals are probably found when nobody has seen them for 24 h</small></div><button class="tgl ${showEst?'on':''}" id="estTog"><i></i></button></div>
+<div class="it"><div><b>Contour lines</b><br><small>Height lines on the Map view, so you can see hills and riverbeds</small></div><button class="tgl ${SHOWCONT?'on':''}" id="contTog"><i></i></button></div><div class="it"><div><b>Farm borders</b><br><small>Show the border and name of each farm</small></div><button class="tgl ${showFarms?'on':''}" id="farmTog"><i></i></button></div><div class="it"><div><b>Likely animal spots</b><br><small>Where animals are probably found when nobody has seen them for 24 h</small></div><button class="tgl ${showEst?'on':''}" id="estTog"><i></i></button></div>
 <div class="it"><div><b>My private notes</b><br><small>Pins only you can see</small></div><button class="tgl ${showNotes?'on':''}" id="notesTog"><i></i></button></div>
 <div class="it"><div><b>Terrain shading</b><br><small>Hills, ridges and riverbanks</small></div><button class="tgl ${showHill?'on':''}" id="hillTog"><i></i></button></div>
 <div class="it"><div><b>Today's trail</b><br><small>Fading line of where you've driven</small></div><button class="sm red" id="trailClr">Clear</button></div>
@@ -3396,10 +3382,10 @@ function compSheet(){askCompass();let iv=null;
 
 /* ============ FOCUS MODE: while you drive the map shows only what you need ============
    Kept: roads, your route, fresh sightings (last 3 hours, kills always), road reports, picnic spots, gates, dams, pans, hides, home, other cars, SOS.
-   Hidden: heatmap, likely-spot guesses, private notes, farm borders, other people's driven trails, old sighting paths, photo pins, the chips row,
+   Hidden: likely-spot guesses, private notes, farm borders, other people's driven trails, old sighting paths, photo pins, the chips row,
    Spotify and weather bubbles, and pop-ups (news, suggestions, story reminders, what's new, weekly report). Those wait until focus mode ends. */
 var FOCUSM=LS.get('focusMode','drive'),FOCUS_ON=false,FOCUS_SKIP=false;const FOCUS_AGE=180;
-const FOCUS_HIDE=['heat','est-fill','est-line','est-lbl','note-dot','note-lbl','trail-case','trail-line','spath','spath-arrow','spath-start','farm-line','farm-lbl','zone-line','zone-lbl','mate-plan','cross-lbl'];
+const FOCUS_HIDE=['est-fill','est-line','est-lbl','note-dot','note-lbl','trail-case','trail-line','spath','spath-arrow','spath-start','farm-line','farm-lbl','zone-line','zone-lbl','mate-plan','cross-lbl'];
 function focusWant(){if(FOCUSM==='on')return true;if(FOCUSM==='drive'){const d=drivingNow||!!nav;if(!d)FOCUS_SKIP=false;return d&&!FOCUS_SKIP}return false}
 function applyFocus(force){const on=!!focusWant()&&!calMode;if(on===FOCUS_ON&&!force)return;FOCUS_ON=on;document.body.classList.toggle('focus',on);if(!mapReady)return;
   if(on){FOCUS_HIDE.forEach(id=>{try{map.setLayoutProperty(id,'visibility','none')}catch(e){}});
@@ -3654,8 +3640,20 @@ async function pickSightVideo(file){const m=await vidMeta(file);if(!m||!m.d){toa
   const p2=await vidMeta(new File([r.blob],'clip',{type:r.blob.type}));return {blob:r.blob,dur:r.dur,poster:(p2&&p2.poster)||m.poster,ct:r.blob.type||'video/mp4'}}
 /* the video on a sighting's page */
 function sightVideoHtml(x){const v=(x.videos||[])[0];if(!v)return '';return `<div class="svid" data-svid="${esc(v)}" data-pc="${esc(x.photoCid||'')}"><img alt=""><span class="pplay">${LI('play',26)}</span><span class="pdur">${T('Video')}</span></div>`}
+
+/* sighting photos and videos are downloaded onto every phone as soon as the sighting arrives, so they open straight away,
+   with or without signal, and whether or not the person who posted them is online */
+const PREF=new Set();let prefBusy=false;
+async function prefetchMedia(){if(prefBusy||!Cloud.sess||!navigator.onLine||document.hidden)return;prefBusy=true;
+  try{const now=Date.now(),cn=navigator.connection,slow=cn&&(cn.saveData||/2g/.test(cn.effectiveType||''));
+    const L=allSights().filter(x=>!x.mine&&now-x.t<2*864e5).slice(-40).reverse();
+    for(const x of L){if(x.photo&&!PREF.has(x.cid)){PREF.add(x.cid);if(!(await photoGet(x.cid)))await photoURL(x.cid).catch(()=>{})}}
+    if(!slow)for(const x of L.slice(0,8)){const f=x.video;if(!f||PREF.has(f))continue;PREF.add(f);if(await photoGet(f))continue;
+      try{const u=await fmVid(f);if(u&&/^https?:/.test(u)){const r=await fetch(u);if(r.ok){const b=await r.blob();if(b.size<25e6){await photoPut(f,b);FMC[f]=URL.createObjectURL(b)}}}}catch(e){PREF.delete(f)}}}
+  finally{prefBusy=false}}
+setInterval(prefetchMedia,45000);setTimeout(prefetchMedia,8000);addEventListener('online',()=>setTimeout(prefetchMedia,3000));
 function bindSightVideo(root){(root||document).querySelectorAll('[data-svid]').forEach(d=>{const im=d.querySelector('img');if(d.dataset.pc)photoURL(d.dataset.pc).then(u=>{if(u&&im){im.src=u;d.classList.add('ok')}});
-  d.onclick=async()=>{if(d.querySelector('video'))return;const u=await fmVid(d.dataset.svid);if(!u){toast(T('The video needs signal'));return}d.innerHTML=`<video src="${u}" controls playsinline autoplay></video>`;d.classList.add('ok','playing')}})}
+  d.onclick=async()=>{if(d.querySelector('video'))return;const u=await fmVid(d.dataset.svid);if(!u){toast(navigator.onLine?T('The video is still on its way, try again in a moment'):T('The video needs signal'));return}d.innerHTML=`<video src="${u}" controls playsinline autoplay></video>`;d.classList.add('ok','playing')}})}
 
 /* ============ sightings & road reports ============ */
 const OTHER_SUG=['Warthog','Impala','Wildebeest','Nyala','Waterbuck','Honey badger','Jackal','Baboon','Vervet monkey','Duiker','Steenbok','Bushbuck','Porcupine','Ostrich','Crocodile','Mongoose'];
@@ -3720,8 +3718,9 @@ function addSheet(tab,at){
       const note=$('sNote').value.trim(),cid=cidNew(),t=Date.now();
       if(DM.on){demoAdd(tab,pick,note,ll,road,PRED.includes(pick)&&$('sKill')&&$('sKill').classList.contains('on'));closeSheet();return}
       if(tab==='report'){const r={cid,kind:pick,note,road,ll,t};reports.unshift(r);LS.set('reports',reports);queue({op:'add',t:'reports',row:reportRow(r)});toast(pick+' reported'+(road?' on '+road:''))}
-      else{const sg={cid,what:pick,note,ll,t,photo:!!phBlob,...(PRED.includes(pick)&&$('sKill')&&$('sKill').classList.contains('on')?{kill:true}:{})};if(vid){const ext=/webm/.test(vid.ct)?'webm':/quicktime/.test(vid.ct)?'mov':'mp4';sg.video='fm-sv-'+cid.replace(/[^A-Za-z0-9_-]/g,'')+'.'+ext;const vf=sg.video,vc=vid.ct;photoPut(vf,vid.blob).then(()=>{if(!(pick==='Rhino'&&!shareRhino))queue({op:'svid',cid,f:vf,ct:vc})}).catch(()=>{})}
-      sights.unshift(sg);LS.set('sights',sights);logSight(cid,pick,ll,t);markSeen(pick);if(!note)storyLater(cid,pick);const share=!(pick==='Rhino'&&!shareRhino);if(phBlob){photoPut(cid,phBlob).then(()=>{if(share)queue({op:'photo',cid})})}if(share)queue({op:'add',t:'sightings',row:sightRow(sg)});toast(pick+(sg.kill?' on a kill':'')+' saved'+(phBlob?' with photo':''))}
+      else{const sg={cid,what:pick,note,ll,t,photo:!!phBlob,...(PRED.includes(pick)&&$('sKill')&&$('sKill').classList.contains('on')?{kill:true}:{})};let vq=null;if(vid){const ext=/webm/.test(vid.ct)?'webm':/quicktime/.test(vid.ct)?'mov':'mp4';sg.video='fm-sv-'+cid.replace(/[^A-Za-z0-9_-]/g,'')+'.'+ext;vq={op:'svid',cid,f:sg.video,ct:vid.ct,vb:vid.blob}}
+      sights.unshift(sg);LS.set('sights',sights);logSight(cid,pick,ll,t);markSeen(pick);if(!note)storyLater(cid,pick);const share=!(pick==='Rhino'&&!shareRhino);{const saves=[];if(phBlob)saves.push(photoPut(cid,phBlob));if(vq)saves.push(photoPut(vq.f,vq.vb));const row=sightRow(sg);
+        Promise.allSettled(saves).then(()=>{if(!share)return;if(phBlob)queue({op:'photo',cid});if(vq)queue({op:'svid',cid,f:vq.f,ct:vq.ct});queue({op:'add',t:'sightings',row})})}toast(pick+(sg.kill?' on a kill':'')+' saved'+(phBlob?' with photo':''))}
       refreshOverlays();closeSheet()}
   });
 }
@@ -3914,7 +3913,7 @@ async function doUpdate(){$('uwGo').textContent='Updating...';LS.set('updTries',
    A reinstall makes a brand new Home Screen app with an empty memory. Before the sign-in link is made, your settings, saved and recent
    places, home, recorded drives, the map you were on and where you were looking are packed up and travel with the one-time link,
    then are put back in the new app. Sign-in keys, Spotify and the downloaded map files are never sent (the maps download again). */
-const CARRY=['avoidTracks','voice','theme','speedWarn','redOn','redAuto','alertSound','alertOn','alertWhat','vmode','topTurn','tilt','sunRemind','showSpd','showNotes','showHeat','showEst','heatWhat','shareLoc','quiet','northUp','mode','lang','keepAwake','hill','farms','autoRec','focusMode','liveSatPref','liveOn','onboarded','roleSeen','wnSeen','annSeen','dmSeen','sugSeen','wrSeen','obNag','sqAsked','joinSkip','calib','otherNames','recents','favs','home','tracks','cam','pnotes','mymiss'];
+const CARRY=['avoidTracks','voice','theme','speedWarn','redOn','redAuto','alertSound','alertOn','alertWhat','vmode','topTurn','tilt','sunRemind','showSpd','showNotes','showEst','shareLoc','quiet','northUp','mode','lang','keepAwake','hill','farms','autoRec','focusMode','liveSatPref','liveOn','onboarded','roleSeen','wnSeen','annSeen','dmSeen','sugSeen','wrSeen','obNag','sqAsked','joinSkip','calib','otherNames','recents','favs','home','tracks','cam','pnotes','mymiss'];
 function carryPack(){const o={};CARRY.forEach(k=>['kn_'+k,'kn_live_'+k].forEach(n=>{try{const v=localStorage.getItem(n);if(v!=null&&v.length<150000)o[n]=v}catch(e){}}));
   let s=JSON.stringify(o);if(s.length>280000){delete o.kn_tracks;delete o.kn_live_tracks;s=JSON.stringify(o)}return s.length>280000?null:o}
 async function carrySend(t){if(!t)return;try{const o=carryPack();if(o)await rpc('handover_carry',{p_token:t,p_data:o})}catch(e){}}

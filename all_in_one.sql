@@ -2379,7 +2379,7 @@ grant execute on function public.set_dry(text[], boolean) to authenticated;
 
 
 -- =====================================================================
--- PUSH THE UPDATE (version 106)
+-- PUSH THE UPDATE (version 107)
 -- =====================================================================
 
 alter table private.config add column if not exists min_build int not null default 0;
@@ -2449,9 +2449,9 @@ begin
 end $$;
 grant execute on function public.set_min_build(int) to authenticated;
 
--- push it now: require version 106 and post the news. It is sent by the database, not by any person.
-update private.config set min_build = 106;
-select public.kn_update_news(106);
+-- push it now: require version 107 and post the news. It is sent by the database, not by any person.
+update private.config set min_build = 107;
+select public.kn_update_news(107);
 
 notify pgrst, 'reload schema';
 
@@ -2463,7 +2463,7 @@ union all select 'Codes and logins self-test', case when (select count(*) from p
 union all select 'Protected account (9fb4d097...) locked as admin', case when exists (select 1 from public.members where locked and role = 'admin') then 'YES' else 'NO: that account is not on the map yet. Open the map on that phone, then run this again' end
 union all select 'Your Database code (keep it secret, it gives full control)', (select db_code from private.config limit 1)
 union all select 'Backend self-test', case when (select count(*) from public.kn_backend_selftest() where result not like 'PASS%') = 0 then 'YES' else 'NO: ' || (select string_agg(test, ', ') from public.kn_backend_selftest() where result not like 'PASS%') end
-union all select 'Everyone must be on version 106', case when (select min_build from private.config limit 1) = 106 then 'YES' else 'NO' end
-union all select 'Update news posted (only old versions see it)', case when exists (select 1 from public.announcements where for_old_build = 106 and not removed) then 'YES' else 'NO' end
+union all select 'Everyone must be on version 107', case when (select min_build from private.config limit 1) = 107 then 'YES' else 'NO' end
+union all select 'Update news posted (only old versions see it)', case when exists (select 1 from public.announcements where for_old_build = 107 and not removed) then 'YES' else 'NO' end
 union all select 'Your owner code (unchanged)', (select upper(invite_code) from private.config limit 1)
-union all select 'People who still need to update', (select count(*)::text from public.members where coalesce(app_build, 0) < 106 and (role <> 'guest' or expires_at > now()));
+union all select 'People who still need to update', (select count(*)::text from public.members where coalesce(app_build, 0) < 107 and (role <> 'guest' or expires_at > now()));
