@@ -1220,10 +1220,11 @@ do $$ begin
   create trigger kn_trail after insert or update on public.live_locs for each row execute function public.kn_trg_trail();
 exception when undefined_table then null; end $$;
 
+-- where cars have driven: admins only
 create or replace function public.live_trails(p_hours double precision default 2)
 returns json language plpgsql stable security definer set search_path = public as $$
 begin
-  if not public.is_member() then return '[]'::json; end if;
+  if not public.is_admin() then return '[]'::json; end if;
   return coalesce((select json_agg(json_build_object('u', t.user_id, 'n', t.name, 'pts', t.pts)) from (
     select user_id, max(name) as name, json_agg(json_build_array(round(lng::numeric, 6), round(lat::numeric, 6), floor(extract(epoch from at))) order by at) as pts
     from public.live_trail where at > now() - make_interval(secs => least(greatest(p_hours, .1), 3) * 3600) and user_id <> auth.uid()
@@ -2379,7 +2380,7 @@ grant execute on function public.set_dry(text[], boolean) to authenticated;
 
 
 -- =====================================================================
--- PUSH THE UPDATE (version 107)
+-- PUSH THE UPDATE (version 108)
 -- =====================================================================
 
 alter table private.config add column if not exists min_build int not null default 0;
@@ -2449,9 +2450,9 @@ begin
 end $$;
 grant execute on function public.set_min_build(int) to authenticated;
 
--- push it now: require version 107 and post the news. It is sent by the database, not by any person.
-update private.config set min_build = 107;
-select public.kn_update_news(107);
+-- push it now: require version 108 and post the news. It is sent by the database, not by any person.
+update private.config set min_build = 108;
+select public.kn_update_news(108);
 
 notify pgrst, 'reload schema';
 
@@ -2463,7 +2464,7 @@ union all select 'Codes and logins self-test', case when (select count(*) from p
 union all select 'Protected account (9fb4d097...) locked as admin', case when exists (select 1 from public.members where locked and role = 'admin') then 'YES' else 'NO: that account is not on the map yet. Open the map on that phone, then run this again' end
 union all select 'Your Database code (keep it secret, it gives full control)', (select db_code from private.config limit 1)
 union all select 'Backend self-test', case when (select count(*) from public.kn_backend_selftest() where result not like 'PASS%') = 0 then 'YES' else 'NO: ' || (select string_agg(test, ', ') from public.kn_backend_selftest() where result not like 'PASS%') end
-union all select 'Everyone must be on version 107', case when (select min_build from private.config limit 1) = 107 then 'YES' else 'NO' end
-union all select 'Update news posted (only old versions see it)', case when exists (select 1 from public.announcements where for_old_build = 107 and not removed) then 'YES' else 'NO' end
+union all select 'Everyone must be on version 108', case when (select min_build from private.config limit 1) = 108 then 'YES' else 'NO' end
+union all select 'Update news posted (only old versions see it)', case when exists (select 1 from public.announcements where for_old_build = 108 and not removed) then 'YES' else 'NO' end
 union all select 'Your owner code (unchanged)', (select upper(invite_code) from private.config limit 1)
-union all select 'People who still need to update', (select count(*)::text from public.members where coalesce(app_build, 0) < 107 and (role <> 'guest' or expires_at > now()));
+union all select 'People who still need to update', (select count(*)::text from public.members where coalesce(app_build, 0) < 108 and (role <> 'guest' or expires_at > now()));

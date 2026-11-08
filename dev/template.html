@@ -971,6 +971,7 @@ body.night .lvst,body.night .lvpt b{color:#f1ece4}
 #vtrim .vtt{display:flex;justify-content:space-between;font:700 12.5px system-ui;color:rgba(255,255,255,.7)}#vtrim .btn:not(.pri){background:rgba(255,255,255,.12)!important;color:#fff!important;box-shadow:none!important}
 #vtrim .vtp{margin-top:12px;text-align:center}#vtrim .vtp small{display:block;margin-top:6px;color:rgba(255,255,255,.7)}
 .vbusy{opacity:.55!important;filter:saturate(.4)}
+body:not(.spon) #spot{display:none!important}
 </style>
 </head>
 <body>
@@ -1354,7 +1355,7 @@ let minX=1e9,minY=1e9,maxX=-1e9,maxY=-1e9;B.forEach(([x,y])=>{minX=Math.min(minX
 const RES_BOUNDS=[[minX,minY],[maxX,maxY]];
 const outside={type:'Feature',geometry:{type:'Polygon',coordinates:[[[minX-.2,minY-.2],[maxX+.2,minY-.2],[maxX+.2,maxY+.2],[minX-.2,maxY+.2],[minX-.2,minY-.2]],B.slice().reverse()]}};
 let mode='sat'; /* always open on satellite; you can switch during the session */
-let speedWarn=LS.get('speedWarn',true),showFarms=LS.get('farms',false),showEst=LS.get('showEst',true),showHeat=false,redOn=LS.get('redOn',false),redAuto=LS.get('redAuto',false),redManual=LS.get('redOn',false);
+let SPOTON=LS.get('spotOn',false);let speedWarn=LS.get('speedWarn',false),showFarms=LS.get('farms',false),showEst=false,showHeat=false,redOn=LS.get('redOn',false),redAuto=LS.get('redAuto',false),redManual=LS.get('redOn',false);
 let theme=LS.get('theme','auto');      // auto | day | night
 let showHill=LS.get('hill',true);
 let driveMode=LS.get('drive','auto'); // auto | on | off
@@ -1368,6 +1369,7 @@ const COLORS={other:'#6d5a45',report:'#c5221f',home:'#d93025',lodge:'#8d5524',ga
 let CONTOUR=null;try{if(window.mlcontour){const ds=new mlcontour.DemSource({url:'https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png',encoding:'terrarium',maxzoom:14,worker:true,cacheSize:60});ds.setupMaplibre(maplibregl);
   CONTOUR=ds.contourProtocolUrl({multiplier:1,thresholds:{11:[25,100],12:[10,50],13:[10,50],14:[5,25],15:[5,25]},elevationKey:'ele',levelKey:'level',contourLayer:'contours',buffer:1})}}catch(e){console.warn('contours',e)}
 let SHOWCONT=LS.get('contours',true);
+document.body.classList.toggle('spon',SPOTON);
 let DRY0=(()=>{try{const s=JSON.parse(localStorage.getItem('kn_mapState')||'{}');return Array.isArray(s.dry)?s.dry:[]}catch(e){return []}})();
 function style(){return{version:8,glyphs:'local://{fontstack}/{range}',
  sources:{
@@ -1451,9 +1453,6 @@ function style(){return{version:8,glyphs:'local://{fontstack}/{range}',
   {id:'river-lbl',type:'symbol',source:'river',minzoom:13.6,filter:['!=',['get','name'],''],layout:{'symbol-placement':'line','text-field':['case',['in',['get','rid'],['literal',DRY0]],['concat',['get','name'],' (dry)'],['get','name']],'text-font':['Sans Italic'],'text-size':['interpolate',['linear'],['zoom'],13.6,11,17,13.5],'symbol-spacing':420,'text-max-angle':30,'text-letter-spacing':.06,'text-pitch-alignment':'viewport'},paint:{'text-color':'#1967d2','text-halo-color':'#fff','text-halo-width':1.6}},{id:'water-lbl',type:'symbol',source:'pois',minzoom:13.8,filter:['==',['get','kind'],'water'],layout:{'text-field':['get','name'],'text-font':['Sans Italic'],'text-size':12,'text-offset':[0,.9],'text-anchor':'top','text-optional':true},paint:{'text-color':'#1967d2','text-halo-color':'#fff','text-halo-width':1.5}},
   {id:'poi',type:'symbol',source:'pois',filter:['!=',['get','kind'],'water'],layout:{'icon-image':['get','kind'],'icon-size':['interpolate',['linear'],['zoom'],12,.42,15,.62],'icon-allow-overlap':true,'text-field':['step',['zoom'],'',14,['get','name']],'text-font':['Sans Bold'],'text-size':12,'text-offset':[0,1.25],'text-anchor':'top','text-optional':true,'symbol-sort-key':['match',['get','kind'],'home',0,'gate',1,'lodge',2,5]},paint:{'text-color':['match',['get','kind'],'picnic','#137333','gate','#202124','view','#6a1b9a','home','#c5221f','#3c4043'],'text-halo-color':'#fff','text-halo-width':1.6}},
   {id:'home',type:'symbol',source:'home',layout:{'icon-image':'home','icon-size':['interpolate',['linear'],['zoom'],12,.5,15,.72],'icon-allow-overlap':true,'text-field':T('Home'),'text-font':['Sans Bold'],'text-size':12.5,'text-offset':[0,1.3],'text-anchor':'top','text-optional':true},paint:{'text-color':'#c5221f','text-halo-color':'#fff','text-halo-width':1.8}},
-  {id:'est-fill',type:'fill',source:'est',paint:{'fill-color':['get','col'],'fill-opacity':.13}},
-  {id:'est-line',type:'line',source:'est',paint:{'line-color':['get','col'],'line-width':2,'line-dasharray':[2,2],'line-opacity':.8}},
-  {id:'est-lbl',type:'symbol',source:'estpt',layout:{'text-field':['get','label'],'text-font':['Sans Bold'],'text-size':12.5,'text-line-height':1.15,'text-allow-overlap':false,'text-padding':4},paint:{'text-color':['get','col'],'text-halo-color':'#fff','text-halo-width':2}},
   {id:'spath',type:'line',source:'spath',layout:{'line-cap':'round'},paint:{'line-color':'#f57c00','line-width':['interpolate',['linear'],['zoom'],12,2,16,3.5],'line-dasharray':[1.2,1.6],'line-opacity':['get','op']}},
   {id:'spath-arrow',type:'symbol',source:'spath',layout:{'symbol-placement':'line','symbol-spacing':70,'icon-image':'sarrow','icon-size':['interpolate',['linear'],['zoom'],12,.45,16,.7],'icon-allow-overlap':true,'icon-rotation-alignment':'map'},paint:{'icon-opacity':['get','op']}},
   {id:'spath-start',type:'circle',source:'sprev',paint:{'circle-radius':4,'circle-color':'#fff','circle-stroke-color':'#f57c00','circle-stroke-width':2,'circle-opacity':['*',['get','op'],.8],'circle-stroke-opacity':['*',['get','op'],.8]}},
@@ -1553,7 +1552,7 @@ function applyMode(){
   map.setPaintProperty('res-edge','line-opacity',sat?0:.55);map.setPaintProperty('res-edge','line-color',n?'#2c3a2a':'#b9c99a');
   for(const id of['road-lbl-1','road-lbl-2','road-lbl-3']){map.setPaintProperty(id,'text-color',sat||n?'#f1ece4':'#4a4036');map.setPaintProperty(id,'text-halo-color',sat?'rgba(0,0,0,.85)':n?'#121416':'#ffffff')}
   for(const id of['poi','sights','reports','home','water-lbl','cross-lbl','farm-lbl','zone-lbl']){map.setPaintProperty(id,'text-halo-color',sat||n?'rgba(0,0,0,.85)':'#fff')}
-  map.setPaintProperty('est-lbl','text-halo-color',sat||n?'rgba(0,0,0,.85)':'#fff');for(const id of['est-fill','est-line','est-lbl'])map.setLayoutProperty(id,'visibility',showEst?'visible':'none');
+  
   for(const id of['lw-lbl','lw-center']){map.setPaintProperty(id,'text-color',sat||n?'#ff6b5e':'#c5221f');map.setPaintProperty(id,'text-halo-color',sat||n?'rgba(0,0,0,.85)':'#fff')}
   map.setPaintProperty('poi','text-color',sat||n?'#fff':['match',['get','kind'],'picnic','#137333','gate','#202124','view','#6a1b9a','home','#c5221f','#3c4043']);
   applyDrive();calloutState='';try{updatePill()}catch(e){}try{if(FOCUS_ON)setTimeout(()=>applyFocus(true),0)}catch(e){}
@@ -1815,6 +1814,7 @@ function annPop(){const a=ANN.filter(x=>!annSeen.has(x.client_id)&&(!x.expires_a
 
 /* ============ what's new: shown once to owners and admins after an update ============ */
 const WHATS_NEW=[
+ [108,'gear','A cleaner map','Likely animal spots are gone. Spotify, recording every drive and the speed warning are now off unless you switch them on in Settings. The story question after a sighting is asked once, when you open the app, and never again if you skip it.'],
  [107,'cam','Sighting photos and videos open straight away','Photos and videos now go up before the sighting itself, and every phone saves them as soon as a sighting arrives. So they open instantly, even with no signal and even if the person who posted them is offline. The heatmap is gone, as most owners asked.'],
  [106,'waves','Rivers redrawn, contour lines and more','The rivers are redrawn from the satellite photos and Google\'s river map, with every stream in the reserve. The Map view has contour lines (switch them in Layers), river and dam names, road names that stay upright while you drive and distance markers along your route. Admins can mark a river, dam or pan as dry: tap it on the map, or use Admin tools.'],
  [105,'route','Smoother driving and a blue route','The map no longer shakes while you drive: the arrow glides steadily instead of hopping back and forth with the GPS. Your route is now blue like Google Maps, the road you are on glows softly white, and satellite roads are white instead of yellow.'],
@@ -2071,12 +2071,12 @@ function liveTxt(r){const [k,v]=(r.status||'').split(/:(.*)/);const sp=Math.roun
 /* ============ live routes: the trail each car has driven (last 2 hours) ============ */
 let TRAILS={};
 function trailAdd(uid,name,ll,t){const T=TRAILS[uid]||(TRAILS[uid]={n:name,pts:[]});T.n=name||T.n;const L=T.pts[T.pts.length-1];if(!L||dist([L[0],L[1]],ll)>12)T.pts.push([ll[0],ll[1],Math.round(t/1000)])}
-async function pullTrails(){if(!Cloud.member||!navigator.onLine||Cloud.noTrail)return;
+async function pullTrails(){if(!isAdm()){if(Object.keys(TRAILS).some(k=>!k.startsWith('demo'))){TRAILS={};drawTrails()}return}if(!Cloud.member||!navigator.onLine||Cloud.noTrail)return;
   try{const L=await rpc('live_trails',{p_hours:2});const keep={};Object.keys(TRAILS).forEach(k=>{if(k.startsWith('demo'))keep[k]=TRAILS[k]});
     (L||[]).forEach(x=>{keep[x.u]={n:x.n,pts:x.pts||[]}});TRAILS=keep;drawTrails()}catch(e){if(/404|PGRST202|Could not find/.test(String(e.message)))Cloud.noTrail=true}}
 setInterval(pullTrails,60000);setTimeout(pullTrails,6000);
 function drawTrails(){if(!mapReady||!map.getSource('trails'))return;const now=Date.now()/1000,me_=Cloud.sess&&Cloud.sess.uid;
-  const F=Object.entries(TRAILS).filter(([u,T])=>u!==me_&&T.pts.length>1&&now-T.pts[T.pts.length-1][2]<7200).map(([u,T])=>({type:'Feature',properties:{uid:u,col:mateCol(u),op:now-T.pts[T.pts.length-1][2]>900?.4:.85,sel:u===trailSel?1:0},geometry:{type:'LineString',coordinates:T.pts.map(p=>[p[0],p[1]])}}));
+  const F=Object.entries(TRAILS).filter(([u,T])=>(isAdm()||u.startsWith('demo'))&&u!==me_&&T.pts.length>1&&now-T.pts[T.pts.length-1][2]<7200).map(([u,T])=>({type:'Feature',properties:{uid:u,col:mateCol(u),op:now-T.pts[T.pts.length-1][2]>900?.4:.85,sel:u===trailSel?1:0},geometry:{type:'LineString',coordinates:T.pts.map(p=>[p[0],p[1]])}}));
   map.getSource('trails').setData({type:'FeatureCollection',features:F})}
 let trailSel=null;
 function trailInfo(uid){const T=TRAILS[uid];if(!T||T.pts.length<2)return null;let len=0;const roads=[];
@@ -2447,8 +2447,8 @@ function refreshOverlays(){
   try{photoPins(AS)}catch(e){console.warn('photo pins',e)}
   const ES=estimates();map.getSource('est').setData({type:'FeatureCollection',features:ES.map(e=>({type:'Feature',properties:{id:e.id,col:e.col},geometry:circlePoly(e.ll,e.r).geometry||circlePoly(e.ll,e.r)}))});
   map.getSource('estpt').setData({type:'FeatureCollection',features:ES.map(e=>({type:'Feature',properties:{id:e.id,col:e.col,label:T(e.what+'?\n'+e.pct+'% likely')},geometry:{type:'Point',coordinates:e.ll}}))});
-  map.getSource('spath').setData({type:'FeatureCollection',features:AS.filter(s=>s.chain&&s.chain.length>1).map(s=>({type:'Feature',properties:{op:sightOp(s)},geometry:{type:'LineString',coordinates:s.chain.map(c=>c.ll)}}))});
-  map.getSource('sprev').setData({type:'FeatureCollection',features:AS.filter(s=>s.chain&&s.chain.length>1).flatMap(s=>s.chain.slice(0,-1).map(c=>({type:'Feature',properties:{op:sightOp(s)*.7},geometry:{type:'Point',coordinates:c.ll}})))});
+  map.getSource('spath').setData({type:'FeatureCollection',features:AS.filter(s=>isAdm()&&s.chain&&s.chain.length>1).map(s=>({type:'Feature',properties:{op:sightOp(s)},geometry:{type:'LineString',coordinates:s.chain.map(c=>c.ll)}}))});
+  map.getSource('sprev').setData({type:'FeatureCollection',features:AS.filter(s=>isAdm()&&s.chain&&s.chain.length>1).flatMap(s=>s.chain.slice(0,-1).map(c=>({type:'Feature',properties:{op:sightOp(s)*.7},geometry:{type:'Point',coordinates:c.ll}})))});
   map.getSource('reports').setData({type:'FeatureCollection',features:allReports().map(r=>({type:'Feature',properties:{cid:r.cid,label:T(r.kind+' · '+ago(r.t))},geometry:{type:'Point',coordinates:r.ll}}))});
   updateBlocked();
   const tf=tracks.map(t=>({type:'Feature',properties:{},geometry:{type:'LineString',coordinates:t.pts}}));
@@ -2702,7 +2702,6 @@ function layerSheet(){setTimeout(()=>{if($('lyFocus'))$('lyFocus').onclick=focus
   if($('redTog'))$('redTog').onclick=()=>{setRed(!redOn);openSheet(layerSheet())};
   if($('redAutoTog'))$('redAutoTog').onclick=()=>{redAuto=!redAuto;LS.set('redAuto',redAuto);toast(redAuto?'Red screen will turn on every night after sunset':'Automatic red screen off');redCheck();openSheet(layerSheet())};
   if($('contTog'))$('contTog').onclick=()=>{SHOWCONT=!SHOWCONT;LS.set('contours',SHOWCONT);applyMode();openSheet(layerSheet())};
-  $('estTog').onclick=()=>{showEst=!showEst;LS.set('showEst',showEst);applyMode();refreshOverlays();openSheet(layerSheet())};
   $('notesTog').onclick=()=>{showNotes=!showNotes;LS.set('showNotes',showNotes);drawNotes();openSheet(layerSheet())};
   $('hillTog').onclick=()=>{showHill=!showHill;LS.set('hill',showHill);applyMode();openSheet(layerSheet())};
   if($('tiltTog'))$('tiltTog').onclick=()=>{tilt=!tilt;LS.set('tilt',tilt);if(!tilt)map.easeTo({pitch:0,duration:400});else if(follow)moveCam();openSheet(layerSheet())};
@@ -2711,7 +2710,7 @@ function layerSheet(){setTimeout(()=>{if($('lyFocus'))$('lyFocus').onclick=focus
  return `<h2>Map style</h2><div class="sub">Satellite needs signal to load new areas. Areas you have viewed stay saved.</div><div class="seg"><button data-mode="map" class="${mode==='map'?'sel':''}">Map</button><button data-mode="sat" class="${mode==='sat'?'sel':''}">Satellite</button><button data-mode="roads" class="${mode==='roads'?'sel':''}">Roads only</button></div>
 <div class="list" style="margin-top:10px">
 <button class="it lk" id="lyFocus"><div style="flex:1"><b>Focus mode</b><br><small>Only what you need while you drive</small></div><small>${({drive:'When driving',on:'Always',off:'Off'})[FOCUSM]}</small><span class="ar">›</span></button>
-<div class="it"><div><b>Contour lines</b><br><small>Height lines on the Map view, so you can see hills and riverbeds</small></div><button class="tgl ${SHOWCONT?'on':''}" id="contTog"><i></i></button></div><div class="it"><div><b>Farm borders</b><br><small>Show the border and name of each farm</small></div><button class="tgl ${showFarms?'on':''}" id="farmTog"><i></i></button></div><div class="it"><div><b>Likely animal spots</b><br><small>Where animals are probably found when nobody has seen them for 24 h</small></div><button class="tgl ${showEst?'on':''}" id="estTog"><i></i></button></div>
+<div class="it"><div><b>Contour lines</b><br><small>Height lines on the Map view, so you can see hills and riverbeds</small></div><button class="tgl ${SHOWCONT?'on':''}" id="contTog"><i></i></button></div><div class="it"><div><b>Farm borders</b><br><small>Show the border and name of each farm</small></div><button class="tgl ${showFarms?'on':''}" id="farmTog"><i></i></button></div>
 <div class="it"><div><b>My private notes</b><br><small>Pins only you can see</small></div><button class="tgl ${showNotes?'on':''}" id="notesTog"><i></i></button></div>
 <div class="it"><div><b>Terrain shading</b><br><small>Hills, ridges and riverbanks</small></div><button class="tgl ${showHill?'on':''}" id="hillTog"><i></i></button></div>
 <div class="it"><div><b>Today's trail</b><br><small>Fading line of where you've driven</small></div><button class="sm red" id="trailClr">Clear</button></div>
@@ -2984,15 +2983,17 @@ function storySheet(cid,what,back){openSheet(`<div style="text-align:center"><di
       toast('Posted to the feed');refreshOverlays();back?back():closeSheet()}})}
 let STORYQ=LS.get('storyQ',[]);
 function storyLater(cid,what){if(DM.on||!Cloud.member)return;STORYQ.push({cid,what,t:Date.now(),n:0,snooze:0});STORYQ=STORYQ.slice(-10);LS.set('storyQ',STORYQ)}
-function storyAsk(){const now=Date.now();STORYQ=STORYQ.filter(q=>now-q.t<24*36e5&&q.n<3);
-  const q=STORYQ.find(q=>now-q.t>8*6e4&&now>q.snooze);if(!q||nav||(speedS||0)>2||$('sheet').classList.contains('open')||document.querySelector('#stillQ.on')||!$('gate').classList.contains('hide'))return;
+/* the story question: asked once, when the app is opened. Ignore it and it never comes back for that sighting */
+const STORY_T0=Date.now();let storyShown=false;
+function storyAsk(){const now=Date.now();if(storyShown||now-STORY_T0>3*6e4)return;STORYQ=STORYQ.filter(q=>now-q.t<24*36e5&&q.n<1);
+  const q=STORYQ.find(q=>now-q.t>8*6e4);if(!q||nav||(speedS||0)>2||$('sheet').classList.contains('open')||document.querySelector('#stillQ.on')||!$('gate').classList.contains('hide'))return;
   const s=sights.find(x=>x.cid===q.cid);if(!s||s.note){STORYQ=STORYQ.filter(x=>x!==q);LS.set('storyQ',STORYQ);return}
-  q.n++;q.snooze=now+30*6e4;LS.set('storyQ',STORYQ);
+  q.n++;storyShown=true;LS.set('storyQ',STORYQ);
   let el=$('storyQ');if(!el){el=document.createElement('div');el.id='storyQ';document.body.appendChild(el)}
   el.innerHTML=`<div class="sqi">${AN(q.what,40)}</div><div class="sqt"><b>Tell the ${esc(q.what.toLowerCase())} story?</b><small>Add what happened. It goes on the feed.</small></div><button class="sqn" id="stqNo">Later</button><button class="sqy" id="stqYes">Write</button>`;
   el.classList.add('on');const done=()=>el.classList.remove('on');setTimeout(done,12000);
   $('stqNo').onclick=done;$('stqYes').onclick=()=>{done();storySheet(q.cid,q.what)};
-  if(document.hidden&&'Notification' in window&&Notification.permission==='granted'&&navigator.serviceWorker)navigator.serviceWorker.ready.then(r=>r.showNotification(T('Tell the '+q.what.toLowerCase()+' story?'),{body:T('Add what happened. It goes on the feed.'),icon:'icon.png',tag:'story-'+q.cid})).catch(()=>{})}
+}
 setInterval(storyAsk,20000);
 // on an animal profile: recent posts about that animal
 async function profileFeed(what){const box=$('pfFeed');if(!box)return;let L=[];if(Cloud.member&&navigator.onLine){try{L=await rpc('feed',{p_what:what,p_limit:8})||[]}catch(e){}}
@@ -3385,7 +3386,7 @@ function compSheet(){askCompass();let iv=null;
    Hidden: likely-spot guesses, private notes, farm borders, other people's driven trails, old sighting paths, photo pins, the chips row,
    Spotify and weather bubbles, and pop-ups (news, suggestions, story reminders, what's new, weekly report). Those wait until focus mode ends. */
 var FOCUSM=LS.get('focusMode','drive'),FOCUS_ON=false,FOCUS_SKIP=false;const FOCUS_AGE=180;
-const FOCUS_HIDE=['est-fill','est-line','est-lbl','note-dot','note-lbl','trail-case','trail-line','spath','spath-arrow','spath-start','farm-line','farm-lbl','zone-line','zone-lbl','mate-plan','cross-lbl'];
+const FOCUS_HIDE=['note-dot','note-lbl','trail-case','trail-line','spath','spath-arrow','spath-start','farm-line','farm-lbl','zone-line','zone-lbl','mate-plan','cross-lbl'];
 function focusWant(){if(FOCUSM==='on')return true;if(FOCUSM==='drive'){const d=drivingNow||!!nav;if(!d)FOCUS_SKIP=false;return d&&!FOCUS_SKIP}return false}
 function applyFocus(force){const on=!!focusWant()&&!calMode;if(on===FOCUS_ON&&!force)return;FOCUS_ON=on;document.body.classList.toggle('focus',on);if(!mapReady)return;
   if(on){FOCUS_HIDE.forEach(id=>{try{map.setLayoutProperty(id,'visibility','none')}catch(e){}});
@@ -3409,7 +3410,7 @@ for(const n of ['annPop','sugPop','storyAsk','whatsNew','weeklyPop','directPop']
   window[n]=function(...a){if(FOCUS_ON){clearTimeout(window[n].t);window[n].t=setTimeout(()=>window[n](...a),60000);return}return f.apply(this,a)}}
 
 /* ============ v95: Google Maps style extras on the drive ============ */
-var LAND=false,AUTOREC=LS.get('autoRec',true),OFFER=null,OFFER_SEEN=new Set();
+var LAND=false,AUTOREC=LS.get('autoRec',false),OFFER=null,OFFER_SEEN=new Set();
 
 /* ---- 1. sightings ahead on your route ---- */
 function sightAhead(along){const now=Date.now();let best=null;
@@ -3731,9 +3732,8 @@ map.on('click','closed-roads',e=>{const r=e.features[0].properties.name;if(r){e.
 for(const l of ['mate-dot','mate-lbl','mate-arrow'])map.on('click',l,e=>{const id=e.features[0].properties.id;e.originalEvent&&(e.originalEvent._est=1);const r=LIVE[id];if(r)mateSheet(r)});
 map.on('click','trail-line',e=>{const u=e.features[0].properties.uid;const r=LIVE[u]||{user_id:u,name:(TRAILS[u]||{}).n};e.originalEvent&&(e.originalEvent._est=1);mateSheet(r)});
 map.on('click','reports',e=>{const r=allReports().find(x=>x.cid===e.features[0].properties.cid);if(r)showPlace({kind:'report',name:r.kind,sub:'Road report · '+ago(r.t)+' · '+r.by+(r.road?' · '+r.road:'')+confTxt(r)+(r.note?' · '+r.note:''),ll:r.ll,cid:r.cid,mine:r.mine})});
-map.on('click','est-fill',e=>{if(map.queryRenderedFeatures(e.point,{layers:['sights','reports','poi','home']}).length)return;const id=e.features[0].properties.id,x=estimates().find(q=>q.id===id);if(x){e.preventDefault&&e.preventDefault();e.originalEvent&&(e.originalEvent._est=1);estSheet(x)}});
 map.on('click','poi',e=>{const f=e.features[0];showPlace({kind:f.properties.kind,name:f.properties.name,sub:(PKIND[f.properties.kind]||'')+(f.properties.note?' · '+f.properties.note:''),ll:f.geometry.coordinates,pid:f.properties.pid||'',base:f.properties.base||''})});
-map.on('click',e=>{if(tapGuard(e))return;const f=map.queryRenderedFeatures(e.point,{layers:['sights','reports','poi','home','est-fill','trail-line','note-dot','closed-roads','mate-dot','mate-lbl','mate-arrow']});if(f.length)return;if(isAdm()){const pt=e.point;if(!map.queryRenderedFeatures([[pt.x-8,pt.y-8],[pt.x+8,pt.y+8]],{layers:['road']}).length&&(map.queryRenderedFeatures([[pt.x-8,pt.y-8],[pt.x+8,pt.y+8]],{layers:['river-water','river','river-dry']}).length||map.queryRenderedFeatures(pt,{layers:['water','pan']}).length))return}tapLater(()=>{
+map.on('click',e=>{if(tapGuard(e))return;const f=map.queryRenderedFeatures(e.point,{layers:['sights','reports','poi','home','trail-line','note-dot','closed-roads','mate-dot','mate-lbl','mate-arrow']});if(f.length)return;if(isAdm()){const pt=e.point;if(!map.queryRenderedFeatures([[pt.x-8,pt.y-8],[pt.x+8,pt.y+8]],{layers:['road']}).length&&(map.queryRenderedFeatures([[pt.x-8,pt.y-8],[pt.x+8,pt.y+8]],{layers:['river-water','river','river-dry']}).length||map.queryRenderedFeatures(pt,{layers:['water','pan']}).length))return}tapLater(()=>{
   const ll=e.lngLat.toArray();
   // on a route: tapping the map adds a sighting there without moving the map or stopping the route
   if(nav){if(DM.on){demoTapSheet(ll);return}addSheet('sight',ll);return}
@@ -3808,7 +3808,7 @@ $('menuBtn').onclick=()=>{
     ${m&&m.locked?LK('lSug','Suggestions',SUG.list.length?SUG.list.length+' from people on the map':'Nothing yet',SUG.list.filter(x=>!x.read).length?'<span class="tag t-new">'+SUG.list.filter(x=>!x.read).length+' new</span>':'','msg','#0b8043'):m?LK('lSug','Suggest something','Ideas, problems or wishes for the map','','msg','#0b8043'):''}
     ${m&&isAdm2()&&!m.viewAs?LK('lAdm','Admin tools',MS.paused?'The map is paused':'Pause, rules, guest limits, reports','','shield','#b06000'):''}
     ${LK('lOff','Offline map',esc(offlineStatus()),'','down','#00796b')}
-    ${LK('lSwap',LIVEMAP?'Swap to Khaya Ndlovu':'Swap to Stellenbosch',LIVEMAP?'You are on the Stellenbosch map':liveSaved()?'Every real road, saved on this phone':'Every real road · drive it with your GPS','','map','#c48a1a')}${LK('lDemo','Demo mode',DM.on?'You are in demo mode · tap to see who is in it':(()=>{const L=Object.values(DEMO.outside).filter(p=>Date.now()-p.t<20000);return L.length?L.map(p=>p.name).slice(0,2).join(' and ')+(L.length>2?' and others':'')+(L.length>1?' are':' is')+' in demo mode now · tap to join':'Pretend to be anywhere and test everything'})(),'','play','#5f6368')}
+    ${isAdm()||LIVEMAP?LK('lSwap',LIVEMAP?'Swap to Khaya Ndlovu':'Swap to Stellenbosch',LIVEMAP?'You are on the Stellenbosch map':liveSaved()?'Every real road, saved on this phone':'Every real road · drive it with your GPS','','map','#c48a1a'):''}${isAdm()?LK('lDemo','Demo mode',DM.on?'You are in demo mode · tap to see who is in it':(()=>{const L=Object.values(DEMO.outside).filter(p=>Date.now()-p.t<20000);return L.length?L.map(p=>p.name).slice(0,2).join(' and ')+(L.length>2?' and others':'')+(L.length>1?' are':' is')+' in demo mode now · tap to join':'Pretend to be anywhere and test everything'})(),'','play','#5f6368'):''}
    </div>
    ${m&&!m.locked?'<button class="mout" id="mOut">Sign out</button>':''}`,()=>{
     $('mSet').onclick=()=>settingsSheet();
@@ -3823,7 +3823,7 @@ $('menuBtn').onclick=()=>{
     $('tDrives').onclick=()=>openSheet(tracksSheet(),bindTracks);
     if($('lLive'))$('lLive').onclick=()=>liveSheet();
     $('lOff').onclick=()=>offlineSheet(false);
-    $('lDemo').onclick=()=>{if(LIVEMAP){toast(T('Swap back to Khaya Ndlovu to use demo mode'));return}if(DM.on){demoPeopleSheet();return}closeSheet();startDemo()};$('lSwap').onclick=swapSheet;
+    if($('lDemo'))$('lDemo').onclick=()=>{if(LIVEMAP){toast(T('Swap back to Khaya Ndlovu to use demo mode'));return}if(DM.on){demoPeopleSheet();return}closeSheet();startDemo()};if($('lSwap'))$('lSwap').onclick=swapSheet;
     if($('lAdm'))$('lAdm').onclick=()=>adminSheet();
     if($('lSug'))$('lSug').onclick=()=>Cloud.member&&Cloud.member.locked?sugInbox():sugSheet();
     if($('mOut'))$('mOut').onclick=()=>signOutSheet();
@@ -3845,7 +3845,7 @@ function settingsSheet(){const m=Cloud.member;const notif='Notification' in wind
    <div class="list sgroup">${TG('sRedAuto','Red screen every night','Keeps your night vision. On after sunset, off at sunrise',redAuto)}${TG('sRed','Red screen now','',redOn)}</div>
    ${m?`<div class="msec">Alerts</div><div class="list sgroup">${TG('sAlert','New sighting alerts','Pop-up when someone else marks a sighting',alertOn)}${LK('sAW','Which animals alert me','',esc(alertWhatTxt()))}${TG('sSound','Alert sound','A bing with each alert',alertSound)}${TG('sQuiet','Quiet hours','No alert sounds or pop-ups from '+QUIET.from+' to '+QUIET.to+' unless you are out driving. SOS always comes through.',quietOn)}${notif?LK('sNotif','Phone notifications','Also alert you while the app is in the background','Turn on'):''}</div>`:''}
    <div class="msec">Location</div>${MS.admin_sees_all?'<div class="sub" style="margin:-4px 2px 8px;font-size:12.5px">'+LI('eye',12)+' Admins can see your car while you drive on the reserve, even with sharing off. Your home stays hidden.</div>':''}<div class="list sgroup">${m?LK('sLive','Share live location','',shareLoc?'On':'Off'):''}${LK('sHome','Home point','',home?'Set':'Not set')}${LK('sCal','Calibrate GPS','If your dot sits next to the road',calib[0]||calib[1]?'Active':'')}${isIOS?LK('sLoc','Stop the location question','If the map asks for your location every time',''):''}</div>
-   <div class="msec">Driving</div>${MS.rules&&MS.rules.lock?'<div class="sub" style="margin:-4px 2px 8px;font-size:12.5px">'+LI('lock',12)+' Speed warning, quiet hours and sunset reminder are set by an admin for everyone</div>':''}<div class="list sgroup">${TG('sSpd','Speed warning','Red alert over '+SPEED_LIMIT+' km/h on the reserve',speedWarn)}${TG('sSun','Sunset reminder',(SUNMIN===60?'1 hour':SUNMIN+' minutes')+' before sunset if you are still out and far from home',sunRemind)}${LK('sFocus','Focus mode','Only what you need on the map while you drive',{drive:'When driving',on:'Always',off:'Off'}[FOCUSM])}${TG('sAutoRec','Record every drive','Saves each drive by itself with distance, top speed and the animals you saw',AUTOREC)}${TG('sTop','Top-down view at turns','From 100 m before a turn the map goes flat so you can see which way to go',TOPTURN)}${TG('sNorth','Keep north up while driving','The map stays north-up instead of turning with you',NORTHUP)}${TG('sSpdo','Show speedometer','',SHOWSPD)}${TG('sAwake','Keep screen on while driving','',KEEPAWAKE)}${TG('sAvoid','Avoid rough tracks','Routes stay on the main roads when there is another way',AVOIDTRK)}</div><div class="msec">Voice directions</div>${vmSeg('sVm')}<div class="sub" style="margin:6px 2px 4px;font-size:12.5px">Alerts only speaks at the turn itself and for gates, stops and rerouting</div>
+   <div class="msec">Driving</div>${MS.rules&&MS.rules.lock?'<div class="sub" style="margin:-4px 2px 8px;font-size:12.5px">'+LI('lock',12)+' Speed warning, quiet hours and sunset reminder are set by an admin for everyone</div>':''}<div class="list sgroup">${TG('sSpd','Speed warning','Red alert over '+SPEED_LIMIT+' km/h on the reserve',speedWarn)}${TG('sSun','Sunset reminder',(SUNMIN===60?'1 hour':SUNMIN+' minutes')+' before sunset if you are still out and far from home',sunRemind)}${LK('sFocus','Focus mode','Only what you need on the map while you drive',{drive:'When driving',on:'Always',off:'Off'}[FOCUSM])}${TG('sSpot','Spotify button','Music controls on the map. Off unless you want them',SPOTON)+TG('sAutoRec','Record every drive','Saves each drive by itself with distance, top speed and the animals you saw',AUTOREC)}${TG('sTop','Top-down view at turns','From 100 m before a turn the map goes flat so you can see which way to go',TOPTURN)}${TG('sNorth','Keep north up while driving','The map stays north-up instead of turning with you',NORTHUP)}${TG('sSpdo','Show speedometer','',SHOWSPD)}${TG('sAwake','Keep screen on while driving','',KEEPAWAKE)}${TG('sAvoid','Avoid rough tracks','Routes stay on the main roads when there is another way',AVOIDTRK)}</div><div class="msec">Voice directions</div>${vmSeg('sVm')}<div class="sub" style="margin:6px 2px 4px;font-size:12.5px">Alerts only speaks at the turn itself and for gates, stops and rerouting</div>
    ${m?`<div class="msec">Account</div><div class="list sgroup">${Cloud.sess&&Cloud.sess.uid?`<button class="it lk" id="sUid"><div style="flex:1;min-width:0"><b>Account ID</b><br><small class="mono" data-notr style="word-break:break-all;font-size:12px">${esc(Cloud.sess.uid)}</small><br><small>The same ID Supabase shows for you · tap to copy</small></div></button>`:''}${m.role!=='guest'?LK('sRec','Recovery code','Get your exact account back on any phone, even if you are signed out','','key','#1f4d36'):''}</div>`:''}
    <div class="msec">Map data</div><div class="list sgroup">${LK('sOff','Offline map','',esc(offlineStatus()))}${m?LK('sShare','Sharing status',shareStatus(),''):''}${m&&m.role==='admin'?LK('sUpd','Require everyone to update','Version '+APP_BUILD,''):''}</div>
    ${m&&!m.locked?'<button class="mout" id="sOut">Sign out</button>':''}<div class="sub" style="text-align:center;font-size:11.5px;margin-top:10px">Khaya Ndlovu game drive map · version ${APP_BUILD}</div>`,()=>{
@@ -3858,7 +3858,7 @@ function settingsSheet(){const m=Cloud.member;const notif='Notification' in wind
     const locked=MS.rules&&MS.rules.lock;if(locked)['sQuiet','sSun','sSpd'].forEach(id=>{const b=$(id);if(b){b.style.opacity=.45;b.onclick=()=>toast('An admin set this for everyone')}});
     if(!locked){tg('sQuiet',()=>{quietOn=!quietOn;LS.set('quiet',quietOn)});tg('sSun',()=>{sunRemind=!sunRemind;LS.set('sunRemind',sunRemind)});
     tg('sSpd',()=>{speedWarn=!speedWarn;LS.set('speedWarn',speedWarn);if(me)speedCheck(me.ll)})}
-    if($('sFocus'))$('sFocus').onclick=focusSheet;bindVm();tg('sAutoRec',()=>{AUTOREC=!AUTOREC;LS.set('autoRec',AUTOREC)});tg('sTop',()=>{TOPTURN=!TOPTURN;LS.set('topTurn',TOPTURN)});tg('sNorth',()=>{NORTHUP=!NORTHUP;LS.set('northUp',NORTHUP)});tg('sSpdo',()=>{SHOWSPD=!SHOWSPD;LS.set('showSpd',SHOWSPD);document.body.classList.toggle('nospd',!SHOWSPD)});tg('sAwake',()=>{KEEPAWAKE=!KEEPAWAKE;LS.set('keepAwake',KEEPAWAKE);wantWake(follow===2||!!nav)});tg('sAvoid',()=>{AVOIDTRK=!AVOIDTRK;LS.set('avoidTracks',AVOIDTRK)});
+    if($('sFocus'))$('sFocus').onclick=focusSheet;bindVm();tg('sAutoRec',()=>{AUTOREC=!AUTOREC;LS.set('autoRec',AUTOREC)});tg('sSpot',()=>{SPOTON=!SPOTON;LS.set('spotOn',SPOTON);document.body.classList.toggle('spon',SPOTON)});tg('sTop',()=>{TOPTURN=!TOPTURN;LS.set('topTurn',TOPTURN)});tg('sNorth',()=>{NORTHUP=!NORTHUP;LS.set('northUp',NORTHUP)});tg('sSpdo',()=>{SHOWSPD=!SHOWSPD;LS.set('showSpd',SHOWSPD);document.body.classList.toggle('nospd',!SHOWSPD)});tg('sAwake',()=>{KEEPAWAKE=!KEEPAWAKE;LS.set('keepAwake',KEEPAWAKE);wantWake(follow===2||!!nav)});tg('sAvoid',()=>{AVOIDTRK=!AVOIDTRK;LS.set('avoidTracks',AVOIDTRK)});
     tg('sRed',()=>setRed(!redOn));
     tg('sRedAuto',()=>{redAuto=!redAuto;LS.set('redAuto',redAuto);redCheck()});
     if($('sAW'))$('sAW').onclick=()=>alertWhatSheet();
@@ -3913,7 +3913,7 @@ async function doUpdate(){$('uwGo').textContent='Updating...';LS.set('updTries',
    A reinstall makes a brand new Home Screen app with an empty memory. Before the sign-in link is made, your settings, saved and recent
    places, home, recorded drives, the map you were on and where you were looking are packed up and travel with the one-time link,
    then are put back in the new app. Sign-in keys, Spotify and the downloaded map files are never sent (the maps download again). */
-const CARRY=['avoidTracks','voice','theme','speedWarn','redOn','redAuto','alertSound','alertOn','alertWhat','vmode','topTurn','tilt','sunRemind','showSpd','showNotes','showEst','shareLoc','quiet','northUp','mode','lang','keepAwake','hill','farms','autoRec','focusMode','liveSatPref','liveOn','onboarded','roleSeen','wnSeen','annSeen','dmSeen','sugSeen','wrSeen','obNag','sqAsked','joinSkip','calib','otherNames','recents','favs','home','tracks','cam','pnotes','mymiss'];
+const CARRY=['avoidTracks','voice','theme','speedWarn','redOn','redAuto','alertSound','alertOn','alertWhat','vmode','topTurn','tilt','sunRemind','showSpd','showNotes','shareLoc','quiet','northUp','mode','lang','keepAwake','hill','farms','autoRec','focusMode','liveSatPref','liveOn','onboarded','roleSeen','wnSeen','annSeen','dmSeen','sugSeen','wrSeen','obNag','sqAsked','joinSkip','calib','otherNames','recents','favs','home','tracks','cam','pnotes','mymiss'];
 function carryPack(){const o={};CARRY.forEach(k=>['kn_'+k,'kn_live_'+k].forEach(n=>{try{const v=localStorage.getItem(n);if(v!=null&&v.length<150000)o[n]=v}catch(e){}}));
   let s=JSON.stringify(o);if(s.length>280000){delete o.kn_tracks;delete o.kn_live_tracks;s=JSON.stringify(o)}return s.length>280000?null:o}
 async function carrySend(t){if(!t)return;try{const o=carryPack();if(o)await rpc('handover_carry',{p_token:t,p_data:o})}catch(e){}}

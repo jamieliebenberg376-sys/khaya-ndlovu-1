@@ -304,10 +304,11 @@ do $$ begin
   create trigger kn_trail after insert or update on public.live_locs for each row execute function public.kn_trg_trail();
 exception when undefined_table then null; end $$;
 
+-- where cars have driven: admins only
 create or replace function public.live_trails(p_hours double precision default 2)
 returns json language plpgsql stable security definer set search_path = public as $$
 begin
-  if not public.is_member() then return '[]'::json; end if;
+  if not public.is_admin() then return '[]'::json; end if;
   return coalesce((select json_agg(json_build_object('u', t.user_id, 'n', t.name, 'pts', t.pts)) from (
     select user_id, max(name) as name, json_agg(json_build_array(round(lng::numeric, 6), round(lat::numeric, 6), floor(extract(epoch from at))) order by at) as pts
     from public.live_trail where at > now() - make_interval(secs => least(greatest(p_hours, .1), 3) * 3600) and user_id <> auth.uid()
