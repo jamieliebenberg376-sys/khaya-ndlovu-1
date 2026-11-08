@@ -1405,7 +1405,7 @@ function style(){return{version:8,glyphs:'local://{fontstack}/{range}',
   {id:'red-tint',type:'fill',source:'redq',layout:{visibility:'none'},paint:{'fill-color':'#7a0000','fill-opacity':.62}},
   {id:'res-edge',type:'line',source:'boundary',paint:{'line-color':'#c9c3b8','line-width':['interpolate',['linear'],['zoom'],12,4,17,10],'line-opacity':.35}},
   {id:'res-line',type:'line',source:'boundary',paint:{'line-color':'#5f5a52','line-width':['interpolate',['linear'],['zoom'],12,1.2,17,2.4],'line-dasharray':[4,2]}},
-  {id:'cur-glow',type:'line',source:'cur',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#fbbc04','line-opacity':.3,'line-width':['interpolate',['linear'],['zoom'],12,6,17,24,19,34]}},
+  {id:'cur-glow',type:'line',source:'cur',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#ffffff','line-opacity':.55,'line-width':['interpolate',['linear'],['zoom'],12,6,17,24,19,34]}},
   {id:'road-shadow',type:'line',source:'roads',minzoom:13,layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'rgba(70,45,10,.22)','line-blur':['interpolate',['linear'],['zoom'],13,2,17,5],'line-translate':[0,1.5],'line-width':['interpolate',['linear'],['zoom'],13,['case',['get','track'],3,5],17,['case',['get','track'],12,18],19,['case',['get','track'],18,27]]}},
   {id:'road-case',type:'line',source:'roads',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#c7b69d','line-width':['interpolate',['linear'],['zoom'],11,['case',['get','track'],.8,1.6],13,['case',['get','track'],2.2,3.6],15,['case',['get','track'],4.6,7.5],17,['case',['get','track'],9,14.5],19,['case',['get','track'],15,23]]}},
   {id:'road',type:'line',source:'roads',filter:['!',['get','check']],layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#b49a7a','line-width':['interpolate',['linear'],['zoom'],11,['case',['get','track'],.4,.9],13,['case',['get','track'],1.2,2.2],15,['case',['get','track'],3,5.5],17,['case',['get','track'],6.6,11],19,['case',['get','track'],11.5,18.5]]}},
@@ -1419,15 +1419,15 @@ function style(){return{version:8,glyphs:'local://{fontstack}/{range}',
   {id:'farm-lbl',type:'symbol',source:'farms',filter:['all',['==',['get','kind'],'farm'],['!=',['get','name'],'Leadwood (restricted)']],layout:{visibility:'none','symbol-placement':'line','text-field':['upcase',['get','name']],'text-font':['Sans Bold'],'text-size':11,'text-letter-spacing':.25,'symbol-spacing':400,'text-offset':[0,-1],'text-max-angle':50},paint:{'text-color':'#6a1b9a','text-halo-color':'#fff','text-halo-width':2}},
   {id:'zone-lbl',type:'symbol',source:'farms',filter:['==',['get','kind'],'zone'],maxzoom:14.5,layout:{visibility:'none','text-field':['get','name'],'text-font':['Sans Regular'],'text-size':10.5,'text-allow-overlap':false,'text-optional':true},paint:{'text-color':'#7b1fa2','text-halo-color':'rgba(255,255,255,.85)','text-halo-width':1.4,'text-opacity':.6}},
   {id:'tracks',type:'line',source:'tracks',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#8e24aa','line-width':['interpolate',['linear'],['zoom'],12,1.5,17,5],'line-dasharray':[1.5,1]}},
-  {id:'route-alt-case',type:'line',source:'route-alt',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#2a1c08','line-opacity':.7,'line-width':['interpolate',['linear'],['zoom'],12,6,17,15,19,22]}},
-  {id:'route-alt',type:'line',source:'route-alt',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#e9dcb8','line-opacity':.9,'line-width':['interpolate',['linear'],['zoom'],12,3,17,9,19,14],'line-dasharray':[1.4,1]}},
-  {id:'route-glow',type:'line',source:'route',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#ffb300','line-opacity':.38,'line-blur':['interpolate',['linear'],['zoom'],12,4,17,12],'line-width':['interpolate',['linear'],['zoom'],12,16,17,40,19,56]}},
-  {id:'route-halo',type:'line',source:'route',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#2a1c08','line-width':['interpolate',['linear'],['zoom'],12,8,17,21,19,30]}},
+  {id:'route-alt-case',type:'line',source:'route-alt',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'rgba(20,45,90,.55)','line-opacity':.7,'line-width':['interpolate',['linear'],['zoom'],12,6,17,15,19,22]}},
+  {id:'route-alt',type:'line',source:'route-alt',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#b7cdf2','line-opacity':.9,'line-width':['interpolate',['linear'],['zoom'],12,3,17,9,19,14],'line-dasharray':[1.4,1]}},
+  {id:'route-glow',type:'line',source:'route',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#1a73e8','line-opacity':.22,'line-blur':['interpolate',['linear'],['zoom'],12,4,17,12],'line-width':['interpolate',['linear'],['zoom'],12,16,17,40,19,56]}},
+  {id:'route-halo',type:'line',source:'route',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'rgba(8,22,48,.55)','line-width':['interpolate',['linear'],['zoom'],12,8,17,21,19,30]}},
   {id:'route-case',type:'line',source:'route',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#1557b0','line-width':['interpolate',['linear'],['zoom'],12,6,17,19,19,28]}},
-  {id:'route',type:'line',source:'route',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#ffc23d','line-width':['interpolate',['linear'],['zoom'],12,4.5,17,14,19,21]}},
-  {id:'route-core',type:'line',source:'route',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#fff3c4','line-opacity':.85,'line-width':['interpolate',['linear'],['zoom'],12,1,17,3.2,19,5]}},
-  {id:'man-case',type:'line',source:'maneuver',filter:['==',['get','k'],'l'],layout:{'line-cap':'butt','line-join':'round'},paint:{'line-color':'#2a1c08','line-width':['interpolate',['exponential',2],['zoom'],14,2.6,17,14,20,96]}},
-  {id:'man-hcase',type:'line',source:'maneuver',filter:['==',['get','k'],'h'],layout:{'line-join':'round'},paint:{'line-color':'#2a1c08','line-width':3}},
+  {id:'route',type:'line',source:'route',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#4285f4','line-width':['interpolate',['linear'],['zoom'],12,4.5,17,14,19,21]}},
+  {id:'route-core',type:'line',source:'route',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#a9c8ff','line-opacity':.55,'line-width':['interpolate',['linear'],['zoom'],12,1,17,3.2,19,5]}},
+  {id:'man-case',type:'line',source:'maneuver',filter:['==',['get','k'],'l'],layout:{'line-cap':'butt','line-join':'round'},paint:{'line-color':'#1c2636','line-width':['interpolate',['exponential',2],['zoom'],14,2.6,17,14,20,96]}},
+  {id:'man-hcase',type:'line',source:'maneuver',filter:['==',['get','k'],'h'],layout:{'line-join':'round'},paint:{'line-color':'#1c2636','line-width':3}},
   {id:'man-line',type:'line',source:'maneuver',filter:['==',['get','k'],'l'],layout:{'line-cap':'butt','line-join':'round'},paint:{'line-color':'#ffffff','line-width':['interpolate',['exponential',2],['zoom'],14,1.2,17,9,20,72]}},
   {id:'man-head',type:'fill',source:'maneuver',filter:['==',['get','k'],'h'],paint:{'fill-color':'#ffffff','fill-antialias':true}},
   {id:'stop-dot',type:'circle',source:'navstops',paint:{'circle-radius':['interpolate',['linear'],['zoom'],12,8,17,13],'circle-color':'#ffc23d','circle-stroke-color':'#2a1c08','circle-stroke-width':2.5}},
@@ -1515,7 +1515,7 @@ function bushTile(night){const S=200,c=document.createElement('canvas');c.width=
   return g.getImageData(0,0,S,S)}
 map.on('styleimagemissing',e=>{if((e.id==='bushD'||e.id==='bushN')&&!map.hasImage(e.id))try{map.addImage(e.id,bushTile(e.id==='bushN'),{pixelRatio:2})}catch(x){}});
 function mapLook(sat,n){const P=(id,k,v)=>{try{map.setPaintProperty(id,k,v)}catch(e){}};const tr=(a,b)=>['case',['get','track'],a,b];
-  if(sat){P('road-shadow','line-color','rgba(0,0,0,.35)');P('road-case','line-color','rgba(20,14,4,.5)');P('road','line-color',tr('rgba(255,246,226,.62)','rgba(255,234,170,.9)'));
+  if(sat){P('road-shadow','line-color','rgba(0,0,0,.35)');P('road-case','line-color','rgba(20,14,4,.5)');P('road','line-color',tr('rgba(255,255,255,.55)','rgba(255,255,255,.9)'));
     P('river-bank','line-opacity',0);P('river','line-opacity',0);P('river-water','line-color','#8fd3ff');P('river-water','line-opacity',.55);
     P('water','fill-color','#3d8fc8');P('water','fill-opacity',.38);P('water-shallow','line-opacity',.25);P('water-mud','line-opacity',0);P('water-line','line-color','#9bdcff');P('water-line','line-opacity',.9);
     P('pan','circle-color','rgba(61,143,200,.45)');P('pan','circle-stroke-color','rgba(155,220,255,.8)');P('farm-tint','fill-opacity',.1)}
@@ -1808,6 +1808,7 @@ function annPop(){const a=ANN.filter(x=>!annSeen.has(x.client_id)&&(!x.expires_a
 
 /* ============ what's new: shown once to owners and admins after an update ============ */
 const WHATS_NEW=[
+ [105,'route','Smoother driving and a blue route','The map no longer shakes while you drive: the arrow glides steadily instead of hopping back and forth with the GPS. Your route is now blue like Google Maps, the road you are on glows softly white, and satellite roads are white instead of yellow.'],
  [104,'map','A better looking map','The Map view now shows the bush: green bushveld with trees and grass, softer hills, greener riverbanks and roads that stand out. Update news now comes from the Khaya Ndlovu database.'],
  [103,'map','Updates keep your stuff','When you update with the reinstall link, your settings, saved and recent places, home, drives, the map you were on and where you were looking all come with you. The Stellenbosch swap map is now a real map: everyone who swaps there sees each other live and sightings are shared.'],
  [102,'binoc','Heatmap for animals on the move','The sightings heatmap now works for lions, leopards, cheetahs, wild dogs and hyenas. Each sighting glows over the area they roam and the way they moved between sightings is filled in. After 24 hours a sighting leaves the map but stays in the Feed.'],
@@ -2478,7 +2479,7 @@ function onPos(p){
 function handlePos(raw,acc,heading,speed,t){if((speed||0)>1.5)lastMoveT=Date.now();
   const ll=[raw[0]+calib[0],raw[1]+calib[1]];
   if(lastPos){const dt=(t-lastPos.t)/1000,dd=dist(lastPos.ll,ll);if(dt>0){const v=dd/dt;if(speed==null||isNaN(speed))speed=v;if((heading==null||isNaN(heading))&&dd>3)heading=bearing(lastPos.ll,ll)}}
-  if(speed!=null&&!isNaN(speed)){if(speed>42)speed=speedS;speedS=speedS*0.5+speed*0.5}
+  if(speed!=null&&!isNaN(speed)){if(speed>42)speed=speedS;speedS=speedS*0.65+speed*0.35}
   if(heading==null||isNaN(heading)||(speed!=null&&speed<0.8))heading=me?me.heading:null;
   me={ll,acc:acc||15,heading,speed:speedS,t};lastPos={ll,t};
   gotFirst=true;try{gpsAcc(me.acc)}catch(e){}
@@ -2522,13 +2523,18 @@ function camTick(){
   if(stopped&&compassHd!=null)anim.toHd=compassHd;
   {const c=meEl.querySelector('.cone');if(c){const v=(compassHd!=null||(me&&me.heading!=null))?'1':'0';if(c.style.opacity!==v)c.style.opacity=v}}
   // where the car is now: last fix, carried forward along its heading until the next fix arrives
-  let pred=anim.to;const ex=Math.min(1.25,(now-anim.fixT)/1000);
-  if(!stopped&&anim.v>1.2&&ex>0){const a=anim.toHd*Math.PI/180,d=anim.v*ex;pred=[anim.to[0]+Math.sin(a)*d/(111320*Math.cos(anim.to[1]*Math.PI/180)),anim.to[1]+Math.cos(a)*d/110540]}
+  let pred=anim.to;const ex=Math.min(1.1,(now-anim.fixT)/1000);
+  if(!stopped&&anim.v>1.2&&ex>0){const a=anim.toHd*Math.PI/180,d=anim.v*.92*ex;pred=[anim.to[0]+Math.sin(a)*d/(111320*Math.cos(anim.to[1]*Math.PI/180)),anim.to[1]+Math.cos(a)*d/110540]}
   // on a route: keep the car exactly on the route line, so GPS wobble never pushes it sideways
   if(nav&&nav.segs&&!stopped){try{const pr=projectOnRoute(nav.segs,pred);if(pr.d<25)pred=pointAt(nav.segs,pr.along)}catch(e){}}
   if(dist(anim.pos,pred)>120)anim.pos=pred.slice();
-  else{const kp=1-Math.exp(-dt/0.2);anim.pos=[anim.pos[0]+(pred[0]-anim.pos[0])*kp,anim.pos[1]+(pred[1]-anim.pos[1])*kp]}
-  anim.hd=angLerp(anim.hd,anim.toHd,1-Math.exp(-dt/0.22));
+  else{// glide towards where the car is. When a GPS fix lands a little behind the arrow, the arrow waits instead of jumping back
+   // (that back-and-forth every second is what made the map shake). Sideways wobble is damped harder than forward movement.
+   const kx=111320*Math.cos(anim.pos[1]*Math.PI/180),ky=110540;let dx=(pred[0]-anim.pos[0])*kx,dy=(pred[1]-anim.pos[1])*ky;
+   if(!stopped){const a=(anim.camHd!=null?anim.camHd:anim.hd)*Math.PI/180,fx=Math.sin(a),fy=Math.cos(a);let f=dx*fx+dy*fy,s=dx*fy-dy*fx;
+     if(f<0&&f>-18)f=0;s*=Math.abs(s)<3?.35:1;dx=f*fx+s*fy;dy=f*fy-s*fx}
+   const kp=1-Math.exp(-dt/(stopped?0.45:0.3));anim.pos=[anim.pos[0]+dx*kp/kx,anim.pos[1]+dy*kp/ky]}
+  {const dh=Math.abs(((anim.toHd-anim.hd+540)%360)-180);if(!(dh<3&&!stopped))anim.hd=angLerp(anim.hd,anim.toHd,1-Math.exp(-dt/(stopped?0.3:0.5)))}
   if(anim.camHd==null)anim.camHd=anim.hd;
   {// the map turns slowly and only for real bends: small wiggles are ignored and it never turns faster than 30 degrees a second
    const want=anim.routeHd!=null&&!stopped?anim.routeHd:anim.toHd;let diff=((want-anim.camHd+540)%360)-180;
