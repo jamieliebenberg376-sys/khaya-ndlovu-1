@@ -1478,7 +1478,8 @@ alter table public.members add column if not exists avatar text;
 do $$ begin
   alter table public.members drop constraint if exists members_avatar_chk;
   alter table public.members add constraint members_avatar_chk check (avatar is null or avatar in ('Lion','Leopard','Elephant','Rhino','Cheetah','Wild dog','Hippo','Buffalo','Hyena','Giraffe','Zebra','Kudu',
-    'Gold Lion','Gold Leopard','Gold Elephant','Gold Rhino','Gold Buffalo','Gold Cheetah','Rainbow Zebra','Rainbow Lion','Rainbow Elephant','Rainbow Giraffe','Rainbow Rhino','Rainbow Leopard'));
+    'Gold Lion','Gold Leopard','Gold Elephant','Gold Rhino','Gold Buffalo','Gold Cheetah','Rainbow Zebra','Rainbow Lion','Rainbow Elephant','Rainbow Giraffe','Rainbow Rhino','Rainbow Leopard',
+    'Prismatic Lion','Prismatic Leopard','Prismatic Elephant','Prismatic Rhino','Prismatic Kudu','Prismatic Hippo'));
 exception when others then null; end $$;
 create or replace function public.kn_trg_name_lock() returns trigger language plpgsql as $$
 begin
@@ -1491,9 +1492,10 @@ create or replace function public.set_avatar(p_avatar text)
 returns void language plpgsql security definer set search_path = public as $$
 begin
   if auth.uid() is null or not exists (select 1 from public.members where user_id = auth.uid()) then raise exception 'members only'; end if;
-  -- Gold pictures are for owners and admins, Rainbow ones for admins (Database accounts are admins too); guests have the plain animals
+  -- Gold pictures: owners and admins. Prismatic: admins. Rainbow: Database accounts only. Guests: the plain animals
   if p_avatar like 'Gold %' and not exists (select 1 from public.members where user_id = auth.uid() and role in ('owner', 'admin')) then raise exception 'Gold pictures are for owners and admins'; end if;
-  if p_avatar like 'Rainbow %' and not public.is_admin() then raise exception 'Rainbow pictures are for admins'; end if;
+  if p_avatar like 'Prismatic %' and not public.is_admin() then raise exception 'Prismatic pictures are for admins'; end if;
+  if p_avatar like 'Rainbow %' and not exists (select 1 from public.members where user_id = auth.uid() and locked) then raise exception 'Rainbow pictures are for Database accounts only'; end if;
   update public.members set avatar = p_avatar where user_id = auth.uid();
 end $$;
 grant execute on function public.set_avatar(text) to authenticated;

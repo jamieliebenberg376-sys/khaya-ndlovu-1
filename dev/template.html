@@ -3974,14 +3974,15 @@ const CHARS=['Lion','Leopard','Elephant','Rhino','Cheetah','Wild dog','Hippo','B
 /* ============ profile pictures: detailed portraits. Everyone: the 12 animals. Admins only: Gold. Database only: Rainbow ============ */
 const AV_GOLD=['Lion','Leopard','Elephant','Rhino','Buffalo','Cheetah'].map(a=>'Gold '+a);
 const AV_RAIN=['Zebra','Lion','Elephant','Giraffe','Rhino','Leopard'].map(a=>'Rainbow '+a);
-const ALLAV=[...CHARS,...AV_GOLD,...AV_RAIN];
-const avBase=av=>String(av||'').replace(/^(Gold|Rainbow) /,'');
-const avTier=av=>/^Gold /.test(av)?'gold':/^Rainbow /.test(av)?'rain':'std';
-function avAllowed(av){const m=Cloud.member||{};const t=avTier(av),adm=m.role==='admin'||!!m.locked;return t==='std'||(t==='gold'&&(adm||m.role==='owner'))||(t==='rain'&&adm)}
+const AV_PRISM=['Lion','Leopard','Elephant','Rhino','Kudu','Hippo'].map(a=>'Prismatic '+a);
+const ALLAV=[...CHARS,...AV_GOLD,...AV_PRISM,...AV_RAIN];
+const avBase=av=>String(av||'').replace(/^(Gold|Rainbow|Prismatic) /,'');
+const avTier=av=>/^Gold /.test(av)?'gold':/^Rainbow /.test(av)?'rain':/^Prismatic /.test(av)?'prism':'std';
+function avAllowed(av){const m=Cloud.member||{};const t=avTier(av),adm=m.role==='admin'||!!m.locked;return t==='std'||(t==='gold'&&(adm||m.role==='owner'))||(t==='prism'&&adm)||(t==='rain'&&!!m.locked)}
 let _pfN=0;
 function PFP(av,size){size=size||36;const k=avBase(av),tier=avTier(av);if(!ANI[k])return AN(k,size);const id='pf'+(++_pfN),[c1,c2]=ANCOL[k]||ANCOL.Other;
   const detail=size>=30;
-  const animal=ANI[k](tier==='std'?c2:'#20140a'),rainAnimal=tier==='rain'?ANI[k](`url(#${id}a)`,'#fff'):'';
+  const animal=ANI[k](tier==='std'?c2:tier==='prism'?'#2c2457':'#20140a'),rainAnimal=tier==='rain'||tier==='prism'?ANI[k](`url(#${id}a)`,'#fff'):'';
   const tr='translate(9.6 10.4) scale(.7)';
   let bg='',body='',ring='';
   if(tier==='std'){
@@ -3997,6 +3998,13 @@ function PFP(av,size){size=size||36;const k=avBase(av),tier=avTier(av);if(!ANI[k
       <linearGradient id="${id}r" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff1b8"/><stop offset=".5" stop-color="#c8962a"/><stop offset="1" stop-color="#ffe08a"/></linearGradient>`;
     body=`<rect width="64" height="64" fill="url(#${id}s)"/>${[[12,14],[52,12],[9,40],[55,44],[20,6],[44,56]].map(([x,y],i)=>`<path d="M${x} ${y-2.2}L${x+.7} ${y-.7}L${x+2.2} ${y}L${x+.7} ${y+.7}L${x} ${y+2.2}L${x-.7} ${y+.7}L${x-2.2} ${y}L${x-.7} ${y-.7}Z" fill="#ffe08a" opacity="${.5+i%3*.18}"/>`).join('')}`;
     ring=`<circle cx="32" cy="32" r="30.4" fill="none" stroke="url(#${id}r)" stroke-width="3"/><circle cx="32" cy="32" r="28.4" fill="none" stroke="rgba(255,224,138,.35)" stroke-width=".8"/>`}
+  else if(tier==='prism'){
+    bg=`<radialGradient id="${id}s" cx="38%" cy="30%" r="85%"><stop offset="0" stop-color="#9d8fe6"/><stop offset=".5" stop-color="#55529f"/><stop offset="1" stop-color="#253f6e"/></radialGradient>
+      <linearGradient id="${id}a" gradientUnits="userSpaceOnUse" x1="8" y1="10" x2="56" y2="54"><stop offset="0" stop-color="#f6a8d4"/><stop offset=".25" stop-color="#a9d6ff"/><stop offset=".5" stop-color="#c7b3ff"/><stop offset=".75" stop-color="#9ff0d6"/><stop offset="1" stop-color="#ffe0a3"/></linearGradient>
+      <linearGradient id="${id}r" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".25" stop-color="#f3b4dc"/><stop offset=".5" stop-color="#b5c8ff"/><stop offset=".75" stop-color="#a8f0da"/><stop offset="1" stop-color="#ffffff"/></linearGradient>
+      <filter id="${id}g" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="2.6"/><feColorMatrix values="0 0 0 0 .7  0 0 0 0 .6  0 0 0 0 1  0 0 0 .8 0"/></filter>`;
+    body=`<rect width="64" height="64" fill="url(#${id}s)"/><path d="M-6 44 L70 8 L70 18 L-6 54Z" fill="#fff" opacity=".12"/><path d="M-6 56 L70 22 L70 26 L-6 60Z" fill="#fff" opacity=".08"/>${[[11,15],[53,13],[10,47],[54,49],[31,6]].map(([x,y],i)=>`<path d="M${x} ${y-2}L${x+.6} ${y-.6}L${x+2} ${y}L${x+.6} ${y+.6}L${x} ${y+2}L${x-.6} ${y+.6}L${x-2} ${y}L${x-.6} ${y-.6}Z" fill="#fff" opacity="${.65+i%2*.25}"/>`).join('')}`;
+    ring=`<circle cx="32" cy="32" r="30.4" fill="none" stroke="url(#${id}r)" stroke-width="3"/><circle cx="32" cy="32" r="28.5" fill="none" stroke="rgba(255,255,255,.8)" stroke-width=".7"/>`}
   else{
     bg=`<radialGradient id="${id}s" cx="50%" cy="35%" r="80%"><stop offset="0" stop-color="#2a2550"/><stop offset="1" stop-color="#0d0b1f"/></radialGradient>
       <filter id="${id}g" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="3"/><feColorMatrix values="0 0 0 0 .75  0 0 0 0 .55  0 0 0 0 1  0 0 0 .9 0"/></filter>
@@ -4010,7 +4018,7 @@ function PFP(av,size){size=size||36;const k=avBase(av),tier=avTier(av);if(!ANI[k
   const mask=`<mask id="${id}m"><rect width="64" height="64" fill="#000"/><g transform="${tr}">${animal}</g></mask>`;
   let face;
   if(tier==='std')face=`<g filter="url(#${id}d)"><g transform="${tr}">${animal}</g></g><rect width="64" height="64" fill="url(#${id}h)" mask="url(#${id}m)"/>${detail?`<rect width="64" height="64" filter="url(#${id}n)" mask="url(#${id}m)" opacity=".2"/>`:''}`;
-  else if(tier==='rain'&&['Zebra','Leopard','Giraffe','Cheetah'].includes(k))face=`<g transform="${tr}" opacity=".55" filter="url(#${id}g)">${ANI[k]('#fff','#fff')}</g><g filter="url(#${id}d)"><g transform="${tr}">${rainAnimal}</g></g><rect width="64" height="64" fill="#fff" opacity=".18" mask="url(#${id}m)" clip-path="url(#${id}c)"/>`;
+  else if((tier==='rain'||tier==='prism')&&['Zebra','Leopard','Giraffe','Cheetah'].includes(k))face=`<g transform="${tr}" opacity=".55" filter="url(#${id}g)">${ANI[k]('#fff','#fff')}</g><g filter="url(#${id}d)"><g transform="${tr}">${rainAnimal}</g></g><rect width="64" height="64" fill="#fff" opacity=".18" mask="url(#${id}m)" clip-path="url(#${id}c)"/>`;
   else face=`<g filter="url(#${id}d)"><rect width="64" height="64" fill="url(#${id}a)" mask="url(#${id}m)"/></g>${detail?`<rect width="64" height="64" filter="url(#${id}n)" mask="url(#${id}m)" opacity=".35"/>`:''}<rect width="64" height="64" fill="#fff" opacity=".22" mask="url(#${id}m)" transform="translate(0 0)" clip-path="url(#${id}c)"/>`;
   return `<svg viewBox="0 0 64 64" width="${size}" height="${size}" class="abadge pfp"><defs>${bg}${filt}${mask}<clipPath id="${id}c"><path d="M0 0H64V24C44 30 20 18 0 26Z"/></clipPath><clipPath id="${id}o"><circle cx="32" cy="32" r="32"/></clipPath></defs><g clip-path="url(#${id}o)">${body}${face}</g>${ring}</svg>`}
 
@@ -4058,7 +4066,7 @@ function welcomeFlow(){if(!Cloud.member)return;const inst=!isStandalone(),ios=/i
   // 3. make it yours
   if(!LS.get('custDone',false))custFlow(0)}
 function avPickHtml(){const g=(L,lbl)=>`${lbl?`<div class="msec avsec">${lbl}</div>`:''}<div class="qsg">${L.map(a=>`<button class="${MYAV===a?'sel':''}" data-v="${esc(a)}" data-ch>${PFP(a,48)}<span>${esc(T(avBase(a)))}</span></button>`).join('')}</div>`;
-  const m=Cloud.member||{};const adm=m.role==='admin'||!!m.locked;return g(CHARS,'')+(adm||m.role==='owner'?g(AV_GOLD,T('Gold · owners and admins')):'')+(adm?g(AV_RAIN,`${ADMIN_BADGE} ${T('Prismatic · admins only')}`):'')}
+  const m=Cloud.member||{};const adm=m.role==='admin'||!!m.locked;return g(CHARS,'')+(adm||m.role==='owner'?g(AV_GOLD,T('Gold · owners and admins')):'')+(adm?g(AV_PRISM,`${ADMIN_BADGE} ${T('Prismatic · admins only')}`):'')+(m.locked?g(AV_RAIN,`${DB_BADGE} ${T('Rainbow · Database only')}`):'')}
 function custFlow(step){const total=5;const pg=(n,title,sub,body,bind)=>{openSheet(`<div class="obdots">${Array.from({length:total},(_,i)=>`<i class="${i<=n?'on':''}"></i>`).join('')}</div><h2>${title}</h2><div class="sub" style="margin-top:4px">${sub}</div>${body}
     <div class="row" style="margin-top:16px">${n>0?`<button class="btn" id="cuBack">${T('Back')}</button>`:''}<button class="btn pri" id="cuNext">${n===total-1?T('Done'):T('Next')}</button></div>`,()=>{if($('cuBack'))$('cuBack').onclick=()=>custFlow(n-1);bind&&bind()})};
   const pick=(sel,fn)=>document.querySelectorAll(sel).forEach(b=>b.onclick=()=>{document.querySelectorAll(sel).forEach(x=>x.classList.remove('sel'));b.classList.add('sel');fn(b.dataset.v)});
