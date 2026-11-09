@@ -2014,7 +2014,7 @@ returns json language sql stable security definer set search_path = public as $$
   select case when not public.is_member() then '[]'::json else coalesce((select json_agg(row_to_json(x) order by x.t desc) from (
     select * from (
       select 's' kind, l.client_id c, l.what w, coalesce(l.name, m.name, 'Someone') by, l.created_at t, l.story s, l.photo ph, coalesce(l.kill, false) k, l.lat, l.lng, case when l.video is not null then jsonb_build_array(jsonb_build_object('k', 'vid', 'f', l.video, 'p', l.client_id || '.jpg', 'sv', true)) else '[]'::jsonb end media,
-             l.user_id = auth.uid() mine, false can, l.user_id u, m.avatar av, case when m.locked then 'db' else m.role end rl
+             l.user_id = auth.uid() mine, (l.user_id = auth.uid() or public.is_admin()) can, l.user_id u, m.avatar av, case when m.locked then 'db' else m.role end rl
       from public.sightings_log l left join public.members m on m.user_id = l.user_id
       where coalesce(p_kind, '') in ('', 'sight') and not l.still and l.created_at < coalesce(p_before, now() + interval '1 minute') and l.created_at > now() - interval '400 days'
         and (p_what is null or l.what = p_what)
@@ -2317,6 +2317,11 @@ begin
     exception when others then out := out || array['Guests cannot change places', 'PASS']; end;
     insert into public.sightings (client_id, what, lat, lng, created_at, kill) values ('kt-kill', 'Lion', -24.377, 30.963, now() - interval '20 minutes', true);
     out := out || array['Kill sightings are kept in the history', case when exists (select 1 from public.sightings_log where client_id = 'kt-kill' and kill) then 'PASS' else 'FAIL' end];
+    -- delete sightings: admin can delete anyone's
+    perform set_config('request.jwt.claims', json_build_object('sub', a)::text, true); perform set_config('request.jwt.claim.sub', a::text, true);
+    begin perform public.delete_sightings(array['kt-1']);
+      out := out || array['Admins can delete anyone''s sighting', case when not exists (select 1 from public.sightings_log where client_id = 'kt-1') then 'PASS' else 'FAIL' end];
+    exception when others then out := out || array['Admins can delete anyone''s sighting', 'FAIL: ' || sqlerrm]; end;
     -- account PIN
     perform set_config('request.jwt.claims', json_build_object('sub', a)::text, true); perform set_config('request.jwt.claim.sub', a::text, true);
     begin perform public.set_pin('1234');
@@ -2415,9 +2420,21 @@ declare m public.members; g public.guest_codes;
 begin
   if not public.is_member() then return null; end if;
   select * into m from public.members where user_id = p_user;
-  if not found then return json_build_object('gone', true); end if;
+  if not found then
+    -- no longer a member: admins (and you) still see what they posted, so it can be cleaned up
+    if not (public.is_admin() or p_user = auth.uid()) then return json_build_object('gone', true); end if;
+    return json_build_object('gone', true, 'can', true, 'me', p_user = auth.uid(),
+      'name', coalesce((select l.name from public.sightings_log l where l.user_id = p_user and l.name is not null order by l.created_at desc limit 1),
+                       (select fp.name from public.feed_posts fp where fp.user_id = p_user and fp.name is not null order by fp.created_at desc limit 1)),
+      'sightings', (select count(*) from public.sightings_log l where l.user_id = p_user and not l.still),
+      'recent', coalesce((select json_agg(x order by x.t desc) from (
+        select 's' k, l.client_id c, l.what w, l.created_at t, l.story s, l.photo ph from public.sightings_log l where l.user_id = p_user and not l.still
+        union all
+        select 'p', fp.id, fp.what, fp.created_at, fp.body, false from public.feed_posts fp where fp.user_id = p_user
+        order by 4 desc limit 60) x), '[]'::json));
+  end if;
   select * into g from public.guest_codes where code = m.code and m.role = 'guest';
-  return json_build_object('name', m.name, 'avatar', m.avatar, 'role', m.role, 'db', coalesce(m.locked, false), 'joined_at', m.joined_at, 'me', p_user = auth.uid(),
+  return json_build_object('name', m.name, 'avatar', m.avatar, 'role', m.role, 'db', coalesce(m.locked, false), 'joined_at', m.joined_at, 'me', p_user = auth.uid(), 'can', p_user = auth.uid() or public.is_admin(),
     'expires_at', case when m.role = 'guest' then m.expires_at end,
     'active', m.role <> 'guest' or ((m.expires_at is null or m.expires_at > now()) and not coalesce(g.revoked, false)),
     'invited_by', case when m.role = 'guest' then coalesce(g.created_by_name, m.invited_by) end,
@@ -2575,9 +2592,95 @@ end $$;
 grant execute on function public.join_reserve3(text, text, boolean, text) to authenticated;
 
 
+-- v116: delete your own sightings; admins can delete anyone's (map, Feed and history)
+create or replace function public.delete_sightings(p_cids text[])
+returns int language plpgsql security definer set search_path = public as $$
+#variable_conflict use_column
+declare ids text[]; n int;
+begin
+  if not public.is_member() then raise exception 'members only'; end if;
+  if public.is_admin() then ids := p_cids;
+  else
+    select coalesce(array_agg(distinct c), '{}') into ids from (
+      select client_id c from public.sightings where client_id = any(p_cids) and user_id = auth.uid()
+      union select client_id from public.sightings_log where client_id = any(p_cids) and user_id = auth.uid()) q;
+  end if;
+  if coalesce(array_length(ids, 1), 0) = 0 then raise exception 'You can only delete your own sightings'; end if;
+  select count(*) into n from public.sightings_log where client_id = any(ids);
+  delete from public.sightings where client_id = any(ids);
+  delete from public.sightings_log where client_id = any(ids);
+  begin delete from public.feed_comments where post = any(ids); exception when others then null; end;
+  begin delete from public.feed_likes where client_id = any(ids); exception when others then null; end;
+  begin perform public.kn_log('delete', 'deleted ' || n || case when n = 1 then ' sighting' else ' sightings' end); exception when others then null; end;
+  return n;
+end $$;
+grant execute on function public.delete_sightings(text[]) to authenticated;
+
+
+-- v116: when someone is removed from the map, everything they posted goes with them (not when an account just moves to a new phone)
+create or replace function public.kn_member_gone()
+returns trigger language plpgsql security definer set search_path = public as $$
+begin
+  if coalesce(current_setting('kn.handover', true), '') = '1' then return old; end if;
+  begin delete from public.feed_comments where post in (select id from public.feed_posts where user_id = old.user_id); exception when others then null; end;
+  begin delete from public.feed_likes where client_id in (select id from public.feed_posts where user_id = old.user_id); exception when others then null; end;
+  delete from public.feed_posts where user_id = old.user_id;
+  begin delete from public.feed_comments where user_id = old.user_id; exception when others then null; end;
+  begin delete from public.feed_likes where user_id = old.user_id; exception when others then null; end;
+  begin delete from public.feed_comments where post in (select client_id from public.sightings_log where user_id = old.user_id); exception when others then null; end;
+  delete from public.sightings where user_id = old.user_id;
+  delete from public.sightings_log where user_id = old.user_id;
+  return old;
+end $$;
+drop trigger if exists kn_member_gone on public.members;
+create trigger kn_member_gone after delete on public.members for each row execute function public.kn_member_gone();
+-- and clean up anything already left behind by people who were removed before
+delete from public.feed_comments c where c.user_id is not null and not exists (select 1 from public.members m where m.user_id = c.user_id);
+delete from public.feed_posts fp where fp.user_id is not null and not exists (select 1 from public.members m where m.user_id = fp.user_id);
+delete from public.sightings s where s.user_id is not null and not exists (select 1 from public.members m where m.user_id = s.user_id);
+delete from public.sightings_log l where l.user_id is not null and not exists (select 1 from public.members m where m.user_id = l.user_id);
+delete from public.feed_comments c where not exists (select 1 from public.feed_posts fp where fp.id = c.post) and not exists (select 1 from public.sightings_log l where l.client_id = c.post);
+
+-- v116: anyone on the map can send someone a private message from their profile (20 an hour)
+alter table public.direct_msgs add column if not exists from_user uuid;
+create or replace function public.send_direct(p_user uuid, p_body text)
+returns void language plpgsql security definer set search_path = public as $$
+declare nm text;
+begin
+  if not public.is_member() then raise exception 'members only'; end if;
+  if p_user = auth.uid() then raise exception 'You cannot message yourself'; end if;
+  select name into nm from public.members where user_id = p_user;
+  if nm is null then raise exception 'That person is not on the map'; end if;
+  if not public.is_admin() and (select count(*) from public.direct_msgs where from_user = auth.uid() and created_at > now() - interval '1 hour') >= 20 then
+    raise exception 'Too many messages. Try again in a while'; end if;
+  insert into public.direct_msgs (to_user, from_name, from_user, body) values (p_user, public.kn_me_name(), auth.uid(), left(btrim(p_body), 600));
+  if public.is_admin() then perform public.kn_log('admin', 'sent a private message to ' || nm); end if;
+end $$;
+grant execute on function public.send_direct(uuid, text) to authenticated;
+
+-- v116: fresh start. Every sighting ever made is deleted once (running this file again later does not wipe again)
+alter table private.config add column if not exists wiped_116 boolean not null default false;
+do $$ begin
+  if not (select wiped_116 from private.config limit 1) then
+    begin delete from public.feed_comments where post in (select client_id from public.sightings_log); exception when others then null; end;
+    begin delete from public.feed_likes where client_id in (select client_id from public.sightings_log); exception when others then null; end;
+    delete from public.sightings;
+    delete from public.sightings_log;
+    update private.config set wiped_116 = true;
+  end if;
+end $$;
+create or replace function public.map_state()
+returns json language sql stable security definer set search_path = public, private as $$
+  select case when public.is_member() then json_build_object('paused', c.paused, 'pause_msg', c.pause_msg, 'paused_by', c.paused_by, 'paused_at', c.paused_at,
+    'rules', c.rules, 'admin_only', c.admin_only, 'guest_max_days', c.guest_max_days, 'guest_max_per_owner', c.guest_max_per_owner, 'admin_sees_all', c.admin_sees_all,
+    'dry', coalesce(c.dry, '{}'), 'wipe', case when c.wiped_116 then 116 else 0 end)
+  else json_build_object('paused', false) end from private.config c limit 1 $$;
+grant execute on function public.map_state() to authenticated;
+
+
 
 -- =====================================================================
--- PUSH THE UPDATE (version 115)
+-- PUSH THE UPDATE (version 116)
 -- =====================================================================
 
 alter table private.config add column if not exists min_build int not null default 0;
@@ -2647,9 +2750,9 @@ begin
 end $$;
 grant execute on function public.set_min_build(int) to authenticated;
 
--- push it now: require version 115 and post the news. It is sent by the database, not by any person.
-update private.config set min_build = 115;
-select public.kn_update_news(115);
+-- push it now: require version 116 and post the news. It is sent by the database, not by any person.
+update private.config set min_build = 116;
+select public.kn_update_news(116);
 
 notify pgrst, 'reload schema';
 
@@ -2661,7 +2764,7 @@ union all select 'Codes and logins self-test', case when (select count(*) from p
 union all select 'Protected account (9fb4d097...) locked as admin', case when exists (select 1 from public.members where locked and role = 'admin') then 'YES' else 'NO: that account is not on the map yet. Open the map on that phone, then run this again' end
 union all select 'Your Database code (keep it secret, it gives full control)', (select db_code from private.config limit 1)
 union all select 'Backend self-test', case when (select count(*) from public.kn_backend_selftest() where result not like 'PASS%') = 0 then 'YES' else 'NO: ' || (select string_agg(test, ', ') from public.kn_backend_selftest() where result not like 'PASS%') end
-union all select 'Everyone must be on version 115', case when (select min_build from private.config limit 1) = 115 then 'YES' else 'NO' end
-union all select 'Update news posted (only old versions see it)', case when exists (select 1 from public.announcements where for_old_build = 115 and not removed) then 'YES' else 'NO' end
+union all select 'Everyone must be on version 116', case when (select min_build from private.config limit 1) = 116 then 'YES' else 'NO' end
+union all select 'Update news posted (only old versions see it)', case when exists (select 1 from public.announcements where for_old_build = 116 and not removed) then 'YES' else 'NO' end
 union all select 'Your owner code (unchanged)', (select upper(invite_code) from private.config limit 1)
-union all select 'People who still need to update', (select count(*)::text from public.members where coalesce(app_build, 0) < 115 and (role <> 'guest' or expires_at > now()));
+union all select 'People who still need to update', (select count(*)::text from public.members where coalesce(app_build, 0) < 116 and (role <> 'guest' or expires_at > now()));
