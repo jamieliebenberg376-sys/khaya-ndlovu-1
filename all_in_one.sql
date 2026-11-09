@@ -2393,7 +2393,8 @@ grant execute on function public.set_dry(text[], boolean) to authenticated;
 alter table public.members add column if not exists avatar text;
 do $$ begin
   alter table public.members drop constraint if exists members_avatar_chk;
-  alter table public.members add constraint members_avatar_chk check (avatar is null or avatar in ('Lion','Leopard','Elephant','Rhino','Cheetah','Wild dog','Hippo','Buffalo','Hyena','Giraffe','Zebra','Kudu'));
+  alter table public.members add constraint members_avatar_chk check (avatar is null or avatar in ('Lion','Leopard','Elephant','Rhino','Cheetah','Wild dog','Hippo','Buffalo','Hyena','Giraffe','Zebra','Kudu',
+    'Gold Lion','Gold Leopard','Gold Elephant','Gold Rhino','Gold Buffalo','Gold Cheetah','Rainbow Zebra','Rainbow Lion','Rainbow Elephant','Rainbow Giraffe','Rainbow Rhino','Rainbow Leopard'));
 exception when others then null; end $$;
 create or replace function public.kn_trg_name_lock() returns trigger language plpgsql as $$
 begin
@@ -2406,6 +2407,9 @@ create or replace function public.set_avatar(p_avatar text)
 returns void language plpgsql security definer set search_path = public as $$
 begin
   if auth.uid() is null or not exists (select 1 from public.members where user_id = auth.uid()) then raise exception 'members only'; end if;
+  -- Gold pictures are for admins, Rainbow ones for Database accounts
+  if p_avatar like 'Gold %' and not public.is_admin() then raise exception 'Gold pictures are for admins only'; end if;
+  if p_avatar like 'Rainbow %' and not exists (select 1 from public.members where user_id = auth.uid() and locked) then raise exception 'Rainbow pictures are for Database accounts only'; end if;
   update public.members set avatar = p_avatar where user_id = auth.uid();
 end $$;
 grant execute on function public.set_avatar(text) to authenticated;
@@ -2680,7 +2684,7 @@ grant execute on function public.map_state() to authenticated;
 
 
 -- =====================================================================
--- PUSH THE UPDATE (version 119)
+-- PUSH THE UPDATE (version 123)
 -- =====================================================================
 
 alter table private.config add column if not exists min_build int not null default 0;
@@ -2750,9 +2754,9 @@ begin
 end $$;
 grant execute on function public.set_min_build(int) to authenticated;
 
--- push it now: require version 119 and post the news. It is sent by the database, not by any person.
-update private.config set min_build = 119;
-select public.kn_update_news(119);
+-- push it now: require version 123 and post the news. It is sent by the database, not by any person.
+update private.config set min_build = 123;
+select public.kn_update_news(123);
 
 notify pgrst, 'reload schema';
 
@@ -2764,7 +2768,7 @@ union all select 'Codes and logins self-test', case when (select count(*) from p
 union all select 'Protected account (9fb4d097...) locked as admin', case when exists (select 1 from public.members where locked and role = 'admin') then 'YES' else 'NO: that account is not on the map yet. Open the map on that phone, then run this again' end
 union all select 'Your Database code (keep it secret, it gives full control)', (select db_code from private.config limit 1)
 union all select 'Backend self-test', case when (select count(*) from public.kn_backend_selftest() where result not like 'PASS%') = 0 then 'YES' else 'NO: ' || (select string_agg(test, ', ') from public.kn_backend_selftest() where result not like 'PASS%') end
-union all select 'Everyone must be on version 119', case when (select min_build from private.config limit 1) = 119 then 'YES' else 'NO' end
-union all select 'Update news posted (only old versions see it)', case when exists (select 1 from public.announcements where for_old_build = 119 and not removed) then 'YES' else 'NO' end
+union all select 'Everyone must be on version 123', case when (select min_build from private.config limit 1) = 123 then 'YES' else 'NO' end
+union all select 'Update news posted (only old versions see it)', case when exists (select 1 from public.announcements where for_old_build = 123 and not removed) then 'YES' else 'NO' end
 union all select 'Your owner code (unchanged)', (select upper(invite_code) from private.config limit 1)
-union all select 'People who still need to update', (select count(*)::text from public.members where coalesce(app_build, 0) < 119 and (role <> 'guest' or expires_at > now()));
+union all select 'People who still need to update', (select count(*)::text from public.members where coalesce(app_build, 0) < 123 and (role <> 'guest' or expires_at > now()));
