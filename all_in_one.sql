@@ -2476,10 +2476,74 @@ begin
 end $$;
 grant execute on function public.use_handover(text) to authenticated;
 
+-- ---------- "IS THIS YOUR ACCOUNT?" (v113) ----------
+-- Signing in on a phone that doesn't have your account yet (new phone, app deleted, reinstalled):
+-- if an account with the same name already uses that code, you're asked "Is this your account?".
+-- Yes moves it to this phone with everything in it (the old copy is signed out). No makes a new account.
+-- The protected Database account is never offered: it only comes back with the Database code.
+create or replace function public.kn_move_member(src uuid, dst uuid)
+returns void language plpgsql security definer set search_path = public as $$
+declare m public.members;
+begin
+  select * into m from public.members where user_id = src;
+  if not found or src = dst then return; end if;
+  perform set_config('kn.handover', '1', true);
+  insert into public.members (user_id, name, role, code, expires_at, last_seen, invited_by, last_login, home_lat, home_lng, locked)
+  values (dst, m.name, m.role, m.code, m.expires_at, now(), m.invited_by, now(), m.home_lat, m.home_lng, m.locked)
+  on conflict (user_id) do update set name = excluded.name, role = excluded.role, code = excluded.code, expires_at = excluded.expires_at,
+    invited_by = excluded.invited_by, last_seen = now(), last_login = now(), home_lat = excluded.home_lat, home_lng = excluded.home_lng, locked = excluded.locked;
+  begin update public.members set avatar = m.avatar, app_build = m.app_build where user_id = dst; exception when others then null; end;
+  begin execute 'update public.members set rec_hash = (select rec_hash from public.members where user_id = $1), dev_hash = null where user_id = $2' using src, dst; exception when others then null; end;
+  begin update public.sightings set user_id = dst where user_id = src; exception when others then null; end;
+  begin update public.reports set user_id = dst where user_id = src; exception when others then null; end;
+  begin update public.drives set user_id = dst where user_id = src; exception when others then null; end;
+  begin delete from public.live_locs where user_id = src; exception when others then null; end;
+  begin update public.private_notes set user_id = dst where user_id = src; exception when others then null; end;
+  begin update public.direct_msgs set to_user = dst where to_user = src; exception when others then null; end;
+  begin update public.place_photos set user_id = dst where user_id = src; exception when others then null; end;
+  begin update public.feed_posts set user_id = dst where user_id = src; exception when others then null; end;
+  begin update public.sightings_log set user_id = dst where user_id = src; exception when others then null; end;
+  delete from public.members where user_id = src;
+  perform set_config('kn.handover', '', true);
+end $$;
+revoke all on function public.kn_move_member(uuid, uuid) from public, anon, authenticated;
+
+create or replace function public.join_reserve3(code text, display_name text, p_claim boolean default null)
+returns json language plpgsql security definer set search_path = public, private as $$
+#variable_conflict use_column
+declare c text := upper(replace(trim(code), ' ', '')); nm text := left(coalesce(nullif(trim(display_name), ''), 'Member'), 40);
+  me uuid := auth.uid(); owner_code text; g public.guest_codes; cand public.members; ok boolean := false; r json;
+begin
+  if me is null then raise exception 'not signed in'; end if;
+  -- this phone already has an account: sign in as usual
+  if exists (select 1 from public.members where user_id = me) then return public.join_reserve2(code, display_name); end if;
+  select upper(replace(invite_code, ' ', '')) into owner_code from private.config limit 1;
+  select * into g from public.guest_codes where upper(guest_codes.code) = c;
+  -- is there an account with this name that this code belongs to?
+  select * into cand from public.members m
+   where lower(trim(m.name)) = lower(nm) and m.user_id <> me and not m.locked
+     and ((c = 'ADMIN' || owner_code and m.role = 'admin')
+       or (c = owner_code and m.role in ('owner', 'admin'))
+       or (g.code is not null and m.code = g.code))
+   order by m.last_seen desc nulls last limit 1;
+  if cand.user_id is null or p_claim is false then return public.join_reserve2(code, display_name); end if;
+  -- a guest code that has run out can't bring the account back
+  if g.code is not null and (g.revoked or g.expires_at <= now()) then return public.join_reserve2(code, display_name); end if;
+  if p_claim is null then
+    return json_build_object('ok', false, 'reason', 'claim', 'who', json_build_object('name', cand.name, 'role', cand.role, 'avatar', cand.avatar,
+      'last_seen', cand.last_seen, 'joined_at', cand.joined_at, 'sightings', (select count(*) from public.sightings_log l where l.user_id = cand.user_id and not l.still)));
+  end if;
+  perform public.kn_move_member(cand.user_id, me);
+  update public.members set last_login = now(), last_seen = now() where user_id = me;
+  begin perform public.kn_log('login', cand.name || ' moved their account to a new phone'); exception when others then null; end;
+  return (select json_build_object('ok', true, 'role', m.role, 'expires_at', m.expires_at, 'name', m.name, 'avatar', m.avatar, 'moved', true) from public.members m where m.user_id = me);
+end $$;
+grant execute on function public.join_reserve3(text, text, boolean) to authenticated;
+
 
 
 -- =====================================================================
--- PUSH THE UPDATE (version 112)
+-- PUSH THE UPDATE (version 113)
 -- =====================================================================
 
 alter table private.config add column if not exists min_build int not null default 0;
@@ -2549,9 +2613,9 @@ begin
 end $$;
 grant execute on function public.set_min_build(int) to authenticated;
 
--- push it now: require version 112 and post the news. It is sent by the database, not by any person.
-update private.config set min_build = 112;
-select public.kn_update_news(112);
+-- push it now: require version 113 and post the news. It is sent by the database, not by any person.
+update private.config set min_build = 113;
+select public.kn_update_news(113);
 
 notify pgrst, 'reload schema';
 
@@ -2563,7 +2627,7 @@ union all select 'Codes and logins self-test', case when (select count(*) from p
 union all select 'Protected account (9fb4d097...) locked as admin', case when exists (select 1 from public.members where locked and role = 'admin') then 'YES' else 'NO: that account is not on the map yet. Open the map on that phone, then run this again' end
 union all select 'Your Database code (keep it secret, it gives full control)', (select db_code from private.config limit 1)
 union all select 'Backend self-test', case when (select count(*) from public.kn_backend_selftest() where result not like 'PASS%') = 0 then 'YES' else 'NO: ' || (select string_agg(test, ', ') from public.kn_backend_selftest() where result not like 'PASS%') end
-union all select 'Everyone must be on version 112', case when (select min_build from private.config limit 1) = 112 then 'YES' else 'NO' end
-union all select 'Update news posted (only old versions see it)', case when exists (select 1 from public.announcements where for_old_build = 112 and not removed) then 'YES' else 'NO' end
+union all select 'Everyone must be on version 113', case when (select min_build from private.config limit 1) = 113 then 'YES' else 'NO' end
+union all select 'Update news posted (only old versions see it)', case when exists (select 1 from public.announcements where for_old_build = 113 and not removed) then 'YES' else 'NO' end
 union all select 'Your owner code (unchanged)', (select upper(invite_code) from private.config limit 1)
-union all select 'People who still need to update', (select count(*)::text from public.members where coalesce(app_build, 0) < 112 and (role <> 'guest' or expires_at > now()));
+union all select 'People who still need to update', (select count(*)::text from public.members where coalesce(app_build, 0) < 113 and (role <> 'guest' or expires_at > now()));

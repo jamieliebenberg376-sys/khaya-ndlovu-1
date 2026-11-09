@@ -1015,6 +1015,9 @@ body.spbar #roadPill{bottom:calc(var(--bb) + 222px)!important}
 .prh{display:flex;align-items:center;gap:14px}
 .me.iscar.nav .chev{width:40px;height:50px;left:-12px;top:-14px;filter:drop-shadow(0 3px 4px rgba(0,0,0,.5))!important}.me.iscar.nav .chev path,.me.iscar.nav .chev rect{stroke-width:inherit}
 body.night .cuo,body.night .cuname{background:rgba(255,255,255,.06)}
+.claim{position:fixed;inset:0;z-index:2000;background:rgba(10,14,10,.72);display:flex;align-items:flex-end;justify-content:center;padding:14px}
+.claim .clc{width:100%;max-width:440px;background:#fff;border-radius:24px;padding:20px 18px calc(18px + var(--safe-b,0px));box-shadow:0 20px 50px rgba(0,0,0,.4)}
+.claim .clp{display:flex;align-items:center;gap:12px;margin-top:12px;padding:12px;border-radius:18px;background:#f4f1ea}.claim .clp b{font-size:18px}.claim .clp small{display:block;font-size:13px;opacity:.7;margin-top:2px}
 </style>
 </head>
 <body>
@@ -1695,7 +1698,7 @@ async function api(path,opt={},retry=true){
   const t=await r.text();if(!r.ok)throw new Error(r.status+': '+t.slice(0,160));return t?JSON.parse(t):null;
 }
 function queue(op){if(!Cloud.on||!Cloud.member)return;if(DM.on&&(op.t==='drives'||op.t==='animal_misses'))return;{const id=String((op.row&&op.row.client_id)||op.cid||op.id||'');if(id.startsWith('demo-'))return}Cloud.outbox.push(op);saveCloud();sync();clearTimeout(queue.t);queue.t=setTimeout(()=>{if(Cloud.outbox.length)sync()},2500)}
-async function joinReserve(name,code){
+async function joinReserve(name,code,claim){
   await ensureSession();
   let res;
   code=String(code||'').trim().replace(/\s+/g,'').toUpperCase();
@@ -1704,8 +1707,12 @@ async function joinReserve(name,code){
     if(d&&d.ok){Cloud.member={name:d.name||name,uid:Cloud.sess.uid,t:Date.now(),role:'admin',exp:null,locked:true};LS.set('devKeyFor','');saveCloud();sync();armExpiry();setTimeout(rtConnect,500);setTimeout(armHandover,900);setTimeout(reportBuild,1500);return true}
     if(d&&d.reason==='tries')return 'tries'}catch(e){if(!/404|PGRST202|Could not find/.test(String(e.message)))throw e}
   if(name.trim().toLowerCase()==='database')return 'dbname';
-  res=await api('/rest/v1/rpc/join_reserve2',{method:'POST',body:JSON.stringify({code,display_name:name})});
+  // a phone without your account: if one with your name already uses this code, ask "Is this your account?"
+  try{res=await api('/rest/v1/rpc/join_reserve3',{method:'POST',body:JSON.stringify({code,display_name:name,...(claim!=null?{p_claim:claim}:{})})})}
+  catch(e){if(!/404|PGRST202|Could not find/.test(String(e.message)))throw e;res=await api('/rest/v1/rpc/join_reserve2',{method:'POST',body:JSON.stringify({code,display_name:name})})}
+  if(res&&res.reason==='claim')return {claim:res.who};
   if(!res||!res.ok)return res&&res.reason||'wrong';
+  if(res.name)name=res.name;if(res.avatar){MYAV=res.avatar;LS.set('avatar',res.avatar)}if(res.moved){LS.set('custDone',true);LS.set('repB',0)}
   Cloud.member={name,uid:Cloud.sess.uid,t:Date.now(),role:res.role||'owner',exp:res.expires_at?Date.parse(res.expires_at):null};
   sights.filter(s=>!(s.what==='Rhino'&&!shareRhino)&&Date.now()-s.t<SIGHT_TTL).forEach(s=>Cloud.outbox.push({op:'add',t:'sightings',row:sightRow(s)}));
   reports.filter(r=>Date.now()-r.t<REPORT_TTL).forEach(r=>Cloud.outbox.push({op:'add',t:'reports',row:reportRow(r)}));
@@ -1862,6 +1869,7 @@ function annPop(){const a=ANN.filter(x=>!annSeen.has(x.client_id)&&(!x.expires_a
 
 /* ============ what's new: shown once to owners and admins after an update ============ */
 const WHATS_NEW=[
+ [113,'users','Is this your account?','Signing in on a new phone, or after deleting the app? Type your name and code and the map asks if the account it found is yours. Yes brings it back with everything in it.'],
  [112,'down','Updates without signing out','Updates now happen inside the app in a few seconds and you stay signed in. If you ever do use the reinstall link, it works in Safari and again on the new Home Screen icon, so nobody gets signed out. An up-to-date phone is never asked to update again.'],
  [111,'pin','Nearby','The new Nearby button at the top shows the closest picnic spots, water, viewpoints, gates and hides, plus recent sightings around you, with distance and direction. Tap one to go there.'],
  [110,'star','Make it yours','Pick your animal character, your car on the map (arrow, game cruiser, safari truck or buggy), your route and trail colours. Tap a name in the Feed to see their profile. Admins have a green badge. The map follows you again by itself 10 seconds after you stop touching it. Drives show on the map for a day and stay in My drives for 60 days. A drive now records from when you leave home until you get back, with your stops. Turns are shown like Google Maps: one road name, no extra arrows.'],
@@ -4303,7 +4311,7 @@ function joinSheet(){
     $('jGo').onclick=async()=>{const n=$('jName').value.trim(),c=$('jCode').value.trim();if(!n||!c){toast('Enter your name and the invite code');return}
       if(!navigator.onLine){toast('You need signal to join. Try again near the lodge or gate.');return}
       $('jGo').textContent='Joining...';
-      try{const ok=await joinReserve(n,c);if(ok===true){closeSheet();toast('Welcome, '+n+'! You are on the shared map.',3500)}else{$('jGo').textContent='Join';toast('That invite code is wrong')}}
+      try{let ok=await joinReserve(n,c);if(ok&&ok.claim)ok=await joinReserve(n,c,confirm(T('Is this your account?')+' '+ok.claim.name+' ('+ok.claim.role+')'));if(ok===true){closeSheet();toast('Welcome, '+n+'! You are on the shared map.',3500)}else{$('jGo').textContent='Join';toast('That invite code is wrong')}}
       catch(e){$('jGo').textContent='Join';toast('Could not join: '+String(e.message||e).slice(0,80),4500)}};
   });
 }
@@ -4949,6 +4957,14 @@ function showGate(){const g=$('gate');g.classList.remove('hide');
     $('gGo').textContent='Checking...';$('gGo').disabled=true;
     let ok=false;try{ok=await joinReserve(n,c)}catch(x){err.textContent=/timeout|Failed to fetch|NetworkError|Load failed/i.test(String(x.message||x))?'Could not check the code, try again with better signal':'Could not check the code (map server error). Tell an admin.';console.warn('join failed',x);bad();$('gGo').textContent='Open map';$('gGo').disabled=false;return}
     $('gGo').textContent='Open map';$('gGo').disabled=false;
+    if(ok&&ok.claim){const w=ok.claim,roleNm=w.role==='admin'?'Admin':w.role==='guest'?'Guest':'Owner';
+      const ask=document.createElement('div');ask.className='claim';ask.innerHTML=`<div class="clc"><h2>${T('Is this your account?')}</h2><div class="clp">${avatarHtml(w.avatar,w.name,56)}<div><b>${esc(w.name)}</b> ${badgeFor(w.role)}<small>${T(roleNm)}${w.last_seen?' · '+T('last used')+' '+esc(ago(Date.parse(w.last_seen))):''}${w.sightings?' · '+w.sightings+' '+T('sightings'):''}</small></div></div>
+        <div class="sub" style="margin-top:10px">${T('Yes brings it to this phone with your sightings, drives and settings. If it is still open on another phone, that one gets signed out.')}</div>
+        <button class="btn pri" id="clYes" style="width:100%;margin-top:14px">${T("Yes, that's me")}</button><button class="btn" id="clNo" style="width:100%;margin-top:8px">${T('No, make a new account')}</button></div>`;document.body.appendChild(ask);
+      const go=async claim=>{ask.querySelectorAll('button').forEach(b=>b.disabled=true);let r2=false;try{r2=await joinReserve(n,c,claim)}catch(x){}ask.remove();
+        if(r2===true){err.classList.remove('on');$('gOut').classList.add('hide');g.classList.add('ok');toast(claim?T('Welcome back, ')+Cloud.member.name+'!':T('Welcome, ')+Cloud.member.name+'!',2500);setTimeout(()=>{g.classList.remove('ok');if(!Cloud.member)return;g.classList.add('hide');afterGate()},500)}
+        else{err.textContent=T('Could not sign in, try again');bad()}};
+      $('clYes').onclick=()=>go(true);$('clNo').onclick=()=>go(false);return}
     if(ok!==true){err.textContent=ok==='expired'?'That guest code has expired':ok==='revoked'?'That guest code was cancelled':ok==='full'?'The admin code is already used by 4 people':ok==='used'?'That invite has already been used':ok==='dbname'?'The name Database is reserved. Pick another name':ok==='tries'?'Too many tries. Wait an hour and try again':'Oops, that code is wrong';$('gCode').classList.add('bad');$('gCode').select();bad();return}
     err.classList.remove('on');$('gOut').classList.add('hide');g.classList.add('ok');toast('Welcome, '+n+'!',2500);
     setTimeout(()=>{g.classList.remove('ok');if(!Cloud.member)return;g.classList.add('hide');afterGate()},500)};
