@@ -49,7 +49,7 @@ create trigger kn_locked before update or delete on public.members for each row 
 do $$ begin
   perform set_config('kn.lockadmin', '1', true);
   update public.members set locked = true, role = 'admin', expires_at = null, code = null
-   where user_id = '9fb4d097-87d6-4cec-9f5b-c60eca08a23d';
+   where user_id in ('9fb4d097-87d6-4cec-9f5b-c60eca08a23d', 'f2f31fe6-5256-4b05-88ee-d7237649f681');
   perform set_config('kn.lockadmin', '', true);
 end $$;
 

@@ -1491,9 +1491,9 @@ create or replace function public.set_avatar(p_avatar text)
 returns void language plpgsql security definer set search_path = public as $$
 begin
   if auth.uid() is null or not exists (select 1 from public.members where user_id = auth.uid()) then raise exception 'members only'; end if;
-  -- Gold pictures are for admins, Rainbow ones for Database accounts
-  if p_avatar like 'Gold %' and not public.is_admin() then raise exception 'Gold pictures are for admins only'; end if;
-  if p_avatar like 'Rainbow %' and not exists (select 1 from public.members where user_id = auth.uid() and locked) then raise exception 'Rainbow pictures are for Database accounts only'; end if;
+  -- Gold pictures are for owners and admins, Rainbow ones for admins (Database accounts are admins too); guests have the plain animals
+  if p_avatar like 'Gold %' and not exists (select 1 from public.members where user_id = auth.uid() and role in ('owner', 'admin')) then raise exception 'Gold pictures are for owners and admins'; end if;
+  if p_avatar like 'Rainbow %' and not public.is_admin() then raise exception 'Rainbow pictures are for admins'; end if;
   update public.members set avatar = p_avatar where user_id = auth.uid();
 end $$;
 grant execute on function public.set_avatar(text) to authenticated;

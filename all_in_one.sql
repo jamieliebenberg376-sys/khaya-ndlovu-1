@@ -219,7 +219,7 @@ create trigger kn_locked before update or delete on public.members for each row 
 do $$ begin
   perform set_config('kn.lockadmin', '1', true);
   update public.members set locked = true, role = 'admin', expires_at = null, code = null
-   where user_id = '9fb4d097-87d6-4cec-9f5b-c60eca08a23d';
+   where user_id in ('9fb4d097-87d6-4cec-9f5b-c60eca08a23d', 'f2f31fe6-5256-4b05-88ee-d7237649f681');
   perform set_config('kn.lockadmin', '', true);
 end $$;
 
@@ -2407,9 +2407,9 @@ create or replace function public.set_avatar(p_avatar text)
 returns void language plpgsql security definer set search_path = public as $$
 begin
   if auth.uid() is null or not exists (select 1 from public.members where user_id = auth.uid()) then raise exception 'members only'; end if;
-  -- Gold pictures are for admins, Rainbow ones for Database accounts
-  if p_avatar like 'Gold %' and not public.is_admin() then raise exception 'Gold pictures are for admins only'; end if;
-  if p_avatar like 'Rainbow %' and not exists (select 1 from public.members where user_id = auth.uid() and locked) then raise exception 'Rainbow pictures are for Database accounts only'; end if;
+  -- Gold pictures are for owners and admins, Rainbow ones for admins (Database accounts are admins too); guests have the plain animals
+  if p_avatar like 'Gold %' and not exists (select 1 from public.members where user_id = auth.uid() and role in ('owner', 'admin')) then raise exception 'Gold pictures are for owners and admins'; end if;
+  if p_avatar like 'Rainbow %' and not public.is_admin() then raise exception 'Rainbow pictures are for admins'; end if;
   update public.members set avatar = p_avatar where user_id = auth.uid();
 end $$;
 grant execute on function public.set_avatar(text) to authenticated;
@@ -2684,7 +2684,7 @@ grant execute on function public.map_state() to authenticated;
 
 
 -- =====================================================================
--- PUSH THE UPDATE (version 123)
+-- PUSH THE UPDATE (version 124)
 -- =====================================================================
 
 alter table private.config add column if not exists min_build int not null default 0;
@@ -2754,9 +2754,9 @@ begin
 end $$;
 grant execute on function public.set_min_build(int) to authenticated;
 
--- push it now: require version 123 and post the news. It is sent by the database, not by any person.
-update private.config set min_build = 123;
-select public.kn_update_news(123);
+-- push it now: require version 124 and post the news. It is sent by the database, not by any person.
+update private.config set min_build = 124;
+select public.kn_update_news(124);
 
 notify pgrst, 'reload schema';
 
@@ -2766,9 +2766,10 @@ select 'Tables: members, sightings, reports, drives, news, SOS, live location, p
   case when (select count(*) from information_schema.tables where table_schema = 'public' and table_name in ('members','sightings','reports','drives','announcements','sos','live_locs','animal_misses','places','road_closures','private_notes','suggestions','feed_posts','feed_comments')) = 14 then 'YES' else 'NO' end as result
 union all select 'Codes and logins self-test', case when (select count(*) from public.kn_selftest() where result not like 'PASS%') = 0 then 'YES' else 'NO: ' || (select string_agg(test, ', ') from public.kn_selftest() where result not like 'PASS%') end
 union all select 'Protected account (9fb4d097...) locked as admin', case when exists (select 1 from public.members where locked and role = 'admin') then 'YES' else 'NO: that account is not on the map yet. Open the map on that phone, then run this again' end
+union all select 'Second Database account (f2f31fe6...)', case when exists (select 1 from public.members where user_id = 'f2f31fe6-5256-4b05-88ee-d7237649f681' and locked and role = 'admin') then 'YES' else 'NO: that account is not on the map yet. Open the map on that phone, then run this again' end
 union all select 'Your Database code (keep it secret, it gives full control)', (select db_code from private.config limit 1)
 union all select 'Backend self-test', case when (select count(*) from public.kn_backend_selftest() where result not like 'PASS%') = 0 then 'YES' else 'NO: ' || (select string_agg(test, ', ') from public.kn_backend_selftest() where result not like 'PASS%') end
-union all select 'Everyone must be on version 123', case when (select min_build from private.config limit 1) = 123 then 'YES' else 'NO' end
-union all select 'Update news posted (only old versions see it)', case when exists (select 1 from public.announcements where for_old_build = 123 and not removed) then 'YES' else 'NO' end
+union all select 'Everyone must be on version 124', case when (select min_build from private.config limit 1) = 124 then 'YES' else 'NO' end
+union all select 'Update news posted (only old versions see it)', case when exists (select 1 from public.announcements where for_old_build = 124 and not removed) then 'YES' else 'NO' end
 union all select 'Your owner code (unchanged)', (select upper(invite_code) from private.config limit 1)
-union all select 'People who still need to update', (select count(*)::text from public.members where coalesce(app_build, 0) < 123 and (role <> 'guest' or expires_at > now()));
+union all select 'People who still need to update', (select count(*)::text from public.members where coalesce(app_build, 0) < 124 and (role <> 'guest' or expires_at > now()));
