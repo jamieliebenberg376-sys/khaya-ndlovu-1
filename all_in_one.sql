@@ -634,7 +634,7 @@ begin
       and exists (select 1 from public.members where user_id = h1) and not exists (select 1 from public.members where user_id = g1) then 'PASS' else 'FAIL ' || r::text end];
     perform set_config('request.jwt.claim.sub', h2::text, true); perform set_config('request.jwt.claims', json_build_object('sub', h2)::text, true);
     r := public.use_handover(tk);
-    out := out || array['Handover pass works only once', case when not (r->>'ok')::boolean then 'PASS' else 'FAIL ' || r::text end];
+    out := out || array['Same link works again on the new icon (account moves, nobody left signed out)', case when (r->>'ok')::boolean and exists (select 1 from public.members where user_id = h2) and not exists (select 1 from public.members where user_id = h1) then 'PASS' else 'FAIL ' || coalesce(r::text, 'null') end];
     perform set_config('request.jwt.claim.sub', a::text, true); perform set_config('request.jwt.claims', json_build_object('sub', a)::text, true);
     tk := public.make_handover();
     perform set_config('request.jwt.claim.sub', h2::text, true); perform set_config('request.jwt.claims', json_build_object('sub', h2)::text, true);
@@ -2426,10 +2426,60 @@ begin
 end $$;
 grant execute on function public.profile(uuid) to authenticated;
 
+-- ---------- REINSTALL LINK THAT DOESN'T SIGN YOU OUT (v112) ----------
+alter table public.handover add column if not exists holder uuid;
+create or replace function public.use_handover(p_token text)
+returns json language plpgsql security definer set search_path = public as $$
+#variable_conflict use_column
+declare h public.handover; m public.members; me uuid := auth.uid(); src uuid;
+begin
+  if me is null then raise exception 'not signed in'; end if;
+  select * into h from public.handover where token = upper(trim(p_token)) for update;
+  if not found then return json_build_object('ok', false, 'reason', 'wrong'); end if;
+  if h.user_id = me then
+    select * into m from public.members where user_id = me;
+    if found then return json_build_object('ok', true, 'role', m.role, 'expires_at', m.expires_at, 'name', m.name); end if;
+  end if;
+  -- the same link keeps working for a day: opened in Safari first, then again from the new Home Screen icon.
+  -- Each time it moves the account to the phone that opened it last, so you are never left signed out.
+  if h.holder = me then
+    select * into m from public.members where user_id = me;
+    if found then return json_build_object('ok', true, 'role', m.role, 'expires_at', m.expires_at, 'name', m.name); end if;
+  end if;
+  if h.used_at is not null and (h.used_at < now() - interval '1 day' or h.holder is null) then return json_build_object('ok', false, 'reason', 'used'); end if;
+  if h.created_at < now() - interval '30 days' then return json_build_object('ok', false, 'reason', 'expired'); end if;
+  src := coalesce(h.holder, h.user_id);
+  select * into m from public.members where user_id = src;
+  if not found then return json_build_object('ok', false, 'reason', 'gone'); end if;
+  if m.role = 'guest' and m.expires_at is not null and m.expires_at <= now() then return json_build_object('ok', false, 'reason', 'expired'); end if;
+  perform set_config('kn.handover', '1', true);
+  insert into public.members (user_id, name, role, code, expires_at, last_seen, invited_by, last_login, home_lat, home_lng, locked)
+  values (me, m.name, m.role, m.code, m.expires_at, now(), m.invited_by, now(), m.home_lat, m.home_lng, m.locked)
+  on conflict (user_id) do update set name = excluded.name, role = excluded.role, code = excluded.code,
+    expires_at = excluded.expires_at, invited_by = excluded.invited_by, last_seen = now(), last_login = now(),
+    home_lat = excluded.home_lat, home_lng = excluded.home_lng, locked = excluded.locked;
+  -- the recovery code comes along; the old phone's device key does not (so the old copy can never pull it back)
+  begin execute 'update public.members set rec_hash = (select rec_hash from public.members where user_id = $1), dev_hash = null where user_id = $2' using src, me; exception when others then null; end;
+  -- bring their sightings, reports and drives along, then retire the Safari login
+  begin update public.sightings set user_id = me where user_id = src; exception when others then null; end;
+  begin update public.reports set user_id = me where user_id = src; exception when others then null; end;
+  begin update public.drives set user_id = me where user_id = src; exception when others then null; end;
+  begin delete from public.live_locs where user_id = src; exception when others then null; end;
+  begin update public.private_notes set user_id = me where user_id = src; exception when others then null; end;
+  begin update public.direct_msgs set to_user = me where to_user = src; exception when others then null; end;
+  begin update public.place_photos set user_id = me where user_id = src; exception when others then null; end;
+  begin update public.members set avatar = m.avatar, app_build = m.app_build where user_id = me; exception when others then null; end;
+  delete from public.members where user_id = src and src <> me;
+  update public.handover set used_at = coalesce(used_at, now()), holder = me where token = h.token;
+  perform set_config('kn.handover', '', true);
+  return json_build_object('ok', true, 'role', m.role, 'expires_at', m.expires_at, 'name', m.name);
+end $$;
+grant execute on function public.use_handover(text) to authenticated;
+
 
 
 -- =====================================================================
--- PUSH THE UPDATE (version 111)
+-- PUSH THE UPDATE (version 112)
 -- =====================================================================
 
 alter table private.config add column if not exists min_build int not null default 0;
@@ -2499,9 +2549,9 @@ begin
 end $$;
 grant execute on function public.set_min_build(int) to authenticated;
 
--- push it now: require version 111 and post the news. It is sent by the database, not by any person.
-update private.config set min_build = 111;
-select public.kn_update_news(111);
+-- push it now: require version 112 and post the news. It is sent by the database, not by any person.
+update private.config set min_build = 112;
+select public.kn_update_news(112);
 
 notify pgrst, 'reload schema';
 
@@ -2513,7 +2563,7 @@ union all select 'Codes and logins self-test', case when (select count(*) from p
 union all select 'Protected account (9fb4d097...) locked as admin', case when exists (select 1 from public.members where locked and role = 'admin') then 'YES' else 'NO: that account is not on the map yet. Open the map on that phone, then run this again' end
 union all select 'Your Database code (keep it secret, it gives full control)', (select db_code from private.config limit 1)
 union all select 'Backend self-test', case when (select count(*) from public.kn_backend_selftest() where result not like 'PASS%') = 0 then 'YES' else 'NO: ' || (select string_agg(test, ', ') from public.kn_backend_selftest() where result not like 'PASS%') end
-union all select 'Everyone must be on version 111', case when (select min_build from private.config limit 1) = 111 then 'YES' else 'NO' end
-union all select 'Update news posted (only old versions see it)', case when exists (select 1 from public.announcements where for_old_build = 111 and not removed) then 'YES' else 'NO' end
+union all select 'Everyone must be on version 112', case when (select min_build from private.config limit 1) = 112 then 'YES' else 'NO' end
+union all select 'Update news posted (only old versions see it)', case when exists (select 1 from public.announcements where for_old_build = 112 and not removed) then 'YES' else 'NO' end
 union all select 'Your owner code (unchanged)', (select upper(invite_code) from private.config limit 1)
-union all select 'People who still need to update', (select count(*)::text from public.members where coalesce(app_build, 0) < 111 and (role <> 'guest' or expires_at > now()));
+union all select 'People who still need to update', (select count(*)::text from public.members where coalesce(app_build, 0) < 112 and (role <> 'guest' or expires_at > now()));

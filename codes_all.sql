@@ -464,7 +464,7 @@ begin
       and exists (select 1 from public.members where user_id = h1) and not exists (select 1 from public.members where user_id = g1) then 'PASS' else 'FAIL ' || r::text end];
     perform set_config('request.jwt.claim.sub', h2::text, true); perform set_config('request.jwt.claims', json_build_object('sub', h2)::text, true);
     r := public.use_handover(tk);
-    out := out || array['Handover pass works only once', case when not (r->>'ok')::boolean then 'PASS' else 'FAIL ' || r::text end];
+    out := out || array['Same link works again on the new icon (account moves, nobody left signed out)', case when (r->>'ok')::boolean and exists (select 1 from public.members where user_id = h2) and not exists (select 1 from public.members where user_id = h1) then 'PASS' else 'FAIL ' || coalesce(r::text, 'null') end];
     perform set_config('request.jwt.claim.sub', a::text, true); perform set_config('request.jwt.claims', json_build_object('sub', a)::text, true);
     tk := public.make_handover();
     perform set_config('request.jwt.claim.sub', h2::text, true); perform set_config('request.jwt.claims', json_build_object('sub', h2)::text, true);

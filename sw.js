@@ -1,4 +1,4 @@
-const V='kn-v111';
+const V='kn-v112';
 const CORE=['./','./index.html'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(V).then(c=>c.addAll(CORE)).then(()=>self.skipWaiting()))});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==V&&k!=='kn-tiles'&&k!=='kn-app-manual').map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
@@ -15,7 +15,9 @@ self.addEventListener('fetch',e=>{
     const cached=async()=>{const c=await caches.open(V);let h=await c.match(e.request,{ignoreSearch:true})||(isPage&&(await c.match('./index.html')||await c.match('./')));
       if(h)return h;const m=await caches.open('kn-app-manual');h=await m.match(e.request,{ignoreSearch:true})||(isPage&&(await m.match('./index.html')||await m.match('./')));
       return h||caches.match(e.request,{ignoreSearch:true})};
-    e.respondWith(new Promise(res=>{let done=false;const t=setTimeout(()=>{cached().then(h=>{if(h&&!done){done=true;res(h)}})},3500);
+    // an update (?fresh=) always waits for the new page; normal opens fall back to the saved copy after 6 s of weak signal
+    const fresh=u.searchParams.has('fresh');
+    e.respondWith(new Promise(res=>{let done=false;const t=fresh?0:setTimeout(()=>{cached().then(h=>{if(h&&!done){done=true;res(h)}})},6000);
       fetch(e.request).then(r=>{if(r.ok){const cl=r.clone();caches.open(V).then(c=>c.put(e.request,cl));if(isPage){const c2=r.clone();caches.open('kn-app-manual').then(c=>c.put('./index.html',c2))}}if(!done){done=true;clearTimeout(t);res(r)}})
       .catch(()=>cached().then(h=>{if(!done){done=true;clearTimeout(t);res(h||new Response('Offline',{status:503}))}}))}));
   }

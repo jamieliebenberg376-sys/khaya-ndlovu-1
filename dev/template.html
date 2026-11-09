@@ -1848,7 +1848,7 @@ function speedCheck(ll){if(LIVEMAP)return;const el=$('speed');if(!el.querySelect
 let ANN=LS.get('ann',[]),annSeen=new Set(LS.get('annSeen',[]));
 async function loadAnn(){if(!Cloud.on||!Cloud.member||Cloud.noAnn||!navigator.onLine)return;
   try{const r=await api('/rest/v1/announcements?select=client_id,name,body,created_at,expires_at&removed=is.false&order=created_at.desc&limit=20');
-    const now=Date.now(),prev=new Set(ANN.map(a=>a.client_id));ANN=(r||[]).filter(a=>!a.expires_at||Date.parse(a.expires_at)>now);LS.set('ann',ANN);
+    const now=Date.now(),prev=new Set(ANN.map(a=>a.client_id));ANN=(r||[]).filter(a=>(!a.expires_at||Date.parse(a.expires_at)>now)&&!(/^upd-(\d+)-/.test(a.client_id)&&APP_BUILD>=+a.client_id.match(/^upd-(\d+)-/)[1]));LS.set('ann',ANN);
     const fresh=ANN.filter(a=>!prev.has(a.client_id)&&!annSeen.has(a.client_id));if(fresh.length&&prev.size&&!document.hidden){bing()}
     annPop()}catch(e){if(/^404|PGRST20|does not exist|Could not find/.test(String(e.message||e)))Cloud.noAnn=true}}
 function annPop(){const a=ANN.filter(x=>!annSeen.has(x.client_id)&&(!x.expires_at||Date.parse(x.expires_at)>Date.now())).sort((p,q)=>Date.parse(p.created_at)-Date.parse(q.created_at))[0];
@@ -1862,6 +1862,7 @@ function annPop(){const a=ANN.filter(x=>!annSeen.has(x.client_id)&&(!x.expires_a
 
 /* ============ what's new: shown once to owners and admins after an update ============ */
 const WHATS_NEW=[
+ [112,'down','Updates without signing out','Updates now happen inside the app in a few seconds and you stay signed in. If you ever do use the reinstall link, it works in Safari and again on the new Home Screen icon, so nobody gets signed out. An up-to-date phone is never asked to update again.'],
  [111,'pin','Nearby','The new Nearby button at the top shows the closest picnic spots, water, viewpoints, gates and hides, plus recent sightings around you, with distance and direction. Tap one to go there.'],
  [110,'star','Make it yours','Pick your animal character, your car on the map (arrow, game cruiser, safari truck or buggy), your route and trail colours. Tap a name in the Feed to see their profile. Admins have a green badge. The map follows you again by itself 10 seconds after you stop touching it. Drives show on the map for a day and stay in My drives for 60 days. A drive now records from when you leave home until you get back, with your stops. Turns are shown like Google Maps: one road name, no extra arrows.'],
  [109,'binoc','Easier on the drive','Recent sightings glow on the map for 3 hours and stay visible while you follow a route. A soft ping and a card tell you when you are 50 m from a recent sighting. The new yellow binoculars button marks a sighting in one tap. Turn directions are spoken once, 50 m before the turn, and no longer cut out. The junction box only shows in the last 50 m. A recorded drive finishes by itself when you get back to where you started, and the report card shows your drive on satellite.'],
@@ -4114,7 +4115,7 @@ async function reportBuild(){if(!Cloud.member||!navigator.onLine)return;if(LS.ge
 setTimeout(reportBuild,7000);setInterval(reportBuild,30*6e4);
 async function checkUpdate(){if(!SUPA.url||!navigator.onLine)return;
   try{const r=await fetch(SUPA.url+'/rest/v1/rpc/app_min_build',{method:'POST',headers:{apikey:SUPA.key,'Content-Type':'application/json'},body:'{}',cache:'no-store'});if(!r.ok)return;
-    const n=+(await r.json())||0;UPD.min=n;if(n>APP_BUILD)updateWall();else{LS.set('updTries',0);const w=$('updWall');if(w)w.remove()}}catch(e){}}
+    const n=+(await r.json())||0;UPD.min=n;if(n>APP_BUILD){if(LS.get('autoUpd',0)!==n&&!nav&&!sim&&Cloud.member&&$('gate').classList.contains('hide')&&!$('sheet').classList.contains('open')){LS.set('autoUpd',n);doUpdate(true);return}updateWall()}else{LS.set('updTries',0);const w=$('updWall');if(w)w.remove()}}catch(e){}}
 setTimeout(checkUpdate,4000);setInterval(checkUpdate,10*6e4);document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkUpdate()});
 /* a clear message from a database error */
 function errTxt(e){const m=String(e&&e.message||e);let msg=m;try{const j=JSON.parse(m.replace(/^\d+:\s*/,''));msg=(j.message||'')+(j.hint?' · '+j.hint:'')}catch(x){}
@@ -4136,10 +4137,12 @@ function updateWall(){if(nav||sim){clearTimeout(UPD.t);UPD.t=setTimeout(updateWa
    <div class="uwc"><div class="arvi">${LI('down',30)}</div><h2>A big update is ready</h2>
    <div class="sub">The map has been improved. Update now to keep sightings, routes and alerts working with everyone else.</div>
    <div class="uwv">You have version ${APP_BUILD} · newest is ${UPD.min}</div>
-   ${viaSafari?`<div class="sub" style="margin-top:10px">You get your own link with your name and access already in it. Open it, add the map to your Home Screen again and you're signed in straight away. Your old copy is removed once you open the new one.</div><button class="btn pri" id="uwSafari">${LI('route',18)} Update now</button><div id="uwSteps"></div><button class="uwl" id="uwGo">Try updating here instead</button>`:`<button class="btn pri" id="uwGo">${LI('down',18)} Update now</button>`}
-   ${!viaSafari&&tries>=1?`<div class="uwr"><b>Still on the old version?</b><small>Reinstall the app. You stay signed in with your own ${Cloud.member?esc(ROLE_NM[Cloud.member.role]||'member').toLowerCase():''} access.</small><button class="btn" id="uwRe">${LI('route',18)} Reinstall the app</button><div id="uwSteps"></div></div>`:''}</div></div>`;
-  $('uwGo').onclick=doUpdate;if($('uwRe'))$('uwRe').onclick=reinstall;if($('uwSafari'))$('uwSafari').onclick=()=>{$('uwSafari').classList.add('hide');reinstall()}}
-async function doUpdate(){$('uwGo').textContent='Updating...';LS.set('updTries',LS.get('updTries',0)+1);
+   <div class="sub" style="margin-top:10px">${navigator.onLine?'It takes a few seconds and you stay signed in.':'You need signal to update. It updates by itself as soon as you have signal.'}</div><button class="btn pri" id="uwGo">${LI('down',18)} Update now</button>
+   ${tries>=2&&Cloud.member?`<div class="uwr"><b>Still on the old version?</b><small>Reinstall the app with your own link. You stay signed in, on the new icon and in Safari.</small><button class="btn" id="uwRe">${LI('route',18)} Reinstall the app</button><div id="uwSteps"></div></div>`:''}</div></div>`;
+  $('uwGo').onclick=()=>doUpdate();if($('uwRe'))$('uwRe').onclick=()=>reinstall()}
+async function doUpdate(quiet){if(!navigator.onLine){if(!quiet)toast('You need signal to update');return}if($('uwGo'))$('uwGo').textContent='Updating...';if(!quiet)LS.set('updTries',LS.get('updTries',0)+1);if(quiet)toast('Updating the map...',4000);
+  // make sure the new page is really there before dropping the old one, so you never end up on a blank screen
+  try{const r=await fetch('./index.html?v='+Date.now(),{cache:'no-store'});if(!r.ok)throw 0;const h=await r.text();const m=h.match(/kn-v(\d+)|APP_BUILD=(\d+)/);if(!/maplibre/i.test(h))throw 0}catch(e){if(!quiet)toast('Weak signal, try again in a moment');return}
   try{const regs=navigator.serviceWorker?await navigator.serviceWorker.getRegistrations():[];for(const r of regs)await r.unregister()}catch(e){}
   try{for(const k of await caches.keys())if(k!=='kn-tiles')await caches.delete(k)}catch(e){}
   location.replace(location.pathname+'?fresh='+Date.now())}
@@ -5004,15 +5007,15 @@ async function armHandover(){if(!Cloud.on||!Cloud.member||!isIOS||isStandalone()
 async function softResume(t){Cloud.resuming=true;LS.set('usedTok',t);
   try{await ensureSession();const r=await rpc('use_handover',{p_token:t});
     if(r&&r.ok){Cloud.member={name:r.name||'Member',uid:Cloud.sess.uid,t:Date.now(),role:r.role||'owner',exp:r.expires_at?Date.parse(r.expires_at):null};
-      LS.set('hoTok','');LS.set('movedT',0);LS.set('roleSeen',Cloud.member.role);saveCloud();try{history.replaceState(null,'',location.pathname)}catch(e){}
+      LS.set('hoTok','');LS.set('movedT',0);LS.set('roleSeen',Cloud.member.role);saveCloud();LS.set('repB',0);reportBuild();try{history.replaceState(null,'',location.pathname+'?resume='+encodeURIComponent(t))}catch(e){}
       toast('Welcome back, '+Cloud.member.name+'! You are signed in.',3000);await carryTake(t)}}catch(e){}
-  Cloud.resuming=false;armExpiry();setTimeout(armHandover,2500);setTimeout(sync,300);setTimeout(rtConnect,800)}
+  Cloud.resuming=false;armExpiry();setTimeout(armHandover,300);setTimeout(sync,300);setTimeout(rtConnect,800)}
 async function tryResume(t){const fail=msg=>{showGate();if(msg){$('gErr').textContent=msg;$('gErr').classList.add('on')}};
   if(!navigator.onLine){fail('Open the map with signal once to finish signing in');return}
   try{await ensureSession();const r=await rpc('use_handover',{p_token:t});
     if(r&&r.ok){Cloud.member={name:r.name||'Member',uid:Cloud.sess.uid,t:Date.now(),role:r.role||'owner',exp:r.expires_at?Date.parse(r.expires_at):null};
-      LS.set('hoTok','');LS.set('movedT',0);LS.set('usedTok',t);try{history.replaceState(null,'',location.pathname)}catch(e){}setTimeout(armHandover,2500);
-      LS.set('roleSeen',Cloud.member.role);saveCloud();sync();armExpiry();setTimeout(rtConnect,500);toast('Welcome back, '+Cloud.member.name+'! You are signed in.',3000);if(await carryTake(t))return;setTimeout(afterGate2,1200);return}
+      LS.set('hoTok','');LS.set('movedT',0);LS.set('usedTok',t);try{history.replaceState(null,'',location.pathname+'?resume='+encodeURIComponent(t))}catch(e){}setTimeout(armHandover,300);
+      LS.set('roleSeen',Cloud.member.role);saveCloud();sync();armExpiry();setTimeout(rtConnect,500);LS.set('repB',0);reportBuild();toast('Welcome back, '+Cloud.member.name+'! You are signed in.',3000);if(await carryTake(t))return;setTimeout(afterGate2,1200);return}
     fail(r&&r.reason==='used'?'That sign-in link was already used. Enter your code to sign in':r&&r.reason==='expired'?'Your access has ended':'Please sign in with your name and code')}
   catch(e){fail(/timeout|Failed to fetch|NetworkError|Load failed/i.test(String(e.message||e))?'Weak signal. Close the map and open it again to finish signing in':'Please sign in with your name and code')}}
 {const rt=new URLSearchParams(location.search).get('resume');{const wn=+new URLSearchParams(location.search).get('wn');if(wn>0&&wn<=APP_BUILD&&!LS.get('wnSeen',0))LS.set('wnSeen',wn)}

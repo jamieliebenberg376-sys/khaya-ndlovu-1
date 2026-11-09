@@ -1510,5 +1510,55 @@ begin
 end $$;
 grant execute on function public.profile(uuid) to authenticated;
 
+-- ---------- REINSTALL LINK THAT DOESN'T SIGN YOU OUT (v112) ----------
+alter table public.handover add column if not exists holder uuid;
+create or replace function public.use_handover(p_token text)
+returns json language plpgsql security definer set search_path = public as $$
+#variable_conflict use_column
+declare h public.handover; m public.members; me uuid := auth.uid(); src uuid;
+begin
+  if me is null then raise exception 'not signed in'; end if;
+  select * into h from public.handover where token = upper(trim(p_token)) for update;
+  if not found then return json_build_object('ok', false, 'reason', 'wrong'); end if;
+  if h.user_id = me then
+    select * into m from public.members where user_id = me;
+    if found then return json_build_object('ok', true, 'role', m.role, 'expires_at', m.expires_at, 'name', m.name); end if;
+  end if;
+  -- the same link keeps working for a day: opened in Safari first, then again from the new Home Screen icon.
+  -- Each time it moves the account to the phone that opened it last, so you are never left signed out.
+  if h.holder = me then
+    select * into m from public.members where user_id = me;
+    if found then return json_build_object('ok', true, 'role', m.role, 'expires_at', m.expires_at, 'name', m.name); end if;
+  end if;
+  if h.used_at is not null and (h.used_at < now() - interval '1 day' or h.holder is null) then return json_build_object('ok', false, 'reason', 'used'); end if;
+  if h.created_at < now() - interval '30 days' then return json_build_object('ok', false, 'reason', 'expired'); end if;
+  src := coalesce(h.holder, h.user_id);
+  select * into m from public.members where user_id = src;
+  if not found then return json_build_object('ok', false, 'reason', 'gone'); end if;
+  if m.role = 'guest' and m.expires_at is not null and m.expires_at <= now() then return json_build_object('ok', false, 'reason', 'expired'); end if;
+  perform set_config('kn.handover', '1', true);
+  insert into public.members (user_id, name, role, code, expires_at, last_seen, invited_by, last_login, home_lat, home_lng, locked)
+  values (me, m.name, m.role, m.code, m.expires_at, now(), m.invited_by, now(), m.home_lat, m.home_lng, m.locked)
+  on conflict (user_id) do update set name = excluded.name, role = excluded.role, code = excluded.code,
+    expires_at = excluded.expires_at, invited_by = excluded.invited_by, last_seen = now(), last_login = now(),
+    home_lat = excluded.home_lat, home_lng = excluded.home_lng, locked = excluded.locked;
+  -- the recovery code comes along; the old phone's device key does not (so the old copy can never pull it back)
+  begin execute 'update public.members set rec_hash = (select rec_hash from public.members where user_id = $1), dev_hash = null where user_id = $2' using src, me; exception when others then null; end;
+  -- bring their sightings, reports and drives along, then retire the Safari login
+  begin update public.sightings set user_id = me where user_id = src; exception when others then null; end;
+  begin update public.reports set user_id = me where user_id = src; exception when others then null; end;
+  begin update public.drives set user_id = me where user_id = src; exception when others then null; end;
+  begin delete from public.live_locs where user_id = src; exception when others then null; end;
+  begin update public.private_notes set user_id = me where user_id = src; exception when others then null; end;
+  begin update public.direct_msgs set to_user = me where to_user = src; exception when others then null; end;
+  begin update public.place_photos set user_id = me where user_id = src; exception when others then null; end;
+  begin update public.members set avatar = m.avatar, app_build = m.app_build where user_id = me; exception when others then null; end;
+  delete from public.members where user_id = src and src <> me;
+  update public.handover set used_at = coalesce(used_at, now()), holder = me where token = h.token;
+  perform set_config('kn.handover', '', true);
+  return json_build_object('ok', true, 'role', m.role, 'expires_at', m.expires_at, 'name', m.name);
+end $$;
+grant execute on function public.use_handover(text) to authenticated;
+
 select * from public.kn_backend_selftest();
 
