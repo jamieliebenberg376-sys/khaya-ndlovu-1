@@ -236,6 +236,8 @@ body.night #ping{background:#2a2d31;color:#e8eaed}body.night #ping .pe{backgroun
 #gate .inp{background:#fff;color:#202124;margin-top:10px;height:52px;font-size:17px;border:1.5px solid #e0dcd4}
 #gate .inp:focus{border-color:#1a73e8}
 #gate .btn{width:100%;height:52px;margin-top:16px;font-size:17px}
+#gate.qrjoin #gCode,#gate.qrjoin #gRec{display:none!important}
+.qrnew{margin-top:12px;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center}.qrnew small{color:var(--sub);max-width:280px}
 #gate .err{min-height:22px;margin-top:12px;color:#d93025;font-weight:700;text-align:center;font-size:15px;opacity:0;transition:opacity .2s}
 #gate .err.on{opacity:1}
 #gate.shake form{animation:gshake .45s cubic-bezier(.36,.07,.19,.97)}
@@ -4474,8 +4476,8 @@ async function guestSheet(){
       try{const lbl=$('gLabel').value.trim(),exp=kind==='guest'?t:new Date(Date.now()+14*864e5);let code;
         try{code=await rpc('create_code',{p_label:lbl,p_expires:exp.toISOString(),p_kind:kind})}catch(e){if(kind==='guest'&&/404|PGRST202|Could not find/.test(e.message))code=await rpc('create_guest_code',{p_label:lbl,p_expires:exp.toISOString()});else throw e}
         const G={code,label:lbl,exp:exp.getTime(),kind};
-        $('gNew').innerHTML=`<button id="gCodeBtn" class="tixbtn" aria-label="Send code">${ticketCard(G)}</button><button class="btn pri" id="gShare" style="width:100%;margin-top:12px">${LI('mail',18)} Send it</button>`;
-        $('gCodeBtn').onclick=$('gShare').onclick=()=>sendGuest(G);
+        $('gNew').innerHTML=`<div class="qrw qrnew">${qrSvg(guestLink(G),230)}<b>${T('Scan to join')}</b><small>${T('Point their phone camera at this. The map opens and only asks for their name.')}</small><div class="qrc mono">${esc(G.code)}</div></div><button class="btn pri" id="gShare" style="width:100%;margin-top:12px">${LI('mail',18)} ${T('Or send it')}</button>`;
+        $('gShare').onclick=()=>sendGuest(G);
         $('gLabel').value='';loadGuests()}
       catch(e){toast(/admins only/.test(e.message)?'Only admins can make admin invites':/owners only/.test(e.message)?'Only owners can make guest codes':'Could not create the code: '+String(e.message||e).slice(0,70),4000)}
       $('gMake').textContent=btxt;$('gMake').disabled=false};
@@ -5098,7 +5100,7 @@ function showGate(){const g=$('gate');g.classList.remove('hide');
         if(r2===true){err.classList.remove('on');$('gOut').classList.add('hide');g.classList.add('ok');toast(claim?T('Welcome back, ')+Cloud.member.name+'!':T('Welcome, ')+Cloud.member.name+'!',2500);setTimeout(()=>{g.classList.remove('ok');if(!Cloud.member)return;g.classList.add('hide');afterGate()},500)}
         else{err.textContent=T('Could not sign in, try again');bad()}};
       $('clYes').onclick=()=>go(true);$('clNo').onclick=()=>go(false);return}
-    if(ok!==true){err.textContent=ok==='expired'?'That guest code has expired':ok==='revoked'?'That guest code was cancelled':ok==='full'?'The admin code is already used by 4 people':ok==='used'?'That invite has already been used':ok==='dbname'?'The name Database is reserved. Pick another name':ok==='tries'?'Too many tries. Wait an hour and try again':'Oops, that code is wrong';$('gCode').classList.add('bad');$('gCode').select();bad();return}
+    if(ok!==true){$('gate').classList.remove('qrjoin');err.textContent=ok==='expired'?'That guest code has expired':ok==='revoked'?'That guest code was cancelled':ok==='full'?'The admin code is already used by 4 people':ok==='used'?'That invite has already been used':ok==='dbname'?'The name Database is reserved. Pick another name':ok==='tries'?'Too many tries. Wait an hour and try again':'Oops, that code is wrong';$('gCode').classList.add('bad');$('gCode').select();bad();return}
     err.classList.remove('on');$('gOut').classList.add('hide');g.classList.add('ok');toast('Welcome, '+n+'!',2500);
     setTimeout(()=>{g.classList.remove('ok');if(!Cloud.member)return;g.classList.add('hide');afterGate()},500)};
   function bad(){const er=$('gErr');er.classList.add('on');g.classList.remove('shake');void g.offsetWidth;g.classList.add('shake');try{navigator.vibrate&&navigator.vibrate([60,40,60])}catch(e){}}
@@ -5145,7 +5147,10 @@ const needRole=()=>Cloud.member&&LS.get('roleSeen','')!==(Cloud.member.role||'ow
 function afterGate(){if(needRole()){roleSheet(()=>afterGate2());return}afterGate2()}
 function afterGate2(){setTimeout(()=>custPop(),600)}
 {const n=new URLSearchParams(location.search).get('n');if(n&&$('gName')&&!$('gName').value)$('gName').value=n.slice(0,40)}
-{const q=new URLSearchParams(location.search).get('guest');if(q){try{history.replaceState(null,'',location.pathname)}catch(e){}if(needGate()){$('gCode').value=q.toUpperCase().slice(0,12);setTimeout(()=>{try{$('gName').focus()}catch(e){}},600)}}}
+{const q=new URLSearchParams(location.search).get('guest');if(q){try{history.replaceState(null,'',location.pathname)}catch(e){}if(needGate()){$('gCode').value=q.toUpperCase().slice(0,12);
+  // came from a scanned QR code: the code is already in, so only ask for their name
+  const g=$('gate');g.classList.add('qrjoin');const h=g.querySelector('.gcard h2'),pp=g.querySelector('.gcard p');if(h)h.textContent=T('Welcome to Khaya Ndlovu');if(pp)pp.textContent=T('Your pass is ready. Just type your name and you\'re in.');
+  setTimeout(()=>{try{$('gName').focus()}catch(e){}},600)}}}
 /* iPhone Home Screen apps can't see the Safari login. After signing in, the Safari link carries a one-time pass (?resume=),
    so the icon made with Add to Home Screen opens already signed in as the same person. */
 const isIOS=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
