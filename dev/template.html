@@ -331,7 +331,7 @@ body.navon #roadPill{background:rgba(14,18,13,.9);color:#fff;border:1px solid rg
 body.navon #roadPill:before{content:'';position:absolute;left:13px;top:50%;width:8px;height:8px;margin-top:-4px;border-radius:50%;background:#ffc23d;box-shadow:0 0 8px #ffc23d}
 body.navon .fab{background:rgba(18,22,17,.78);border:1px solid rgba(255,255,255,.08);color:#fff}body.navon .fab svg{color:#fff}
 body.navon #junc{background:rgba(14,18,13,.92);color:#fff;border:1px solid rgba(255,194,61,.22)}
-.me.nav .chev path{fill:#ffc23d;stroke:#1d1406;stroke-width:3}.me.nav .chev{filter:drop-shadow(0 0 10px rgba(255,194,61,.7)) drop-shadow(0 3px 4px rgba(0,0,0,.5))}
+.me.nav:not(.iscar) .chev path{stroke:#1d1406;stroke-width:3}.me.nav .chev{filter:drop-shadow(0 0 10px rgba(255,194,61,.7)) drop-shadow(0 3px 4px rgba(0,0,0,.5))}
 #speed{overflow:visible}#speed .ring{position:absolute;inset:-6px;width:calc(100% + 12px);height:calc(100% + 12px);transform:rotate(135deg);pointer-events:none}
 #speed .ring circle{fill:none;stroke-width:6;stroke-linecap:round;stroke-dasharray:207.4 276.5}#speed .ring .rt{stroke:rgba(127,127,127,.25)}#speed .ring .rv{stroke:#3ddc84;stroke-dashoffset:276.5;transition:stroke-dashoffset .6s,stroke .3s}
 body.navon #speed{background:rgba(14,18,13,.88);color:#fff;border-color:rgba(255,255,255,.1)}body.navon #speed small{color:rgba(255,255,255,.7)}
@@ -978,7 +978,7 @@ body:not(.spon) #spot{display:none!important}
 #nav.jxon .jx{max-height:200px;overflow:hidden}
 /* one row for the little status pills, so they never sit on top of each other */
 #statRow{position:fixed;left:12px;right:72px;top:calc(var(--safe-t) + 112px);z-index:11;display:flex;flex-wrap:wrap;gap:6px;align-items:center;pointer-events:none}
-body.navon #statRow{top:auto;bottom:calc(var(--bb) + 168px);left:12px;right:12px;justify-content:center}
+body.navon #statRow{left:12px;right:80px;justify-content:flex-start}
 #statRow>*{position:static!important;transform:none!important;left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;margin:0!important;pointer-events:auto;animation:none!important}
 #statRow>.hide{display:none!important}
 #offPill.np.mini span{display:none}#offPill.np.mini{padding:8px 10px!important}
@@ -998,6 +998,23 @@ body.night .qsg button{background:rgba(255,255,255,.06);border-color:rgba(255,25
 #qsBtn{background:linear-gradient(160deg,#ffd36b,#f2a516)!important;color:#1d1406!important}
 .dssat{position:relative;margin:10px 0 4px;border-radius:18px;overflow:hidden;aspect-ratio:16/10;background:#1c2118}
 .dssat canvas{width:100%;height:100%;display:block}
+
+#spot.navbar{position:fixed!important;left:10px;right:10px;top:auto!important;bottom:calc(var(--bb) + 150px);z-index:12;width:auto}
+#spot.navbar .card{width:100%;max-width:none;box-sizing:border-box;border-radius:18px;padding:8px 12px;background:rgba(18,18,18,.94);box-shadow:0 8px 22px rgba(0,0,0,.4)}
+body.spbar #roadPill{bottom:calc(var(--bb) + 222px)!important}
+
+.admb{display:inline-flex;vertical-align:-3px;margin-left:4px}.admb svg{width:16px;height:16px}
+.avc{display:inline-flex;flex:none;border-radius:50%;overflow:hidden}.avc svg{width:100%;height:100%}
+.obdots{display:flex;gap:6px;margin-bottom:10px}.obdots i{flex:1;height:4px;border-radius:2px;background:rgba(0,0,0,.12)}.obdots i.on{background:#ffc23d}
+.cuopt{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.cuopt.c4{grid-template-columns:1fr 1fr}
+.cuo{display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 10px;border-radius:18px;background:var(--card2,#f4f1ea);border:2px solid transparent;font:inherit;color:inherit;text-align:center}
+.cuo small{font-size:12px;opacity:.7}.cuo.sel,.qsg button.sel{border-color:#ffc23d;box-shadow:0 0 0 3px rgba(255,194,61,.25)}
+.cucar{display:block;width:44px;height:56px;position:relative}.cucar .chev{position:static!important;display:block!important;width:44px;height:56px;filter:drop-shadow(0 2px 3px rgba(0,0,0,.35))}
+.swat{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}.swat button{width:40px;height:40px;border-radius:20px;border:3px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.15)}.swat button.sel{box-shadow:0 0 0 3px #ffc23d}
+.cuname{display:flex;align-items:center;gap:12px;margin-top:12px;padding:10px 12px;border-radius:16px;background:var(--card2,#f4f1ea)}.cuname small{display:block;font-size:12px;opacity:.65}
+.prh{display:flex;align-items:center;gap:14px}
+.me.iscar.nav .chev{width:40px;height:50px;left:-12px;top:-14px;filter:drop-shadow(0 3px 4px rgba(0,0,0,.5))!important}.me.iscar.nav .chev path,.me.iscar.nav .chev rect{stroke-width:inherit}
+body.night .cuo,body.night .cuname{background:rgba(255,255,255,.06)}
 </style>
 </head>
 <body>
@@ -1350,7 +1367,7 @@ function buildSteps(r){
   // bearings near the junction (look ~25m)
   const bAt=(along,dir)=>{let p1=pointAt(segs,along),p2=pointAt(segs,Math.max(0,Math.min(cum,along+dir*25)));return dir>0?bearing(p1,p2):bearing(p2,p1)};
   steps.forEach((st,i)=>{if(i===0){st.type='depart';st.text='Head '+compassName(bAt(0,1))+' on '+st.road;return}
-    const bin=bAt(st.startAt,-1),bout=bAt(st.startAt,1);let d=((bout-bin+540)%360)-180;const [ic,w]=turnWord(d);st.icon=ic;st.text=(w==='Continue'?'Continue onto ':w+' onto ')+st.road;st.turn=d;
+    const bin=bAt(st.startAt,-1),bout=bAt(st.startAt,1);let d=((bout-bin+540)%360)-180;const [ic,w]=turnWord(d);st.icon=ic;st.noname=GENERIC_RD.has(st.road);st.text=st.noname?(w==='Continue'?'Continue straight':w):(w==='Continue'?'Continue onto ':w+' onto ')+st.road;st.turn=d;
     // every road leaving this junction, relative to the way you arrive
     const jp=pointAt(segs,st.startAt);let ni=-1,nd=1e9;for(let k=0;k<nodes.length;k++){const dd=dist(nodes[k],jp);if(dd<nd){nd=dd;ni=k}}
     const prevRoad=steps[i-1].road,list=[],seen=new Set();
@@ -1381,7 +1398,7 @@ let minX=1e9,minY=1e9,maxX=-1e9,maxY=-1e9;B.forEach(([x,y])=>{minX=Math.min(minX
 const RES_BOUNDS=[[minX,minY],[maxX,maxY]];
 const outside={type:'Feature',geometry:{type:'Polygon',coordinates:[[[minX-.2,minY-.2],[maxX+.2,minY-.2],[maxX+.2,maxY+.2],[minX-.2,maxY+.2],[minX-.2,minY-.2]],B.slice().reverse()]}};
 let mode='sat'; /* always open on satellite; you can switch during the session */
-let SPOTON=LS.get('spotOn',false);let speedWarn=LS.get('speedWarn',false),showFarms=LS.get('farms',false),showEst=false,showHeat=false,redOn=LS.get('redOn',false),redAuto=LS.get('redAuto',false),redManual=LS.get('redOn',false);
+let SPOTON=LS.get('spotOn',!!LS.get('spTok',null));let speedWarn=LS.get('speedWarn',false),showFarms=LS.get('farms',false),showEst=false,showHeat=false,redOn=LS.get('redOn',false),redAuto=LS.get('redAuto',false),redManual=LS.get('redOn',false);
 let theme=LS.get('theme','auto');      // auto | day | night
 let showHill=LS.get('hill',true);
 let driveMode=LS.get('drive','auto'); // auto | on | off
@@ -1397,7 +1414,7 @@ let CONTOUR=null;try{if(window.mlcontour){const ds=new mlcontour.DemSource({url:
 let SHOWCONT=LS.get('contours',true);
 document.body.classList.toggle('spon',SPOTON);
 function statRow(){let r=$('statRow');if(!r){r=document.createElement('div');r.id='statRow';document.body.appendChild(r)}for(const id of['offPill','focusPill','liveBar','rec'])if($(id)&&$(id).parentNode!==r)r.appendChild($(id))}
-setInterval(()=>{try{statRow()}catch(e){}},1500);
+setInterval(()=>{try{statRow();const r=$('statRow'),n=$('nav');if(r){if(document.body.classList.contains('navon')&&n&&!n.classList.contains('hide')){r.style.top=Math.round(n.getBoundingClientRect().bottom+8)+'px';r.style.bottom='auto'}else{r.style.top='';r.style.bottom=''}}}catch(e){}},700);
 let DRY0=(()=>{try{const s=JSON.parse(localStorage.getItem('kn_mapState')||'{}');return Array.isArray(s.dry)?s.dry:[]}catch(e){return []}})();
 function style(){return{version:8,glyphs:'local://{fontstack}/{range}',
  sources:{
@@ -1453,7 +1470,7 @@ function style(){return{version:8,glyphs:'local://{fontstack}/{range}',
   {id:'farm-line',type:'line',source:'farms',filter:['all',['==',['get','kind'],'farm'],['!=',['get','name'],'Leadwood (restricted)']],layout:{visibility:'none'},paint:{'line-color':'#7b1fa2','line-width':['interpolate',['linear'],['zoom'],11,1.2,16,2.2],'line-dasharray':[3,2],'line-opacity':.75}},
   {id:'farm-lbl',type:'symbol',source:'farms',filter:['all',['==',['get','kind'],'farm'],['!=',['get','name'],'Leadwood (restricted)']],layout:{visibility:'none','symbol-placement':'line','text-field':['upcase',['get','name']],'text-font':['Sans Bold'],'text-size':11,'text-letter-spacing':.25,'symbol-spacing':400,'text-offset':[0,-1],'text-max-angle':50},paint:{'text-color':'#6a1b9a','text-halo-color':'#fff','text-halo-width':2}},
   {id:'zone-lbl',type:'symbol',source:'farms',filter:['==',['get','kind'],'zone'],maxzoom:14.5,layout:{visibility:'none','text-field':['get','name'],'text-font':['Sans Regular'],'text-size':10.5,'text-allow-overlap':false,'text-optional':true},paint:{'text-color':'#7b1fa2','text-halo-color':'rgba(255,255,255,.85)','text-halo-width':1.4,'text-opacity':.6}},
-  {id:'tracks',type:'line',source:'tracks',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#8e24aa','line-width':['interpolate',['linear'],['zoom'],12,1.5,17,5],'line-dasharray':[1.5,1]}},
+  {id:'tracks',type:'line',source:'tracks',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':['coalesce',['get','col'],'#8e24aa'],'line-width':['interpolate',['linear'],['zoom'],12,1.5,17,5],'line-dasharray':[1.5,1]}},
   {id:'route-alt-case',type:'line',source:'route-alt',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'rgba(20,45,90,.55)','line-opacity':.7,'line-width':['interpolate',['linear'],['zoom'],12,6,17,15,19,22]}},
   {id:'route-alt',type:'line',source:'route-alt',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#b7cdf2','line-opacity':.9,'line-width':['interpolate',['linear'],['zoom'],12,3,17,9,19,14],'line-dasharray':[1.4,1]}},
   {id:'route-glow',type:'line',source:'route',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#1a73e8','line-opacity':.22,'line-blur':['interpolate',['linear'],['zoom'],12,4,17,12],'line-width':['interpolate',['linear'],['zoom'],12,16,17,40,19,56]}},
@@ -1575,7 +1592,7 @@ function applyMode(){
   map.setPaintProperty('hill','hillshade-highlight-color',n?'#2a332b':'rgba(255,255,240,.9)');map.setPaintProperty('hill','hillshade-shadow-color',n?'#000000':'#4d5a3a');
   
   for(const id of['farm-line','farm-lbl','zone-line','zone-lbl'])map.setLayoutProperty(id,'visibility',showFarms?'visible':'none');
-  mapLook(sat,n);applyDry();
+  mapLook(sat,n);applyDry();setTimeout(applyColours,0);
   try{if(map.getLayer('contour')){const v=SHOWCONT&&!sat&&mode!=='roads'?'visible':'none';for(const id of['contour','contour-lbl'])map.setLayoutProperty(id,'visibility',v);map.setPaintProperty('contour','line-color',n?'#56614a':'#8c8058');map.setPaintProperty('contour-lbl','text-color',n?'#8e9a7c':'#7a6e4a');map.setPaintProperty('contour-lbl','text-halo-color',n?'rgba(0,0,0,.7)':'rgba(255,255,255,.75)')}}catch(e){}
   map.setPaintProperty('res-line','line-color',sat?'#ffe08a':n?'#7d8a6c':'#5d6b4a');
   map.setPaintProperty('res-edge','line-opacity',sat?0:.55);map.setPaintProperty('res-edge','line-color',n?'#2c3a2a':'#b9c99a');
@@ -1614,6 +1631,8 @@ function applyDrive(){const on=driveMode==='on'||(driveMode==='auto'&&(drivingNo
 let me=null;            // {ll,acc,heading,speed,t}
 let follow=0;           // 0 free, 1 follow, 2 follow+heading
 let home=LS.get('home',null);
+const DRV_COL=['#8e24aa','#e8710a','#1e8e3e','#d93025','#1967d2','#c2185b','#00897b','#f9a825'];let SHOWDRV=new Set(LS.get('showDrv',[]));
+let TRAILCOL=LS.get('trailCol','#8e24aa'),ROUTECOL=LS.get('routeCol','#4285f4'),CARICON=LS.get('carIcon','arrow'),MECOL=LS.get('meCol','#ffc23d');
 let sights=LS.get('sights',[]);sights.forEach(s=>{if(!s.cid)s.cid=cidNew()});
 let reports=LS.get('reports',[]);
 const shareRhino=true; // rhinos are treated like every other animal
@@ -1660,7 +1679,7 @@ function netEval(){const ec=navigator.connection&&navigator.connection.effective
   if(st===NET.st)return;const was=NET.st;NET.st=st;const el=$('offPill');if(!el)return;clearTimeout(NET.hideT);
   const bars=n=>`<svg viewBox="0 0 20 14" width="18" height="13">${[0,1,2,3].map(i=>`<rect x="${i*5}" y="${10-i*3}" width="3.2" height="${4+i*3}" rx="1" fill="${i<n?'currentColor':'rgba(255,255,255,.25)'}"/>`).join('')}</svg>`;
   if(st==='off'){el.className='np off';el.innerHTML=bars(0)+'<span>No signal · map saved on phone</span>';clearTimeout(NET.miniT);NET.miniT=setTimeout(()=>{if(el.classList.contains('off'))el.classList.add('mini')},6000)}
-  else if(st==='weak'){el.className='np weak';el.innerHTML=bars(1)+'<span>Weak signal · map works offline</span>'}
+  else if(st==='weak'){el.className='np weak';el.innerHTML=bars(1)+'<span>Weak signal · map works offline</span>';clearTimeout(NET.miniT);NET.miniT=setTimeout(()=>{if(el.classList.contains('weak'))el.classList.add('mini')},6000)}
   else{if(was==='ok')return;el.className='np ok';el.innerHTML=bars(4)+'<span>Back online · syncing</span>';NET.hideT=setTimeout(()=>el.classList.add('hide'),2600);if(Cloud.member)setTimeout(sync,300)}}
 window.addEventListener('online',()=>{NET.fails=0;NET.slow=0;netEval()});window.addEventListener('offline',netEval);
 try{navigator.connection&&navigator.connection.addEventListener('change',netEval)}catch(e){}
@@ -1843,6 +1862,7 @@ function annPop(){const a=ANN.filter(x=>!annSeen.has(x.client_id)&&(!x.expires_a
 
 /* ============ what's new: shown once to owners and admins after an update ============ */
 const WHATS_NEW=[
+ [110,'star','Make it yours','Pick your animal character, your car on the map (arrow, game cruiser, safari truck or buggy), your route and trail colours. Tap a name in the Feed to see their profile. Admins have a green badge. The map follows you again by itself 10 seconds after you stop touching it. Drives show on the map for a day and stay in My drives for 60 days. A drive now records from when you leave home until you get back, with your stops. Turns are shown like Google Maps: one road name, no extra arrows.'],
  [109,'binoc','Easier on the drive','Recent sightings glow on the map for 3 hours and stay visible while you follow a route. A soft ping and a card tell you when you are 50 m from a recent sighting. The new yellow binoculars button marks a sighting in one tap. Turn directions are spoken once, 50 m before the turn, and no longer cut out. The junction box only shows in the last 50 m. A recorded drive finishes by itself when you get back to where you started, and the report card shows your drive on satellite.'],
  [108,'gear','A cleaner map','Likely animal spots are gone. Spotify, recording every drive and the speed warning are now off unless you switch them on in Settings. The story question after a sighting is asked once, when you open the app, and never again if you skip it.'],
  [107,'cam','Sighting photos and videos open straight away','Photos and videos now go up before the sighting itself, and every phone saves them as soon as a sighting arrives. So they open instantly, even with no signal and even if the person who posted them is offline. The heatmap is gone, as most owners asked.'],
@@ -2328,9 +2348,7 @@ function driveStats(t){const end=t.end||(t.t+Math.max(1,t.pts.length)*15000),dur
   return {dur,end,kmh:t.len/(dur/1000)*3.6,seen}}
 function fmtHM(ms){const m=Math.round(ms/6e4);return m<60?m+' min':Math.floor(m/60)+' h '+(m%60)+' min'}
 
-/* back where the drive started (after going at least 500 m away): the drive finishes by itself and the report card opens */
-setInterval(()=>{if(!recTrack||!me||DM.on||!recTrack.pts.length)return;const s=recTrack.pts[0],d=dist(me.ll,s);recTrack.far=Math.max(recTrack.far||0,d);
-  if(recTrack.far>500&&recTrack.len>1500&&d<70){toast(T('Back where you started · drive saved'),3500);toggleRec()}},4000);
+
 /* satellite picture of a drive, for the report card */
 async function satSnap(pts,W,H,pad){if(!pts||pts.length<2)return null;pad=pad||36;let a=Infinity,b=Infinity,c=-Infinity,d=-Infinity;pts.forEach(p=>{a=Math.min(a,p[0]);b=Math.min(b,p[1]);c=Math.max(c,p[0]);d=Math.max(d,p[1])});
   const wx=(lon,z)=>(lon+180)/360*256*2**z,wy=(lat,z)=>{const r=lat*Math.PI/180;return (1-Math.log(Math.tan(r)+1/Math.cos(r))/Math.PI)/2*256*2**z};
@@ -2350,6 +2368,7 @@ function driveSummary(t,fromList){const st=driveStats(t),sp=Object.entries(st.se
   openSheet(`<div class="dsum"><h2>${fromList?'Drive summary':'Drive done'}</h2><div class="sub">${esc(new Date(t.t).toLocaleString([],{weekday:'long',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}))}</div>
    <div class="dssat" id="dsSat"></div><div class="big"><div><b>${fmtD(t.len)}</b>distance</div><div><b>${fmtHM(st.dur)}</b>time</div><div><b>${Math.round(st.kmh)||0} km/h</b>average</div></div>${t.top!=null?`<div class="big b2"><div><b>${Math.round(t.top||0)} km/h</b>top speed</div><div class="${t.over>30?'bad':''}"><b>${t.over>30?fmtHM(t.over*1000):t.over>0?Math.round(t.over)+' s':'None'}</b>over ${SPEED_LIMIT} km/h</div><div><b>${sp.length}</b>${sp.length===1?'kind of animal':'kinds of animal'}</div></div>`:''}
    ${(()=>{const b=BIG5.filter(w=>st.seen[w]).length;return `<div class="tally" style="margin-top:14px"><div class="tyh"><b>Big Five ${b}/5</b><small>${sp.length} kind${sp.length===1?'':'s'} of animal on this drive</small></div><div class="tyb">${BIG5.map(w=>`<span class="${st.seen[w]?'on':''}">${AN(w,30)}</span>`).join('')}</div></div>`})()}
+   ${(t.stops||[]).length?`<div class="sub" style="margin-top:14px"><b>${T('Stops')}</b></div><div class="prof" style="margin-top:6px">${t.stops.map(s=>`<div class="pr"><span>${LI('clock',20)}</span><div>${esc(T('Waited at'))} ${esc(s.n||T('a spot on the road'))} ${T('for')} ${fmtHM(s.end-s.t)}<small>${esc(new Date(s.t).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}))} ${T('to')} ${esc(new Date(s.end).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}))}</small></div></div>`).join('')}</div>`:''}
    <div class="sub" style="margin-top:14px"><b>Animals seen</b></div>
    <div class="prof" style="margin-top:6px">${sp.length?sp.map(([w,v])=>`<div class="pr"><span>${AN(w,30)}</span><div>${esc(w)}${v.n>1?' ×'+v.n:''}<small>${esc(areaOf(v.ll)||'On the reserve')}</small></div></div>`).join(''):'<div class="pr"><span>'+LI('scope',20)+'</span><div>No sightings on this drive<small>Mark sightings while you drive and they show here</small></div></div>'}</div>
    <div class="row"><button class="btn" id="dsMap">Show on map</button><button class="btn pri" id="dsShare">Share card</button></div></div>`,()=>{
@@ -2500,8 +2519,8 @@ function refreshOverlays(){
   map.getSource('sprev').setData({type:'FeatureCollection',features:AS.filter(s=>isAdm()&&s.chain&&s.chain.length>1).flatMap(s=>s.chain.slice(0,-1).map(c=>({type:'Feature',properties:{op:sightOp(s)*.7},geometry:{type:'Point',coordinates:c.ll}})))});
   map.getSource('reports').setData({type:'FeatureCollection',features:allReports().map(r=>({type:'Feature',properties:{cid:r.cid,label:T(r.kind+' · '+ago(r.t))},geometry:{type:'Point',coordinates:r.ll}}))});
   updateBlocked();
-  const tf=tracks.map(t=>({type:'Feature',properties:{},geometry:{type:'LineString',coordinates:t.pts}}));
-  if(recTrack&&recTrack.pts.length>1)tf.push({type:'Feature',properties:{},geometry:{type:'LineString',coordinates:recTrack.pts}});
+  const now=Date.now();const tf=tracks.filter(t=>t.pts&&t.pts.length>1&&(SHOWDRV.has(t.cid)||now-(t.end||t.t)<864e5)).map((t,i)=>({type:'Feature',properties:{cid:t.cid||'',col:DRV_COL[tracks.indexOf(t)%DRV_COL.length]},geometry:{type:'LineString',coordinates:t.pts}}));
+  if(recTrack&&recTrack.pts.length>1)tf.push({type:'Feature',properties:{cid:'',col:TRAILCOL},geometry:{type:'LineString',coordinates:recTrack.pts}});
   map.getSource('tracks').setData({type:'FeatureCollection',features:tf});
 }
 
@@ -2691,10 +2710,11 @@ function showNavJunction(st,dd,idx){const el=$('junc');if(!st||!st.junc){el.clas
   el.style.top='calc(var(--safe-t) + '+($('nav').offsetHeight+20)+'px)';el.classList.remove('hide')}
 /* Spotify placement (Waze style): playing -> full-width bar docked under the blue nav banner (or under search when not navigating); not playing -> small logo */
 function placeSpot(){const sp=$('spot');if(!sp)return;const playing=sp.classList.contains('open');const navOn=nav&&!$('nav').classList.contains('hide');
-  const host=playing?(navOn?$('nav'):$('top')):(navOn?$('fabs'):document.body);
+  // on a route, what's playing sits in a slim bar just above the bottom panel, so the directions card stays small
+  const host=playing?(navOn?document.body:$('top')):(navOn?$('fabs'):document.body);
   if(sp.parentNode!==host){if(host===$('top'))host.insertBefore(sp,$('search').nextSibling);else if(host===$('fabs'))host.insertBefore(sp,host.firstChild);else host.appendChild(sp)}
-  sp.classList.toggle('docked',playing&&navOn);sp.classList.toggle('wide',playing&&!navOn);
-  $('nav').classList.toggle('spon',playing&&navOn);
+  sp.classList.toggle('docked',false);sp.classList.toggle('navbar',playing&&navOn);sp.classList.toggle('wide',playing&&!navOn);
+  $('nav').classList.toggle('spon',false);document.body.classList.toggle('spbar',playing&&navOn);
   sp.style.top='';
   if(navOn&&!$('junc').classList.contains('hide'))$('junc').style.top=($('nav').getBoundingClientRect().bottom+10)+'px'}
 setInterval(placeSpot,400);
@@ -2724,6 +2744,12 @@ function setFollow(f){if(f===2&&PV&&PV.on){PV.on=false;$('nav').classList.remove
   if(f===1&&!nav){map.easeTo({bearing:0,pitch:0,padding:{top:0,bottom:0,left:0,right:0},duration:500})}
   if(f===1)moveCam();wantWake(f===2||!!nav);updatePill()}
 $('recenter').onclick=()=>setFollow(2);
+/* like Google Maps: once you've looked around, the map goes back to following you by itself after 10 seconds without a touch,
+   on a route or not, as long as you're moving. The Re-centre button does it straight away. */
+let lastTouchT=0;['touchstart','touchmove','wheel','mousedown'].forEach(ev=>map.getCanvasContainer().addEventListener(ev,()=>{lastTouchT=Date.now()},{passive:true}));
+setInterval(()=>{if(follow!==0||!me||TOUCHING||calMode)return;if(MEAS||(PV&&PV.on)||ovOn)return;if($('sheet').classList.contains('open'))return;
+  const moving=(speedS||0)>1.5;if(!(moving||nav))return;if(Date.now()-lastTouchT<10000)return;setFollow(2)},1000);
+
 $('locBtn').onclick=()=>{askCompass();if(!me){toast(gpsErr||'Waiting for GPS...');return}setFollow(follow===0?1:follow===1?2:1);if(follow===2&&me.heading==null)toast('Heading-up turns on once you start moving')};
 map.on('dragstart',e=>{if(e.originalEvent&&follow){setFollow(0);if(me&&((speedS||0)*3.6>3||nav))$('recenter').classList.remove('hide')}});
 ['zoomstart','rotatestart','pitchstart'].forEach(ev=>map.on(ev,e=>{if(e.originalEvent&&follow===2){setFollow(0);if(me)$('recenter').classList.remove('hide')}}));
@@ -2898,7 +2924,7 @@ const pendPosts=()=>FPQ.map(o=>({kind:'p',c:o.id,w:o.what,by:myName(),t:new Date
 function mediaHtml(p){const M=p.media||[];if(!M.length)return '';const n=M.length;
   return `<div class="pmg n${Math.min(n,4)}">${M.slice(0,4).map((m,k)=>`<div class="pmi${m.k==='vid'?' vid':''}" data-fm="${esc(p.c)}" data-k="${k}"${n===1&&m.w&&m.h?` style="aspect-ratio:${Math.max(.6,Math.min(1.9,m.w/m.h)).toFixed(3)}"`:''}>${m.k==='vid'?(m.sv?`<img alt="" data-svp="${esc(p.c)}">`:m.p?`<img alt="" data-fsrc="${esc(m.p)}">`:'')+`<span class="pplay">${LI('play',26)}</span>${m.d?`<span class="pdur">${fmtSec(m.d)}</span>`:''}`:`<img alt="" data-fsrc="${esc(m.f)}">`}${k===3&&n>4?`<span class="pmore">+${n-4}</span>`:''}</div>`).join('')}</div>`}
 function postCard(p){const t=Date.parse(p.t),isP=p.kind==='p',place=p.lat!=null&&p.lng!=null?postPlace(p):'',likes=+p.likes||0,cm=+p.cm||0,long=p.s&&p.s.length>320;
-  return `<div class="post${p.wait?' wait':''}" data-post="${esc(p.c)}"><div class="poh"><span class="poa" style="background:${mateCol(p.by||'x')}">${iniOf(p.by)}</span><div class="pom"><b>${esc(p.mine?T('You'):p.by||'Someone')}</b><small>${esc(ago(t))}${place?` · <span class="poplace" data-pmap="${esc(p.c)}">${esc(place)}</span>`:''}${p.wait?' · '+T('Waiting to post'):''}</small></div>${p.w?`<span class="pow">${AN(p.w,26)}<span>${esc(p.w)}</span></span>`:''}${isP&&(p.can||p.mine)&&!p.wait?`<button class="podots" data-pdel="${esc(p.c)}" aria-label="More">${LI('more',18)}</button>`:''}</div>
+  return `<div class="post${p.wait?' wait':''}" data-post="${esc(p.c)}"><div class="poh"><span data-prof="${esc(p.u||'')}" data-pn="${esc(p.by||'')}" style="display:flex;cursor:pointer">${avatarHtml(p.mine?(p.av||MYAV):p.av,p.by,36,p.u)}</span><div class="pom"><b data-prof="${esc(p.u||'')}" data-pn="${esc(p.by||'')}" style="cursor:pointer">${esc(p.mine?T('You'):p.by||'Someone')}${badgeFor(p.rl)}</b><small>${esc(ago(t))}${place?` · <span class="poplace" data-pmap="${esc(p.c)}">${esc(place)}</span>`:''}${p.wait?' · '+T('Waiting to post'):''}</small></div>${p.w?`<span class="pow">${AN(p.w,26)}<span>${esc(p.w)}</span></span>`:''}${isP&&(p.can||p.mine)&&!p.wait?`<button class="podots" data-pdel="${esc(p.c)}" aria-label="More">${LI('more',18)}</button>`:''}</div>
    ${p.k?'<span class="tag t-kill" style="margin:8px 0 0">On a kill</span>':''}
    ${p.s?`<div class="pos${long?' clip':''}">${esc(p.s)}</div>${long?`<button class="poseem" data-seem>${T('See more')}</button>`:''}`:!isP&&p.mine?`<button class="poadd" data-story="${esc(p.c)}" data-w="${esc(p.w)}">${LI('msg',15)} ${T('Add the story of this sighting')}</button>`:''}
    ${!isP&&p.ph&&!(p.media&&p.media.length)?`<div class="pop"><img alt="" data-pimg="${esc(p.c)}"></div>`:''}${isP||(p.media&&p.media.length)?mediaHtml(p):''}
@@ -2923,6 +2949,7 @@ function bindPosts(root,list,again){
     try{const r=await rpc('like_post',{p_cid:b.dataset.like});if(p){p.likes=r.n;p.liked=r.me;redo(p.c)}}catch(e){if(p){p.liked=!p.liked;p.likes=(+p.likes||0)+(p.liked?1:-1);redo(p.c)}toast(errTxt(e),4000)}});
   card.querySelectorAll('[data-pcm]').forEach(b=>b.onclick=()=>{const p=find(b.dataset.pcm);if(p)commentsSheet(p,again)});
   card.querySelectorAll('[data-pdel]').forEach(b=>b.onclick=()=>{const p=find(b.dataset.pdel);if(p)postMenu(p,again)});
+  card.querySelectorAll('[data-prof]').forEach(b=>b.onclick=e=>{e.stopPropagation();if(b.dataset.prof)profileSheet(b.dataset.prof,b.dataset.pn)});
   card.querySelectorAll('[data-pmap]').forEach(b=>b.onclick=e=>{e.stopPropagation();const p=find(b.dataset.pmap);if(!p||p.lat==null)return;closeSheet();setFollow(0);const q=[p.lng,p.lat];map.easeTo({center:q,zoom:Math.max(map.getZoom(),15.5),duration:700});dropPin(q)});
   card.querySelectorAll('[data-pgo]').forEach(b=>b.onclick=()=>{const p=find(b.dataset.pgo);if(!p)return;closeSheet();startNav({kind:'pin',name:p.w?p.w+(p.kind==='p'?'':' sighting'):T('Post by')+' '+p.by,ll:[p.lng,p.lat]})});
   card.querySelectorAll('[data-story]').forEach(b=>b.onclick=()=>storySheet(b.dataset.story,b.dataset.w,again))})}
@@ -3155,12 +3182,12 @@ function navTick(){
   let i=nav.steps.findIndex(s=>s.startAt>along+3);
   let txt,icon,dd,then='';
   if(i===-1){txt='Continue to '+nav.target.name;icon='arrive';dd=left;then=''}
-  else{const st=nav.steps[i];txt=st.text;icon=st.icon||'straight';dd=st.startAt-along;const nx=nav.steps[i+1];then=nx?'Then '+nx.text.toLowerCase().replace(/ onto .*/,'')+' onto '+nx.road:'Then arrive at '+nav.target.name;
+  else{const st=nav.steps[i];txt=st.text;icon=st.icon||'straight';dd=st.startAt-along;const nx=nav.steps[i+1];then=nx?(nx.noname?'Then '+nx.text.toLowerCase():'Then '+nx.text.toLowerCase().replace(/ onto .*/,'')+' onto '+nx.road):'Then arrive at '+nav.target.name;
     const curStep=nav.steps[i-1];if(dd>250&&curStep&&curStep.road){then='On '+curStep.road+' · '+then}}
   nav.curI=i;nav.curDD=dd;nav.along=along;nav.near=i>=0&&dd<170&&(icon||'straight')!=='straight';nav.near2=nav.near&&dd<=100;if(nav.near2)nav.nearT=Date.now();
   if(!PV.on){
   $('navArr').innerHTML=`<path fill="#fff" d="${ARROWS[icon]||ARROWS.straight}"/>`;
-  $('navDist').textContent=fmtNav(dd);{const road=txt.replace(/^(Turn|Bear|Sharp|Continue) (left |right )?onto /,'').replace(/^Continue to /,'')||txt;const pre=/^Continue to/.test(txt)?'to':(icon==='straight'?'towards':'onto');$('navIns').innerHTML='<span class="pre">'+pre+'</span> '+esc(road)}
+  $('navDist').textContent=fmtNav(dd);{const road=txt.replace(/^(Turn|Bear|Sharp|Continue) (left |right )?onto /,'').replace(/^Continue to /,'')||txt;const pre=/^Continue to/.test(txt)?'to':(icon==='straight'?'towards':'onto');const st0=i>=0?nav.steps[i]:null;$('navIns').innerHTML=st0&&st0.noname?esc(T(txt)):'<span class="pre">'+pre+'</span> '+esc(road)}
   const nx=i>=0?nav.steps[i+1]:null;const tr=$('navThenRow');
   if(i>=0){tr.style.display='';$('nav').classList.add('then-on');if(nx){$('navThenArr').innerHTML=`<path fill="#fff" d="${ARROWS[nx.icon||'straight']}"/>`;$('navThen').textContent=''}else{$('navThenArr').innerHTML=`<path fill="#fff" d="${ARROWS.arrive}"/>`;$('navThen').textContent=''}}
   else{tr.style.display='none';$('nav').classList.remove('then-on')}
@@ -3208,9 +3235,10 @@ setTimeout(()=>{if(!(window.DeviceOrientationEvent&&typeof DeviceOrientationEven
 async function askCompass(){if(compassAsked)return;compassAsked=true;try{if(window.DeviceOrientationEvent&&typeof DeviceOrientationEvent.requestPermission==='function'){const r=await DeviceOrientationEvent.requestPermission();if(r!=='granted')return}window.addEventListener('deviceorientationabsolute',onOrient);window.addEventListener('deviceorientation',onOrient)}catch(e){}}
 /* road pill shown at the bottom in driving view */
 let calloutState='';
+const GENERIC_RD=new Set(['Freeway','Main road','Road','Street','Service road','Track','Lane','Path']);
 function setCallouts(on){const key=on+'|'+curRoad+'|'+isNight;if(key===calloutState||!mapReady)return;calloutState=key;
-  map.setLayoutProperty('road-callout','visibility',on?'visible':'none');
-  for(const id of['road-lbl-1','road-lbl-2','road-lbl-3'])map.setLayoutProperty(id,'visibility',on?'none':'visible');
+  map.setLayoutProperty('road-callout','visibility','none');
+  for(const id of['road-lbl-1','road-lbl-2','road-lbl-3'])map.setLayoutProperty(id,'visibility','visible');
   {const nf=LIVEMAP?['!=',['get','noname'],true]:null;map.setFilter('road-callout',curRoad?(nf?['all',['!=',['get','name'],curRoad],nf]:['!=',['get','name'],curRoad]):nf)}
   map.setLayoutProperty('road-callout','icon-image',isNight?'pill-n':'pill');map.setPaintProperty('road-callout','text-color',isNight?'#e8eaed':'#202124')}
 function updatePill(){const el=$('roadPill');const on=follow===2&&me&&!calMode;document.body.classList.toggle('drivecam',!!on);setCallouts(!!on);
@@ -3246,7 +3274,7 @@ function altRoute(from,to,main){if(!NODEK)return null;const S=new Set();
 
 /* ---- the white turn arrow drawn on the route at the next turn ---- */
 function routeSlice(segs,a,b){const pts=[pointAt(segs,a)];for(const s of segs){const e=s.cum+s.L;if(e>a&&e<b)pts.push(s.b)}pts.push(pointAt(segs,b));return pts}
-function manSet(segs,at,total){const src=map.getSource('maneuver');if(!src)return;if(at==null||!segs){src.setData(empty);return}
+function manSet(segs,at,total){const src=map.getSource('maneuver');if(!src)return;src.setData(empty);return;if(at==null||!segs){src.setData(empty);return}
   const a=Math.max(0,at-32),b=Math.min(total,at+28);if(b-a<14){src.setData(empty);return}
   const tip=pointAt(segs,b),base=pointAt(segs,b-12),h=bearing(base,tip)*Math.PI/180,ux=Math.sin(h),uy=Math.cos(h),w=9;
   const o=(p,dx,dy)=>[p[0]+dx/KX,p[1]+dy/KY];
@@ -3254,7 +3282,7 @@ function manSet(segs,at,total){const src=map.getSource('maneuver');if(!src)retur
     {type:'Feature',properties:{k:'h'},geometry:{type:'Polygon',coordinates:[[tip,o(base,-uy*w,ux*w),o(base,uy*w,-ux*w),tip]]}}]})}
 /* gold bubble with the name of the road you turn onto, sitting on the turn */
 const nrbEl=document.createElement('div');nrbEl.className='nrb';const NRB=new maplibregl.Marker({element:nrbEl,anchor:'bottom'});let nrbOn='';
-function nrbSet(ll,name){if(!ll){if(nrbOn){NRB.remove();nrbOn=''}return}const k=name+ll.join();if(k===nrbOn)return;nrbEl.innerHTML='<span>'+esc(name)+'</span>';NRB.setLngLat(ll);if(!nrbOn)NRB.addTo(map);nrbOn=k}
+function nrbSet(ll,name){ll=null;if(!ll){if(nrbOn){NRB.remove();nrbOn=''}return}const k=name+ll.join();if(k===nrbOn)return;nrbEl.innerHTML='<span>'+esc(name)+'</span>';NRB.setLngLat(ll);if(!nrbOn)NRB.addTo(map);nrbOn=k}
 
 /* ---- chips under the banner: gate ahead, rough track, road reports, next stop ---- */
 const GATES=DATA.pois.features.filter(f=>f.properties.kind==='gate').map(f=>({n:f.properties.name,ll:f.geometry.coordinates}));
@@ -3285,7 +3313,7 @@ function pvShow(i){if(!nav)return;const cur=nav.curI>=0?nav.curI:nav.steps.lengt
   $('nav').classList.add('pv');$('navThenRow').style.display='none';
   $('navArr').innerHTML=`<path fill="#fff" d="${ARROWS[st?(st.icon||'straight'):'arrive']}"/>`;
   $('navDist').textContent=T('In')+' '+fmtD(Math.max(10,at-along));
-  $('navIns').innerHTML=st?'<span class="pre">'+(st.icon==='straight'?T('towards'):T('onto'))+'</span> '+esc(st.road):'<span class="pre">'+T('arrive at')+'</span> '+esc(nav.target.name);
+  $('navIns').innerHTML=st?(st.noname?esc(T(st.text)):'<span class="pre">'+(st.icon==='straight'?T('towards'):T('onto'))+'</span> '+esc(st.road)):'<span class="pre">'+T('arrive at')+'</span> '+esc(nav.target.name);
   showJx(null);
   const p=pointAt(nav.segs,at),pb=pointAt(nav.segs,Math.max(0,at-45));
   if(follow)setFollow(0);$('recenter').classList.remove('hide');ovOn=false;
@@ -3468,11 +3496,11 @@ function focusSheet(){openSheet(`<div class="wnh"><div class="wni">${LI('scope',
 function setFocusMode(m){FOCUSM=m;LS.set('focusMode',m);FOCUS_SKIP=false;applyFocus();toast(m==='off'?T('Focus mode off'):m==='on'?T('Focus mode on'):T('Focus mode turns on when you drive'))}
 setInterval(()=>{applyFocus();if(FOCUS_ON&&mapReady)try{map.setFilter('sights',['any',['get','kill'],['<=',['get','age'],FOCUS_AGE]])}catch(e){}},5000);
 /* pop-ups wait until focus mode ends */
-for(const n of ['annPop','sugPop','storyAsk','whatsNew','weeklyPop','directPop']){const f=window[n];if(typeof f!=='function')continue;
+for(const n of ['annPop','sugPop','storyAsk','whatsNew','weeklyPop','directPop','custPop']){const f=window[n];if(typeof f!=='function')continue;
   window[n]=function(...a){if(FOCUS_ON||nav||(speedS||0)*3.6>6||Date.now()-(lastMoveT||0)<90000){clearTimeout(window[n].t);window[n].t=setTimeout(()=>window[n](...a),60000);return}return f.apply(this,a)}}
 
 /* ============ v95: Google Maps style extras on the drive ============ */
-var LAND=false,AUTOREC=LS.get('autoRec',false),OFFER=null,OFFER_SEEN=new Set();
+var LAND=false,AUTOREC=LS.get('autoRec',true),OFFER=null,OFFER_SEEN=new Set();
 
 /* ---- 1. sightings ahead on your route ---- */
 
@@ -3610,10 +3638,30 @@ function rpDirs(x){const row=(cls,ic,lbl,extra)=>`<div class="drw ${cls}">${ic}<
    <button class="drw add" id="rpStop2">${LI('plus',16)}<span class="dtx">${T('Add stop')}</span></button></div>`}
 
 /* ---- record every drive by itself ---- */
-let arN=0;
-function autoRecTick(){if(!AUTOREC||DM.on||!me)return;const k=(speedS||0)*3.6;
-  if(!recTrack){if(k>12&&inReserve(me.ll)){if(++arN>=5){recTrack={pts:[me.ll],len:0,t:Date.now(),auto:true};LS.set('rec',recTrack);$('rec').classList.remove('hide');$('recInfo').textContent='';arN=0}}else arN=0;return}
-  if(recTrack.auto&&Date.now()-lastMoveT>8*6e4){if(recTrack.len>800)toggleRec();else{recTrack=null;LS.set('rec',null);$('rec').classList.add('hide');refreshOverlays()}}}
+/* recording a drive, from home and back:
+   - starts by itself once you are 100 m from your home point (no signal needed, GPS works without it)
+   - keeps going through any route you follow and while you wait at places ("Waited at Picnic Spot 4 for 25 min")
+   - finishes only when you're back within 100 m of home, then the report card opens
+   With no home point set, the place the drive started counts as home. */
+let arN=0,recNearHome=null;
+function placeNameNear(ll){let best=null,bd=150;const P=[...(DATA.pois&&DATA.pois.features||[]).map(f=>({n:f.properties.name,ll:f.geometry.coordinates})),...(typeof PLACES!=='undefined'?PLACES:[]).filter(p=>!p.removed&&p.lat!=null).map(p=>({n:p.name,ll:[p.lng,p.lat]}))];
+  for(const p of P){if(!p.n)continue;const d=dist(ll,p.ll);if(d<bd){bd=d;best=p.n}}return best}
+function recStart(anchor){recTrack={pts:[me.ll.slice()],len:0,t:Date.now(),auto:true,anchor:anchor||me.ll.slice(),stops:[]};LS.set('rec',recTrack);$('rec').classList.remove('hide');$('recInfo').textContent='';arN=0}
+function autoRecTick(){if(!AUTOREC||DM.on||!me)return;const k=(speedS||0)*3.6,now=Date.now();
+  if(!recTrack){const h=home&&home.ll;
+    if(h){const d=dist(me.ll,h);if(recNearHome==null)recNearHome=d<100;if(d<100){recNearHome=true;return}
+      if(recNearHome&&d>=100){recNearHome=false;recStart(h);return}}
+    // opened the app away from home and driving: start here, home (or here) is where it ends
+    if(k>12&&inReserve(me.ll)){if(++arN>=5)recStart(h||null)}else arN=0;return}
+  const R=recTrack,anchor=R.anchor||R.pts[0];if(!R.stops)R.stops=[];
+  // waiting somewhere: after 3 minutes standing still it counts as a stop
+  if(k<3){if(!R.still)R.still={t:now,ll:me.ll.slice()};else if(now-R.still.t>3*6e4&&!R.still.logged&&dist(me.ll,anchor)>150){R.still.logged=true;R.stops.push({t:R.still.t,ll:R.still.ll,end:now,n:placeNameNear(R.still.ll)||areaOf(R.still.ll)||''});LS.set('rec',R)}
+    else if(R.still.logged){const s=R.stops[R.stops.length-1];if(s)s.end=now}}
+  else if(R.still&&dist(me.ll,R.still.ll)>40){if(R.still.logged){const s=R.stops[R.stops.length-1];if(s)s.end=now;LS.set('rec',R)}R.still=null}
+  const d=dist(me.ll,anchor);R.far=Math.max(R.far||0,d);
+  if(R.far>300&&R.len>500&&d<100){toast(T('Home again · drive saved'),3500);toggleRec();return}
+  // left on all day without moving (say the phone was left in the car): close it after 6 hours
+  if(now-lastMoveT>6*36e5){if(R.len>500)toggleRec();else{recTrack=null;LS.set('rec',null);$('rec').classList.add('hide');refreshOverlays()}}}
 setInterval(autoRecTick,4000);
 /* ============ LIVE DEMO: drive a real town map (every road from OpenStreetMap) with your real GPS ============ */
 const LIVE_AREA_DEF={name:'Stellenbosch',poly:[[18.82592944272841,-33.99287067953024],[18.87480649121362,-33.99143959746813],[18.85560725493548,-33.96913653949414],[18.85757894216173,-33.96834307735884],[18.86162967184059,-33.97194999707956],[18.86726657726011,-33.96745861691329],[18.85633442277812,-33.95863756233319],[18.8513844994166,-33.95779812188217],[18.84875259364738,-33.96296511567339],[18.84303508432259,-33.96726066876835],[18.83903907855849,-33.9755344692923],[18.8347559954802,-33.98201914684191],[18.82875392043441,-33.985236614958],[18.82526091984751,-33.98962587478456],[18.82592944272841,-33.99287067953024]]};
@@ -3689,7 +3737,7 @@ function swapSheet(){const s=liveSaved(),o=liveOff(),a=liveArea(),have=s&&s.name
       catch(e){set(0,T('Could not download')+': '+String(e.message||e).slice(0,100));b.disabled=false;b.style.opacity=1}}})}
 
 /* while in the live demo: a pill at the top, and nothing goes to the real reserve */
-function liveBar(){if(!LIVEMAP)return;let b=$('liveBar');if(!b){b=document.createElement('div');b.id='liveBar';document.body.appendChild(b)}
+function liveBar(){return;let b=$('liveBar');if(!b){b=document.createElement('div');b.id='liveBar';document.body.appendChild(b)}
   b.innerHTML=`<span class="dmd"></span><b>${esc(LIVEMAP.name)}</b><button id="lvX">${T('Swap back')}</button>`;b.onclick=swapSheet;$('lvX').onclick=e=>{e.stopPropagation();liveExit()}}
 if(LIVEMAP){document.body.classList.add('livedemo');setTimeout(liveBar,800);
   setInterval(()=>{const b=$('liveBar');if(!b)return;const n=$('nav');b.style.top=document.body.classList.contains('navon')&&n?Math.round(n.getBoundingClientRect().bottom+8)+'px':''},700);
@@ -3823,6 +3871,7 @@ function addSheet(tab,at){
   });
 }
 $('pinBtn').onclick=()=>addSheet('sight');
+map.on('click','tracks',e=>{const cid=e.features[0].properties.cid;if(!cid)return;const t=tracks.find(x=>x.cid===cid);if(!t)return;e.originalEvent&&(e.originalEvent._est=1);driveSummary(t,true)});
 map.on('click','sights',e=>{const s=allSights().find(x=>x.cid===e.features[0].properties.cid);if(s)showPlace(sightPlace(s))});
 map.on('click','note-dot',e=>{const n=NOTES.find(x=>x.client_id===e.features[0].properties.id);if(n){e.originalEvent&&(e.originalEvent._est=1);noteSheet(n)}});
 map.on('click','closed-roads',e=>{const r=e.features[0].properties.name;if(r){e.originalEvent&&(e.originalEvent._est=1);showPlace({kind:'road',name:r,road:r,sub:'Road'})}});
@@ -3830,7 +3879,7 @@ for(const l of ['mate-dot','mate-lbl','mate-arrow'])map.on('click',l,e=>{const i
 map.on('click','trail-line',e=>{const u=e.features[0].properties.uid;const r=LIVE[u]||{user_id:u,name:(TRAILS[u]||{}).n};e.originalEvent&&(e.originalEvent._est=1);mateSheet(r)});
 map.on('click','reports',e=>{const r=allReports().find(x=>x.cid===e.features[0].properties.cid);if(r)showPlace({kind:'report',name:r.kind,sub:'Road report · '+ago(r.t)+' · '+r.by+(r.road?' · '+r.road:'')+confTxt(r)+(r.note?' · '+r.note:''),ll:r.ll,cid:r.cid,mine:r.mine})});
 map.on('click','poi',e=>{const f=e.features[0];showPlace({kind:f.properties.kind,name:f.properties.name,sub:(PKIND[f.properties.kind]||'')+(f.properties.note?' · '+f.properties.note:''),ll:f.geometry.coordinates,pid:f.properties.pid||'',base:f.properties.base||''})});
-map.on('click',e=>{if(tapGuard(e))return;const f=map.queryRenderedFeatures(e.point,{layers:['sights','reports','poi','home','trail-line','note-dot','closed-roads','mate-dot','mate-lbl','mate-arrow']});if(f.length)return;if(isAdm()){const pt=e.point;if(!map.queryRenderedFeatures([[pt.x-8,pt.y-8],[pt.x+8,pt.y+8]],{layers:['road']}).length&&(map.queryRenderedFeatures([[pt.x-8,pt.y-8],[pt.x+8,pt.y+8]],{layers:['river-water','river','river-dry']}).length||map.queryRenderedFeatures(pt,{layers:['water','pan']}).length))return}tapLater(()=>{
+map.on('click',e=>{if(tapGuard(e))return;const f=map.queryRenderedFeatures(e.point,{layers:['sights','reports','poi','home','trail-line','tracks','note-dot','closed-roads','mate-dot','mate-lbl','mate-arrow']});if(f.length)return;if(isAdm()){const pt=e.point;if(!map.queryRenderedFeatures([[pt.x-8,pt.y-8],[pt.x+8,pt.y+8]],{layers:['road']}).length&&(map.queryRenderedFeatures([[pt.x-8,pt.y-8],[pt.x+8,pt.y+8]],{layers:['river-water','river','river-dry']}).length||map.queryRenderedFeatures(pt,{layers:['water','pan']}).length))return}tapLater(()=>{
   const ll=e.lngLat.toArray();
   // on a route: tapping the map adds a sighting there without moving the map or stopping the route
   if(nav){if(DM.on){demoTapSheet(ll);return}addSheet('sight',ll);return}
@@ -3875,6 +3924,79 @@ map.on('click',e=>{if(!isAdm()||tapGuard(e))return;const pt=e.point,box=[[pt.x-8
   const r=map.queryRenderedFeatures(box,{layers:['river-water','river','river-dry']})[0]||map.queryRenderedFeatures(pt,{layers:['water','pan']})[0];if(!r)return;
   e.originalEvent&&(e.originalEvent._est=1);const rid=r.layer.id==='water'||r.layer.id==='pan'?DAMID(r):r.properties.rid;if(!rid)return;e._river=1;drySheet(rid,e.lngLat.toArray())});
 
+
+/* ============ v110: your character, your car, your colours, profiles ============ */
+const CHARS=['Lion','Leopard','Elephant','Rhino','Cheetah','Wild dog','Hippo','Buffalo','Hyena','Giraffe','Zebra','Kudu'];
+let MYAV=LS.get('avatar',null);
+const ADMIN_BADGE=`<span class="admb" title="Admin"><svg viewBox="0 0 24 24"><path d="M12 2l8 3v6c0 5-3.4 9.3-8 11-4.6-1.7-8-6-8-11V5z" fill="#1e8e3e"/><path d="M8 12l3 3 5-6" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>`;
+const badgeFor=r=>r==='admin'?ADMIN_BADGE:'';
+function avatarHtml(av,name,size,uid){size=size||36;if(av&&CHARS.includes(av))return `<span class="avc" style="width:${size}px;height:${size}px">${AN(av,size)}</span>`;
+  return `<span class="poa" style="width:${size}px;height:${size}px;background:${mateCol(uid||name||'x')}">${iniOf(name)}</span>`}
+/* the car on the map */
+const CAR_OPTS=[['arrow','Arrow'],['cruiser','Game cruiser'],['truck','Safari truck'],['buggy','Buggy']];
+const ME_COLS=['#ffc23d','#3a7d44','#f4f1ea','#c8a46a','#c0392b','#1a73e8'];
+const ROUTE_COLS=['#4285f4','#34a853','#f29900','#8e24aa','#ea4335'];
+const TRAIL_COLS=['#8e24aa','#e8710a','#1e8e3e','#d93025','#1967d2'];
+function carSvg(kind,col){col=col||'#ffc23d';const dk='#1d1406',seat='#5a3d22';
+  if(kind==='cruiser')return `<svg class="chev car" viewBox="0 0 52 64"><rect x="9" y="8" width="4" height="10" rx="1.5" fill="#222"/><rect x="39" y="8" width="4" height="10" rx="1.5" fill="#222"/><rect x="9" y="42" width="4" height="10" rx="1.5" fill="#222"/><rect x="39" y="42" width="4" height="10" rx="1.5" fill="#222"/>
+    <rect x="12" y="3" width="28" height="54" rx="7" fill="${col}" stroke="${dk}" stroke-width="2.5"/><rect x="15" y="17" width="22" height="3" rx="1.5" fill="${dk}"/>
+    <rect x="15" y="23" width="22" height="6" rx="2" fill="${seat}"/><rect x="15" y="33" width="22" height="6" rx="2" fill="${seat}"/><rect x="15" y="43" width="22" height="6" rx="2" fill="${seat}"/>
+    <path d="M13 21h26M13 31h26M13 41h26" stroke="${dk}" stroke-width="1.3" opacity=".7"/><circle cx="26" cy="60" r="4" fill="#222" stroke="${dk}"/></svg>`;
+  if(kind==='truck')return `<svg class="chev car" viewBox="0 0 52 64"><rect x="9" y="8" width="4" height="10" rx="1.5" fill="#222"/><rect x="39" y="8" width="4" height="10" rx="1.5" fill="#222"/><rect x="9" y="43" width="4" height="11" rx="1.5" fill="#222"/><rect x="39" y="43" width="4" height="11" rx="1.5" fill="#222"/>
+    <rect x="12" y="3" width="28" height="57" rx="6" fill="${col}" stroke="${dk}" stroke-width="2.5"/><rect x="15" y="15" width="22" height="5" rx="2" fill="#2b3a44"/><rect x="14" y="22" width="24" height="35" rx="3" fill="#d9c9a3" stroke="${dk}" stroke-width="1.5"/><path d="M14 30h24M14 38h24M14 46h24" stroke="#a8946a" stroke-width="1.5"/></svg>`;
+  if(kind==='buggy')return `<svg class="chev car" viewBox="0 0 52 64"><rect x="6" y="10" width="8" height="13" rx="3" fill="#222"/><rect x="38" y="10" width="8" height="13" rx="3" fill="#222"/><rect x="5" y="40" width="9" height="15" rx="3" fill="#222"/><rect x="38" y="40" width="9" height="15" rx="3" fill="#222"/>
+    <path d="M17 8h18l3 14v26l-4 8H18l-4-8V22z" fill="${col}" stroke="${dk}" stroke-width="2.5" stroke-linejoin="round"/><rect x="18" y="26" width="16" height="16" rx="3" fill="none" stroke="${dk}" stroke-width="2.5"/><rect x="20" y="29" width="5" height="7" rx="1.5" fill="${seat}"/><rect x="27" y="29" width="5" height="7" rx="1.5" fill="${seat}"/></svg>`;
+  return `<svg class="chev" viewBox="0 0 52 56"><path d="M26 3 L47 50 L26 39 L5 50 Z" fill="${col}" stroke="${col==='#f4f1ea'?'#1d1406':'#fff'}" stroke-width="3.5" stroke-linejoin="round"/></svg>`}
+function applyMe(){try{const old=meEl.querySelector('.chev');const w=document.createElement('div');w.innerHTML=carSvg(CARICON,MECOL);const n=w.firstChild;if(old)old.replaceWith(n);else meEl.appendChild(n);meEl.classList.toggle('iscar',CARICON!=='arrow')}catch(e){}}
+function applyColours(){if(!mapReady)return;const sh=(h,f)=>{const n=parseInt(h.slice(1),16),c=[n>>16,n>>8&255,n&255].map(v=>Math.max(0,Math.min(255,Math.round(f<0?v*(1+f):v+(255-v)*f))));return '#'+c.map(v=>v.toString(16).padStart(2,'0')).join('')};
+  try{map.setPaintProperty('route','line-color',ROUTECOL);map.setPaintProperty('route-case','line-color',sh(ROUTECOL,-.32));map.setPaintProperty('route-glow','line-color',ROUTECOL);map.setPaintProperty('route-core','line-color',sh(ROUTECOL,.55));map.setPaintProperty('rtick-dot','circle-stroke-color',ROUTECOL)}catch(e){}refreshOverlays()}
+applyMe();
+/* the welcome steps (new people) and the "make it yours" screens (everyone, once) */
+function obStep(n,of,title,body,btns,after){openSheet(`<div class="obdots">${Array.from({length:of},(_,i)=>`<i class="${i<n?'on':''}"></i>`).join('')}</div><h2>${title}</h2>${body}<div class="row" style="margin-top:16px">${btns}</div>`,after)}
+function welcomeFlow(){if(!Cloud.member)return;const inst=!isStandalone(),ios=/iPhone|iPad/.test(navigator.userAgent);
+  // 1. Home Screen (skipped if it's already the Home Screen app)
+  if(inst&&!LS.get('obHome',false)){obStep(1,3,T('Add the map to your Home Screen'),`<div class="sub" style="margin-top:6px">${T('It opens like a normal app and works with no signal.')}</div><div class="prof perm" style="margin-top:12px">${(ios?[['1',T('Tap the Share button'),T('The square with the arrow, at the bottom of Safari')],['2',T('Tap Add to Home Screen'),T('Scroll down a little if you don\'t see it')],['3',T('Tap Add, then open the map from the new icon'),T('You stay signed in')]]:[['1',T('Tap the ⋮ menu'),T('Top right of Chrome')],['2',T('Tap Install app or Add to Home screen'),''],['3',T('Open the map from the new icon'),T('You stay signed in')]]).map(([a,b,c])=>`<div class="pr"><span class="stn">${a}</span><div>${b}<small>${c}</small></div></div>`).join('')}</div>`,
+    `<button class="btn" id="obSkip">${T('Later')}</button><button class="btn pri" id="obDone">${T("I've done it")}</button>`,()=>{$('obSkip').onclick=()=>{LS.set('obHome',true);welcomeFlow()};$('obDone').onclick=()=>{LS.set('obHome',true);if(ios){toast(T('Now open the map from the new icon'),4000);closeSheet()}else welcomeFlow()}});return}
+  // 2. download the map
+  if(!LS.get('offline',null)&&!LS.get('obDlSkip',false)){obStep(2,3,T('Download the map'),`<div class="sub" style="margin-top:6px">${T('The satellite photos, terrain and the app for the whole reserve, about 30 to 60 MB. Use Wi-Fi if you can.')}</div><div class="bar" id="dlBar" style="width:100%;margin-top:14px;display:none"><i id="dlFill"></i></div><div class="sub" id="dlTxt" style="margin-top:8px"></div>`,
+    `<button class="btn" id="obSkip">${T('Later')}</button><button class="btn pri" id="obDl">${T('Download map')}</button>`,()=>{$('obSkip').onclick=()=>{LS.set('obDlSkip',true);welcomeFlow()};
+      $('obDl').onclick=async()=>{if(!navigator.onLine){toast(T('No signal right now. Try again with Wi-Fi or signal.'));return}const b=$('obDl');b.disabled=true;b.textContent=T('Downloading...');$('dlBar').style.display='block';
+        const r=await downloadOffline((d,n,by)=>{const f=$('dlFill');if(f)f.style.width=Math.round(d/n*100)+'%';const x=$('dlTxt');if(x)x.textContent=Math.round(d/n*100)+'% · '+(by/1048576).toFixed(1)+' MB'});
+        if(r.n>r.total*.95){LS.set('onboarded',true);const x=$('dlTxt');if(x)x.textContent=T('Map downloaded. You can use it offline now.');b.textContent=T('Next');b.disabled=false;b.onclick=()=>welcomeFlow()}
+        else{b.disabled=false;b.textContent=T('Try again');const x=$('dlTxt');if(x)x.textContent=T('Some of it didn\'t download. The signal may have dropped, tap Try again.')}}});return}
+  LS.set('onboarded',true);
+  // 3. make it yours
+  if(!LS.get('custDone',false))custFlow(0)}
+function custFlow(step){const total=5;const pg=(n,title,sub,body,bind)=>{openSheet(`<div class="obdots">${Array.from({length:total},(_,i)=>`<i class="${i<=n?'on':''}"></i>`).join('')}</div><h2>${title}</h2><div class="sub" style="margin-top:4px">${sub}</div>${body}
+    <div class="row" style="margin-top:16px">${n>0?`<button class="btn" id="cuBack">${T('Back')}</button>`:''}<button class="btn pri" id="cuNext">${n===total-1?T('Done'):T('Next')}</button></div>`,()=>{if($('cuBack'))$('cuBack').onclick=()=>custFlow(n-1);bind&&bind()})};
+  const pick=(sel,fn)=>document.querySelectorAll(sel).forEach(b=>b.onclick=()=>{document.querySelectorAll(sel).forEach(x=>x.classList.remove('sel'));b.classList.add('sel');fn(b.dataset.v)});
+  if(step===0){pg(0,T('Make it yours'),T('Pick how the map looks. You can change it any time in Layers.'),`<div class="cuopt">${[['sat',T('Satellite'),T('Real photos of the reserve')],['map',T('Map'),T('Clean map with the bush drawn in')]].map(([v,a,b])=>`<button class="cuo${mode===v?' sel':''}" data-v="${v}" data-cm><b>${a}</b><small>${b}</small></button>`).join('')}</div>`,
+      ()=>{pick('[data-cm]',v=>{mode=v;LS.set('mode',v);applyMode()});$('cuNext').onclick=()=>custFlow(1)});return}
+  if(step===1){const nm=Cloud.member&&Cloud.member.name||'';pg(1,T('Your character'),T('Pick an animal. It shows next to your name on the map and in the Feed. Each animal has its own colour.'),
+      `<div class="cuname">${avatarHtml(MYAV,nm,44)}<div><b>${esc(nm)}</b>${badgeFor(Cloud.member&&Cloud.member.role)}<small>${T('Your name can\'t be changed')}</small></div></div><div class="qsg">${CHARS.map(a=>`<button class="${MYAV===a?'sel':''}" data-v="${esc(a)}" data-ch>${AN(a,40)}<span>${esc(T(a))}</span></button>`).join('')}</div>`,
+      ()=>{pick('[data-ch]',v=>{MYAV=v;LS.set('avatar',v);const c=document.querySelector('.cuname');if(c)c.firstChild.outerHTML=avatarHtml(v,nm,44)});$('cuNext').onclick=()=>{if(!MYAV){toast(T('Pick your animal first'));return}saveAvatar();custFlow(2)}});return}
+  if(step===2){pg(2,T('Your car on the map'),T('This is you while you drive.'),`<div class="cuopt c4">${CAR_OPTS.map(([v,a])=>`<button class="cuo${CARICON===v?' sel':''}" data-v="${v}" data-car><span class="cucar">${carSvg(v,MECOL)}</span><b>${T(a)}</b></button>`).join('')}</div><div class="msec" style="margin-top:12px">${T('Colour')}</div><div class="swat">${ME_COLS.map(c=>`<button class="${MECOL===c?'sel':''}" data-v="${c}" data-mc style="background:${c}"></button>`).join('')}</div>`,
+      ()=>{pick('[data-car]',v=>{CARICON=v;LS.set('carIcon',v);applyMe()});pick('[data-mc]',v=>{MECOL=v;LS.set('meCol',v);applyMe();document.querySelectorAll('[data-car]').forEach(b=>{b.querySelector('.cucar').innerHTML=carSvg(b.dataset.v,MECOL)})});$('cuNext').onclick=()=>custFlow(3)});return}
+  if(step===3){pg(3,T('Your colours'),T('The line you follow, and the line your recorded drives leave behind.'),`<div class="msec" style="margin-top:12px">${T('Route')}</div><div class="swat">${ROUTE_COLS.map(c=>`<button class="${ROUTECOL===c?'sel':''}" data-v="${c}" data-rc style="background:${c}"></button>`).join('')}</div><div class="msec" style="margin-top:12px">${T('Your drive trail')}</div><div class="swat">${TRAIL_COLS.map(c=>`<button class="${TRAILCOL===c?'sel':''}" data-v="${c}" data-tc style="background:${c}"></button>`).join('')}</div>`,
+      ()=>{pick('[data-rc]',v=>{ROUTECOL=v;LS.set('routeCol',v);applyColours()});pick('[data-tc]',v=>{TRAILCOL=v;LS.set('trailCol',v);applyColours()});$('cuNext').onclick=()=>custFlow(4)});return}
+  if(step===4){pg(4,T('Voice'),T('Spoken directions on a route.'),`<div class="cuopt">${[['on',T('On'),T('Turn by turn, 50 m before each turn')],['alerts',T('Alerts only'),T('Turns and warnings, nothing else')],['off',T('Off'),T('Silent')]].map(([v,a,b])=>`<button class="cuo${VMODE===v?' sel':''}" data-v="${v}" data-vm><b>${a}</b><small>${b}</small></button>`).join('')}</div>`,
+      ()=>{pick('[data-vm]',v=>setVMode(v));$('cuNext').onclick=()=>{LS.set('custDone',true);closeSheet();toast(T('All set. Enjoy the drive'),3000)}});return}}
+async function saveAvatar(){if(!MYAV||!Cloud.member||!navigator.onLine){LS.set('avPending',!!MYAV);return}try{await rpc('set_avatar',{p_avatar:MYAV});LS.set('avPending',false)}catch(e){LS.set('avPending',true)}}
+async function syncProfile(){if(!Cloud.member||!navigator.onLine)return;try{if(LS.get('avPending',false))await saveAvatar();const r=await rpc('my_profile',{});if(r&&r.name){if(Cloud.member.name!==r.name){Cloud.member.name=r.name;saveCloud()}if(r.avatar&&r.avatar!==MYAV){MYAV=r.avatar;LS.set('avatar',r.avatar)}}}catch(e){}}
+setTimeout(syncProfile,5000);setInterval(syncProfile,10*6e4);
+/* everyone who hasn't been through it yet (new and current users) sees it once, never while driving */
+function custPop(){if(!Cloud.member||!$('gate').classList.contains('hide')||$('sheet').classList.contains('open'))return;if(!LS.get('custDone',false)||!LS.get('onboarded',false))welcomeFlow()}
+setTimeout(()=>custPop(),4000);
+/* a person's profile */
+async function profileSheet(uid,fallbackName){if(!uid)return;openSheet(`<div class="sub" style="padding:30px 0;text-align:center">${T('Loading...')}</div>`);
+  let p=null;try{p=await rpc('profile',{p_user:uid})}catch(e){}
+  if(!p||p.gone){openSheet(`<h2>${esc(fallbackName||T('Someone'))}</h2><div class="sub">${navigator.onLine?T('This person is no longer on the map.'):T('You need signal to see profiles.')}</div>`);return}
+  const role=p.role==='admin'?`<span class="tag t-admin">${T('Admin')}</span>`:p.role==='guest'?`<span class="tag t-guest">${T('Guest')}</span>`:`<span class="tag t-owner">${T('Owner')}</span>`;
+  const gl=p.role==='guest'?`<div class="sub" style="margin-top:6px">${p.invited_by?T('Guest of')+' '+esc(p.invited_by)+' · ':''}${p.active?T('Access until')+' '+esc(new Date(p.expires_at).toLocaleString([],{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})):T('Access ended')+(p.expires_at?' '+esc(new Date(p.expires_at).toLocaleDateString([],{day:'numeric',month:'short'})):'')}</div>`:'';
+  const R=p.recent||[];
+  openSheet(`<div class="prh">${avatarHtml(p.avatar,p.name,72,uid)}<div><h2 style="margin:0">${esc(p.name)} ${badgeFor(p.role)}</h2><div style="margin-top:4px">${role} <small class="sub">${p.sightings||0} ${T('sightings')}</small></div></div></div>${gl}
+   <div class="msec" style="margin-top:14px">${T('Recent')}</div><div class="prof">${R.length?R.map(x=>`<div class="pr"><span>${x.w?AN(x.w,30):LI('msg',20)}</span><div>${x.k==='s'?esc(T('Spotted')+' '+(x.w?T(x.w).toLowerCase():'')):esc(T('Posted'))}${x.s?`<small style="white-space:normal">"${esc(x.s.length>140?x.s.slice(0,140)+'…':x.s)}"</small>`:''}<small>${esc(ago(Date.parse(x.t)))}</small></div></div>`).join(''):`<div class="pr"><span>${LI('scope',20)}</span><div>${T('Nothing yet')}</div></div>`}</div>`)}
+
 /* ============ menu ============ */
 const MI=(id,icon,t,s)=>`<button class="mi" id="${id}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${icon}</svg><span>${t}${s?`<small>${s}</small>`:''}</span></button>`;
 const fmtExp=t=>new Date(t).toLocaleString([],{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
@@ -3886,7 +4008,7 @@ $('menuBtn').onclick=()=>{
   const m=Cloud.member,t0=new Date();t0.setHours(0,0,0,0);const today=rawSights().filter(x=>x.t>=+t0&&!x.still).length,now=allSights().length;
   const owner=m&&m.role!=='guest',unread=ANN.filter(a=>!annSeen.has(a.client_id)).length,wx=WX&&wxNear();
   const role=m?(m.role==='admin'?'<span class="tag t-admin">Admin</span>':m.role==='guest'?'<span class="tag t-guest">Guest</span>':'<span class="tag t-owner">Owner</span>'):'';
-  openSheet(`<div class="mhead"><div class="mav av-${(m&&m.role)||'owner'}">${esc(((m&&m.name)||'?').trim()[0]||'?').toUpperCase()}</div><div class="mt"><b>${m?esc(m.name):'Not signed in'}</b> ${role}<small>${esc(cloudStatus())}</small></div>
+  openSheet(`<div class="mhead"><span id="mAv" style="display:flex;cursor:pointer">${MYAV?avatarHtml(MYAV,m&&m.name,48):`<div class="mav av-${(m&&m.role)||'owner'}">${esc(((m&&m.name)||'?').trim()[0]||'?').toUpperCase()}</div>`}</span><div class="mt"><b>${m?esc(m.name):'Not signed in'}${badgeFor(m&&m.role)}</b> ${role}<small>${esc(cloudStatus())}</small></div>
     <button class="mset" id="mSet" aria-label="Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1A1.7 1.7 0 0 0 4.6 9a1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button></div>
    ${tallyHtml(true)}
    <button class="mfeed" id="tFeed"><span class="mfi">${LI('msg',22)}</span><div><b>Feed</b><small>Posts, photos and videos from everyone on the reserve</small></div><span class="ar">›</span></button>
@@ -3909,7 +4031,7 @@ $('menuBtn').onclick=()=>{
    </div>
    ${m&&!m.locked?'<button class="mout" id="mOut">Sign out</button>':''}`,()=>{
     $('mSet').onclick=()=>settingsSheet();
-    $('tSight').onclick=()=>sightHub();$('tFeed').onclick=()=>feedHome();
+    $('tSight').onclick=()=>sightHub();$('tFeed').onclick=()=>feedHome();if($('mAv'))$('mAv').onclick=()=>custFlow(1);
     $('tRec').onclick=()=>{closeSheet();toggleRec()};
     $('tBest').onclick=()=>bestSheet();
     if($('tAnn'))$('tAnn').onclick=()=>{loadAnn();annSheet()};
@@ -3942,11 +4064,12 @@ function settingsSheet(){const m=Cloud.member;const notif='Notification' in wind
    <div class="list sgroup">${TG('sRedAuto','Red screen every night','Keeps your night vision. On after sunset, off at sunrise',redAuto)}${TG('sRed','Red screen now','',redOn)}</div>
    ${m?`<div class="msec">Alerts</div><div class="list sgroup">${TG('sAlert','New sighting alerts','Pop-up when someone else marks a sighting',alertOn)}${LK('sAW','Which animals alert me','',esc(alertWhatTxt()))}${TG('sSound','Alert sound','A bing with each alert',alertSound)}${TG('sQuiet','Quiet hours','No alert sounds or pop-ups from '+QUIET.from+' to '+QUIET.to+' unless you are out driving. SOS always comes through.',quietOn)}${notif?LK('sNotif','Phone notifications','Also alert you while the app is in the background','Turn on'):''}</div>`:''}
    <div class="msec">Location</div>${MS.admin_sees_all?'<div class="sub" style="margin:-4px 2px 8px;font-size:12.5px">'+LI('eye',12)+' Admins can see your car while you drive on the reserve, even with sharing off. Your home stays hidden.</div>':''}<div class="list sgroup">${m?LK('sLive','Share live location','',shareLoc?'On':'Off'):''}${LK('sHome','Home point','',home?'Set':'Not set')}${LK('sCal','Calibrate GPS','If your dot sits next to the road',calib[0]||calib[1]?'Active':'')}${isIOS?LK('sLoc','Stop the location question','If the map asks for your location every time',''):''}</div>
-   <div class="msec">Driving</div>${MS.rules&&MS.rules.lock?'<div class="sub" style="margin:-4px 2px 8px;font-size:12.5px">'+LI('lock',12)+' Speed warning, quiet hours and sunset reminder are set by an admin for everyone</div>':''}<div class="list sgroup">${TG('sSpd','Speed warning','Red alert over '+SPEED_LIMIT+' km/h on the reserve',speedWarn)}${TG('sSun','Sunset reminder',(SUNMIN===60?'1 hour':SUNMIN+' minutes')+' before sunset if you are still out and far from home',sunRemind)}${LK('sFocus','Focus mode','Only what you need on the map while you drive',{drive:'When driving',on:'Always',off:'Off'}[FOCUSM])}${TG('sSpot','Spotify button','Music controls on the map. Off unless you want them',SPOTON)+TG('sAutoRec','Record every drive','Saves each drive by itself with distance, top speed and the animals you saw',AUTOREC)}${TG('sTop','Top-down view at turns','From 100 m before a turn the map goes flat so you can see which way to go',TOPTURN)}${TG('sNorth','Keep north up while driving','The map stays north-up instead of turning with you',NORTHUP)}${TG('sSpdo','Show speedometer','',SHOWSPD)}${TG('sAwake','Keep screen on while driving','',KEEPAWAKE)}${TG('sAvoid','Avoid rough tracks','Routes stay on the main roads when there is another way',AVOIDTRK)}</div><div class="msec">Voice directions</div>${vmSeg('sVm')}<div class="sub" style="margin:6px 2px 4px;font-size:12.5px">Alerts only speaks at the turn itself and for gates, stops and rerouting</div>
+   <div class="msec">Driving</div>${MS.rules&&MS.rules.lock?'<div class="sub" style="margin:-4px 2px 8px;font-size:12.5px">'+LI('lock',12)+' Speed warning, quiet hours and sunset reminder are set by an admin for everyone</div>':''}<div class="list sgroup">${TG('sSpd','Speed warning','Red alert over '+SPEED_LIMIT+' km/h on the reserve',speedWarn)}${TG('sSun','Sunset reminder',(SUNMIN===60?'1 hour':SUNMIN+' minutes')+' before sunset if you are still out and far from home',sunRemind)}${LK('sFocus','Focus mode','Only what you need on the map while you drive',{drive:'When driving',on:'Always',off:'Off'}[FOCUSM])}${TG('sSpot','Spotify button','Music controls on the map. Off unless you want them',SPOTON)+TG('sAutoRec','Record every drive','Starts when you leave home, keeps going through routes and stops, and finishes when you get home',AUTOREC)}${TG('sTop','Top-down view at turns','From 100 m before a turn the map goes flat so you can see which way to go',TOPTURN)}${TG('sNorth','Keep north up while driving','The map stays north-up instead of turning with you',NORTHUP)}${TG('sSpdo','Show speedometer','',SHOWSPD)}${TG('sAwake','Keep screen on while driving','',KEEPAWAKE)}${TG('sAvoid','Avoid rough tracks','Routes stay on the main roads when there is another way',AVOIDTRK)}</div><div class="msec">Voice directions</div>${vmSeg('sVm')}<div class="sub" style="margin:6px 2px 4px;font-size:12.5px">Alerts only speaks at the turn itself and for gates, stops and rerouting</div>
    ${m?`<div class="msec">Account</div><div class="list sgroup">${Cloud.sess&&Cloud.sess.uid?`<button class="it lk" id="sUid"><div style="flex:1;min-width:0"><b>Account ID</b><br><small class="mono" data-notr style="word-break:break-all;font-size:12px">${esc(Cloud.sess.uid)}</small><br><small>The same ID Supabase shows for you · tap to copy</small></div></button>`:''}${m.role!=='guest'?LK('sRec','Recovery code','Get your exact account back on any phone, even if you are signed out','','key','#1f4d36'):''}</div>`:''}
+   <div class="msec">Make it yours</div><div class="list sgroup">${LK('sCust',T('Character, car and colours'),T('Your animal, your car on the map, route and trail colours, voice'),'','star','#e37400')}</div>
    <div class="msec">Map data</div><div class="list sgroup">${LK('sOff','Offline map','',esc(offlineStatus()))}${m?LK('sShare','Sharing status',shareStatus(),''):''}${m&&m.role==='admin'?LK('sUpd','Require everyone to update','Version '+APP_BUILD,''):''}</div>
    ${m&&!m.locked?'<button class="mout" id="sOut">Sign out</button>':''}<div class="sub" style="text-align:center;font-size:11.5px;margin-top:10px">Khaya Ndlovu game drive map · version ${APP_BUILD}</div>`,()=>{
-    if($('sRec'))$('sRec').onclick=()=>recSheet();
+    if($('sRec'))$('sRec').onclick=()=>recSheet();if($('sCust'))$('sCust').onclick=()=>custFlow(0);
     if($('sUid'))$('sUid').onclick=async()=>{const u=Cloud.sess.uid;try{await navigator.clipboard.writeText(u)}catch(e){fallbackCopy(u)}toast('Account ID copied')};
     document.querySelectorAll('[data-lg]').forEach(b=>b.onclick=()=>{if(b.dataset.lg===LANG)return;LS.set('lang',b.dataset.lg);toast(b.dataset.lg==='af'?'Afrikaans...':'English...');setTimeout(()=>location.reload(),300)});
     const tg=(id,fn)=>{const b=$(id);if(b)b.onclick=()=>{fn();b.classList.toggle('on')}};
@@ -4417,9 +4540,8 @@ function passCard(m){const r=m.role||'owner',id='KN-'+(hash32((m.uid||'')+m.name
    <div class="pm"><div><small>Access</small><b>${r==='guest'&&m.exp?'Until '+esc(fmtExp(m.exp)):'Never expires'}</b></div><div><small>Pass</small><b class="mono">${id}</b></div></div>
    <div class="pf"><span>${LI('shield',13)} Verified member</span><span class="pfr">${r==='guest'?'Guest of the reserve':'Khaya Ndlovu Safari Manor'}</span></div></div>`}
 function ticketCard(G){const k=G.kind||'guest';
-  return `<div class="tix t-k-${k}"><div class="tl"><span class="tk">${k==='guest'?'Guest':k==='admin'?'Admin':'Owner'}<br>pass</span><span class="tp">${LI('paw',16)}</span></div>
-   <div class="tr"><small>${G.label?esc(G.label):'Khaya Ndlovu game drive map'}</small><b class="mono">${esc(G.code)}</b>
-   <small>${k==='guest'?'One person · valid until '+esc(fmtExp(G.exp)):'One-time invite · never expires once used'}</small></div></div>`}
+  // just the facts, no ticket card
+  return `<div class="sub" style="margin-top:8px;text-align:left">${k==='guest'?'Guest code':k==='admin'?'Admin invite':'Owner invite'} <b class="mono">${esc(G.code)}</b> · ${k==='guest'?'valid until '+esc(fmtExp(G.exp)):'works once'}</div>`}
 function sendGuest(G,fromList){const wa=guestMsg(G,true),sms=guestMsg(G,false),back=fromList?()=>guestSheet():null;
   const row=(tag,attrs,ic,bg,t,sub)=>`<${tag} class="it shr" ${attrs}><span class="si" style="${bg}">${ic}</span><div style="flex:1;min-width:0"><b>${t}</b><br><small>${sub}</small></div><span class="ar">›</span></${tag}>`;
   openSheet(`<h2>Send ${G.kind&&G.kind!=='guest'?(G.kind==='admin'?'admin':'owner')+' invite':'guest pass'}</h2><div class="sub">They tap the link, type their name and they're in. The code works once.</div>${ticketCard(G)}
@@ -4515,13 +4637,15 @@ function cloudSheetOld(){
   });
 }
 function toggleRec(){if(DM.on&&!recTrack){toast('Drive recording is off in demo mode');return}
-  if(recTrack){if(recTrack.pts.length>2){const t={cid:cidNew(),name:'Drive '+new Date(recTrack.t).toLocaleString([], {day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}),pts:recTrack.pts,len:recTrack.len,t:recTrack.t,top:recTrack.top||0,over:Math.round(recTrack.over||0)};t.end=Date.now();tracks.unshift(t);LS.set('tracks',tracks);queue({op:'add',t:'drives',row:driveRow(t)});setTimeout(()=>driveSummary(t),300)}else toast('Recording stopped');recTrack=null;LS.set('rec',null);$('rec').classList.add('hide')}
+  if(recTrack){if(recTrack.pts.length>2){const t={cid:cidNew(),name:'Drive '+new Date(recTrack.t).toLocaleString([], {day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}),pts:recTrack.pts,len:recTrack.len,t:recTrack.t,top:recTrack.top||0,over:Math.round(recTrack.over||0),stops:(recTrack.stops||[]).filter(s=>s.end-s.t>=3*6e4)};t.end=Date.now();tracks.unshift(t);LS.set('tracks',tracks);queue({op:'add',t:'drives',row:driveRow(t)});setTimeout(()=>driveSummary(t),300)}else toast('Recording stopped');recTrack=null;LS.set('rec',null);$('rec').classList.add('hide')}
   else{recTrack={pts:[],len:0,t:Date.now()};if(me)recTrack.pts.push(me.ll);LS.set('rec',recTrack);$('rec').classList.remove('hide');$('recInfo').textContent='';toast('Recording your drive')}
   refreshOverlays();
 }
-function tracksSheet(){return `<h2>My drives</h2><div class="sub">${Cloud.member?'Drives upload automatically so new roads can be added to the map.':'Send a drive to whoever looks after this map so new roads can be added.'}</div><div class="list">${tracks.map((t,i)=>`<div class="it"><div><b>${esc(t.name)}</b><br><small>${fmtD(t.len)}</small></div><button class="sm" data-v="${i}">View</button><button class="sm" data-x="${i}">Send</button><button class="sm red" data-d="${i}">✕</button></div>`).join('')||'<div class="it"><small>No drives yet. Use Record a drive.</small></div>'}</div>`}
+function pruneTracks(){const cut=Date.now()-60*864e5;const n=tracks.length;tracks=tracks.filter(t=>(t.end||t.t)>cut);if(tracks.length!==n)LS.set('tracks',tracks)}
+function tracksSheet(){pruneTracks();return `<h2>My drives</h2><div class="sub">${T('Drives show on the map for a day, then stay here for 60 days. Tap Show to put any drive back on the map in its own colour.')}</div><div class="list">${tracks.map((t,i)=>`<div class="it"><div><b>${esc(t.name)}</b><br><small>${fmtD(t.len)}</small></div><button class="sm${SHOWDRV.has(t.cid)?' on':''}" data-show="${i}" style="${SHOWDRV.has(t.cid)?'background:'+DRV_COL[i%DRV_COL.length]+';color:#fff':''}">${SHOWDRV.has(t.cid)?'On map':'Show'}</button><button class="sm" data-v="${i}">View</button><button class="sm" data-x="${i}">Send</button><button class="sm red" data-d="${i}">✕</button></div>`).join('')||'<div class="it"><small>No drives yet. Use Record a drive.</small></div>'}</div>`}
 function bindTracks(){
   document.querySelectorAll('[data-v]').forEach(b=>b.onclick=()=>driveSummary(tracks[+b.dataset.v],true));
+  document.querySelectorAll('[data-show]').forEach(b=>b.onclick=()=>{const t=tracks[+b.dataset.show];if(!t)return;if(!t.cid){t.cid=cidNew();LS.set('tracks',tracks)}SHOWDRV.has(t.cid)?SHOWDRV.delete(t.cid):SHOWDRV.add(t.cid);LS.set('showDrv',[...SHOWDRV]);refreshOverlays();openSheet(tracksSheet(),bindTracks)});
   document.querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>{const t=tracks.splice(+b.dataset.d,1)[0];LS.set('tracks',tracks);if(t&&t.cid)queue({op:'del',t:'drives',id:t.cid});refreshOverlays();openSheet(tracksSheet(),bindTracks)});
   document.querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>exportTrack(tracks[+b.dataset.x]));
 }
@@ -4853,7 +4977,7 @@ function roleSheet(then){const m=Cloud.member;if(!m){then&&then();return}const r
 }
 const needRole=()=>Cloud.member&&LS.get('roleSeen','')!==(Cloud.member.role||'owner');
 function afterGate(){if(needRole()){roleSheet(()=>afterGate2());return}afterGate2()}
-function afterGate2(){if(!LS.get('onboarded',false)||!LS.get('offline',null))setTimeout(()=>offlineSheet(!LS.get('onboarded',false)),400)}
+function afterGate2(){setTimeout(()=>custPop(),600)}
 {const n=new URLSearchParams(location.search).get('n');if(n&&$('gName')&&!$('gName').value)$('gName').value=n.slice(0,40)}
 {const q=new URLSearchParams(location.search).get('guest');if(q){try{history.replaceState(null,'',location.pathname)}catch(e){}if(needGate()){$('gCode').value=q.toUpperCase().slice(0,12);setTimeout(()=>{try{$('gName').focus()}catch(e){}},600)}}}
 /* iPhone Home Screen apps can't see the Safari login. After signing in, the Safari link carries a one-time pass (?resume=),
@@ -4945,7 +5069,7 @@ function finishBoot(fix){
   // fly-in: start high over the reserve, slightly rotated, then sweep down
   map.jumpTo({center:map.getCenter(),zoom:Math.max(11,map.getZoom()-1.2),bearing:-28});
   $('splash').classList.add('out');
-  if(!needGate()&&(!LS.get('onboarded',false)||(!LS.get('offline',null)&&!LS.get('obNag',0))))setTimeout(()=>{LS.set('obNag',1);offlineSheet(!LS.get('onboarded',false))},2900);
+  if(!needGate())setTimeout(()=>custPop(),2900);
   if(Cloud.member)sync();setTimeout(()=>{const sp=$('splash');if(sp)sp.remove()},1400);
   if(fix&&inReserve(me.ll)){map.flyTo({center:me.ll,zoom:16,bearing:0,duration:2600,curve:1.6,essential:true});setTimeout(()=>setFollow(1),2700)}
   else{setFollow(0);if(CAM0)map.flyTo({center:CAM0.c,zoom:CAM0.z,bearing:0,duration:2200,essential:true});else map.fitBounds(RES_BOUNDS,{padding:40,bearing:0,duration:2200});if(fix)toast(CAM0?"You're outside "+AREA_NAME+", back where you were looking":"You're outside the reserve, showing the whole map",3500)}

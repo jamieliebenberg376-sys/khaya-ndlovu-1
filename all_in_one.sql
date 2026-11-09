@@ -2008,12 +2008,13 @@ grant execute on function public.delete_comment(text) to authenticated;
 
 -- the feed: sightings and posts together, newest first, with likes, comment count and the newest comment
 drop function if exists public.feed(timestamptz, text, double precision, double precision, double precision, int);
+alter table public.members add column if not exists avatar text;
 create or replace function public.feed(p_before timestamptz default null, p_what text default null, p_lat double precision default null, p_lng double precision default null, p_km double precision default null, p_limit int default 30, p_kind text default null)
 returns json language sql stable security definer set search_path = public as $$
   select case when not public.is_member() then '[]'::json else coalesce((select json_agg(row_to_json(x) order by x.t desc) from (
     select * from (
       select 's' kind, l.client_id c, l.what w, coalesce(l.name, m.name, 'Someone') by, l.created_at t, l.story s, l.photo ph, coalesce(l.kill, false) k, l.lat, l.lng, case when l.video is not null then jsonb_build_array(jsonb_build_object('k', 'vid', 'f', l.video, 'p', l.client_id || '.jpg', 'sv', true)) else '[]'::jsonb end media,
-             l.user_id = auth.uid() mine, false can
+             l.user_id = auth.uid() mine, false can, l.user_id u, m.avatar av, m.role rl
       from public.sightings_log l left join public.members m on m.user_id = l.user_id
       where coalesce(p_kind, '') in ('', 'sight') and not l.still and l.created_at < coalesce(p_before, now() + interval '1 minute') and l.created_at > now() - interval '400 days'
         and (p_what is null or l.what = p_what)
@@ -2021,7 +2022,7 @@ returns json language sql stable security definer set search_path = public as $$
         and (public.is_admin() or l.user_id = auth.uid() or not public.kn_hidden_animal(l.what))
       union all
       select 'p', p.id, p.what, coalesce(p.name, m.name, 'Someone'), p.created_at, p.body, false, false, p.lat, p.lng, p.media,
-             p.user_id = auth.uid(), p.user_id = auth.uid() or public.is_admin()
+             p.user_id = auth.uid(), p.user_id = auth.uid() or public.is_admin(), p.user_id, m.avatar, m.role
       from public.feed_posts p left join public.members m on m.user_id = p.user_id
       where coalesce(p_kind, '') in ('', 'post', 'video') and p.created_at < coalesce(p_before, now() + interval '1 minute') and p.created_at > now() - interval '400 days'
         and (p_kind is distinct from 'video' or p.media @> '[{"k":"vid"}]'::jsonb)
@@ -2104,7 +2105,7 @@ begin
   begin delete from public.road_closures where until is not null and until < now() - interval '1 day'; exception when others then null; end;
   begin delete from public.handover where (used_at is not null and used_at < now() - interval '7 days') or created_at < now() - interval '60 days'; exception when others then null; end;
   begin insert into public.removals (user_id, name, by_name, kind, at) select user_id, name, 'System', 'expired', expires_at from public.members where role = 'guest' and expires_at < now() - interval '3 days' and not locked;
-  delete from public.members where role = 'guest' and expires_at < now() - interval '3 days'; get diagnostics n = row_count; out := out || jsonb_build_object('guests', n); exception when others then null; end;
+  delete from public.members where role = 'guest' and expires_at < now() - interval '365 days'; get diagnostics n = row_count; out := out || jsonb_build_object('guests', n); exception when others then null; end;
   begin delete from public.guest_codes g where g.expires_at < now() - interval '30 days' and not exists (select 1 from public.members m where m.code = g.code); exception when others then null; end;
   begin delete from public.sos where resolved and updated_at < now() - interval '14 days'; exception when others then null; end;
   begin delete from public.animal_misses where created_at < now() - interval '45 days'; exception when others then null; end;
@@ -2377,10 +2378,58 @@ begin
 end $$;
 grant execute on function public.set_dry(text[], boolean) to authenticated;
 
+-- ---------- PROFILES (v110) ----------
+-- everyone picks an animal character (no photos); the colour behind each animal is fixed. Names can't be changed once made.
+alter table public.members add column if not exists avatar text;
+do $$ begin
+  alter table public.members drop constraint if exists members_avatar_chk;
+  alter table public.members add constraint members_avatar_chk check (avatar is null or avatar in ('Lion','Leopard','Elephant','Rhino','Cheetah','Wild dog','Hippo','Buffalo','Hyena','Giraffe','Zebra','Kudu'));
+exception when others then null; end $$;
+create or replace function public.kn_trg_name_lock() returns trigger language plpgsql as $$
+begin
+  if old.name is not null and new.name is distinct from old.name and coalesce(current_setting('kn.rename', true), '') <> '1' then new.name := old.name; end if;
+  return new;
+end $$;
+drop trigger if exists kn_name_lock on public.members;
+create trigger kn_name_lock before update of name on public.members for each row execute function public.kn_trg_name_lock();
+create or replace function public.set_avatar(p_avatar text)
+returns void language plpgsql security definer set search_path = public as $$
+begin
+  if auth.uid() is null or not exists (select 1 from public.members where user_id = auth.uid()) then raise exception 'members only'; end if;
+  update public.members set avatar = p_avatar where user_id = auth.uid();
+end $$;
+grant execute on function public.set_avatar(text) to authenticated;
+create or replace function public.my_profile()
+returns json language sql stable security definer set search_path = public as $$
+  select json_build_object('name', m.name, 'avatar', m.avatar, 'role', m.role) from public.members m where m.user_id = auth.uid() $$;
+grant execute on function public.my_profile() to authenticated;
+-- a person's profile: who they are, guest status, and what they've posted and seen recently
+create or replace function public.profile(p_user uuid)
+returns json language plpgsql stable security definer set search_path = public as $$
+declare m public.members; g public.guest_codes;
+begin
+  if not public.is_member() then return null; end if;
+  select * into m from public.members where user_id = p_user;
+  if not found then return json_build_object('gone', true); end if;
+  select * into g from public.guest_codes where code = m.code and m.role = 'guest';
+  return json_build_object('name', m.name, 'avatar', m.avatar, 'role', m.role, 'joined_at', m.joined_at, 'me', p_user = auth.uid(),
+    'expires_at', case when m.role = 'guest' then m.expires_at end,
+    'active', m.role <> 'guest' or ((m.expires_at is null or m.expires_at > now()) and not coalesce(g.revoked, false)),
+    'invited_by', case when m.role = 'guest' then coalesce(g.created_by_name, m.invited_by) end,
+    'sightings', (select count(*) from public.sightings_log l where l.user_id = p_user and not l.still),
+    'recent', coalesce((select json_agg(x order by x.t desc) from (
+        select 's' k, l.client_id c, l.what w, l.created_at t, l.story s, l.photo ph from public.sightings_log l
+        where l.user_id = p_user and not l.still and l.created_at > now() - interval '120 days' and (public.is_admin() or l.user_id = auth.uid() or not public.kn_hidden_animal(l.what))
+        union all
+        select 'p', p.id, p.what, p.created_at, p.body, false from public.feed_posts p where p.user_id = p_user and p.created_at > now() - interval '120 days'
+        order by 4 desc limit 20) x), '[]'::json));
+end $$;
+grant execute on function public.profile(uuid) to authenticated;
+
 
 
 -- =====================================================================
--- PUSH THE UPDATE (version 109)
+-- PUSH THE UPDATE (version 110)
 -- =====================================================================
 
 alter table private.config add column if not exists min_build int not null default 0;
@@ -2450,9 +2499,9 @@ begin
 end $$;
 grant execute on function public.set_min_build(int) to authenticated;
 
--- push it now: require version 109 and post the news. It is sent by the database, not by any person.
-update private.config set min_build = 109;
-select public.kn_update_news(109);
+-- push it now: require version 110 and post the news. It is sent by the database, not by any person.
+update private.config set min_build = 110;
+select public.kn_update_news(110);
 
 notify pgrst, 'reload schema';
 
@@ -2464,7 +2513,7 @@ union all select 'Codes and logins self-test', case when (select count(*) from p
 union all select 'Protected account (9fb4d097...) locked as admin', case when exists (select 1 from public.members where locked and role = 'admin') then 'YES' else 'NO: that account is not on the map yet. Open the map on that phone, then run this again' end
 union all select 'Your Database code (keep it secret, it gives full control)', (select db_code from private.config limit 1)
 union all select 'Backend self-test', case when (select count(*) from public.kn_backend_selftest() where result not like 'PASS%') = 0 then 'YES' else 'NO: ' || (select string_agg(test, ', ') from public.kn_backend_selftest() where result not like 'PASS%') end
-union all select 'Everyone must be on version 109', case when (select min_build from private.config limit 1) = 109 then 'YES' else 'NO' end
-union all select 'Update news posted (only old versions see it)', case when exists (select 1 from public.announcements where for_old_build = 109 and not removed) then 'YES' else 'NO' end
+union all select 'Everyone must be on version 110', case when (select min_build from private.config limit 1) = 110 then 'YES' else 'NO' end
+union all select 'Update news posted (only old versions see it)', case when exists (select 1 from public.announcements where for_old_build = 110 and not removed) then 'YES' else 'NO' end
 union all select 'Your owner code (unchanged)', (select upper(invite_code) from private.config limit 1)
-union all select 'People who still need to update', (select count(*)::text from public.members where coalesce(app_build, 0) < 109 and (role <> 'guest' or expires_at > now()));
+union all select 'People who still need to update', (select count(*)::text from public.members where coalesce(app_build, 0) < 110 and (role <> 'guest' or expires_at > now()));
