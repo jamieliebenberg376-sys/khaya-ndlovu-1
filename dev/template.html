@@ -672,7 +672,7 @@ body.night .osg{background:rgba(255,255,255,.06);color:#ffcf66}body.night .osg.s
 body.red #stillQ{background:#1a0606!important}
 .mav2{flex:none;width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font:800 19px system-ui;box-shadow:0 0 0 3px #fff,0 4px 10px rgba(0,0,0,.2)}
 
-#updWall{position:fixed;inset:0;z-index:250;overflow:auto;background:linear-gradient(170deg,#fbf6ee 0%,#f3e8d6 55%,#e9d8bd 100%);display:flex;justify-content:center;padding:calc(var(--safe-t) + 30px) 20px calc(var(--safe-b) + 30px)}
+#updWall{padding:7px 8px 7px 12px!important;right:auto!important;bottom:auto!important;top:calc(var(--safe-t) + 128px)!important;left:50%!important;width:auto!important;height:auto!important;min-height:0!important;max-width:calc(100vw - 32px);overflow:visible!important;justify-content:center;position:fixed;left:50%;transform:translateX(-50%);top:calc(var(--safe-t) + 128px);z-index:40;display:flex;align-items:center;gap:8px;padding:7px 8px 7px 12px;border:0;border-radius:999px;background:rgba(23,56,38,.92);color:#fff;font:600 13px system-ui;box-shadow:0 6px 16px rgba(0,0,0,.25);white-space:nowrap}#updWall b{background:#ffd36b;color:#1d1406;border-radius:999px;padding:4px 10px;font-weight:800}#updWall .li{color:#ffd36b}
 #updWall .uw{width:100%;max-width:380px;display:flex;flex-direction:column;align-items:center}
 #updWall .glogo{width:min(64vw,260px)}#updWall .glogo img{width:100%}
 #updWall .uwc{width:100%;margin-top:14px;background:rgba(255,255,255,.9);border-radius:26px;padding:24px 20px 20px;text-align:center;box-shadow:0 18px 40px rgba(80,55,20,.16)}
@@ -4189,7 +4189,12 @@ async function reportBuild(){if(!Cloud.member||!navigator.onLine)return;if(LS.ge
 setTimeout(reportBuild,7000);setInterval(reportBuild,30*6e4);
 async function checkUpdate(){if(!SUPA.url||!navigator.onLine)return;
   try{const r=await fetch(SUPA.url+'/rest/v1/rpc/app_min_build',{method:'POST',headers:{apikey:SUPA.key,'Content-Type':'application/json'},body:'{}',cache:'no-store'});if(!r.ok)return;
-    const n=+(await r.json())||0;UPD.min=n;if(n>APP_BUILD){if(LS.get('autoUpd',0)!==n&&!nav&&!sim&&Cloud.member&&$('gate').classList.contains('hide')&&!$('sheet').classList.contains('open')){LS.set('autoUpd',n);doUpdate(true);return}updateWall()}else{LS.set('updTries',0);const w=$('updWall');if(w)w.remove()}}catch(e){}}
+    const n=+(await r.json())||0;UPD.min=n;if(n>APP_BUILD){
+      // update by itself, quietly, whenever the map is idle (never while driving or with a sheet open); a few tries, then just a small pill
+      const a=LS.get('autoUpd2',{n:0,c:0,t:0});if(a.n!==n){a.n=n;a.c=0;a.t=0}
+      const idle=!nav&&!sim&&!(me&&(me.speed||0)>2)&&!$('sheet').classList.contains('open');
+      if(idle&&a.c<4&&Date.now()-a.t>90000){a.c++;a.t=Date.now();LS.set('autoUpd2',a);if(await doUpdate(true,n))return}
+      updateWall()}else{LS.set('updTries',0);LS.set('autoUpd2',{n:0,c:0,t:0});const w=$('updWall');if(w)w.remove()}}catch(e){}}
 setTimeout(checkUpdate,4000);setInterval(checkUpdate,10*6e4);document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkUpdate()});
 /* a clear message from a database error */
 function errTxt(e){const m=String(e&&e.message||e);let msg=m;try{const j=JSON.parse(m.replace(/^\d+:\s*/,''));msg=(j.message||'')+(j.hint?' · '+j.hint:'')}catch(x){}
@@ -4204,22 +4209,15 @@ function verTag(uid){if(!VERS)return '';const x=VERS[uid];const need=Math.max(UP
   return x.v>=need?` <span class="tag t-ok">v${x.v}</span>`:` <span class="tag t-warn">v${x.v} · update</span>`}
 function oldCount(L){if(!VERS)return 0;const need=Math.max(UPD.min||0,APP_BUILD);return (L||[]).filter(x=>{const v=VERS[x.user_id];return !v||!v.v||v.v<need}).length}
 async function remindUpdate(){try{if((UPD.min||0)<APP_BUILD)await rpc('set_min_build',{p_build:APP_BUILD});else await rpc('announce_update');rtPing();toast('Update reminder sent. Only people on an old version see it.',4000)}catch(e){toast(errTxt(e),6000)}}
-function updateWall(){if(nav||sim){clearTimeout(UPD.t);UPD.t=setTimeout(updateWall,30000);return}
-  let w=$('updWall');if(!w){w=document.createElement('div');w.id='updWall';document.body.appendChild(w)}
-  const tries=LS.get('updTries',0),viaSafari=!!Cloud.member;
-  w.innerHTML=`<div class="uw"><div class="glogo">${(document.querySelector('#gate .glogo')||{}).innerHTML||''}</div>
-   <div class="uwc"><div class="arvi">${LI('down',30)}</div><h2>A big update is ready</h2>
-   <div class="sub">The map has been improved. Update now to keep sightings, routes and alerts working with everyone else.</div>
-   <div class="uwv">You have version ${APP_BUILD} · newest is ${UPD.min}</div>
-   <div class="sub" style="margin-top:10px">${navigator.onLine?'It takes a few seconds and you stay signed in.':'You need signal to update. It updates by itself as soon as you have signal.'}</div><button class="btn pri" id="uwGo">${LI('down',18)} Update now</button>
-   ${tries>=2&&Cloud.member?`<div class="uwr"><b>Still on the old version?</b><small>Reinstall the app with your own link. You stay signed in, on the new icon and in Safari.</small><button class="btn" id="uwRe">${LI('route',18)} Reinstall the app</button><div id="uwSteps"></div></div>`:''}</div></div>`;
-  $('uwGo').onclick=()=>doUpdate();if($('uwRe'))$('uwRe').onclick=()=>reinstall()}
-async function doUpdate(quiet){if(!navigator.onLine){if(!quiet)toast('You need signal to update');return}if($('uwGo'))$('uwGo').textContent='Updating...';if(!quiet)LS.set('updTries',LS.get('updTries',0)+1);if(quiet)toast('Updating the map...',4000);
+function updateWall(){let w=$('updWall');if(!w){w=document.createElement('button');w.id='updWall';document.body.appendChild(w)}
+  w.innerHTML=`${LI('down',16)}<span>${T('New version ready')}</span><b>${T('Update')}</b>`;w.onclick=()=>{w.querySelector('b').textContent='...';doUpdate(false,UPD.min).then(ok=>{if(!ok&&$('updWall'))$('updWall').querySelector('b').textContent=T('Update')})}}
+async function doUpdate(quiet,need){if(!navigator.onLine){if(!quiet)toast('You need signal to update');return false}if(!quiet)LS.set('updTries',LS.get('updTries',0)+1);
   // make sure the new page is really there before dropping the old one, so you never end up on a blank screen
-  try{const r=await fetch('./index.html?v='+Date.now(),{cache:'no-store'});if(!r.ok)throw 0;const h=await r.text();const m=h.match(/kn-v(\d+)|APP_BUILD=(\d+)/);if(!/maplibre/i.test(h))throw 0}catch(e){if(!quiet)toast('Weak signal, try again in a moment');return}
+  try{const r=await fetch('./index.html?v='+Date.now(),{cache:'no-store'});if(!r.ok)throw 0;const h=await r.text();if(!/maplibre/i.test(h))throw 0;const m=h.match(/APP_BUILD\s*=\s*(\d+)/);const nb=m?+m[1]:0;if(nb&&nb<=APP_BUILD)throw 1;if(need&&nb&&nb<need)throw 1}catch(e){if(!quiet)toast(e===1?T('The new version is still on its way, try again in a minute'):T('Weak signal, try again in a moment'));return false}
+  if(quiet)toast(T('Updating the map...'),3000);
   try{const regs=navigator.serviceWorker?await navigator.serviceWorker.getRegistrations():[];for(const r of regs)await r.unregister()}catch(e){}
   try{for(const k of await caches.keys())if(k!=='kn-tiles')await caches.delete(k)}catch(e){}
-  location.replace(location.pathname+'?fresh='+Date.now())}
+  location.replace(location.pathname+'?fresh='+Date.now());return true}
 /* ============ updates keep your stuff ============
    A reinstall makes a brand new Home Screen app with an empty memory. Before the sign-in link is made, your settings, saved and recent
    places, home, recorded drives, the map you were on and where you were looking are packed up and travel with the one-time link,
