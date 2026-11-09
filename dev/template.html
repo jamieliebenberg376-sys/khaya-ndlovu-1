@@ -1038,7 +1038,7 @@ body.night .cuo,body.night .cuname{background:rgba(255,255,255,.06)}
     <button class="ib hide" id="clearQ" aria-label="Clear"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     
   </div>
-  <div id="chips"><button id="homeBtn" class="chip2" data-c="home"><i data-li="home"></i>Home</button><button class="chip2 hide" id="chipOut"><i data-li="live"></i>Out now <b>0</b></button><button class="chip2" data-c="feed"><i data-li="msg"></i>Feed</button><button class="chip2" data-c="sight"><i data-li="binoc"></i>Sightings</button><button class="chip2" data-c="Picnic spot"><i data-li="picnic"></i>Picnic</button><button class="chip2" data-c="Dam"><i data-li="drop"></i>Water</button><button class="chip2" data-c="Viewpoint"><i data-li="eye"></i>Viewpoints</button><button class="chip2" data-c="Gate"><i data-li="gate"></i>Gates</button></div>
+  <div id="chips"><button id="homeBtn" class="chip2" data-c="home"><i data-li="home"></i>Home</button><button class="chip2 hide" id="chipOut"><i data-li="live"></i>Out now <b>0</b></button><button class="chip2" data-c="near"><i data-li="pin"></i>Nearby</button><button class="chip2" data-c="feed"><i data-li="msg"></i>Feed</button><button class="chip2" data-c="sight"><i data-li="binoc"></i>Sightings</button><button class="chip2" data-c="Picnic spot"><i data-li="picnic"></i>Picnic</button><button class="chip2" data-c="Dam"><i data-li="drop"></i>Water</button><button class="chip2" data-c="Viewpoint"><i data-li="eye"></i>Viewpoints</button><button class="chip2" data-c="Gate"><i data-li="gate"></i>Gates</button></div>
   <div id="results" class="hide"></div>
   <div id="roadCard" class="hide"><span class="pin"></span><div style="min-width:0"><div class="rn" id="rn">-</div><div class="rs" id="rs"></div></div></div>
 </div>
@@ -1862,6 +1862,7 @@ function annPop(){const a=ANN.filter(x=>!annSeen.has(x.client_id)&&(!x.expires_a
 
 /* ============ what's new: shown once to owners and admins after an update ============ */
 const WHATS_NEW=[
+ [111,'pin','Nearby','The new Nearby button at the top shows the closest picnic spots, water, viewpoints, gates and hides, plus recent sightings around you, with distance and direction. Tap one to go there.'],
  [110,'star','Make it yours','Pick your animal character, your car on the map (arrow, game cruiser, safari truck or buggy), your route and trail colours. Tap a name in the Feed to see their profile. Admins have a green badge. The map follows you again by itself 10 seconds after you stop touching it. Drives show on the map for a day and stay in My drives for 60 days. A drive now records from when you leave home until you get back, with your stops. Turns are shown like Google Maps: one road name, no extra arrows.'],
  [109,'binoc','Easier on the drive','Recent sightings glow on the map for 3 hours and stay visible while you follow a route. A soft ping and a card tell you when you are 50 m from a recent sighting. The new yellow binoculars button marks a sighting in one tap. Turn directions are spoken once, 50 m before the turn, and no longer cut out. The junction box only shows in the last 50 m. A recorded drive finishes by itself when you get back to where you started, and the report card shows your drive on satellite.'],
  [108,'gear','A cleaner map','Likely animal spots are gone. Spotify, recording every drive and the speed warning are now off unless you switch them on in Settings. The story question after a sighting is asked once, when you open the app, and never again if you skip it.'],
@@ -2822,7 +2823,7 @@ $('clearQ').onclick=()=>{$('q').value='';renderResults();$('q').focus()};
 $('homeBtn').onclick=()=>homeSheet();
 /* Google style browse layout: chips, avatar, bottom bar */
 document.querySelectorAll('[data-li]').forEach(i=>i.outerHTML=LI(i.dataset.li,17));
-document.querySelectorAll('#chips .chip2[data-c]').forEach(b=>{if(b.id==='homeBtn')return;b.onclick=()=>{const c=b.dataset.c;if(c==='feed'){feedHome();return}if(c==='sight'){sightHub();return}$('q').value=c;renderResults();$('results').scrollTop=0}});
+document.querySelectorAll('#chips .chip2[data-c]').forEach(b=>{if(b.id==='homeBtn')return;b.onclick=()=>{const c=b.dataset.c;if(c==='near'){nearSheet();return}if(c==='feed'){feedHome();return}if(c==='sight'){sightHub();return}$('q').value=c;renderResults();$('results').scrollTop=0}});
 $('pkTap').onclick=()=>$('menuBtn').click();$('chipOut').onclick=()=>outSheet();
 (()=>{let y0=null;const pk=$('peek');pk.addEventListener('touchstart',e=>{y0=e.touches[0].clientY},{passive:true});pk.addEventListener('touchend',e=>{if(y0!=null&&y0-e.changedTouches[0].clientY>30)$('menuBtn').click();y0=null},{passive:true})})();
 function syncPeek(){try{const m=Cloud.member;
@@ -3997,6 +3998,19 @@ async function profileSheet(uid,fallbackName){if(!uid)return;openSheet(`<div cla
   openSheet(`<div class="prh">${avatarHtml(p.avatar,p.name,72,uid)}<div><h2 style="margin:0">${esc(p.name)} ${badgeFor(p.role)}</h2><div style="margin-top:4px">${role} <small class="sub">${p.sightings||0} ${T('sightings')}</small></div></div></div>${gl}
    <div class="msec" style="margin-top:14px">${T('Recent')}</div><div class="prof">${R.length?R.map(x=>`<div class="pr"><span>${x.w?AN(x.w,30):LI('msg',20)}</span><div>${x.k==='s'?esc(T('Spotted')+' '+(x.w?T(x.w).toLowerCase():'')):esc(T('Posted'))}${x.s?`<small style="white-space:normal">"${esc(x.s.length>140?x.s.slice(0,140)+'…':x.s)}"</small>`:''}<small>${esc(ago(Date.parse(x.t)))}</small></div></div>`).join(''):`<div class="pr"><span>${LI('scope',20)}</span><div>${T('Nothing yet')}</div></div>`}</div>`)}
 
+
+/* ---- Nearby: like Google's "explore what's around you": the closest picnic spot, water, viewpoint, gate and hide, and recent sightings ---- */
+function nearSheet(){const at=me?me.ll:map.getCenter().toArray();const dir=b=>['N','NE','E','SE','S','SW','W','NW'][Math.round(((b%360)+360)%360/45)%8];
+  const kinds=[['picnic',T('Picnic spot'),'picnic'],['water',T('Water'),'drop'],['view',T('Viewpoint'),'eye'],['gate',T('Gate'),'gate'],['hide',T('Bird hide'),'binoc']];
+  const P=[...(DATA.pois&&DATA.pois.features||[]).map(f=>({name:f.properties.name,kind:f.properties.kind,ll:f.geometry.coordinates})),...(typeof PLACES!=='undefined'?PLACES:[]).filter(p=>!p.removed&&p.lat!=null).map(p=>({name:p.name,kind:p.kind,ll:[p.lng,p.lat]}))].filter(p=>p.name);
+  const rows=[];kinds.forEach(([k,label,ic])=>{const L=P.filter(p=>p.kind===k||(k==='water'&&/dam|pan|water/i.test(p.kind||''))).map(p=>({...p,d:dist(at,p.ll)})).sort((a,b)=>a.d-b.d).slice(0,2);L.forEach(p=>rows.push({...p,label,ic}))});
+  const S=allSights().filter(s=>Date.now()-s.t<6*36e5&&!s.still).map(s=>({s,d:dist(at,s.ll)})).sort((a,b)=>a.d-b.d).slice(0,4);
+  openSheet(`<h2>${T('Nearby')}</h2><div class="sub">${me?T('Closest to you'):T('Closest to the middle of the map')}</div>
+   ${S.length?`<div class="msec" style="margin-top:12px">${T('Recent sightings')}</div><div class="list sgroup">${S.map(({s,d},i)=>`<button class="it" data-ns="${i}" style="width:100%;text-align:left"><span style="flex:none">${AN(s.what,32)}</span><div style="flex:1;min-width:0"><b>${esc(T(s.what))}</b><br><small>${fmtD(d)} ${dir(bearing(at,s.ll))} · ${esc(lastSeen(s.t))}</small></div><span class="ar">›</span></button>`).join('')}</div>`:''}
+   <div class="msec" style="margin-top:12px">${T('Places')}</div><div class="list sgroup">${rows.map((p,i)=>`<button class="it" data-np="${i}" style="width:100%;text-align:left"><span class="si">${LI(p.ic,18)}</span><div style="flex:1;min-width:0"><b>${esc(p.name)}</b><br><small>${esc(p.label)} · ${fmtD(p.d)} ${dir(bearing(at,p.ll))}</small></div><span class="ar">›</span></button>`).join('')||`<div class="it"><small>${T('Nothing found')}</small></div>`}</div>`,()=>{
+    document.querySelectorAll('[data-np]').forEach(b=>b.onclick=()=>{const p=rows[+b.dataset.np];showPlace({kind:p.kind,name:p.name,sub:p.label,ll:p.ll})});
+    document.querySelectorAll('[data-ns]').forEach(b=>b.onclick=()=>{const s=S[+b.dataset.ns].s;showPlace(sightPlace(s))})})}
+
 /* ============ menu ============ */
 const MI=(id,icon,t,s)=>`<button class="mi" id="${id}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${icon}</svg><span>${t}${s?`<small>${s}</small>`:''}</span></button>`;
 const fmtExp=t=>new Date(t).toLocaleString([],{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
@@ -4133,7 +4147,7 @@ async function doUpdate(){$('uwGo').textContent='Updating...';LS.set('updTries',
    A reinstall makes a brand new Home Screen app with an empty memory. Before the sign-in link is made, your settings, saved and recent
    places, home, recorded drives, the map you were on and where you were looking are packed up and travel with the one-time link,
    then are put back in the new app. Sign-in keys, Spotify and the downloaded map files are never sent (the maps download again). */
-const CARRY=['avoidTracks','voice','theme','speedWarn','redOn','redAuto','alertSound','alertOn','alertWhat','vmode','topTurn','tilt','sunRemind','showSpd','showNotes','shareLoc','quiet','northUp','mode','lang','keepAwake','hill','farms','autoRec','focusMode','liveSatPref','liveOn','onboarded','roleSeen','wnSeen','annSeen','dmSeen','sugSeen','wrSeen','obNag','sqAsked','joinSkip','calib','otherNames','recents','favs','home','tracks','cam','pnotes','mymiss'];
+const CARRY=['custDone','obHome','obDlSkip','avatar','carIcon','meCol','routeCol','trailCol','spotOn','showDrv','contours','avPending','voice','theme','speedWarn','redOn','redAuto','alertSound','alertOn','alertWhat','vmode','topTurn','tilt','sunRemind','showSpd','showNotes','shareLoc','quiet','northUp','mode','lang','keepAwake','hill','farms','autoRec','focusMode','liveSatPref','liveOn','onboarded','roleSeen','wnSeen','annSeen','dmSeen','sugSeen','wrSeen','obNag','sqAsked','joinSkip','calib','otherNames','recents','favs','home','tracks','cam','pnotes','mymiss'];
 function carryPack(){const o={};CARRY.forEach(k=>['kn_'+k,'kn_live_'+k].forEach(n=>{try{const v=localStorage.getItem(n);if(v!=null&&v.length<150000)o[n]=v}catch(e){}}));
   let s=JSON.stringify(o);if(s.length>280000){delete o.kn_tracks;delete o.kn_live_tracks;s=JSON.stringify(o)}return s.length>280000?null:o}
 async function carrySend(t){if(!t)return;try{const o=carryPack();if(o)await rpc('handover_carry',{p_token:t,p_data:o})}catch(e){}}
@@ -4470,7 +4484,7 @@ async function adminSheet(){const R=MS.rules||{};let removed=[],bans=[];if(navig
    <div class="row"><button class="btn" id="aDbCopy">Copy code</button><button class="btn" id="aDbNew">Change code</button></div>`:''}
    <div class="msec" style="margin-top:14px">Pause the map</div><div class="list sgroup"><div class="it"><div style="flex:1;min-width:0"><b>${MS.paused?'The map is paused':'Pause the map for everyone'}</b><br><small>${MS.paused?'Only admins can use it right now':'Everyone except admins sees a pause screen. SOS keeps working.'}</small></div><button class="tgl ${MS.paused?'on':''}" id="aPause"><i></i></button></div></div>
    ${MS.paused?'':'<input class="inp" id="aPauseMsg" maxlength="300" placeholder="Message (optional), e.g. Fire on the eastern boundary" style="margin-top:8px">'}
-   <div class="msec" style="margin-top:16px">Rivers and dams</div><div class="list sgroup"><div class="it" id="aDry" style="cursor:pointer"><div style="flex:1;min-width:0"><b>Dry rivers and dams</b><br><small>${DRY0.length?DRY0.length+' marked as dry':'Everything shows with water'}</small></div>${LI('chev',18)}</div></div>
+   <div class="msec" style="margin-top:16px">Rivers and dams</div><div class="list sgroup"><div class="it" id="aDry" style="cursor:pointer"><div style="flex:1;min-width:0"><b>Dry rivers and dams</b><br><small>${DRY0.length?DRY0.length+' marked as dry':'Everything shows with water'}</small></div><span class="ar">›</span></div></div>
    <div class="msec" style="margin-top:16px">Reserve rules</div>
    <div class="sub" style="margin:2px 0 6px">Speed limit</div>${chips('speed',[[0,'Off'],[30,'30 km/h'],[40,'40 km/h'],[50,'50 km/h']],R.speed==null?40:R.speed)}
    <div class="sub" style="margin:10px 0 6px">Quiet hours</div>${chips('quiet',[['off','Off'],['19:00-06:00','19:00 to 06:00'],['19:30-06:00','19:30 to 06:00'],['21:00-05:30','21:00 to 05:30']],R.quiet===false?'off':(R.qfrom||'19:30')+'-'+(R.qto||'06:00'))}
