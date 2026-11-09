@@ -1098,7 +1098,7 @@ returns json language sql stable security definer set search_path = public as $$
   select case when not public.is_member() then '[]'::json else coalesce((select json_agg(row_to_json(x) order by x.t desc) from (
     select * from (
       select 's' kind, l.client_id c, l.what w, coalesce(l.name, m.name, 'Someone') by, l.created_at t, l.story s, l.photo ph, coalesce(l.kill, false) k, l.lat, l.lng, case when l.video is not null then jsonb_build_array(jsonb_build_object('k', 'vid', 'f', l.video, 'p', l.client_id || '.jpg', 'sv', true)) else '[]'::jsonb end media,
-             l.user_id = auth.uid() mine, false can, l.user_id u, m.avatar av, m.role rl
+             l.user_id = auth.uid() mine, false can, l.user_id u, m.avatar av, case when m.locked then 'db' else m.role end rl
       from public.sightings_log l left join public.members m on m.user_id = l.user_id
       where coalesce(p_kind, '') in ('', 'sight') and not l.still and l.created_at < coalesce(p_before, now() + interval '1 minute') and l.created_at > now() - interval '400 days'
         and (p_what is null or l.what = p_what)
@@ -1106,7 +1106,7 @@ returns json language sql stable security definer set search_path = public as $$
         and (public.is_admin() or l.user_id = auth.uid() or not public.kn_hidden_animal(l.what))
       union all
       select 'p', p.id, p.what, coalesce(p.name, m.name, 'Someone'), p.created_at, p.body, false, false, p.lat, p.lng, p.media,
-             p.user_id = auth.uid(), p.user_id = auth.uid() or public.is_admin(), p.user_id, m.avatar, m.role
+             p.user_id = auth.uid(), p.user_id = auth.uid() or public.is_admin(), p.user_id, m.avatar, case when m.locked then 'db' else m.role end
       from public.feed_posts p left join public.members m on m.user_id = p.user_id
       where coalesce(p_kind, '') in ('', 'post', 'video') and p.created_at < coalesce(p_before, now() + interval '1 minute') and p.created_at > now() - interval '400 days'
         and (p_kind is distinct from 'video' or p.media @> '[{"k":"vid"}]'::jsonb)
@@ -1501,7 +1501,7 @@ begin
   select * into m from public.members where user_id = p_user;
   if not found then return json_build_object('gone', true); end if;
   select * into g from public.guest_codes where code = m.code and m.role = 'guest';
-  return json_build_object('name', m.name, 'avatar', m.avatar, 'role', m.role, 'joined_at', m.joined_at, 'me', p_user = auth.uid(),
+  return json_build_object('name', m.name, 'avatar', m.avatar, 'role', m.role, 'db', coalesce(m.locked, false), 'joined_at', m.joined_at, 'me', p_user = auth.uid(),
     'expires_at', case when m.role = 'guest' then m.expires_at end,
     'active', m.role <> 'guest' or ((m.expires_at is null or m.expires_at > now()) and not coalesce(g.revoked, false)),
     'invited_by', case when m.role = 'guest' then coalesce(g.created_by_name, m.invited_by) end,
@@ -1614,7 +1614,7 @@ end $$;
 grant execute on function public.set_pin(text) to authenticated;
 create or replace function public.my_profile()
 returns json language sql stable security definer set search_path = public, extensions as $$
-  select json_build_object('name', m.name, 'avatar', m.avatar, 'role', m.role, 'pin', m.pin_hash is not null) from public.members m where m.user_id = auth.uid() $$;
+  select json_build_object('name', m.name, 'avatar', m.avatar, 'role', m.role, 'db', coalesce(m.locked, false), 'pin', m.pin_hash is not null) from public.members m where m.user_id = auth.uid() $$;
 grant execute on function public.my_profile() to authenticated;
 create or replace function public.join_reserve3(code text, display_name text, p_claim boolean default null, p_pin text default null)
 returns json language plpgsql security definer set search_path = public, private, extensions as $$
@@ -1638,7 +1638,7 @@ begin
   -- a guest code that has run out can't bring the account back
   if g.code is not null and (g.revoked or g.expires_at <= now()) then return public.join_reserve2(code, display_name); end if;
   if p_claim is null then
-    return json_build_object('ok', false, 'reason', 'claim', 'who', json_build_object('name', cand.name, 'role', cand.role, 'avatar', cand.avatar,
+    return json_build_object('ok', false, 'reason', 'claim', 'who', json_build_object('name', cand.name, 'role', cand.role, 'db', coalesce(cand.locked, false), 'avatar', cand.avatar,
       'last_seen', cand.last_seen, 'joined_at', cand.joined_at, 'pin', cand.pin_hash is not null, 'sightings', (select count(*) from public.sightings_log l where l.user_id = cand.user_id and not l.still)));
   end if;
   -- an account with a PIN only moves with the right PIN (5 tries an hour)
