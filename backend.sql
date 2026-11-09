@@ -1401,6 +1401,11 @@ begin
     exception when others then out := out || array['Guests cannot change places', 'PASS']; end;
     insert into public.sightings (client_id, what, lat, lng, created_at, kill) values ('kt-kill', 'Lion', -24.377, 30.963, now() - interval '20 minutes', true);
     out := out || array['Kill sightings are kept in the history', case when exists (select 1 from public.sightings_log where client_id = 'kt-kill' and kill) then 'PASS' else 'FAIL' end];
+    -- account PIN
+    perform set_config('request.jwt.claims', json_build_object('sub', a)::text, true); perform set_config('request.jwt.claim.sub', a::text, true);
+    begin perform public.set_pin('1234');
+      out := out || array['Account PIN can be set', case when (public.my_profile()->>'pin')::boolean then 'PASS' else 'FAIL' end];
+    exception when others then out := out || array['Account PIN can be set', 'FAIL: ' || sqlerrm]; end;
     -- backup
     b := public.kn_backup_build();
     out := out || array['Encrypted backup works', case when b like '-----BEGIN PGP MESSAGE-----%' then 'PASS (' || length(b) || ' characters, locked)' else 'FAIL' end];
@@ -1577,6 +1582,7 @@ begin
   on conflict (user_id) do update set name = excluded.name, role = excluded.role, code = excluded.code, expires_at = excluded.expires_at,
     invited_by = excluded.invited_by, last_seen = now(), last_login = now(), home_lat = excluded.home_lat, home_lng = excluded.home_lng, locked = excluded.locked;
   begin update public.members set avatar = m.avatar, app_build = m.app_build where user_id = dst; exception when others then null; end;
+  begin execute 'update public.members set pin_hash = (select pin_hash from public.members where user_id = $1) where user_id = $2' using src, dst; exception when others then null; end;
   begin execute 'update public.members set rec_hash = (select rec_hash from public.members where user_id = $1), dev_hash = null where user_id = $2' using src, dst; exception when others then null; end;
   begin update public.sightings set user_id = dst where user_id = src; exception when others then null; end;
   begin update public.reports set user_id = dst where user_id = src; exception when others then null; end;
@@ -1592,11 +1598,29 @@ begin
 end $$;
 revoke all on function public.kn_move_member(uuid, uuid) from public, anon, authenticated;
 
-create or replace function public.join_reserve3(code text, display_name text, p_claim boolean default null)
-returns json language plpgsql security definer set search_path = public, private as $$
+alter table public.members add column if not exists pin_hash text;
+create table if not exists public.pin_tries (id bigserial primary key, user_id uuid not null, at timestamptz not null default now());
+alter table public.pin_tries enable row level security;
+revoke all on public.pin_tries from anon, authenticated;
+drop function if exists public.join_reserve3(text, text, boolean);
+-- your 4-digit account PIN (owners and admins): asked when your account is brought to a new phone
+create or replace function public.set_pin(p_pin text)
+returns void language plpgsql security definer set search_path = public, extensions as $$
+begin
+  if auth.uid() is null or not exists (select 1 from public.members where user_id = auth.uid()) then raise exception 'members only'; end if;
+  if p_pin !~ '^[0-9]{4}$' then raise exception 'The PIN must be 4 numbers'; end if;
+  update public.members set pin_hash = crypt(p_pin, gen_salt('bf')) where user_id = auth.uid();
+end $$;
+grant execute on function public.set_pin(text) to authenticated;
+create or replace function public.my_profile()
+returns json language sql stable security definer set search_path = public, extensions as $$
+  select json_build_object('name', m.name, 'avatar', m.avatar, 'role', m.role, 'pin', m.pin_hash is not null) from public.members m where m.user_id = auth.uid() $$;
+grant execute on function public.my_profile() to authenticated;
+create or replace function public.join_reserve3(code text, display_name text, p_claim boolean default null, p_pin text default null)
+returns json language plpgsql security definer set search_path = public, private, extensions as $$
 #variable_conflict use_column
 declare c text := upper(replace(trim(code), ' ', '')); nm text := left(coalesce(nullif(trim(display_name), ''), 'Member'), 40);
-  me uuid := auth.uid(); owner_code text; g public.guest_codes; cand public.members; ok boolean := false; r json;
+  me uuid := auth.uid(); owner_code text; g public.guest_codes; cand public.members; ok boolean := false; r json; ph text; n int;
 begin
   if me is null then raise exception 'not signed in'; end if;
   -- this phone already has an account: sign in as usual
@@ -1615,14 +1639,24 @@ begin
   if g.code is not null and (g.revoked or g.expires_at <= now()) then return public.join_reserve2(code, display_name); end if;
   if p_claim is null then
     return json_build_object('ok', false, 'reason', 'claim', 'who', json_build_object('name', cand.name, 'role', cand.role, 'avatar', cand.avatar,
-      'last_seen', cand.last_seen, 'joined_at', cand.joined_at, 'sightings', (select count(*) from public.sightings_log l where l.user_id = cand.user_id and not l.still)));
+      'last_seen', cand.last_seen, 'joined_at', cand.joined_at, 'pin', cand.pin_hash is not null, 'sightings', (select count(*) from public.sightings_log l where l.user_id = cand.user_id and not l.still)));
+  end if;
+  -- an account with a PIN only moves with the right PIN (5 tries an hour)
+  if cand.pin_hash is not null then
+    select count(*) into n from public.pin_tries where user_id = cand.user_id and at > now() - interval '1 hour';
+    if n >= 5 then return json_build_object('ok', false, 'reason', 'pintries'); end if;
+    if p_pin is null then return json_build_object('ok', false, 'reason', 'pin'); end if;
+    if crypt(p_pin, cand.pin_hash) <> cand.pin_hash then
+      insert into public.pin_tries (user_id) values (cand.user_id);
+      return json_build_object('ok', false, 'reason', case when n >= 4 then 'pintries' else 'badpin' end);
+    end if;
   end if;
   perform public.kn_move_member(cand.user_id, me);
   update public.members set last_login = now(), last_seen = now() where user_id = me;
   begin perform public.kn_log('login', cand.name || ' moved their account to a new phone'); exception when others then null; end;
   return (select json_build_object('ok', true, 'role', m.role, 'expires_at', m.expires_at, 'name', m.name, 'avatar', m.avatar, 'moved', true) from public.members m where m.user_id = me);
 end $$;
-grant execute on function public.join_reserve3(text, text, boolean) to authenticated;
+grant execute on function public.join_reserve3(text, text, boolean, text) to authenticated;
 
 select * from public.kn_backend_selftest();
 
