@@ -1477,9 +1477,7 @@ grant execute on function public.set_dry(text[], boolean) to authenticated;
 alter table public.members add column if not exists avatar text;
 do $$ begin
   alter table public.members drop constraint if exists members_avatar_chk;
-  alter table public.members add constraint members_avatar_chk check (avatar is null or avatar in ('Lion','Leopard','Elephant','Rhino','Cheetah','Wild dog','Hippo','Buffalo','Hyena','Giraffe','Zebra','Kudu',
-    'Gold Lion','Gold Leopard','Gold Elephant','Gold Rhino','Gold Buffalo','Gold Cheetah','Rainbow Zebra','Rainbow Lion','Rainbow Elephant','Rainbow Giraffe','Rainbow Rhino','Rainbow Leopard',
-    'Prismatic Lion','Prismatic Leopard','Prismatic Elephant','Prismatic Rhino','Prismatic Kudu','Prismatic Hippo'));
+  alter table public.members add constraint members_avatar_chk check (avatar is null or avatar ~ '^((Gold|Prismatic|Rainbow) )?(Lion|Leopard|Elephant|Rhino|Cheetah|Wild dog|Hippo|Buffalo|Hyena|Giraffe|Zebra|Kudu)$');
 exception when others then null; end $$;
 create or replace function public.kn_trg_name_lock() returns trigger language plpgsql as $$
 begin
