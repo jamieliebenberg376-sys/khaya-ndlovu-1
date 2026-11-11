@@ -2682,9 +2682,41 @@ returns json language sql stable security definer set search_path = public, priv
 grant execute on function public.map_state() to authenticated;
 
 
+-- v130: People list in order (Database, admins, owners, guests ending soonest first), with profile pictures
+create or replace function public.list_members()
+returns json language plpgsql stable security definer set search_path = public as $$
+#variable_conflict use_column
+begin
+  if not public.is_owner() then raise exception 'owners only'; end if;
+  return coalesce((select json_agg(row_to_json(x) order by x.role_order, x.exp_order, x.name) from (
+    select m.user_id, m.name, m.role, m.joined_at, m.avatar,
+           case when public.is_admin() or m.user_id = auth.uid() then m.last_seen end as last_seen,
+           case when public.is_admin() or m.user_id = auth.uid() then m.last_login end as last_login,
+           case when m.role = 'guest' then m.expires_at end as expires_at, m.code,
+           m.user_id = auth.uid() as me, coalesce(m.locked, false) as locked,
+           g.label as code_label,
+           coalesce(m.invited_by, g.created_by_name) as added_by,
+           case when m.locked then 0 when m.role = 'admin' then 1 when m.role = 'owner' then 2 else 3 end as role_order,
+           case when m.role = 'guest' then m.expires_at end as exp_order
+    from public.members m left join public.guest_codes g on g.code = m.code
+    where m.role <> 'guest' or (m.expires_at > now() and not coalesce(g.revoked, false))) x), '[]'::json);
+end $$;
+grant execute on function public.list_members() to authenticated;
+
+
+-- v130: comments carry who wrote them (profile picture, role colour, tap to open their profile)
+create or replace function public.comments(p_post text)
+returns json language sql stable security definer set search_path = public as $$
+  select case when not public.is_member() then '[]'::json else coalesce((select json_agg(json_build_object('id', c.id, 'by', coalesce(m.name, c.name, 'Someone'), 't', c.created_at, 's', c.body, 'mine', c.user_id = auth.uid(),
+      'u', c.user_id, 'av', m.avatar, 'rl', case when m.locked then 'db' else m.role end,
+      'can', c.user_id = auth.uid() or public.is_admin() or exists (select 1 from public.feed_posts p where p.id = c.post and p.user_id = auth.uid()) or exists (select 1 from public.sightings_log l where l.client_id = c.post and l.user_id = auth.uid())) order by c.created_at)
+    from public.feed_comments c left join public.members m on m.user_id = c.user_id where c.post = p_post), '[]'::json) end $$;
+grant execute on function public.comments(text) to authenticated;
+
+
 
 -- =====================================================================
--- PUSH THE UPDATE (version 129)
+-- PUSH THE UPDATE (version 130)
 -- =====================================================================
 
 alter table private.config add column if not exists min_build int not null default 0;
@@ -2754,9 +2786,9 @@ begin
 end $$;
 grant execute on function public.set_min_build(int) to authenticated;
 
--- push it now: require version 129 and post the news. It is sent by the database, not by any person.
-update private.config set min_build = 129;
-select public.kn_update_news(129);
+-- push it now: require version 130 and post the news. It is sent by the database, not by any person.
+update private.config set min_build = 130;
+select public.kn_update_news(130);
 
 notify pgrst, 'reload schema';
 
@@ -2769,7 +2801,7 @@ union all select 'Protected account (9fb4d097...) locked as admin', case when ex
 union all select 'Second Database account (f2f31fe6...)', case when exists (select 1 from public.members where user_id = 'f2f31fe6-5256-4b05-88ee-d7237649f681' and locked and role = 'admin') then 'YES' else 'NO: that account is not on the map yet. Open the map on that phone, then run this again' end
 union all select 'Your Database code (keep it secret, it gives full control)', (select db_code from private.config limit 1)
 union all select 'Backend self-test', case when (select count(*) from public.kn_backend_selftest() where result not like 'PASS%') = 0 then 'YES' else 'NO: ' || (select string_agg(test, ', ') from public.kn_backend_selftest() where result not like 'PASS%') end
-union all select 'Everyone must be on version 129', case when (select min_build from private.config limit 1) = 129 then 'YES' else 'NO' end
-union all select 'Update news posted (only old versions see it)', case when exists (select 1 from public.announcements where for_old_build = 129 and not removed) then 'YES' else 'NO' end
+union all select 'Everyone must be on version 130', case when (select min_build from private.config limit 1) = 130 then 'YES' else 'NO' end
+union all select 'Update news posted (only old versions see it)', case when exists (select 1 from public.announcements where for_old_build = 130 and not removed) then 'YES' else 'NO' end
 union all select 'Your owner code (unchanged)', (select upper(invite_code) from private.config limit 1)
-union all select 'People who still need to update', (select count(*)::text from public.members where coalesce(app_build, 0) < 129 and (role <> 'guest' or expires_at > now()));
+union all select 'People who still need to update', (select count(*)::text from public.members where coalesce(app_build, 0) < 130 and (role <> 'guest' or expires_at > now()));
