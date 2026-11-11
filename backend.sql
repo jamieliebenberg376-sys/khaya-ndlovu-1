@@ -2130,5 +2130,56 @@ begin
 end $$;
 grant execute on function public.chat_delete(text) to authenticated;
 
+-- ============ v141: personal codes always bring their owner back, and a preview for shared invite links ============
+-- each code from Guest codes belongs to the person who used it: typing it again (any phone, any name) finds their account
+create or replace function public.join_reserve3(code text, display_name text, p_claim boolean default null, p_pin text default null)
+returns json language plpgsql security definer set search_path = public, private, extensions as $$
+#variable_conflict use_column
+declare c text := upper(replace(trim(code), ' ', '')); nm text := left(coalesce(nullif(trim(display_name), ''), 'Member'), 40);
+  me uuid := auth.uid(); owner_code text; g public.guest_codes; cand public.members; n int;
+begin
+  if me is null then raise exception 'not signed in'; end if;
+  if exists (select 1 from public.members where user_id = me) then return public.join_reserve2(code, display_name); end if;
+  select upper(replace(invite_code, ' ', '')) into owner_code from private.config limit 1;
+  select * into g from public.guest_codes where upper(guest_codes.code) = c;
+  select * into cand from public.members m
+   where m.user_id <> me and not coalesce(m.locked, false)
+     and ((g.code is not null and m.code = g.code)
+       or (lower(trim(m.name)) = lower(nm) and ((c = 'ADMIN' || owner_code and m.role = 'admin') or (c = owner_code and m.role in ('owner', 'admin')))))
+   order by (g.code is not null and m.code = g.code) desc, m.last_seen desc nulls last limit 1;
+  if cand.user_id is null or p_claim is false then return public.join_reserve2(code, display_name); end if;
+  -- a removed code, or a guest code that has ended, can't bring the account back
+  if g.code is not null and (g.revoked or (coalesce(g.kind, 'guest') = 'guest' and g.expires_at <= now())) then return public.join_reserve2(code, display_name); end if;
+  if cand.role = 'guest' and cand.expires_at is not null and cand.expires_at <= now() then return public.join_reserve2(code, display_name); end if;
+  if p_claim is null then
+    return json_build_object('ok', false, 'reason', 'claim', 'who', json_build_object('name', cand.name, 'role', cand.role, 'db', coalesce(cand.locked, false), 'avatar', cand.avatar,
+      'last_seen', cand.last_seen, 'joined_at', cand.joined_at, 'pin', cand.pin_hash is not null, 'sightings', (select count(*) from public.sightings_log l where l.user_id = cand.user_id and not l.still)));
+  end if;
+  if cand.pin_hash is not null then
+    select count(*) into n from public.pin_tries where user_id = cand.user_id and at > now() - interval '1 hour';
+    if n >= 5 then return json_build_object('ok', false, 'reason', 'pintries'); end if;
+    if p_pin is null then return json_build_object('ok', false, 'reason', 'pin'); end if;
+    if crypt(p_pin, cand.pin_hash) <> cand.pin_hash then
+      insert into public.pin_tries (user_id) values (cand.user_id);
+      return json_build_object('ok', false, 'reason', case when n >= 4 then 'pintries' else 'badpin' end);
+    end if;
+  end if;
+  perform public.kn_move_member(cand.user_id, me);
+  update public.members set last_login = now(), last_seen = now() where user_id = me;
+  begin perform public.kn_log('login', cand.name || ' signed back in on a new phone with their code'); exception when others then null; end;
+  return (select json_build_object('ok', true, 'role', m.role, 'expires_at', m.expires_at, 'name', m.name, 'avatar', m.avatar, 'moved', true) from public.members m where m.user_id = me);
+end $$;
+grant execute on function public.join_reserve3(text, text, boolean, text) to authenticated;
+
+-- what a shared invite link shows in WhatsApp: who sent it, what access, who it's for, when it ends (never the owner code)
+create or replace function public.code_preview(p_code text)
+returns json language sql stable security definer set search_path = public as $$
+  select json_build_object('kind', coalesce(g.kind, 'guest'), 'from', g.created_by_name, 'for', g.label,
+    'ends', case when coalesce(g.kind, 'guest') = 'guest' then g.expires_at end,
+    'state', case when g.revoked then 'revoked' when coalesce(g.kind, 'guest') = 'guest' and g.expires_at <= now() then 'ended' when g.uses >= 1 then 'used' else 'ok' end)
+  from public.guest_codes g where upper(g.code) = upper(replace(trim(p_code), ' ', '')) and length(trim(p_code)) between 4 and 20 $$;
+revoke all on function public.code_preview(text) from public;
+grant execute on function public.code_preview(text) to anon, authenticated;
+
 select * from public.kn_backend_selftest();
 

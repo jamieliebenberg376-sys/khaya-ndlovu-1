@@ -1981,6 +1981,9 @@ function annPop(){const a=ANN.filter(x=>!annSeen.has(x.client_id)&&(!x.expires_a
 
 /* ============ what's new: shown once to owners and admins after an update ============ */
 const WHATS_NEW=[
+ [141,'ticket','Invites as a card','When you send a code, tap Send the card: it goes as a photo with the code, who it is for and when it ends. Links in WhatsApp now show a preview too.'],
+ [141,'shield','Your code is yours','If someone gets signed out, they type the code they were sent and they are back in their own account, on any phone. Owners and admins also enter their PIN.'],
+ [140,'msg','Replies, typing and seen','Hold a message or tap Reply to answer it. You can see when someone is typing and when your message was seen. Pull down to refresh.'],
  [131,'msg','Messages','Open the menu and tap Messages: a main chat with everyone on the map, and private chats. Tap Message on anyone\'s profile to start one.'],
  [123,'star','New profile pictures','Every animal is redrawn in detail. Tap your picture at the top of the menu to pick a new one.'],
  [114,'lock','Account PIN','Owners and admins can set a 4-digit PIN in Settings › Account. When your account is brought to a new phone, the map asks for it first.'],
@@ -4562,6 +4565,7 @@ function qrSvg(text,px){try{const q=qrcode(0,'M');q.addData(text);q.make();const
   for(let r=0;r<n;r++)for(let c=0;c<n;c++)if(q.isDark(r,c))d+=`M${c+m} ${r+m}h1v1h-1z`;
   return `<svg viewBox="0 0 ${sz} ${sz}" width="${px}" height="${px}" shape-rendering="crispEdges"><rect width="${sz}" height="${sz}" fill="#fff"/><path d="${d}" fill="#1d2a1f"/></svg>`}catch(e){return ''}}
 function guestLink(G){return location.origin+'/?guest='+encodeURIComponent(G.code)}
+function shareLink(G){return location.origin+'/j/'+encodeURIComponent(G.code)}
 function qrSheet(G,back){openSheet(`<h2>Scan to join</h2><div class="sub">Let them point their phone camera at this. The map opens with the code filled in, they type their name and they're in.</div>
    <div class="qrw">${qrSvg(guestLink(G),240)}<div class="qrc mono">${esc(G.code)}</div><small>${G.label?esc(G.label)+' · ':''}${(G.kind||'guest')==='guest'?'Guest pass · valid until '+esc(fmtExp(G.exp)):'One-time '+(G.kind==='admin'?'admin':'owner')+' invite'}</small></div>
    <button class="btn" id="qrBack" style="width:100%;margin-top:12px">Back</button>`,()=>{$('qrBack').onclick=()=>back?back():sendGuest(G)})}
@@ -4819,7 +4823,7 @@ const fmtDay=t=>new Date(t).toLocaleString([],{weekday:'short',day:'numeric',mon
 function left(t){const m=Math.max(0,(t-Date.now())/6e4);if(m<60)return Math.ceil(m)+' min';const h=m/60;if(h<24)return Math.round(h)+(Math.round(h)==1?' hour':' hours');return Math.round(h/24)+' days'}
 function span(a,b){const d=Math.round((b-a)/864e5);return d<1?'under a day':d+(d==1?' day':' days')+' total'}
 /* ---- sending a guest code: clean message, one-tap WhatsApp / SMS, link fills in the code ---- */
-function guestMsg(G,wa){const b=wa?s=>'*'+s+'*':s=>s,link=location.origin+'/?guest='+encodeURIComponent(G.code);
+function guestMsg(G,wa){const b=wa?s=>'*'+s+'*':s=>s,link=shareLink(G);
   const end=new Date(G.exp).toLocaleString([],{weekday:'long',day:'numeric',month:'long',hour:'2-digit',minute:'2-digit'});
   return [ b('KHAYA NDLOVU · GAME DRIVE MAP'),'',
     (G.label?'Hi '+G.label+'! ':'Hi! ')+(G.kind&&G.kind!=='guest'?"You've been invited to join the reserve map as an "+G.kind+'.':"You've been invited to use the reserve map."),'',
@@ -4844,6 +4848,7 @@ function sendGuest(G,fromList){const wa=guestMsg(G,true),sms=guestMsg(G,false),b
   const row=(tag,attrs,ic,bg,t,sub)=>`<${tag} class="it shr" ${attrs}><span class="si" style="${bg}">${ic}</span><div style="flex:1;min-width:0"><b>${t}</b><br><small>${sub}</small></div><span class="ar">›</span></${tag}>`;
   openSheet(`<h2>Send ${G.kind&&G.kind!=='guest'?(G.kind==='admin'?'admin':'owner')+' invite':'guest pass'}</h2><div class="sub">They tap the link, type their name and they're in. The code works once.</div>${ticketCard(G)}
   <div class="msec" style="margin-top:16px">Send with</div><div class="list sgroup">
+   ${row('button','id="sCard"',LI('ticket',19),'background:linear-gradient(135deg,#e9c46a,#8a6a1f)','Send the card','A photo with the code, plus the message')}
    ${row('a',`id="sWa" href="https://wa.me/?text=${encodeURIComponent(wa)}" target="_blank" rel="noopener"`,'<svg width="21" height="21" viewBox="0 0 24 24" fill="#fff"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.3-.5 0-1 .2-3.3-.7-2.8-1.1-4.5-4-4.7-4.2-.1-.2-1.1-1.5-1.1-2.9 0-1.4.7-2 1-2.3.3-.3.6-.3.8-.3h.6c.2 0 .4 0 .6.5l.9 2.1c.1.2.1.4 0 .5l-.4.6-.4.4c-.1.2-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.3 2.4 1.5.3.1.5.1.6-.1l.9-1.1c.2-.3.4-.2.6-.1l2 .9c.3.2.5.2.6.3.1.2.1.8-.1 1.4z"/></svg>','background:#25d366','WhatsApp','Pick a chat and send')}
    ${row('a',`id="sSms" href="sms:?&body=${encodeURIComponent(sms)}"`,'<svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><path d="M12 3C6.5 3 2 6.6 2 11c0 2.3 1.2 4.4 3.2 5.9L4.5 21l4.1-2.2c1.1.3 2.2.4 3.4.4 5.5 0 10-3.6 10-8.1S17.5 3 12 3z"/></svg>','background:#34c759','Messages','Send as a text message')}
    ${row('button','id="sCopy"',LI('clip',19),'','Copy message','The full invite, ready to paste')}
@@ -4856,7 +4861,39 @@ function sendGuest(G,fromList){const wa=guestMsg(G,true),sms=guestMsg(G,false),b
     if($('sQR'))$('sQR').onclick=()=>qrSheet(G,()=>sendGuest(G,fromList));$('sCopy').onclick=()=>cp(wa.replace(/\*/g,''),'Message copied');
     $('sCode').onclick=()=>cp(G.code,'Code '+G.code+' copied');
     if($('sMore'))$('sMore').onclick=()=>navigator.share({text:sms}).catch(()=>{});
+    $('sCard').onclick=async()=>{const b=$('sCard').querySelector('b'),t=b.textContent;b.textContent=T('Making the card...');await shareInviteCard(G,wa.replace(/\*/g,''));b.textContent=t};
     if($('sBack'))$('sBack').onclick=back})}
+/* who sent the code and what it opens, shown on the sign-in screen (works before signing in) */
+async function codePreview(c){try{const r=await fetch(SUPA.url+'/rest/v1/rpc/code_preview',{method:'POST',headers:{apikey:SUPA.key,'Content-Type':'application/json'},body:JSON.stringify({p_code:c})});if(!r.ok)return null;return await r.json()}catch(e){return null}}
+async function gatePreview(c){const P=await codePreview(c);if(!P||!needGate())return;const g=$('gate'),h=g.querySelector('.gcard h2'),pp=g.querySelector('.gcard p');const k=P.kind==='admin'?'Admin':P.kind==='owner'?'Owner':'Guest';
+  if(P.state==='used'){if(h)h.textContent=T('Welcome back');if(pp)pp.textContent=T('This code is yours. Type your name and tap the button to get back into your account.');return}
+  if(P.state!=='ok'){if(pp)pp.textContent=T(P.state==='revoked'?'This code was cancelled. Ask whoever sent it for a new one.':'This code has ended. Ask whoever sent it for a new one.');return}
+  if(h)h.textContent=(P.from?P.from.split(' ')[0]+' '+T('sent you')+' ':T('You have')+' ')+T(k+' access');
+  if(pp)pp.textContent=(P.ends?T('Valid until')+' '+fmtExp(Date.parse(P.ends))+'. ':T('Never expires')+'. ')+T('Just type your name and you\'re in.');
+  if(P.for&&P.kind!=='guest'&&$('gName')&&!$('gName').value)$('gName').value=String(P.for).slice(0,40)}
+/* the invite as a picture: sent as a photo so the code is always in their chat */
+async function inviteCard(G){const W=1080,H=1350,c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');const k=G.kind||'guest';
+  const RC={guest:['#7ed39b','#1f6b3d'],owner:['#f3d27a','#a8741a'],admin:['#e9b8ff','#5fd0ff']}[k]||['#7ed39b','#1f6b3d'];
+  const bg=x.createLinearGradient(0,0,W,H);bg.addColorStop(0,'#16301f');bg.addColorStop(1,'#0b1a11');x.fillStyle=bg;x.fillRect(0,0,W,H);
+  const rr=(X,Y,w,h,r)=>{x.beginPath();x.moveTo(X+r,Y);x.arcTo(X+w,Y,X+w,Y+h,r);x.arcTo(X+w,Y+h,X,Y+h,r);x.arcTo(X,Y+h,X,Y,r);x.arcTo(X,Y,X+w,Y,r);x.closePath()};
+  rr(60,60,W-120,H-120,48);x.fillStyle='rgba(255,255,255,.06)';x.fill();x.lineWidth=4;const gl=x.createLinearGradient(60,60,W-60,H-60);gl.addColorStop(0,'#e9c46a');gl.addColorStop(1,'#8a6a1f');x.strokeStyle=gl;x.stroke();
+  const font=(w,sz)=>`${w} ${sz}px -apple-system,"SF Pro Display",Inter,Segoe UI,Roboto,sans-serif`;x.textAlign='center';
+  try{const im=new Image();im.src=APPLOGO;await new Promise(r=>{im.onload=r;im.onerror=r;setTimeout(r,1500)});if(im.naturalWidth){x.save();x.beginPath();x.arc(W/2,190,80,0,7);x.clip();x.drawImage(im,W/2-80,110,160,160);x.restore()}}catch(e){}
+  x.fillStyle='#e9c46a';x.font=font(800,34);x.fillText('KHAYA NDLOVU · GAME DRIVE MAP',W/2,320);
+  const from=(Cloud.member&&Cloud.member.name||'').split(' ')[0];x.fillStyle='#fff';x.font=font(700,58);x.fillText(from?from+' sent you':'You have been sent',W/2,420);
+  const lbl=(k==='admin'?'ADMIN':k==='owner'?'OWNER':'GUEST')+' ACCESS',pg=x.createLinearGradient(W/2-260,0,W/2+260,0);pg.addColorStop(0,RC[0]);pg.addColorStop(1,RC[1]);
+  rr(W/2-270,450,540,96,48);x.fillStyle=pg;x.fill();x.fillStyle='#0b1a11';x.font=font(900,48);x.fillText(lbl,W/2,515);
+  if(G.label){x.fillStyle='rgba(255,255,255,.75)';x.font=font(600,40);x.fillText('For '+G.label,W/2,610)}
+  rr(170,650,W-340,150,30);x.fillStyle='rgba(0,0,0,.35)';x.fill();x.fillStyle='rgba(255,255,255,.6)';x.font=font(700,26);x.fillText('YOUR CODE',W/2,695);
+  x.fillStyle='#fff';x.font='800 76px ui-monospace,Menlo,Consolas,monospace';x.fillText(G.code,W/2,775);
+  x.fillStyle='rgba(255,255,255,.85)';x.font=font(600,34);x.fillText(k==='guest'?'Valid until '+fmtExp(G.exp):'Never expires',W/2,860);
+  try{const q=qrcode(0,'M');q.addData(guestLink(G));q.make();const n=q.getModuleCount(),S=300,m=S/(n+8),X0=W/2-S/2,Y0=895;rr(X0,Y0,S,S,22);x.fillStyle='#fff';x.fill();x.fillStyle='#0b1a11';
+    for(let r=0;r<n;r++)for(let cc=0;cc<n;cc++)if(q.isDark(r,cc))x.fillRect(X0+(cc+4)*m,Y0+(r+4)*m,Math.ceil(m),Math.ceil(m))}catch(e){}
+  x.fillStyle='rgba(255,255,255,.7)';x.font=font(600,28);x.fillText('Scan, or tap the link in the message',W/2,1240);
+  return await new Promise(r=>c.toBlob(r,'image/png'))}
+async function shareInviteCard(G,text){try{const b=await inviteCard(G);const f=new File([b],'Khaya-Ndlovu-'+G.code+'.png',{type:'image/png'});
+    if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],text});return true}
+    const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=f.name;a.click();toast(T('Card saved. Send it with the message'));return true}catch(e){if(e&&e.name==='AbortError')return true;return false}}
 function fallbackCopy(t,m){const a=document.createElement('textarea');a.value=t;a.setAttribute('readonly','');a.style.cssText='position:fixed;top:-100px;opacity:0';document.body.appendChild(a);a.select();a.setSelectionRange(0,99999);try{document.execCommand('copy');toast(m)}catch(e){toast(t)}a.remove()}
 async function loadQuota(){const el=$('gQuota');if(!el)return;let q=null;try{q=await rpc('code_quota')}catch(e){}if(!q||!$('gQuota'))return;
   if(q.limit==null){el.textContent=T('Admins can make as many codes as they need');return}
@@ -5347,7 +5384,7 @@ async function shareSightToChat(x){if(!Cloud.member){toast(T('Join the map first
   try{await chatSendRpc({p_id:'cm-'+cidNew().replace(/[^A-Za-z0-9_-]/g,''),p_with:'main',p_body:'',p_media:[],p_reply:null,p_ref:ref});toast(T('Shared in the main chat'));chatPoll()}catch(e){toast(errTxt(e).replace(/^Database said: /,''),5000)}}
 /* scan a guest pass QR code with the camera, right from the sign-in screen */
 let jsQRf=null;function loadJsQR(){if(jsQRf)return jsQRf;try{const m={exports:{}};new Function('module','exports',$('jsqrSrc').textContent)(m,m.exports);jsQRf=m.exports.default||m.exports}catch(e){jsQRf=null}return jsQRf}
-function codeFromScan(s){s=String(s||'').trim();try{const u=new URL(s);const g=u.searchParams.get('guest');if(g)return g}catch(e){}
+function codeFromScan(s){s=String(s||'').trim();try{const u=new URL(s);const g=u.searchParams.get('guest')||(u.pathname.match(/^\/j\/([A-Za-z0-9-]{4,20})/)||[])[1];if(g)return g}catch(e){}
   const m=s.match(/[?&]guest=([A-Za-z0-9-]+)/);if(m)return m[1];return /^[A-Za-z0-9-]{4,20}$/.test(s)?s:null}
 function useScannedCode(code){code=code.toUpperCase().slice(0,20);$('gCode').value=code;const g=$('gate');g.classList.add('qrjoin');
   const h=g.querySelector('.gcard h2'),pp=g.querySelector('.gcard p');if(h)h.textContent=T('Welcome to Khaya Ndlovu');if(pp)pp.textContent=T('Your pass is ready. Just type your name and you\'re in.');
@@ -5443,10 +5480,10 @@ const needRole=()=>Cloud.member&&LS.get('roleSeen','')!==(Cloud.member.role||'ow
 function afterGate(){if(needRole()){roleSheet(()=>afterGate2());return}afterGate2()}
 function afterGate2(){setTimeout(()=>custPop(),600)}
 {const n=new URLSearchParams(location.search).get('n');if(n&&$('gName')&&!$('gName').value)$('gName').value=n.slice(0,40)}
-{const q=new URLSearchParams(location.search).get('guest');if(q){try{history.replaceState(null,'',location.pathname)}catch(e){}if(needGate()){$('gCode').value=q.toUpperCase().slice(0,12);
+{const q=new URLSearchParams(location.search).get('guest')||(location.pathname.match(/^\/j\/([A-Za-z0-9-]{4,20})/)||[])[1];if(q){try{history.replaceState(null,'',location.pathname)}catch(e){}if(needGate()){$('gCode').value=q.toUpperCase().slice(0,12);
   // came from a scanned QR code: the code is already in, so only ask for their name
   const g=$('gate');g.classList.add('qrjoin');const h=g.querySelector('.gcard h2'),pp=g.querySelector('.gcard p');if(h)h.textContent=T('Welcome to Khaya Ndlovu');if(pp)pp.textContent=T('Your pass is ready. Just type your name and you\'re in.');
-  setTimeout(()=>{try{$('gName').focus()}catch(e){}},600)}
+  setTimeout(()=>{try{$('gName').focus()}catch(e){}},600);gatePreview(q)}
   else if(Cloud.member){const code=q.toUpperCase().slice(0,12);
     // this phone is already signed in, so the pass can't be used here: say so instead of doing nothing
     setTimeout(()=>openSheet(`<div style="text-align:center">${LI('ticket',38)}<h2 style="margin:6px 0 4px">${T('Guest pass')} ${esc(code)}</h2></div>
