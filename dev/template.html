@@ -1160,7 +1160,7 @@ body.night .cuo,body.night .cuname{background:rgba(255,255,255,.06)}
 <div id="scrim"></div>
 <div id="sheet"><div class="grab"></div><div id="sheetBody"></div></div>
 <div id="sbFade"></div>
-<button id="sosBtn" class="hide" aria-label="SOS">SOS</button>
+<script>/* SOS is archived: the code stays, the button is off. Set to true to bring it back. */var SOS_ON=false;</script><button id="sosBtn" class="hide" aria-label="SOS">SOS</button>
 <div id="sosOv" class="hide"><div class="sosIn" id="sosIn"></div></div>
 <div id="sosBar" class="hide"></div><div id="sosRx" class="hide"></div><div id="spdBar">Slow down · 40 km/h limit</div><div id="redMode"></div><div id="toast"></div><div id="ping"><div class="pe" id="pingE"></div><div><b id="pingT"></b><small id="pingS"></small></div><span class="px" id="pingX">✕</span></div>
 
@@ -2142,7 +2142,7 @@ function renderSosRx(){const uid=Cloud.sess&&Cloud.sess.uid,A=SOSALL.filter(x=>!
 setInterval(()=>{if(SOSALL.length)renderSosRx()},10000);
 $('sosBtn').onclick=()=>sosStart();
 setInterval(()=>{if(!document.hidden)loadSos()},15000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)loadSos()});
-setInterval(()=>{$('sosBtn').classList.toggle('hide',!Cloud.member);},2000);
+setInterval(()=>{$('sosBtn').classList.toggle('hide',!(Cloud.member&&SOS_ON));},2000);
 if(SOS&&!SOS.resolved){setTimeout(()=>{sosActiveBar();clearInterval(sosFollow.t);sosFollow.t=setInterval(sosFollow,10000)},3000)}
 /* ============ which animals alert me ============ */
 let alertWhat=LS.get('alertWhat',null);
