@@ -2793,7 +2793,7 @@ begin
       (select m.name from public.members m where m.user_id::text = case when split_part(r.room, ':', 2) = me then split_part(r.room, ':', 3) else split_part(r.room, ':', 2) end) as name,
       (select m.avatar from public.members m where m.user_id::text = case when split_part(r.room, ':', 2) = me then split_part(r.room, ':', 3) else split_part(r.room, ':', 2) end) as av,
       (select case when m.locked then 'db' else m.role end from public.members m where m.user_id::text = case when split_part(r.room, ':', 2) = me then split_part(r.room, ':', 3) else split_part(r.room, ':', 2) end) as rl,
-      case when l.body = '' and jsonb_array_length(l.media) > 0 then '📷 Photo or video' else l.body end s, l.created_at t, (select coalesce(mm.name, 'Someone') from public.members mm where mm.user_id = l.user_id) last_by, l.user_id::text = me last_mine,
+      case when l.body = '' and l.ref is not null then '🔭 Shared a sighting' when l.body = '' and jsonb_array_length(l.media) > 0 then '📷 Photo or video' else l.body end s, l.created_at t, (select coalesce(mm.name, 'Someone') from public.members mm where mm.user_id = l.user_id) last_by, l.user_id::text = me last_mine,
       (select count(*) from public.chat_msgs c where c.room = r.room and c.user_id <> auth.uid() and c.created_at > coalesce((select cr.last_at from public.chat_reads cr where cr.room = r.room and cr.user_id = auth.uid()), '-infinity')) unread
     from (select 'main' room where public.kn_chat_ok('main')
           union select distinct c.room from public.chat_msgs c where c.room like 'dm:%' and position(me in c.room) > 0) r
@@ -2920,9 +2920,136 @@ returns json language sql stable security definer set search_path = public, priv
 grant execute on function public.map_state() to authenticated;
 
 
+-- ---------- v140: CHAT EXTRAS: replies, shared sightings, typing, seen, mute, warn, pin ----------
+alter table public.chat_msgs add column if not exists reply_to text;
+alter table public.chat_msgs add column if not exists ref jsonb;
+create table if not exists public.chat_typing (room text not null, user_id uuid not null, at timestamptz not null default now(), primary key (room, user_id));
+alter table public.chat_typing enable row level security;
+revoke all on public.chat_typing from anon, authenticated;
+create table if not exists public.chat_mutes (user_id uuid primary key, until timestamptz, by_name text, reason text, at timestamptz not null default now());
+alter table public.chat_mutes enable row level security;
+revoke all on public.chat_mutes from anon, authenticated;
+create table if not exists public.chat_pins (room text primary key, msg_id text, by_name text, at timestamptz not null default now());
+alter table public.chat_pins enable row level security;
+revoke all on public.chat_pins from anon, authenticated;
+
+drop function if exists public.chat_send(text, text, text, jsonb);
+create or replace function public.chat_send(p_id text, p_with text, p_body text, p_media jsonb default '[]'::jsonb, p_reply text default null, p_ref jsonb default null)
+returns json language plpgsql security definer set search_path = public as $$
+declare r text := public.kn_room(p_with); b text := left(btrim(coalesce(p_body, '')), 1000); md jsonb := coalesce(p_media, '[]'::jsonb); mu public.chat_mutes;
+begin
+  if not public.kn_chat_ok(r) then raise exception 'You cannot post in this chat'; end if;
+  if r = 'main' and not public.is_admin() then
+    select * into mu from public.chat_mutes where user_id = auth.uid() and (until is null or until > now());
+    if found then raise exception 'An admin has muted you in the main chat%', case when mu.until is not null then ' until ' || to_char(mu.until at time zone 'Africa/Johannesburg', 'DD Mon HH24:MI') else '' end; end if;
+  end if;
+  if jsonb_typeof(md) <> 'array' or jsonb_array_length(md) > 6 then raise exception 'Up to 6 photos or videos'; end if;
+  if p_ref is not null and (jsonb_typeof(p_ref) <> 'object' or length(p_ref::text) > 600) then raise exception 'bad share'; end if;
+  if b = '' and jsonb_array_length(md) = 0 and p_ref is null then raise exception 'Write something first'; end if;
+  if r <> 'main' and not exists (select 1 from public.members where user_id = p_with::uuid) then raise exception 'That person is not on the map'; end if;
+  if (select count(*) from public.chat_msgs where user_id = auth.uid() and created_at > now() - interval '1 minute') >= 20 then raise exception 'Slow down a little'; end if;
+  insert into public.chat_msgs (id, room, body, media, reply_to, ref) values (left(p_id, 60), r, b, md,
+    (select id from public.chat_msgs where id = p_reply and room = r), p_ref) on conflict (id) do nothing;
+  insert into public.chat_reads (room, user_id, last_at) values (r, auth.uid(), now()) on conflict (room, user_id) do update set last_at = now();
+  delete from public.chat_typing where room = r and user_id = auth.uid();
+  return json_build_object('ok', true, 'room', r);
+end $$;
+grant execute on function public.chat_send(text, text, text, jsonb, text, jsonb) to authenticated;
+
+create or replace function public.chat_list(p_with text, p_before timestamptz default null)
+returns json language plpgsql security definer set search_path = public as $$
+declare r text := public.kn_room(p_with); out json;
+begin
+  if not public.kn_chat_ok(r) then raise exception 'You cannot see this chat'; end if;
+  select coalesce(json_agg(x order by x.t), '[]'::json) into out from (
+    select c.id, c.body s, c.media, c.ref, c.created_at t, c.user_id u, c.user_id = auth.uid() mine, coalesce(m.name, 'Someone') by, m.avatar av,
+           case when m.locked then 'db' else m.role end rl, c.user_id = auth.uid() or public.is_admin() can,
+           case when q.id is not null then json_build_object('id', q.id, 'by', coalesce(qm.name, 'Someone'), 's', left(q.body, 120), 'media', jsonb_array_length(q.media) > 0, 'ref', q.ref is not null) end as rq
+    from public.chat_msgs c left join public.members m on m.user_id = c.user_id
+      left join public.chat_msgs q on q.id = c.reply_to left join public.members qm on qm.user_id = q.user_id
+    where c.room = r and c.created_at < coalesce(p_before, now() + interval '1 minute')
+    order by c.created_at desc limit 80) x;
+  insert into public.chat_reads (room, user_id, last_at) values (r, auth.uid(), now()) on conflict (room, user_id) do update set last_at = now();
+  return out;
+end $$;
+grant execute on function public.chat_list(text, timestamptz) to authenticated;
+
+-- the light, frequent check while a chat is open: who is typing, who has read up to when, the pinned message, newest message time
+create or replace function public.chat_state(p_with text, p_typing boolean default false)
+returns json language plpgsql security definer set search_path = public as $$
+declare r text := public.kn_room(p_with);
+begin
+  if not public.kn_chat_ok(r) then return null; end if;
+  if p_typing then insert into public.chat_typing (room, user_id, at) values (r, auth.uid(), now()) on conflict (room, user_id) do update set at = now();
+  else delete from public.chat_typing where room = r and user_id = auth.uid(); end if;
+  update public.chat_reads set last_at = now() where room = r and user_id = auth.uid();
+  return json_build_object(
+    'typing', coalesce((select json_agg(coalesce(m.name, 'Someone')) from public.chat_typing ty left join public.members m on m.user_id = ty.user_id
+                        where ty.room = r and ty.user_id <> auth.uid() and ty.at > now() - interval '7 seconds'), '[]'::json),
+    'reads', coalesce((select json_agg(json_build_object('u', cr.user_id, 'at', cr.last_at)) from public.chat_reads cr where cr.room = r and cr.user_id <> auth.uid()), '[]'::json),
+    'last', (select max(created_at) from public.chat_msgs where room = r),
+    'pin', (select json_build_object('id', c.id, 's', left(c.body, 200), 'by', coalesce(m.name, 'Someone'), 'pinned_by', p.by_name, 'media', jsonb_array_length(c.media) > 0)
+            from public.chat_pins p join public.chat_msgs c on c.id = p.msg_id left join public.members m on m.user_id = c.user_id where p.room = r),
+    'muted', case when r = 'main' then (select json_build_object('until', mu.until, 'by', mu.by_name, 'reason', mu.reason) from public.chat_mutes mu where mu.user_id = auth.uid() and (mu.until is null or mu.until > now())) end);
+end $$;
+grant execute on function public.chat_state(text, boolean) to authenticated;
+
+-- admins: pin a main chat message (or clear it)
+create or replace function public.chat_pin(p_msg text)
+returns void language plpgsql security definer set search_path = public as $$
+begin
+  if not public.is_admin() then raise exception 'admins only'; end if;
+  if p_msg is null then delete from public.chat_pins where room = 'main'; return; end if;
+  if not exists (select 1 from public.chat_msgs where id = p_msg and room = 'main') then raise exception 'That message is gone'; end if;
+  insert into public.chat_pins (room, msg_id, by_name) values ('main', p_msg, public.kn_me_name()) on conflict (room) do update set msg_id = excluded.msg_id, by_name = excluded.by_name, at = now();
+end $$;
+grant execute on function public.chat_pin(text) to authenticated;
+
+-- admins: mute someone in the main chat (minutes null = until unmuted; 0 = unmute)
+create or replace function public.chat_mute(p_user uuid, p_minutes int, p_reason text default null)
+returns void language plpgsql security definer set search_path = public as $$
+declare nm text;
+begin
+  if not public.is_admin() then raise exception 'admins only'; end if;
+  select name into nm from public.members where user_id = p_user;
+  if nm is null then raise exception 'That person is not on the map'; end if;
+  if exists (select 1 from public.members where user_id = p_user and (locked or role = 'admin')) then raise exception 'Admins cannot be muted'; end if;
+  if p_minutes = 0 then delete from public.chat_mutes where user_id = p_user; perform public.kn_log('admin', 'unmuted ' || nm || ' in the main chat'); return; end if;
+  insert into public.chat_mutes (user_id, until, by_name, reason) values (p_user, case when p_minutes is null then null else now() + make_interval(mins => p_minutes) end, public.kn_me_name(), left(p_reason, 200))
+    on conflict (user_id) do update set until = excluded.until, by_name = excluded.by_name, reason = excluded.reason, at = now();
+  perform public.kn_log('admin', 'muted ' || nm || ' in the main chat' || coalesce(' for ' || p_minutes || ' min', ''));
+end $$;
+grant execute on function public.chat_mute(uuid, int, text) to authenticated;
+create or replace function public.chat_mute_status(p_user uuid)
+returns json language sql stable security definer set search_path = public as $$
+  select case when public.is_admin() then (select json_build_object('until', until, 'by', by_name) from public.chat_mutes where user_id = p_user and (until is null or until > now())) end $$;
+grant execute on function public.chat_mute_status(uuid) to authenticated;
+
+-- removed people: their typing, mutes and pins go too
+create or replace function public.kn_member_gone_chat()
+returns trigger language plpgsql security definer set search_path = public as $$
+begin
+  if coalesce(current_setting('kn.handover', true), '') = '1' then return old; end if;
+  delete from public.chat_pins where msg_id in (select id from public.chat_msgs where user_id = old.user_id);
+  delete from public.chat_msgs where user_id = old.user_id;
+  delete from public.chat_reads where user_id = old.user_id;
+  delete from public.chat_typing where user_id = old.user_id;
+  delete from public.chat_mutes where user_id = old.user_id;
+  return old;
+end $$;
+create or replace function public.chat_delete(p_id text)
+returns void language plpgsql security definer set search_path = public as $$
+begin
+  delete from public.chat_pins where msg_id = p_id and exists (select 1 from public.chat_msgs where id = p_id and (user_id = auth.uid() or public.is_admin()));
+  delete from public.chat_msgs where id = p_id and (user_id = auth.uid() or public.is_admin());
+  if not found then raise exception 'You can only delete your own messages'; end if;
+end $$;
+grant execute on function public.chat_delete(text) to authenticated;
+
+
 
 -- =====================================================================
--- PUSH THE UPDATE (version 139)
+-- PUSH THE UPDATE (version 140)
 -- =====================================================================
 
 alter table private.config add column if not exists min_build int not null default 0;
@@ -2992,9 +3119,9 @@ begin
 end $$;
 grant execute on function public.set_min_build(int) to authenticated;
 
--- push it now: require version 139 and post the news. It is sent by the database, not by any person.
-update private.config set min_build = 139;
-select public.kn_update_news(139);
+-- push it now: require version 140 and post the news. It is sent by the database, not by any person.
+update private.config set min_build = 140;
+select public.kn_update_news(140);
 
 notify pgrst, 'reload schema';
 
@@ -3007,7 +3134,7 @@ union all select 'Protected account (9fb4d097...) locked as admin', case when ex
 union all select 'Second Database account (f2f31fe6...)', case when exists (select 1 from public.members where user_id = 'f2f31fe6-5256-4b05-88ee-d7237649f681' and locked and role = 'admin') then 'YES' else 'NO: that account is not on the map yet. Open the map on that phone, then run this again' end
 union all select 'Your Database code (keep it secret, it gives full control)', (select db_code from private.config limit 1)
 union all select 'Backend self-test', case when (select count(*) from public.kn_backend_selftest() where result not like 'PASS%') = 0 then 'YES' else 'NO: ' || (select string_agg(test, ', ') from public.kn_backend_selftest() where result not like 'PASS%') end
-union all select 'Everyone must be on version 139', case when (select min_build from private.config limit 1) = 139 then 'YES' else 'NO' end
-union all select 'Update news posted (only old versions see it)', case when exists (select 1 from public.announcements where for_old_build = 139 and not removed) then 'YES' else 'NO' end
+union all select 'Everyone must be on version 140', case when (select min_build from private.config limit 1) = 140 then 'YES' else 'NO' end
+union all select 'Update news posted (only old versions see it)', case when exists (select 1 from public.announcements where for_old_build = 140 and not removed) then 'YES' else 'NO' end
 union all select 'Your owner code (unchanged)', (select upper(invite_code) from private.config limit 1)
-union all select 'People who still need to update', (select count(*)::text from public.members where coalesce(app_build, 0) < 139 and (role <> 'guest' or expires_at > now()));
+union all select 'People who still need to update', (select count(*)::text from public.members where coalesce(app_build, 0) < 140 and (role <> 'guest' or expires_at > now()));
