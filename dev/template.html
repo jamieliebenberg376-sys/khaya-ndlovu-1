@@ -1037,6 +1037,32 @@ body.spbar #roadPill{bottom:calc(var(--bb) + 222px)!important}
 .pfi.t-rain::after{inset:-3px;background:conic-gradient(#ff3b5c,#ff9f1c,#ffe14d,#2ecc71,#2fa8ff,#8a5cff,#ff3bd1,#ff3b5c);-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 3px),#000 calc(100% - 2.5px));mask:radial-gradient(farthest-side,transparent calc(100% - 3px),#000 calc(100% - 2.5px));filter:drop-shadow(0 0 4px rgba(255,120,200,.6));animation:pfSpin 3s linear infinite}
 @keyframes pfSpin{to{transform:rotate(360deg)}}
 @media (prefers-reduced-motion:reduce){.pfi.t-rain::after{animation:none}}
+.mdot{position:absolute;top:2px;right:0;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:#d93025;color:#fff;font:800 11px/18px system-ui;font-style:normal;text-align:center;box-shadow:0 0 0 2px #fff}
+#menuBtn{position:relative}
+.chl{margin-top:12px;display:flex;flex-direction:column;gap:2px}
+.chr{display:flex;align-items:center;gap:12px;width:100%;padding:10px 4px;border:0;background:none;text-align:left;color:inherit;font:inherit;border-bottom:1px solid var(--hair)}
+.chav.main{width:46px;height:46px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,#2a5a40,#173826);color:#ffd36b}
+.chm{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.cht{display:flex;align-items:baseline;gap:8px}.cht b{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:15.5px}.cht small{flex:none;color:var(--sub);font-size:12px}
+.chs{color:var(--sub);font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.chs.un{color:inherit;font-weight:700}
+.chu{flex:none;min-width:22px;height:22px;padding:0 6px;border-radius:11px;background:#1a73e8;color:#fff;font:800 12px/22px system-ui;text-align:center}
+.chtitle{flex:1;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.chlist{display:flex;flex-direction:column;gap:3px;padding:4px 0 8px;min-height:120px}
+.chday{align-self:center;margin:10px 0 4px;font:700 11.5px system-ui;color:var(--sub);background:rgba(127,127,127,.1);padding:3px 10px;border-radius:999px}
+.chb{display:flex;align-items:flex-end;gap:6px;max-width:86%;margin-top:6px}.chb.cont{margin-top:0}
+.chb.cmine{align-self:flex-end;flex-direction:row-reverse}
+.chba{width:30px;flex:none;display:flex}
+.chbb{min-width:0;width:max-content;max-width:100%;padding:7px 11px 5px;border-radius:18px;background:rgba(127,127,127,.12)}
+.chb.cmine .chbb{background:linear-gradient(160deg,#2a5a40,#1d4631);color:#fff}
+.chbb b{display:block;font-size:12.5px;margin-bottom:1px}
+.chbb span{display:block;font-size:15px;line-height:1.35;white-space:pre-wrap;word-wrap:break-word;overflow-wrap:break-word}
+.chbb small{display:block;font-size:10.5px;opacity:.65;margin-top:2px;text-align:right}
+.chbb small button{border:0;background:none;color:inherit;font:inherit;font-weight:800;padding:0}
+.chb.wait{opacity:.6}
+#msgBan{position:fixed;left:50%;top:calc(var(--safe-t) + 10px);transform:translate(-50%,-140%);z-index:300;display:flex;align-items:center;gap:10px;width:min(92vw,420px);padding:9px 12px;border:0;border-radius:18px;background:rgba(255,255,255,.97);color:#1d2a20;box-shadow:0 10px 30px rgba(0,0,0,.25);text-align:left;font:inherit;transition:transform .35s}
+#msgBan.on{transform:translate(-50%,0)}
+#msgBan .mbt{flex:1;min-width:0;display:flex;flex-direction:column}#msgBan b{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#msgBan small{font-size:13px;color:#5f6368;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#msgBan .mbic{width:34px;height:34px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,#2a5a40,#173826);color:#ffd36b}
 .admb{display:inline-flex;vertical-align:-3px;margin-left:4px}.admb svg{width:16px;height:16px}.dbb svg{width:18px;height:18px;filter:drop-shadow(0 0 3px rgba(230,184,74,.75))}span.tag.t-db{background:linear-gradient(180deg,#f6dc8c,#c8963a)!important;color:#2a1d05!important;border-color:#9a6b12!important;box-shadow:0 0 6px rgba(230,184,74,.55)}
 .avc{display:inline-flex;flex:none;border-radius:50%;overflow:hidden}.avc svg{width:100%;height:100%}
 .obdots{display:flex;gap:6px;margin-bottom:10px}.obdots i{flex:1;height:4px;border-radius:2px;background:rgba(0,0,0,.12)}.obdots i.on{background:#ffc23d}
@@ -1916,6 +1942,7 @@ function annPop(){const a=ANN.filter(x=>!annSeen.has(x.client_id)&&(!x.expires_a
 
 /* ============ what's new: shown once to owners and admins after an update ============ */
 const WHATS_NEW=[
+ [131,'msg','Messages','Open the menu and tap Messages: a main chat with everyone on the map, and private chats. Tap Message on anyone\'s profile to start one.'],
  [123,'star','New profile pictures','Every animal is redrawn in detail. Tap your picture at the top of the menu to pick a new one.'],
  [114,'lock','Account PIN','Owners and admins can set a 4-digit PIN in Settings › Account. When your account is brought to a new phone, the map asks for it first.'],
  [113,'users','Is this your account?','Signing in on a new phone, or after deleting the app? Type your name and code and the map asks if the account it found is yours. Yes brings it back with everything in it.'],
@@ -4147,7 +4174,7 @@ async function profileSheet(uid,fallbackName){if(!uid)return;openSheet(`<div cla
    ${canMsg?`<button class="btn pri" id="prMsg" style="width:100%;margin-top:12px">${LI('msg',17)} ${T('Message')} ${esc(name.split(' ')[0])}</button>`:''}
    ${p.gone&&!R.length?'':`<div class="msec" style="margin-top:14px">${T('Recent')}</div>`}<div class="prof">${p.gone&&!R.length?'':R.length?R.map((x,i)=>`<div class="pr"><span>${x.w?AN(x.w,30):LI('msg',20)}</span><div style="flex:1;min-width:0">${x.k==='s'?esc(T('Spotted')+' '+(x.w?T(x.w).toLowerCase():'')):esc(T('Posted'))}${x.s?`<small style="white-space:normal">"${esc(x.s.length>140?x.s.slice(0,140)+'…':x.s)}"</small>`:''}<small>${esc(ago(Date.parse(x.t)))}</small></div>${p.can?`<button class="prdel" data-prd="${i}" aria-label="${T('Delete')}">${LI('trash',17)}</button>`:''}</div>`).join(''):`<div class="pr"><span>${LI('scope',20)}</span><div>${T('Nothing yet')}</div></div>`}</div>
    ${p.can&&R.length>1&&!p.me?`<button class="btn red" id="prAll" style="width:100%;margin-top:12px">${LI('trash',17)} ${T('Delete everything by')} ${esc(name.split(' ')[0])}</button>`:''}`,()=>{
-    if($('prMsg'))$('prMsg').onclick=()=>directSheet({user_id:uid,name},()=>profileSheet(uid,fallbackName));
+    if($('prMsg'))$('prMsg').onclick=()=>chatSheet(uid,name,()=>profileSheet(uid,fallbackName));
     document.querySelectorAll('[data-prd]').forEach(b=>b.onclick=async()=>{const x=R[+b.dataset.prd];if(!x)return;
       if(b.dataset.sure!=='1'){b.dataset.sure='1';b.classList.add('sure');b.innerHTML=T('Delete?');return}
       b.disabled=true;if(await delFeedItem(x.k==='s'?'s':'p',x.c,x.media))profileSheet(uid,fallbackName);else b.disabled=false});
@@ -4211,6 +4238,7 @@ $('menuBtn').onclick=()=>{
    <div class="msec">More</div>
    <div class="list sgroup">
     ${m&&owner?LK('lAnn','News',ANN.length?ANN.length+' live announcement'+(ANN.length==1?'':'s'):'No announcements',unread?'<span class="tag t-new">'+unread+' new</span>':'','mega','#7b1fa2'):''}
+    ${m?LK('lMsg',T('Messages'),chatUnread()?chatUnread()+' '+T('unread'):T('Main chat and private messages'),chatUnread()?'<span class="tag t-new">'+chatUnread()+' new</span>':'','msg','#1a73e8'):''}
     ${m?LK('lLive','Share live location',shareLoc?'On · '+esc(liveWhy().short):'Off','','live','#1a73e8'):''}
     ${m&&m.locked?LK('lSug','Suggestions',SUG.list.length?SUG.list.length+' from people on the map':'Nothing yet',SUG.list.filter(x=>!x.read).length?'<span class="tag t-new">'+SUG.list.filter(x=>!x.read).length+' new</span>':'','msg','#0b8043'):m?LK('lSug','Suggest something','Ideas, problems or wishes for the map','','msg','#0b8043'):''}
     ${m&&isAdm2()&&!m.viewAs?LK('lAdm','Admin tools',MS.paused?'The map is paused':'Pause, rules, guest limits, reports','','shield','#b06000'):''}
@@ -4228,7 +4256,7 @@ $('menuBtn').onclick=()=>{
     if($('tHome'))$('tHome').onclick=()=>homeSheet();
     if($('lAnn'))$('lAnn').onclick=()=>{loadAnn();annSheet()};
     $('tDrives').onclick=()=>openSheet(tracksSheet(),bindTracks);
-    if($('lLive'))$('lLive').onclick=()=>liveSheet();
+    if($('lLive'))$('lLive').onclick=()=>liveSheet();if($('lMsg'))$('lMsg').onclick=()=>inboxSheet();
     $('lOff').onclick=()=>offlineSheet(false);
     if($('lDemo'))$('lDemo').onclick=()=>{if(LIVEMAP){toast(T('Swap back to Khaya Ndlovu to use demo mode'));return}if(DM.on){demoPeopleSheet();return}closeSheet();startDemo()};if($('lSwap'))$('lSwap').onclick=swapSheet;
     if($('lAdm'))$('lAdm').onclick=()=>adminSheet();
@@ -4585,7 +4613,7 @@ function personSheet(x,back){const admin=Cloud.member&&Cloud.member.role==='admi
     if($('pOwn'))$('pOwn').onclick=()=>roleConfirm(x.user_id,x.name||'They','owner');
     if($('pRm'))$('pRm').onclick=()=>removeConfirm(x,()=>personSheet(x,back),back);
     if($('pDbDel'))$('pDbDel').onclick=()=>typeConfirm({title:'Delete '+(x.name||'this')+' Database account?',body:['It is logged out straight away. Only use this for old Database accounts you no longer use.'],name:x.name||'Database',btn:'Delete',cancel:()=>personSheet(x,back),go:async()=>{await rpc('delete_database',{p_user:x.user_id});toast('Old Database account deleted',3500);back?back():guestSheet()}});
-    if($('pBan'))$('pBan').onclick=()=>banConfirm(x,back);if($('pMsg'))$('pMsg').onclick=()=>directSheet(x,()=>personSheet(x,back));if($('pView'))$('pView').onclick=()=>viewAsStart(x)})}
+    if($('pBan'))$('pBan').onclick=()=>banConfirm(x,back);if($('pMsg'))$('pMsg').onclick=()=>chatSheet(x.user_id,x.name,()=>personSheet(x,back));if($('pView'))$('pView').onclick=()=>viewAsStart(x)})}
 
 /* ================= ADMIN POWER ================= */
 let MS=LS.get('mapState',{paused:false,rules:{},admin_only:[]});
@@ -5103,6 +5131,56 @@ async function recSheet(code){let has=null;if(!code&&navigator.onLine){try{has=a
     $('rcBack').onclick=()=>settingsSheet();
     if($('rcCopy'))$('rcCopy').onclick=async()=>{try{await navigator.clipboard.writeText(code)}catch(e){fallbackCopy(code)}toast('Copied. Paste it into your Notes app.',3000)};
     if($('rcMake'))$('rcMake').onclick=async()=>{if(!navigator.onLine){toast('You need signal to do this');return}$('rcMake').textContent='...';try{const c=await rpc('make_recovery_code',{});recSheet(c)}catch(e){toast(errTxt(e),5000);$('rcMake').textContent='Make my recovery code'}}})}
+
+/* ============ MESSAGES: the main chat for everyone, and private chats between two people ============ */
+const CHAT={inbox:LS.get('chatInbox',[]),unread:0,seenTop:LS.get('chatTop',{}),open:null,t:null};
+function chatDay(t){const d=new Date(t),n=new Date(),y=new Date();y.setDate(n.getDate()-1);return d.toDateString()===n.toDateString()?T('Today'):d.toDateString()===y.toDateString()?T('Yesterday'):d.toLocaleDateString([],{weekday:'short',day:'numeric',month:'short'})}
+function chatUnread(){return (CHAT.inbox||[]).reduce((a,x)=>a+(+x.unread||0),0)}
+function chatBadge(){const n=chatUnread();CHAT.unread=n;const b=$('menuBtn');if(b){let d=b.querySelector('.mdot');if(n&&!d){d=document.createElement('i');d.className='mdot';b.appendChild(d)}if(d){if(n)d.textContent=n>9?'9+':n;else d.remove()}}}
+async function chatPoll(){if(!Cloud.member||!navigator.onLine||document.hidden)return;let L;try{L=await rpc('chat_inbox')}catch(e){return}if(!Array.isArray(L))return;
+  const before=CHAT.seenTop;CHAT.inbox=L;LS.set('chatInbox',L.slice(0,40));chatBadge();if($('chInbox'))inboxSheet();
+  // a new message that is not in the chat you have open: a small banner you can tap
+  const fresh=L.filter(x=>+x.unread>0&&x.t&&!x.last_mine&&before[x.room]!==x.t&&CHAT.open!==x.room);
+  const top={};L.forEach(x=>top[x.room]=x.t);CHAT.seenTop=top;LS.set('chatTop',top);
+  const f=fresh.find(x=>!x.main)||fresh[0];if(f&&Object.keys(before).length&&!nav)msgBanner(f)}
+function msgBanner(x){let b=$('msgBan');if(!b){b=document.createElement('button');b.id='msgBan';document.body.appendChild(b)}
+  b.innerHTML=`${x.main?`<span class="mbic">${LI('users',18)}</span>`:avatarHtml(x.av,x.name,34)}<span class="mbt"><b>${x.main?T('Main chat'):NM(esc(x.name||T('Someone')),x.rl)}</b><small>${x.main?esc(x.last_by||'')+': ':''}${esc((x.s||'').slice(0,80))}</small></span>`;
+  b.classList.add('on');clearTimeout(b._t);b._t=setTimeout(()=>b.classList.remove('on'),6000);
+  b.onclick=()=>{b.classList.remove('on');x.main?chatSheet('main'):chatSheet(x.with_id,x.name)}}
+setTimeout(chatPoll,5000);setInterval(chatPoll,45000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout(chatPoll,800)});
+function inboxSheet(){const L=CHAT.inbox||[];
+  const row=x=>`<button class="chr" data-room="${esc(x.main?'main':x.with_id||'')}" data-n="${esc(x.name||'')}">${x.main?`<span class="chav main">${LI('users',22)}</span>`:avatarHtml(x.av,x.name,46)}
+    <span class="chm"><span class="cht"><b>${x.main?T('Main chat'):NM(esc(x.name||T('Someone')),x.rl)}</b><small>${x.t?esc(ago(Date.parse(x.t))):''}</small></span>
+    <span class="chs${+x.unread?' un':''}">${x.s?(x.last_mine?T('You')+': ':x.main?esc(x.last_by||'')+': ':'')+esc(x.s.slice(0,90)):x.main?T('Everyone on the map. Say hi!'):''}</span></span>${+x.unread?`<span class="chu">${+x.unread>99?'99+':+x.unread}</span>`:''}</button>`;
+  openSheet(`<div id="chInbox"></div><h2>${T('Messages')}</h2><div class="sub">${T('Tap Message on anyone\'s profile to start a private chat.')}</div>
+   <div class="chl">${L.length?L.map(row).join(''):`<div class="sub" style="margin:16px 0">${navigator.onLine?T('Loading...'):T('You need signal to see messages.')}</div>`}</div>`,()=>{
+    document.querySelectorAll('[data-room]').forEach(b=>b.onclick=()=>b.dataset.room==='main'?chatSheet('main',null,inboxSheet):chatSheet(b.dataset.room,b.dataset.n,inboxSheet))});
+  if(!L.length)chatPoll()}
+async function chatSheet(withId,name,back){withId=withId||'main';const isMain=withId==='main';let L=null,err=false;CHAT.open=null;
+  const draw=()=>{const typed=$('chT')?$('chT').value:'';const me=Cloud.member||{};
+    let lastDay='',lastU='';
+    const bub=m=>{const d=new Date(m.t).toDateString();let h='';if(d!==lastDay){lastDay=d;lastU='';h+=`<div class="chday">${esc(chatDay(Date.parse(m.t)))}</div>`}
+      const cont=lastU===m.u;lastU=m.u;
+      return h+`<div class="chb${m.mine?' cmine':''}${cont?' cont':''}${m.wait?' wait':''}">${!m.mine&&isMain?`<span class="chba" data-prof="${esc(m.u)}" data-pn="${esc(m.by)}">${cont?'':avatarHtml(m.av,m.by,30)}</span>`:''}
+        <div class="chbb">${!m.mine&&isMain&&!cont?`<b data-prof="${esc(m.u)}" data-pn="${esc(m.by)}">${NM(esc(m.by),m.rl)}</b>`:''}<span>${esc(m.s)}</span><small>${esc(new Date(m.t).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}))}${m.wait?' · '+T('Sending...'):''}${m.can&&!m.wait?` · <button data-chdel="${esc(m.id)}">${T('Delete')}</button>`:''}</small></div></div>`};
+    openSheet(`<div class="cmh"><button class="sm" id="chBack">‹ ${T('Back')}</button><b class="chtitle">${isMain?T('Main chat'):`<span data-prof="${esc(withId)}" data-pn="${esc(name||'')}">${esc(name||T('Message'))}</span>`}</b><span style="width:60px"></span></div>
+      ${isMain?`<div class="sub" style="text-align:center;margin:-4px 0 6px">${T('Everyone on the map can read this')}</div>`:`<div class="sub" style="text-align:center;margin:-4px 0 6px">${T('Only the two of you can read this')}</div>`}
+      <div class="chlist" id="chList">${L===null?`<div class="sub" style="text-align:center;margin:20px 0">${T('Loading...')}</div>`:L.length?L.map(bub).join(''):`<div class="sub" style="text-align:center;margin:20px 0">${err?T('Messages need signal.'):isMain?T('No messages yet. Say hi to everyone!'):T('No messages yet. Say hi!')}</div>`}</div>
+      <form class="cmin" id="chF"><input class="inp" id="chT" maxlength="1000" placeholder="${T('Message...')}" autocomplete="off" enterkeyhint="send"><button class="cmsend" type="submit" aria-label="${T('Send')}">${LI('arrow',20)}</button></form>`,()=>{
+      $('chT').value=typed;const el=$('chList');if(el)el.scrollTop=el.scrollHeight;$('sheetBody')&&($('sheetBody').scrollTop=1e6);
+      $('chBack').onclick=()=>{stop();back?back():inboxSheet()};
+      document.querySelectorAll('#sheet [data-prof]').forEach(e=>e.onclick=()=>{stop();profileSheet(e.dataset.prof,e.dataset.pn)});
+      document.querySelectorAll('[data-chdel]').forEach(b=>b.onclick=async()=>{if(b.dataset.sure!=='1'){b.dataset.sure='1';b.textContent=T('Sure?');return}try{await rpc('chat_delete',{p_id:b.dataset.chdel});L=L.filter(m=>m.id!==b.dataset.chdel);draw()}catch(e){toast(errTxt(e),4000)}});
+      $('chF').onsubmit=async e=>{e.preventDefault();const body=$('chT').value.trim();if(!body)return;if(!navigator.onLine){toast(T('You need signal to send messages'));return}
+        const id='cm-'+cidNew(),m={id,s:body,t:new Date().toISOString(),u:me.uid,mine:true,by:me.name,av:MYAV,wait:true};L=(L||[]).concat([m]);$('chT').value='';draw();
+        try{const r=await rpc('chat_send',{p_id:id,p_with:withId,p_body:body});if(r&&r.room)CHAT.open=r.room;m.wait=false;m.can=true;draw();chatPoll()}catch(x){L=L.filter(q=>q.id!==id);draw();$('chT').value=body;toast(errTxt(x),4000)}};
+      setTimeout(()=>{try{$('chT').focus({preventScroll:true})}catch(e){}},300)})};
+  const load=async()=>{if(!navigator.onLine){err=true;L=L||[];if($('chF'))draw();return}
+    try{const R=await rpc('chat_list',{p_with:withId});const keep=(L||[]).filter(m=>m.wait);L=(R||[]).concat(keep);err=false;
+      const ix=(CHAT.inbox||[]).find(x=>isMain?x.main:x.with_id===withId);if(ix){ix.unread=0;CHAT.open=ix.room;chatBadge()}else if(isMain)CHAT.open='main'}catch(e){err=true;L=L||[];if(/cannot see/.test(String(e.message))){toast(T('You cannot see this chat'));return}}
+    if($('chF')){const at=$('chList')&&$('chList').scrollHeight-$('chList').scrollTop-$('chList').clientHeight<80;draw();if(!at&&$('chList'))0}};
+  const stop=()=>{clearInterval(CHAT.t);CHAT.t=null;CHAT.open=null};
+  draw();await load();clearInterval(CHAT.t);CHAT.t=setInterval(()=>{if(!$('chF')){stop();return}if(!document.hidden&&!$('chT').value)load()},7000)}
 /* ============ members-only gate ============ */
 const needGate=()=>Cloud.on&&!Cloud.member;
 function showGate(){const g=$('gate');g.classList.remove('hide');

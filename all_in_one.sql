@@ -2530,6 +2530,11 @@ begin
   begin update public.place_photos set user_id = dst where user_id = src; exception when others then null; end;
   begin update public.feed_posts set user_id = dst where user_id = src; exception when others then null; end;
   begin update public.sightings_log set user_id = dst where user_id = src; exception when others then null; end;
+  begin execute 'update public.chat_msgs set user_id = $2 where user_id = $1' using src, dst; exception when others then null; end;
+  begin execute $q$update public.chat_msgs set room = 'dm:' || least(o, $2::text) || ':' || greatest(o, $2::text)
+      from (select id as cid, case when split_part(room, ':', 2) = $1::text then split_part(room, ':', 3) else split_part(room, ':', 2) end as o from public.chat_msgs where room like 'dm:%' and position($1::text in room) > 0) q
+      where public.chat_msgs.id = q.cid$q$ using src, dst; exception when others then null; end;
+  begin execute 'delete from public.chat_reads where user_id = $1' using src; exception when others then null; end;
   delete from public.members where user_id = src;
   perform set_config('kn.handover', '', true);
 end $$;
@@ -2714,9 +2719,112 @@ returns json language sql stable security definer set search_path = public as $$
 grant execute on function public.comments(text) to authenticated;
 
 
+-- ---------- v131: MESSAGES ----------
+-- One main chat for everyone on the map, and private chats between two people. Read up to where you got to.
+create table if not exists public.chat_msgs (
+  id text primary key, room text not null, user_id uuid not null default auth.uid(), body text not null check (char_length(body) between 1 and 1000),
+  created_at timestamptz not null default now());
+create index if not exists chat_msgs_room on public.chat_msgs (room, created_at desc);
+alter table public.chat_msgs enable row level security;
+revoke all on public.chat_msgs from anon, authenticated;
+create table if not exists public.chat_reads (room text not null, user_id uuid not null, last_at timestamptz not null default now(), primary key (room, user_id));
+alter table public.chat_reads enable row level security;
+revoke all on public.chat_reads from anon, authenticated;
+alter table private.config add column if not exists main_chat_guests boolean not null default true;
+
+-- the room for 'main' or for a chat with one other person (the same room whoever starts it)
+create or replace function public.kn_room(p_with text)
+returns text language plpgsql stable security definer set search_path = public as $$
+declare o uuid;
+begin
+  if p_with is null or p_with = '' or p_with = 'main' then return 'main'; end if;
+  o := p_with::uuid;
+  if o = auth.uid() then raise exception 'You cannot message yourself'; end if;
+  return 'dm:' || least(o::text, auth.uid()::text) || ':' || greatest(o::text, auth.uid()::text);
+end $$;
+revoke all on function public.kn_room(text) from public, anon, authenticated;
+
+create or replace function public.kn_chat_ok(p_room text)
+returns boolean language sql stable security definer set search_path = public, private as $$
+  select public.is_member() and case when p_room = 'main' then
+      (public.is_owner() or (select main_chat_guests from private.config limit 1))
+    else p_room like 'dm:%' and position(auth.uid()::text in p_room) > 0 end $$;
+revoke all on function public.kn_chat_ok(text) from public, anon, authenticated;
+
+create or replace function public.chat_send(p_id text, p_with text, p_body text)
+returns json language plpgsql security definer set search_path = public as $$
+declare r text := public.kn_room(p_with); b text := left(btrim(coalesce(p_body, '')), 1000);
+begin
+  if not public.kn_chat_ok(r) then raise exception 'You cannot post in this chat'; end if;
+  if b = '' then raise exception 'Write something first'; end if;
+  if r <> 'main' and not exists (select 1 from public.members where user_id = p_with::uuid) then raise exception 'That person is not on the map'; end if;
+  if (select count(*) from public.chat_msgs where user_id = auth.uid() and created_at > now() - interval '1 minute') >= 20 then raise exception 'Slow down a little'; end if;
+  insert into public.chat_msgs (id, room, body) values (left(p_id, 60), r, b) on conflict (id) do nothing;
+  insert into public.chat_reads (room, user_id, last_at) values (r, auth.uid(), now()) on conflict (room, user_id) do update set last_at = now();
+  return json_build_object('ok', true, 'room', r);
+end $$;
+grant execute on function public.chat_send(text, text, text) to authenticated;
+
+create or replace function public.chat_list(p_with text, p_before timestamptz default null)
+returns json language plpgsql security definer set search_path = public as $$
+declare r text := public.kn_room(p_with); out json;
+begin
+  if not public.kn_chat_ok(r) then raise exception 'You cannot see this chat'; end if;
+  select coalesce(json_agg(x order by x.t), '[]'::json) into out from (
+    select c.id, c.body s, c.created_at t, c.user_id u, c.user_id = auth.uid() mine, coalesce(m.name, 'Someone') by, m.avatar av,
+           case when m.locked then 'db' else m.role end rl, c.user_id = auth.uid() or public.is_admin() can
+    from public.chat_msgs c left join public.members m on m.user_id = c.user_id
+    where c.room = r and c.created_at < coalesce(p_before, now() + interval '1 minute')
+    order by c.created_at desc limit 80) x;
+  insert into public.chat_reads (room, user_id, last_at) values (r, auth.uid(), now()) on conflict (room, user_id) do update set last_at = now();
+  return out;
+end $$;
+grant execute on function public.chat_list(text, timestamptz) to authenticated;
+
+-- your conversations: the main chat, then everyone you have a private chat with, newest first, with unread counts
+create or replace function public.chat_inbox()
+returns json language plpgsql stable security definer set search_path = public as $$
+declare me text := auth.uid()::text;
+begin
+  if not public.is_member() then return '[]'::json; end if;
+  return coalesce((select json_agg(x order by x.main desc, x.t desc nulls last) from (
+    select r.room, r.room = 'main' main,
+      case when r.room = 'main' then null else (case when split_part(r.room, ':', 2) = me then split_part(r.room, ':', 3) else split_part(r.room, ':', 2) end) end as with_id,
+      (select m.name from public.members m where m.user_id::text = case when split_part(r.room, ':', 2) = me then split_part(r.room, ':', 3) else split_part(r.room, ':', 2) end) as name,
+      (select m.avatar from public.members m where m.user_id::text = case when split_part(r.room, ':', 2) = me then split_part(r.room, ':', 3) else split_part(r.room, ':', 2) end) as av,
+      (select case when m.locked then 'db' else m.role end from public.members m where m.user_id::text = case when split_part(r.room, ':', 2) = me then split_part(r.room, ':', 3) else split_part(r.room, ':', 2) end) as rl,
+      l.body s, l.created_at t, (select coalesce(mm.name, 'Someone') from public.members mm where mm.user_id = l.user_id) last_by, l.user_id::text = me last_mine,
+      (select count(*) from public.chat_msgs c where c.room = r.room and c.user_id <> auth.uid() and c.created_at > coalesce((select cr.last_at from public.chat_reads cr where cr.room = r.room and cr.user_id = auth.uid()), '-infinity')) unread
+    from (select 'main' room where public.kn_chat_ok('main')
+          union select distinct c.room from public.chat_msgs c where c.room like 'dm:%' and position(me in c.room) > 0) r
+    left join lateral (select * from public.chat_msgs c where c.room = r.room order by c.created_at desc limit 1) l on true) x), '[]'::json);
+end $$;
+grant execute on function public.chat_inbox() to authenticated;
+
+create or replace function public.chat_delete(p_id text)
+returns void language plpgsql security definer set search_path = public as $$
+begin
+  delete from public.chat_msgs where id = p_id and (user_id = auth.uid() or public.is_admin());
+  if not found then raise exception 'You can only delete your own messages'; end if;
+end $$;
+grant execute on function public.chat_delete(text) to authenticated;
+
+-- removed people's messages go with them (not when an account just moves to a new phone)
+create or replace function public.kn_member_gone_chat()
+returns trigger language plpgsql security definer set search_path = public as $$
+begin
+  if coalesce(current_setting('kn.handover', true), '') = '1' then return old; end if;
+  delete from public.chat_msgs where user_id = old.user_id;
+  delete from public.chat_reads where user_id = old.user_id;
+  return old;
+end $$;
+drop trigger if exists kn_member_gone_chat on public.members;
+create trigger kn_member_gone_chat after delete on public.members for each row execute function public.kn_member_gone_chat();
+
+
 
 -- =====================================================================
--- PUSH THE UPDATE (version 130)
+-- PUSH THE UPDATE (version 131)
 -- =====================================================================
 
 alter table private.config add column if not exists min_build int not null default 0;
@@ -2786,9 +2894,9 @@ begin
 end $$;
 grant execute on function public.set_min_build(int) to authenticated;
 
--- push it now: require version 130 and post the news. It is sent by the database, not by any person.
-update private.config set min_build = 130;
-select public.kn_update_news(130);
+-- push it now: require version 131 and post the news. It is sent by the database, not by any person.
+update private.config set min_build = 131;
+select public.kn_update_news(131);
 
 notify pgrst, 'reload schema';
 
@@ -2801,7 +2909,7 @@ union all select 'Protected account (9fb4d097...) locked as admin', case when ex
 union all select 'Second Database account (f2f31fe6...)', case when exists (select 1 from public.members where user_id = 'f2f31fe6-5256-4b05-88ee-d7237649f681' and locked and role = 'admin') then 'YES' else 'NO: that account is not on the map yet. Open the map on that phone, then run this again' end
 union all select 'Your Database code (keep it secret, it gives full control)', (select db_code from private.config limit 1)
 union all select 'Backend self-test', case when (select count(*) from public.kn_backend_selftest() where result not like 'PASS%') = 0 then 'YES' else 'NO: ' || (select string_agg(test, ', ') from public.kn_backend_selftest() where result not like 'PASS%') end
-union all select 'Everyone must be on version 130', case when (select min_build from private.config limit 1) = 130 then 'YES' else 'NO' end
-union all select 'Update news posted (only old versions see it)', case when exists (select 1 from public.announcements where for_old_build = 130 and not removed) then 'YES' else 'NO' end
+union all select 'Everyone must be on version 131', case when (select min_build from private.config limit 1) = 131 then 'YES' else 'NO' end
+union all select 'Update news posted (only old versions see it)', case when exists (select 1 from public.announcements where for_old_build = 131 and not removed) then 'YES' else 'NO' end
 union all select 'Your owner code (unchanged)', (select upper(invite_code) from private.config limit 1)
-union all select 'People who still need to update', (select count(*)::text from public.members where coalesce(app_build, 0) < 130 and (role <> 'guest' or expires_at > now()));
+union all select 'People who still need to update', (select count(*)::text from public.members where coalesce(app_build, 0) < 131 and (role <> 'guest' or expires_at > now()));
