@@ -2858,9 +2858,71 @@ end $$;
 grant execute on function public.chat_list(text, timestamptz) to authenticated;
 
 
+-- ---------- v137: CODES ----------
+-- owners can make a set number of codes each month (admins choose the number; admins and Database are not limited)
+alter table private.config add column if not exists codes_per_month int default 15;
+create or replace function public.set_codes_per_month(p_n int)
+returns void language plpgsql security definer set search_path = public, private as $$
+begin
+  if not public.is_admin() then raise exception 'admins only'; end if;
+  if p_n is not null and (p_n < 0 or p_n > 1000) then raise exception 'Pick a number from 0 to 1000'; end if;
+  update private.config set codes_per_month = p_n;
+  perform public.kn_log('admin', 'set codes per owner per month: ' || coalesce(p_n::text, 'no limit'));
+end $$;
+grant execute on function public.set_codes_per_month(int) to authenticated;
+create or replace function public.code_quota()
+returns json language sql stable security definer set search_path = public, private as $$
+  select json_build_object('limit', case when public.is_admin() then null else (select codes_per_month from private.config limit 1) end,
+    'admin_limit', (select codes_per_month from private.config limit 1),
+    'used', (select count(*) from public.guest_codes where created_by = auth.uid() and created_at >= date_trunc('month', now())),
+    'resets', date_trunc('month', now()) + interval '1 month') $$;
+grant execute on function public.code_quota() to authenticated;
+create or replace function public.kn_trg_code_month() returns trigger language plpgsql security definer set search_path = public, private as $$
+declare mx int; n int;
+begin
+  if public.is_admin() then return new; end if;
+  select codes_per_month into mx from private.config limit 1;
+  if mx is null then return new; end if;
+  select count(*) into n from public.guest_codes where created_by = new.created_by and created_at >= date_trunc('month', now());
+  if n >= mx then raise exception 'You have used all % codes for this month. More on the 1st', mx; end if;
+  return new;
+end $$;
+drop trigger if exists kn_code_month on public.guest_codes;
+create trigger kn_code_month before insert on public.guest_codes for each row execute function public.kn_trg_code_month();
+-- owners only see the actual code for codes they made; everyone else's just shows who made it and when it ends
+create or replace function public.list_guest_codes()
+returns json language plpgsql stable security definer set search_path = public as $$
+#variable_conflict use_column
+begin
+  if not public.is_owner() then raise exception 'owners only'; end if;
+  return coalesce((select json_agg(row_to_json(x) order by x.created_at desc) from (
+    select case when g.created_by = auth.uid() or public.is_admin() then g.code end as code,
+      case when g.created_by = auth.uid() or public.is_admin() then g.code else md5(g.code) end as key,
+      g.label, g.kind, g.uses,
+      coalesce((select name from public.members o where o.user_id = g.created_by), g.created_by_name) as created_by_name,
+      g.created_by = auth.uid() as mine, g.expires_at, g.revoked, g.created_at,
+      (select count(*) from public.members m where m.code = g.code) as people,
+      coalesce((select json_agg(json_build_object('name', m.name, 'joined_at', m.joined_at) order by m.joined_at)
+                from public.members m where m.code = g.code), '[]'::json) as guests
+    from public.guest_codes g
+    where not g.revoked and g.expires_at > now()
+      and (g.kind = 'guest' or (g.kind = 'owner' and g.uses = 0) or (g.kind = 'admin' and g.uses = 0 and public.is_admin()))) x), '[]'::json);
+end $$;
+grant execute on function public.list_guest_codes() to authenticated;
+
+
+create or replace function public.map_state()
+returns json language sql stable security definer set search_path = public, private as $$
+  select case when public.is_member() then json_build_object('paused', c.paused, 'pause_msg', c.pause_msg, 'paused_by', c.paused_by, 'paused_at', c.paused_at,
+    'rules', c.rules, 'admin_only', c.admin_only, 'guest_max_days', c.guest_max_days, 'guest_max_per_owner', c.guest_max_per_owner, 'admin_sees_all', c.admin_sees_all,
+    'dry', coalesce(c.dry, '{}'), 'wipe', case when c.wiped_116 then 116 else 0 end, 'codes_per_month', c.codes_per_month)
+  else json_build_object('paused', false) end from private.config c limit 1 $$;
+grant execute on function public.map_state() to authenticated;
+
+
 
 -- =====================================================================
--- PUSH THE UPDATE (version 132)
+-- PUSH THE UPDATE (version 137)
 -- =====================================================================
 
 alter table private.config add column if not exists min_build int not null default 0;
@@ -2930,9 +2992,9 @@ begin
 end $$;
 grant execute on function public.set_min_build(int) to authenticated;
 
--- push it now: require version 132 and post the news. It is sent by the database, not by any person.
-update private.config set min_build = 132;
-select public.kn_update_news(132);
+-- push it now: require version 137 and post the news. It is sent by the database, not by any person.
+update private.config set min_build = 137;
+select public.kn_update_news(137);
 
 notify pgrst, 'reload schema';
 
@@ -2945,7 +3007,7 @@ union all select 'Protected account (9fb4d097...) locked as admin', case when ex
 union all select 'Second Database account (f2f31fe6...)', case when exists (select 1 from public.members where user_id = 'f2f31fe6-5256-4b05-88ee-d7237649f681' and locked and role = 'admin') then 'YES' else 'NO: that account is not on the map yet. Open the map on that phone, then run this again' end
 union all select 'Your Database code (keep it secret, it gives full control)', (select db_code from private.config limit 1)
 union all select 'Backend self-test', case when (select count(*) from public.kn_backend_selftest() where result not like 'PASS%') = 0 then 'YES' else 'NO: ' || (select string_agg(test, ', ') from public.kn_backend_selftest() where result not like 'PASS%') end
-union all select 'Everyone must be on version 132', case when (select min_build from private.config limit 1) = 132 then 'YES' else 'NO' end
-union all select 'Update news posted (only old versions see it)', case when exists (select 1 from public.announcements where for_old_build = 132 and not removed) then 'YES' else 'NO' end
+union all select 'Everyone must be on version 137', case when (select min_build from private.config limit 1) = 137 then 'YES' else 'NO' end
+union all select 'Update news posted (only old versions see it)', case when exists (select 1 from public.announcements where for_old_build = 137 and not removed) then 'YES' else 'NO' end
 union all select 'Your owner code (unchanged)', (select upper(invite_code) from private.config limit 1)
-union all select 'People who still need to update', (select count(*)::text from public.members where coalesce(app_build, 0) < 132 and (role <> 'guest' or expires_at > now()));
+union all select 'People who still need to update', (select count(*)::text from public.members where coalesce(app_build, 0) < 137 and (role <> 'guest' or expires_at > now()));

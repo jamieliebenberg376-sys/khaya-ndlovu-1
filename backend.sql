@@ -1941,5 +1941,67 @@ begin
 end $$;
 grant execute on function public.chat_list(text, timestamptz) to authenticated;
 
+
+-- ---------- v137: CODES ----------
+-- owners can make a set number of codes each month (admins choose the number; admins and Database are not limited)
+alter table private.config add column if not exists codes_per_month int default 15;
+create or replace function public.set_codes_per_month(p_n int)
+returns void language plpgsql security definer set search_path = public, private as $$
+begin
+  if not public.is_admin() then raise exception 'admins only'; end if;
+  if p_n is not null and (p_n < 0 or p_n > 1000) then raise exception 'Pick a number from 0 to 1000'; end if;
+  update private.config set codes_per_month = p_n;
+  perform public.kn_log('admin', 'set codes per owner per month: ' || coalesce(p_n::text, 'no limit'));
+end $$;
+grant execute on function public.set_codes_per_month(int) to authenticated;
+create or replace function public.code_quota()
+returns json language sql stable security definer set search_path = public, private as $$
+  select json_build_object('limit', case when public.is_admin() then null else (select codes_per_month from private.config limit 1) end,
+    'admin_limit', (select codes_per_month from private.config limit 1),
+    'used', (select count(*) from public.guest_codes where created_by = auth.uid() and created_at >= date_trunc('month', now())),
+    'resets', date_trunc('month', now()) + interval '1 month') $$;
+grant execute on function public.code_quota() to authenticated;
+create or replace function public.kn_trg_code_month() returns trigger language plpgsql security definer set search_path = public, private as $$
+declare mx int; n int;
+begin
+  if public.is_admin() then return new; end if;
+  select codes_per_month into mx from private.config limit 1;
+  if mx is null then return new; end if;
+  select count(*) into n from public.guest_codes where created_by = new.created_by and created_at >= date_trunc('month', now());
+  if n >= mx then raise exception 'You have used all % codes for this month. More on the 1st', mx; end if;
+  return new;
+end $$;
+drop trigger if exists kn_code_month on public.guest_codes;
+create trigger kn_code_month before insert on public.guest_codes for each row execute function public.kn_trg_code_month();
+-- owners only see the actual code for codes they made; everyone else's just shows who made it and when it ends
+create or replace function public.list_guest_codes()
+returns json language plpgsql stable security definer set search_path = public as $$
+#variable_conflict use_column
+begin
+  if not public.is_owner() then raise exception 'owners only'; end if;
+  return coalesce((select json_agg(row_to_json(x) order by x.created_at desc) from (
+    select case when g.created_by = auth.uid() or public.is_admin() then g.code end as code,
+      case when g.created_by = auth.uid() or public.is_admin() then g.code else md5(g.code) end as key,
+      g.label, g.kind, g.uses,
+      coalesce((select name from public.members o where o.user_id = g.created_by), g.created_by_name) as created_by_name,
+      g.created_by = auth.uid() as mine, g.expires_at, g.revoked, g.created_at,
+      (select count(*) from public.members m where m.code = g.code) as people,
+      coalesce((select json_agg(json_build_object('name', m.name, 'joined_at', m.joined_at) order by m.joined_at)
+                from public.members m where m.code = g.code), '[]'::json) as guests
+    from public.guest_codes g
+    where not g.revoked and g.expires_at > now()
+      and (g.kind = 'guest' or (g.kind = 'owner' and g.uses = 0) or (g.kind = 'admin' and g.uses = 0 and public.is_admin()))) x), '[]'::json);
+end $$;
+grant execute on function public.list_guest_codes() to authenticated;
+
+
+create or replace function public.map_state()
+returns json language sql stable security definer set search_path = public, private as $$
+  select case when public.is_member() then json_build_object('paused', c.paused, 'pause_msg', c.pause_msg, 'paused_by', c.paused_by, 'paused_at', c.paused_at,
+    'rules', c.rules, 'admin_only', c.admin_only, 'guest_max_days', c.guest_max_days, 'guest_max_per_owner', c.guest_max_per_owner, 'admin_sees_all', c.admin_sees_all,
+    'dry', coalesce(c.dry, '{}'), 'wipe', case when c.wiped_116 then 116 else 0 end, 'codes_per_month', c.codes_per_month)
+  else json_build_object('paused', false) end from private.config c limit 1 $$;
+grant execute on function public.map_state() to authenticated;
+
 select * from public.kn_backend_selftest();
 

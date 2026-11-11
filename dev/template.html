@@ -1080,6 +1080,7 @@ body.spbar #roadPill{bottom:calc(var(--bb) + 222px)!important}
 .cuopt{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.cuopt.c4{grid-template-columns:1fr 1fr}
 .cuo{display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 10px;border-radius:18px;background:var(--card2,#f4f1ea);border:2px solid transparent;font:inherit;color:inherit;text-align:center}
 .cuo small{font-size:12px;opacity:.7}.cuo.sel,.qsg button .pfi{margin-top:8px}
+.obwel{text-align:center;padding-top:10px}.obwel .glogo{width:min(66vw,250px);margin:0 auto 10px;padding:12px 16px;border-radius:20px;background:#f6efe2;box-shadow:0 4px 14px rgba(0,0,0,.15)}.obwel .glogo img{width:100%}
 .avsec{display:flex;align-items:center;gap:6px;margin-top:16px}
 .qsg button.sel{border-color:#ffc23d;box-shadow:0 0 0 3px rgba(255,194,61,.25)}
 .cucar{display:block;width:44px;height:56px;position:relative}.cucar .chev{position:static!important;display:block!important;width:44px;height:56px;filter:drop-shadow(0 2px 3px rgba(0,0,0,.35))}
@@ -4124,8 +4125,14 @@ function applyColours(){if(!mapReady)return;const sh=(h,f)=>{const n=parseInt(h.
   try{map.setPaintProperty('route','line-color',ROUTECOL);map.setPaintProperty('route-case','line-color',sh(ROUTECOL,-.32));map.setPaintProperty('route-glow','line-color',ROUTECOL);map.setPaintProperty('route-core','line-color',sh(ROUTECOL,.55));map.setPaintProperty('rtick-dot','circle-stroke-color',ROUTECOL)}catch(e){}refreshOverlays()}
 applyMe();
 /* the welcome steps (new people) and the "make it yours" screens (everyone, once) */
-function obStep(n,of,title,body,btns,after){openSheet(`<div class="obdots">${Array.from({length:of},(_,i)=>`<i class="${i<n?'on':''}"></i>`).join('')}</div><h2>${title}</h2>${body}<div class="row" style="margin-top:16px">${btns}</div>`,after)}
+function obStep(n,of,title,body,btns,after){openSheet(`<div class="obdots">${Array.from({length:of},(_,i)=>`<i class="${i<n?'on':''}"></i>`).join('')}</div><h2>${title}</h2>${body}<div class="row" style="margin-top:16px">${btns}</div>`,()=>{$('sheet').classList.add('full');after&&after()})}
 function welcomeFlow(){if(!Cloud.member)return;const inst=!isStandalone(),ios=/iPhone|iPad/.test(navigator.userAgent);
+  if(!LS.get('obIntro',false)&&!LS.get('custDone',false)){const m=Cloud.member,r=m.locked?'Database':m.role==='admin'?'admin':m.role==='guest'?'guest':'owner';
+    openSheet(`<div class="obwel"><div class="glogo">${(document.querySelector('#gate .glogo')||{}).innerHTML||''}</div><h2>${T('Welcome')}, ${NM(esc((m.name||'').split(' ')[0]),m.role,m.locked)}</h2>
+      <div class="sub">${T('You\'re on the Khaya Ndlovu map as')} ${r==='admin'||r==='owner'?T('an'):T('a')} <b>${T(r)}</b>. ${T('Let\'s get you set up. It takes about a minute.')}</div>
+      <div class="prof perm" style="margin-top:14px;text-align:left">${[['1',T('Put the map on your Home Screen'),T('So it opens like an app')],['2',T('Download the map'),T('So it works with no signal')],['3',T('Make it yours'),T('Your picture, car and colours')]].map(([a,b,c])=>`<div class="pr"><span class="stn">${a}</span><div>${b}<small>${c}</small></div></div>`).join('')}</div>
+      <div class="sub" style="margin-top:10px;font-size:12.5px">${T('You can change everything later in Settings.')}</div>
+      <button class="btn pri" id="obGo" style="width:100%;margin-top:14px">${T('Let\'s go')}</button></div>`,()=>{$('sheet').classList.add('full');$('obGo').onclick=()=>{LS.set('obIntro',true);welcomeFlow()}});return}
   // 1. Home Screen (skipped if it's already the Home Screen app)
   if(inst&&!LS.get('obHome',false)){obStep(1,3,T('Add the map to your Home Screen'),`<div class="sub" style="margin-top:6px">${T('It opens like a normal app and works with no signal.')}</div><div class="prof perm" style="margin-top:12px">${(ios?[['1',T('Tap the Share button'),T('The square with the arrow, at the bottom of Safari')],['2',T('Tap Add to Home Screen'),T('Scroll down a little if you don\'t see it')],['3',T('Tap Add, then open the map from the new icon'),T('You stay signed in')]]:[['1',T('Tap the ⋮ menu'),T('Top right of Chrome')],['2',T('Tap Install app or Add to Home screen'),''],['3',T('Open the map from the new icon'),T('You stay signed in')]]).map(([a,b,c])=>`<div class="pr"><span class="stn">${a}</span><div>${b}<small>${c}</small></div></div>`).join('')}</div>`,
     `<button class="btn" id="obSkip">${T('Later')}</button><button class="btn pri" id="obDone">${T("I've done it")}</button>`,()=>{$('obSkip').onclick=()=>{LS.set('obHome',true);welcomeFlow()};$('obDone').onclick=()=>{LS.set('obHome',true);if(ios){toast(T('Now open the map from the new icon'),4000);closeSheet()}else welcomeFlow()}});return}
@@ -4141,8 +4148,8 @@ function welcomeFlow(){if(!Cloud.member)return;const inst=!isStandalone(),ios=/i
   if(!LS.get('custDone',false))custFlow(0)}
 function avPickHtml(){const g=(L,lbl)=>`${lbl?`<div class="msec avsec">${lbl}</div>`:''}<div class="qsg">${L.map(a=>`<button class="${MYAV===a?'sel':''}" data-v="${esc(a)}" data-ch>${PFP(a,62)}<span>${esc(T(avBase(a)))}</span></button>`).join('')}</div>`;
   const m=Cloud.member||{};const adm=m.role==='admin'||!!m.locked;return g(CHARS,'')+(adm||m.role==='owner'?g(AV_GOLD,T('Gold · owners and admins')):'')+(adm?g(AV_PRISM,`${ADMIN_BADGE} ${T('Prismatic · admins only')}`):'')}
-function custFlow(step){const total=5;const pg=(n,title,sub,body,bind)=>{openSheet(`<div class="obdots">${Array.from({length:total},(_,i)=>`<i class="${i<=n?'on':''}"></i>`).join('')}</div><h2>${title}</h2><div class="sub" style="margin-top:4px">${sub}</div>${body}
-    <div class="row" style="margin-top:16px">${n>0?`<button class="btn" id="cuBack">${T('Back')}</button>`:''}<button class="btn pri" id="cuNext">${n===total-1?T('Done'):T('Next')}</button></div>`,()=>{if($('cuBack'))$('cuBack').onclick=()=>custFlow(n-1);bind&&bind()})};
+function custFlow(step){const needPin=Cloud.member&&Cloud.member.role!=='guest'&&!LS.get('hasPin',false)&&!LS.get('custDone',false),total=needPin?7:6;const pg=(n,title,sub,body,bind)=>{openSheet(`<div class="obdots">${Array.from({length:total},(_,i)=>`<i class="${i<=n?'on':''}"></i>`).join('')}</div><h2>${title}</h2><div class="sub" style="margin-top:4px">${sub}</div>${body}
+    <div class="row" style="margin-top:16px">${n>0?`<button class="btn" id="cuBack">${T('Back')}</button>`:''}<button class="btn pri" id="cuNext">${n===total-1?T('Open the map'):T('Next')}</button></div>`,()=>{$('sheet').classList.add('full');if($('cuBack'))$('cuBack').onclick=()=>custFlow(n===6&&!needPin?4:n-1);bind&&bind()})};
   const pick=(sel,fn)=>document.querySelectorAll(sel).forEach(b=>b.onclick=()=>{document.querySelectorAll(sel).forEach(x=>x.classList.remove('sel'));b.classList.add('sel');fn(b.dataset.v)});
   if(step===0){pg(0,T('Make it yours'),T('Pick how the map looks. You can change it any time in Layers.'),`<div class="cuopt">${[['sat',T('Satellite'),T('Real photos of the reserve')],['map',T('Map'),T('Clean map with the bush drawn in')]].map(([v,a,b])=>`<button class="cuo${mode===v?' sel':''}" data-v="${v}" data-cm><b>${a}</b><small>${b}</small></button>`).join('')}</div>`,
       ()=>{pick('[data-cm]',v=>{mode=v;LS.set('mode',v);applyMode()});$('cuNext').onclick=()=>custFlow(1)});return}
@@ -4154,7 +4161,17 @@ function custFlow(step){const total=5;const pg=(n,title,sub,body,bind)=>{openShe
   if(step===3){pg(3,T('Your colours'),T('The line you follow, and the line your recorded drives leave behind.'),`<div class="msec" style="margin-top:12px">${T('Route')}</div><div class="swat">${ROUTE_COLS.map(c=>`<button class="${ROUTECOL===c?'sel':''}" data-v="${c}" data-rc style="background:${c}"></button>`).join('')}</div><div class="msec" style="margin-top:12px">${T('Your drive trail')}</div><div class="swat">${TRAIL_COLS.map(c=>`<button class="${TRAILCOL===c?'sel':''}" data-v="${c}" data-tc style="background:${c}"></button>`).join('')}</div>`,
       ()=>{pick('[data-rc]',v=>{ROUTECOL=v;LS.set('routeCol',v);applyColours()});pick('[data-tc]',v=>{TRAILCOL=v;LS.set('trailCol',v);applyColours()});$('cuNext').onclick=()=>custFlow(4)});return}
   if(step===4){pg(4,T('Voice'),T('Spoken directions on a route.'),`<div class="cuopt">${[['on',T('On'),T('Turn by turn, 50 m before each turn')],['alerts',T('Alerts only'),T('Turns and warnings, nothing else')],['off',T('Off'),T('Silent')]].map(([v,a,b])=>`<button class="cuo${VMODE===v?' sel':''}" data-v="${v}" data-vm><b>${a}</b><small>${b}</small></button>`).join('')}</div>`,
-      ()=>{pick('[data-vm]',v=>setVMode(v));$('cuNext').onclick=()=>{LS.set('custDone',true);closeSheet();toast(T('All set. Enjoy the drive'),3000)}});return}}
+      ()=>{pick('[data-vm]',v=>setVMode(v));$('cuNext').onclick=()=>custFlow(needPin?5:6)});return}
+  if(step===5){pg(5,T('Your account PIN'),T('4 numbers, asked only when your account is brought to a new phone. Keeps anyone else from taking it over.'),
+      `<input id="cuPa" class="pinin" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off" placeholder="${T('New PIN')}"><input id="cuPb" class="pinin" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off" placeholder="${T('Type it again')}"><button class="uwl" id="cuPs" style="display:block;margin:10px auto 0">${T('Skip for now')}</button>`,
+      ()=>{['cuPa','cuPb'].forEach(i=>$(i).oninput=()=>{$(i).value=$(i).value.replace(/\D/g,'').slice(0,4)});$('cuPs').onclick=()=>custFlow(6);
+        $('cuNext').onclick=async()=>{const a=$('cuPa').value,b=$('cuPb').value;if(!a&&!b){custFlow(6);return}if(!/^\d{4}$/.test(a)){toast(T('The PIN must be 4 numbers'));return}if(a!==b){toast(T('The two PINs are not the same'));return}
+          if(!navigator.onLine){toast(T('You need signal to save the PIN. You can set it later in Settings.'),4000);custFlow(6);return}
+          try{await rpc('set_pin',{p_pin:a});LS.set('hasPin',true);LS.set('pinAsked',true);toast(T('PIN saved'))}catch(e){toast(errTxt(e),4000);return}custFlow(6)}});return}
+  if(step===6){const nm=Cloud.member&&Cloud.member.name||'';pg(total-1,T('You\'re all set'),T('Here\'s where to find things later.'),
+      `<div class="cuname" style="margin-top:12px">${avatarHtml(MYAV,nm,48)}<div><b>${NM(esc(nm),Cloud.member&&Cloud.member.role,Cloud.member&&Cloud.member.locked)}</b>${badgeFor(Cloud.member&&Cloud.member.role,Cloud.member&&Cloud.member.locked)}<small>${T('Looking good')}</small></div></div>
+       <div class="prof perm" style="margin-top:12px">${[['users',T('Change your picture, car or colours'),T('Menu, then tap your picture, or Settings › Make it yours')],['binoc',T('Mark a sighting'),T('The binoculars button on the map')],['msg',T('Chats'),T('Menu › Chats: the main chat and private messages')],['gear',T('Everything else'),T('Menu › the gear (Settings)')]].map(([i,a,b])=>`<div class="pr"><span>${LI(i,20)}</span><div>${a}<small>${b}</small></div></div>`).join('')}</div>`,
+      ()=>{$('cuNext').onclick=()=>{LS.set('custDone',true);LS.set('obIntro',true);closeSheet();toast(T('All set. Enjoy the drive'),3000)}});return}}
 async function saveAvatar(){if(MYAV&&!avAllowed(MYAV))return;if(!MYAV||!Cloud.member||!navigator.onLine){LS.set('avPending',!!MYAV);return}try{await rpc('set_avatar',{p_avatar:MYAV});LS.set('avPending',false)}catch(e){LS.set('avPending',true)}}
 async function syncProfile(){if(!Cloud.member||!navigator.onLine)return;try{if(LS.get('avPending',false))await saveAvatar();const r=await rpc('my_profile',{});if(r&&typeof r.pin==='boolean')LS.set('hasPin',r.pin);if(r&&typeof r.db==='boolean'&&Cloud.member&&!!Cloud.member.locked!==r.db){Cloud.member.locked=r.db;saveCloud()}if(r&&r.name){if(Cloud.member.name!==r.name){Cloud.member.name=r.name;saveCloud()}if(r.avatar&&r.avatar!==MYAV){MYAV=r.avatar;LS.set('avatar',r.avatar)}}}catch(e){}}
 setTimeout(syncProfile,5000);setInterval(syncProfile,10*6e4);
@@ -4542,12 +4559,12 @@ async function guestSheet(){
   <details class="permd"><summary><span id="gPermsT">What a guest can do</span>${LI('down',16)}</summary><div id="gPerms">${permsHtml('guest')}</div></details><input class="inp" id="gLabel" placeholder="Who is it for? e.g. Smith family" maxlength="40">
   <div id="gWhen"><div class="gpres">${[['Today',0],['3 days',2],['1 week',6],['1 month',29]].map(([l,d],i)=>`<button class="chip${i==1?' sel':''}" data-d="${d}">${l}</button>`).join('')}</div>
   <div class="sub" style="margin-top:12px">Ends</div><input class="inp" id="gExp" type="datetime-local" style="margin-top:4px"></div>
-  <button class="btn pri" id="gMake" style="width:100%;margin-top:12px">Create guest code</button>
+  <button class="btn pri" id="gMake" style="width:100%;margin-top:12px">Create guest code</button><div class="sub" id="gQuota" style="text-align:center;margin-top:6px"></div>
   <div id="gNew"></div>
   <div class="sub" style="margin-top:18px"><b>Codes</b> · every code and who used it</div><div id="gList"><div class="it"><small>Loading...</small></div></div>
   <div id="gPeople"><div class="it"><small>Loading owners and guests...</small></div></div>
   <button class="btn" id="gSet" style="width:100%;margin-top:16px">Shared map settings</button>`,()=>{
-    const ex=$('gExp');ex.value=dtLocal(endOfDay(2));ex.min=dtLocal(new Date());
+    loadQuota();const ex=$('gExp');ex.value=dtLocal(endOfDay(2));ex.min=dtLocal(new Date());
     document.querySelectorAll('.gpres .chip').forEach(b=>b.onclick=()=>{document.querySelectorAll('.gpres .chip').forEach(x=>x.classList.remove('sel'));b.classList.add('sel');ex.value=dtLocal(endOfDay(+b.dataset.d))});
     ex.oninput=()=>document.querySelectorAll('.gpres .chip').forEach(x=>x.classList.remove('sel'));
     document.querySelectorAll('#gKind [data-k]').forEach(b=>b.onclick=()=>{kind=b.dataset.k;document.querySelectorAll('#gKind [data-k]').forEach(x=>x.classList.toggle('sel',x===b));
@@ -4563,8 +4580,8 @@ async function guestSheet(){
         const G={code,label:lbl,exp:exp.getTime(),kind};
         $('gNew').innerHTML=`<div class="qrw qrnew">${qrSvg(guestLink(G),230)}<b>${T('Scan to join')}</b><small>${T('Point their phone camera at this. The map opens and only asks for their name.')}</small><div class="qrc mono">${esc(G.code)}</div></div><button class="btn pri" id="gShare" style="width:100%;margin-top:12px">${LI('mail',18)} ${T('Or send it')}</button>`;
         $('gShare').onclick=()=>sendGuest(G);
-        $('gLabel').value='';loadGuests()}
-      catch(e){toast(/admins only/.test(e.message)?'Only admins can make admin invites':/owners only/.test(e.message)?'Only owners can make guest codes':'Could not create the code: '+String(e.message||e).slice(0,70),4000)}
+        $('gLabel').value='';loadGuests();loadQuota()}
+      catch(e){toast(/admins only/.test(e.message)?'Only admins can make admin invites':/owners only/.test(e.message)?'Only owners can make guest codes':/codes for this month|at most/.test(e.message)?errTxt(e).replace(/^Database said: /,''):'Could not create the code: '+String(e.message||e).slice(0,70),5000)}
       $('gMake').textContent=btxt;$('gMake').disabled=false};
     loadGuests();loadPeople()});
 }
@@ -4726,6 +4743,8 @@ async function adminSheet(){const R=MS.rules||{};let removed=[],bans=[];if(navig
    <div class="msec" style="margin-top:16px">Guest limits for owners</div>
    <div class="sub" style="margin:2px 0 6px">Longest guest pass</div>${chips('gdays',[[0,'No limit'],[1,'1 day'],[3,'3 days'],[7,'1 week'],[14,'2 weeks'],[30,'1 month']],MS.guest_max_days||0)}
    <div class="sub" style="margin:10px 0 6px">Guests per owner at once</div>${chips('gmax',[[0,'No limit'],[2,'2'],[5,'5'],[10,'10']],MS.guest_max_per_owner||0)}
+   <div class="sub" style="margin:10px 0 6px">${T('Codes each owner can make per month')}</div>${chips('gmon',[[0,'Unlimited'],[5,'5'],[10,'10'],[15,'15'],[20,'20'],[30,'30']],MS.codes_per_month===undefined?15:(MS.codes_per_month||0))}
+   <div class="sub" style="font-size:12.5px;margin-top:4px">${T('Admins and Database accounts are never limited')}</div>
    <button class="btn pri" id="aGL" style="width:100%;margin-top:10px">Save guest limits</button>
    <div class="msec" style="margin-top:16px">Live map</div><div class="list sgroup">${TG('aSeeAll','Admins see every car','Even people who turned off sharing. Everyone is told about this in their Settings. Homes stay hidden.',!!MS.admin_sees_all)}</div>
    <div class="msec" style="margin-top:16px">Reports and people</div><div class="list sgroup">
@@ -4750,7 +4769,7 @@ async function adminSheet(){const R=MS.rules||{};let removed=[],bans=[];if(navig
     if($('aDry'))$('aDry').onclick=dryAdminSheet;
     $('aRules').onclick=()=>{const q=sel('quiet');run('set_rules',{p_rules:{speed:+sel('speed'),quiet:q!=='off',qfrom:q!=='off'?q.split('-')[0]:null,qto:q!=='off'?q.split('-')[1]:null,sunmin:+sel('sun'),lock:$('aLock').classList.contains('on')}},'Reserve rules saved')};
     $('aAO').onclick=()=>run('set_admin_only',{p_animals:[...document.querySelectorAll('[data-ao].sel')].map(b=>b.dataset.ao)},'Saved');
-    $('aGL').onclick=()=>run('set_guest_limits',{p_days:+sel('gdays'),p_max:+sel('gmax')},'Guest limits saved');
+    $('aGL').onclick=async()=>{try{await rpc('set_codes_per_month',{p_n:+sel('gmon')||null})}catch(e){}run('set_guest_limits',{p_days:+sel('gdays'),p_max:+sel('gmax')},'Guest limits saved')};
     $('aSeeAll').onclick=async()=>{const on=!$('aSeeAll').classList.contains('on');$('aSeeAll').classList.toggle('on',on);await run('set_admin_sees_all',{p_on:on},on?'Admins now see every car':'Admins only see cars that share')};
     $('aWeek').onclick=()=>reportSheet();$('aLog').onclick=()=>activitySheet();
     document.querySelectorAll('[data-undo]').forEach(b=>b.onclick=async()=>{b.textContent='...';try{const r=await rpc('restore_member',{p_user:b.dataset.undo});toast((r&&r.name||'They')+' is back on the map. Their phone reconnects by itself.',4500);adminSheet()}catch(e){toast(errTxt(e),5000);b.textContent='Undo'}});
@@ -4803,6 +4822,10 @@ function sendGuest(G,fromList){const wa=guestMsg(G,true),sms=guestMsg(G,false),b
     if($('sMore'))$('sMore').onclick=()=>navigator.share({text:sms}).catch(()=>{});
     if($('sBack'))$('sBack').onclick=back})}
 function fallbackCopy(t,m){const a=document.createElement('textarea');a.value=t;a.setAttribute('readonly','');a.style.cssText='position:fixed;top:-100px;opacity:0';document.body.appendChild(a);a.select();a.setSelectionRange(0,99999);try{document.execCommand('copy');toast(m)}catch(e){toast(t)}a.remove()}
+async function loadQuota(){const el=$('gQuota');if(!el)return;let q=null;try{q=await rpc('code_quota')}catch(e){}if(!q||!$('gQuota'))return;
+  if(q.limit==null){el.textContent=T('Admins can make as many codes as they need');return}
+  const left=Math.max(0,q.limit-(+q.used||0));el.innerHTML=`<b>${left}</b> ${T('of')} ${q.limit} ${T('codes left this month')} · ${T('more on')} ${esc(new Date(q.resets).toLocaleDateString([],{day:'numeric',month:'short'}))}`;
+  if(!left&&$('gMake')){$('gMake').disabled=true;$('gMake').textContent=T('No codes left this month')}}
 async function loadGuests(){const el=$('gList');if(!el)return;let L;
   try{L=await rpc('list_guest_codes')}catch(e){el.innerHTML=`<div class="it"><small>${/404|PGRST202|Could not find/.test(e.message)?'Guest codes need a quick database update first (guest_codes.sql).':'Could not load codes'}</small></div>`;return}
   L=(L||[]).filter(g=>!g.revoked&&Date.parse(g.expires_at)>Date.now()&&!((g.kind==='owner'||g.kind==='admin')&&g.uses>0));
@@ -4811,7 +4834,8 @@ async function loadGuests(){const el=$('gList');if(!el)return;let L;
     const tag=inv?(g.uses>0?'<span class="tag t-off">'+(g.kind==='admin'?'Admin':'Owner')+' invite · used</span>':g.revoked||!live?'<span class="tag t-off">'+(g.kind==='admin'?'Admin':'Owner')+' invite · expired</span>':'<span class="tag t-inv'+(g.kind==='admin'?' t-admin':'')+'">'+(g.kind==='admin'?'Admin':'Owner')+' invite</span>'):g.revoked?'<span class="tag t-off">Ended</span>':!live?'<span class="tag t-off">Expired</span>':ex-Date.now()<864e5?'<span class="tag t-warn">Ends soon</span>':'<span class="tag t-ok">Active</span>';
     const who=g.mine?'you':esc(g.created_by_name||'an owner');
     const guests=gs.length?gs.map(m=>`<div class="gg"><span class="gav av-${inv?g.kind:'guest'}">${esc((m.name||'?').trim()[0]||'?').toUpperCase()}</span><div><b>${esc(m.name||'Guest')}</b><small>Added by ${who} · joined ${esc(fmtDay(Date.parse(m.joined_at)))}<br>${inv?(g.kind==='admin'?'Admin':'Owner')+' · never expires':live?'On the map for '+esc(left(ex))+' more':'Logged out '+esc(fmtDay(ex))}${live&&!inv?' · stay '+esc(span(Date.parse(m.joined_at),ex)):''}</small></div></div>`).join(''):'<div class="gnone">'+LI('clock',14)+' Not used yet</div>';
-    return `<div class="gc"><div class="gh"><div><b class="mono">${esc(g.code)}</b>${tag}<br><small>${g.label?esc(g.label)+' · ':''}made by ${who}</small><br><small>${inv?(g.uses>0?'One-time invite, used':live?'One-time invite · use before '+esc(fmtExp(ex)):'Invite expired unused'):live?'Ends '+esc(fmtExp(ex))+' · '+esc(left(ex))+' left':'Ended '+esc(fmtExp(ex))}</small></div><div class="gb">${inv&&g.uses>0?'':live?`<button class="ib2" data-share="${esc(g.code)}" aria-label="Send">${LI('mail',18)}</button><button class="ib2 red" data-end="${esc(g.code)}" aria-label="Delete">${LI('x',18)}</button>`:`<button class="ib2" data-ext="${esc(g.code)}">Renew</button>`}</div></div>
+    const hid=!g.code,adm=Cloud.member&&Cloud.member.role==='admin',mine=g.mine||adm;
+    return `<div class="gc"><div class="gh"><div>${hid?`<b>${inv?(g.kind==='admin'?'Admin':'Owner')+' invite':'Guest pass'}</b>`:`<b class="mono">${esc(g.code)}</b>`}${tag}<br><small>${g.label?esc(g.label)+' · ':''}made by ${who}</small><br><small>${inv?(g.uses>0?'One-time invite, used':live?'One-time invite · use before '+esc(fmtExp(ex)):'Invite expired unused'):live?'Ends '+esc(fmtExp(ex))+' · '+esc(left(ex))+' left':'Ended '+esc(fmtExp(ex))}</small></div><div class="gb">${inv&&g.uses>0||!mine?'':live?`<button class="ib2" data-share="${esc(g.code)}" aria-label="Send">${LI('mail',18)}</button><button class="ib2 red" data-end="${esc(g.code)}" aria-label="Delete">${LI('x',18)}</button>`:`<button class="ib2" data-ext="${esc(g.code)}">Renew</button>`}</div></div>
       <div class="gw">${gs.length?`<small class="gl">${gs.length} ${gs.length==1?'guest':'guests'}</small>`:''}${guests}</div></div>`}).join('')||'<div class="it"><small>No active codes. Expired and deleted codes are removed automatically.</small></div>';
   el.querySelectorAll('[data-end]').forEach(b=>b.onclick=async()=>{const g=L.find(x=>x.code===b.dataset.end)||{},us=(g.users||[]).map(u=>u.name).filter(Boolean);
     const del=async()=>{try{await rpc('revoke_guest_code',{p_code:b.dataset.end});toast(us.length?us.join(' and ')+(us.length>1?' were':' was')+' removed and will be logged out':'Code deleted',3500)}catch(e){toast('Could not delete the code')}guestSheet()};
