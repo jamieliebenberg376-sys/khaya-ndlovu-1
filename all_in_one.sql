@@ -2793,7 +2793,7 @@ begin
       (select m.name from public.members m where m.user_id::text = case when split_part(r.room, ':', 2) = me then split_part(r.room, ':', 3) else split_part(r.room, ':', 2) end) as name,
       (select m.avatar from public.members m where m.user_id::text = case when split_part(r.room, ':', 2) = me then split_part(r.room, ':', 3) else split_part(r.room, ':', 2) end) as av,
       (select case when m.locked then 'db' else m.role end from public.members m where m.user_id::text = case when split_part(r.room, ':', 2) = me then split_part(r.room, ':', 3) else split_part(r.room, ':', 2) end) as rl,
-      l.body s, l.created_at t, (select coalesce(mm.name, 'Someone') from public.members mm where mm.user_id = l.user_id) last_by, l.user_id::text = me last_mine,
+      case when l.body = '' and jsonb_array_length(l.media) > 0 then '📷 Photo or video' else l.body end s, l.created_at t, (select coalesce(mm.name, 'Someone') from public.members mm where mm.user_id = l.user_id) last_by, l.user_id::text = me last_mine,
       (select count(*) from public.chat_msgs c where c.room = r.room and c.user_id <> auth.uid() and c.created_at > coalesce((select cr.last_at from public.chat_reads cr where cr.room = r.room and cr.user_id = auth.uid()), '-infinity')) unread
     from (select 'main' room where public.kn_chat_ok('main')
           union select distinct c.room from public.chat_msgs c where c.room like 'dm:%' and position(me in c.room) > 0) r
@@ -2822,9 +2822,45 @@ drop trigger if exists kn_member_gone_chat on public.members;
 create trigger kn_member_gone_chat after delete on public.members for each row execute function public.kn_member_gone_chat();
 
 
+-- v132: photos and videos in chats (same storage as the Feed)
+alter table public.chat_msgs add column if not exists media jsonb not null default '[]'::jsonb;
+alter table public.chat_msgs drop constraint if exists chat_msgs_body_check;
+alter table public.chat_msgs add constraint chat_msgs_body_check check (char_length(body) <= 1000);
+drop function if exists public.chat_send(text, text, text);
+create or replace function public.chat_send(p_id text, p_with text, p_body text, p_media jsonb default '[]'::jsonb)
+returns json language plpgsql security definer set search_path = public as $$
+declare r text := public.kn_room(p_with); b text := left(btrim(coalesce(p_body, '')), 1000); md jsonb := coalesce(p_media, '[]'::jsonb);
+begin
+  if not public.kn_chat_ok(r) then raise exception 'You cannot post in this chat'; end if;
+  if jsonb_typeof(md) <> 'array' or jsonb_array_length(md) > 6 then raise exception 'Up to 6 photos or videos'; end if;
+  if b = '' and jsonb_array_length(md) = 0 then raise exception 'Write something first'; end if;
+  if r <> 'main' and not exists (select 1 from public.members where user_id = p_with::uuid) then raise exception 'That person is not on the map'; end if;
+  if (select count(*) from public.chat_msgs where user_id = auth.uid() and created_at > now() - interval '1 minute') >= 20 then raise exception 'Slow down a little'; end if;
+  insert into public.chat_msgs (id, room, body, media) values (left(p_id, 60), r, b, md) on conflict (id) do nothing;
+  insert into public.chat_reads (room, user_id, last_at) values (r, auth.uid(), now()) on conflict (room, user_id) do update set last_at = now();
+  return json_build_object('ok', true, 'room', r);
+end $$;
+grant execute on function public.chat_send(text, text, text, jsonb) to authenticated;
+create or replace function public.chat_list(p_with text, p_before timestamptz default null)
+returns json language plpgsql security definer set search_path = public as $$
+declare r text := public.kn_room(p_with); out json;
+begin
+  if not public.kn_chat_ok(r) then raise exception 'You cannot see this chat'; end if;
+  select coalesce(json_agg(x order by x.t), '[]'::json) into out from (
+    select c.id, c.body s, c.media, c.created_at t, c.user_id u, c.user_id = auth.uid() mine, coalesce(m.name, 'Someone') by, m.avatar av,
+           case when m.locked then 'db' else m.role end rl, c.user_id = auth.uid() or public.is_admin() can
+    from public.chat_msgs c left join public.members m on m.user_id = c.user_id
+    where c.room = r and c.created_at < coalesce(p_before, now() + interval '1 minute')
+    order by c.created_at desc limit 80) x;
+  insert into public.chat_reads (room, user_id, last_at) values (r, auth.uid(), now()) on conflict (room, user_id) do update set last_at = now();
+  return out;
+end $$;
+grant execute on function public.chat_list(text, timestamptz) to authenticated;
+
+
 
 -- =====================================================================
--- PUSH THE UPDATE (version 131)
+-- PUSH THE UPDATE (version 132)
 -- =====================================================================
 
 alter table private.config add column if not exists min_build int not null default 0;
@@ -2894,9 +2930,9 @@ begin
 end $$;
 grant execute on function public.set_min_build(int) to authenticated;
 
--- push it now: require version 131 and post the news. It is sent by the database, not by any person.
-update private.config set min_build = 131;
-select public.kn_update_news(131);
+-- push it now: require version 132 and post the news. It is sent by the database, not by any person.
+update private.config set min_build = 132;
+select public.kn_update_news(132);
 
 notify pgrst, 'reload schema';
 
@@ -2909,7 +2945,7 @@ union all select 'Protected account (9fb4d097...) locked as admin', case when ex
 union all select 'Second Database account (f2f31fe6...)', case when exists (select 1 from public.members where user_id = 'f2f31fe6-5256-4b05-88ee-d7237649f681' and locked and role = 'admin') then 'YES' else 'NO: that account is not on the map yet. Open the map on that phone, then run this again' end
 union all select 'Your Database code (keep it secret, it gives full control)', (select db_code from private.config limit 1)
 union all select 'Backend self-test', case when (select count(*) from public.kn_backend_selftest() where result not like 'PASS%') = 0 then 'YES' else 'NO: ' || (select string_agg(test, ', ') from public.kn_backend_selftest() where result not like 'PASS%') end
-union all select 'Everyone must be on version 131', case when (select min_build from private.config limit 1) = 131 then 'YES' else 'NO' end
-union all select 'Update news posted (only old versions see it)', case when exists (select 1 from public.announcements where for_old_build = 131 and not removed) then 'YES' else 'NO' end
+union all select 'Everyone must be on version 132', case when (select min_build from private.config limit 1) = 132 then 'YES' else 'NO' end
+union all select 'Update news posted (only old versions see it)', case when exists (select 1 from public.announcements where for_old_build = 132 and not removed) then 'YES' else 'NO' end
 union all select 'Your owner code (unchanged)', (select upper(invite_code) from private.config limit 1)
-union all select 'People who still need to update', (select count(*)::text from public.members where coalesce(app_build, 0) < 131 and (role <> 'guest' or expires_at > now()));
+union all select 'People who still need to update', (select count(*)::text from public.members where coalesce(app_build, 0) < 132 and (role <> 'guest' or expires_at > now()));

@@ -1063,6 +1063,14 @@ body.spbar #roadPill{bottom:calc(var(--bb) + 222px)!important}
 #msgBan.on{transform:translate(-50%,0)}
 #msgBan .mbt{flex:1;min-width:0;display:flex;flex-direction:column}#msgBan b{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#msgBan small{font-size:13px;color:#5f6368;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #msgBan .mbic{width:34px;height:34px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,#2a5a40,#173826);color:#ffd36b}
+.chmd{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:4px;margin:2px -5px 4px;width:min(240px,62vw)}
+.chmd img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:12px;background:rgba(127,127,127,.2);display:block}
+.chv{position:relative;display:block}.chv img{width:100%}.chv i{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;filter:drop-shadow(0 1px 3px rgba(0,0,0,.6))}
+.chv:not(:has(img)){aspect-ratio:1;border-radius:12px;background:#1d2a20}
+.chcam{flex:none;width:42px;height:46px;display:flex;align-items:center;justify-content:center;color:#245a3e;cursor:pointer}
+.chview{position:fixed;inset:0;z-index:400;background:rgba(0,0,0,.92);display:flex;align-items:center;justify-content:center;padding:calc(var(--safe-t) + 40px) 10px calc(var(--safe-b) + 20px)}
+.chview img,.chview video{max-width:100%;max-height:100%;border-radius:10px}
+.chview button{position:absolute;top:calc(var(--safe-t) + 10px);right:12px;width:40px;height:40px;border-radius:50%;border:0;background:rgba(255,255,255,.15);color:#fff;display:flex;align-items:center;justify-content:center}
 .admb{display:inline-flex;vertical-align:-3px;margin-left:4px}.admb svg{width:16px;height:16px}.dbb svg{width:18px;height:18px;filter:drop-shadow(0 0 3px rgba(230,184,74,.75))}span.tag.t-db{background:linear-gradient(180deg,#f6dc8c,#c8963a)!important;color:#2a1d05!important;border-color:#9a6b12!important;box-shadow:0 0 6px rgba(230,184,74,.55)}
 .avc{display:inline-flex;flex:none;border-radius:50%;overflow:hidden}.avc svg{width:100%;height:100%}
 .obdots{display:flex;gap:6px;margin-bottom:10px}.obdots i{flex:1;height:4px;border-radius:2px;background:rgba(0,0,0,.12)}.obdots i.on{background:#ffc23d}
@@ -4241,6 +4249,7 @@ $('menuBtn').onclick=()=>{
     ${m?LK('lMsg',T('Messages'),chatUnread()?chatUnread()+' '+T('unread'):T('Main chat and private messages'),chatUnread()?'<span class="tag t-new">'+chatUnread()+' new</span>':'','msg','#1a73e8'):''}
     ${m?LK('lLive','Share live location',shareLoc?'On · '+esc(liveWhy().short):'Off','','live','#1a73e8'):''}
     ${m&&m.locked?LK('lSug','Suggestions',SUG.list.length?SUG.list.length+' from people on the map':'Nothing yet',SUG.list.filter(x=>!x.read).length?'<span class="tag t-new">'+SUG.list.filter(x=>!x.read).length+' new</span>':'','msg','#0b8043'):m?LK('lSug','Suggest something','Ideas, problems or wishes for the map','','msg','#0b8043'):''}
+    ${m&&isAdm2()&&!m.viewAs?LK('lUpd',T('Updates and reinstall'),T('Send the newest version to everyone'),'v'+APP_BUILD,'down','#1a73e8'):''}
     ${m&&isAdm2()&&!m.viewAs?LK('lAdm','Admin tools',MS.paused?'The map is paused':'Pause, rules, guest limits, reports','','shield','#b06000'):''}
     ${LK('lOff','Offline map',esc(offlineStatus()),'','down','#00796b')}
     ${isAdm()||LIVEMAP?LK('lSwap',LIVEMAP?'Swap to Khaya Ndlovu':'Swap to Stellenbosch',LIVEMAP?'You are on the Stellenbosch map':liveSaved()?'Every real road, saved on this phone':'Every real road · drive it with your GPS','','map','#c48a1a'):''}${isAdm()?LK('lDemo','Demo mode',DM.on?'You are in demo mode · tap to see who is in it':(()=>{const L=Object.values(DEMO.outside).filter(p=>Date.now()-p.t<20000);return L.length?L.map(p=>p.name).slice(0,2).join(' and ')+(L.length>2?' and others':'')+(L.length>1?' are':' is')+' in demo mode now · tap to join':'Pretend to be anywhere and test everything'})(),'','play','#5f6368'):''}
@@ -4256,7 +4265,7 @@ $('menuBtn').onclick=()=>{
     if($('tHome'))$('tHome').onclick=()=>homeSheet();
     if($('lAnn'))$('lAnn').onclick=()=>{loadAnn();annSheet()};
     $('tDrives').onclick=()=>openSheet(tracksSheet(),bindTracks);
-    if($('lLive'))$('lLive').onclick=()=>liveSheet();if($('lMsg'))$('lMsg').onclick=()=>inboxSheet();
+    if($('lLive'))$('lLive').onclick=()=>liveSheet();if($('lMsg'))$('lMsg').onclick=()=>inboxSheet();if($('lUpd'))$('lUpd').onclick=()=>updAdminSheet();
     $('lOff').onclick=()=>offlineSheet(false);
     if($('lDemo'))$('lDemo').onclick=()=>{if(LIVEMAP){toast(T('Swap back to Khaya Ndlovu to use demo mode'));return}if(DM.on){demoPeopleSheet();return}closeSheet();startDemo()};if($('lSwap'))$('lSwap').onclick=swapSheet;
     if($('lAdm'))$('lAdm').onclick=()=>adminSheet();
@@ -4281,11 +4290,11 @@ function settingsSheet(){const m=Cloud.member;const notif='Notification' in wind
    ${m?`<div class="msec">Alerts</div><div class="list sgroup">${TG('sAlert','New sighting alerts','Pop-up when someone else marks a sighting',alertOn)}${LK('sAW','Which animals alert me','',esc(alertWhatTxt()))}${TG('sSound','Alert sound','A bing with each alert',alertSound)}${TG('sQuiet','Quiet hours','No alert sounds or pop-ups from '+QUIET.from+' to '+QUIET.to+' unless you are out driving. SOS always comes through.',quietOn)}${notif?LK('sNotif','Phone notifications','Also alert you while the app is in the background','Turn on'):''}</div>`:''}
    <div class="msec">Location</div>${MS.admin_sees_all?'<div class="sub" style="margin:-4px 2px 8px;font-size:12.5px">'+LI('eye',12)+' Admins can see your car while you drive on the reserve, even with sharing off. Your home stays hidden.</div>':''}<div class="list sgroup">${m?LK('sLive','Share live location','',shareLoc?'On':'Off'):''}${LK('sHome','Home point','',home?'Set':'Not set')}${LK('sCal','Calibrate GPS','If your dot sits next to the road',calib[0]||calib[1]?'Active':'')}${isIOS?LK('sLoc','Stop the location question','If the map asks for your location every time',''):''}</div>
    <div class="msec">Driving</div>${MS.rules&&MS.rules.lock?'<div class="sub" style="margin:-4px 2px 8px;font-size:12.5px">'+LI('lock',12)+' Speed warning, quiet hours and sunset reminder are set by an admin for everyone</div>':''}<div class="list sgroup">${TG('sSpd','Speed warning','Red alert over '+SPEED_LIMIT+' km/h on the reserve',speedWarn)}${TG('sSun','Sunset reminder',(SUNMIN===60?'1 hour':SUNMIN+' minutes')+' before sunset if you are still out and far from home',sunRemind)}${LK('sFocus','Focus mode','Only what you need on the map while you drive',{drive:'When driving',on:'Always',off:'Off'}[FOCUSM])}${TG('sSpot','Spotify button','Music controls on the map. Off unless you want them',SPOTON)+TG('sAutoRec','Record every drive','Starts when you leave home, keeps going through routes and stops, and finishes when you get home',AUTOREC)}${TG('sTop','Top-down view at turns','From 100 m before a turn the map goes flat so you can see which way to go',TOPTURN)}${TG('sNorth','Keep north up while driving','The map stays north-up instead of turning with you',NORTHUP)}${TG('sSpdo','Show speedometer','',SHOWSPD)}${TG('sAwake','Keep the screen on','The screen stays on the whole time the map is open',KEEPAWAKE)}${TG('sAvoid','Avoid rough tracks','Routes stay on the main roads when there is another way',AVOIDTRK)}</div><div class="msec">Voice directions</div>${vmSeg('sVm')}<div class="sub" style="margin:6px 2px 4px;font-size:12.5px">Alerts only speaks at the turn itself and for gates, stops and rerouting</div>
-   ${m?`<div class="msec">Account</div><div class="list sgroup">${Cloud.sess&&Cloud.sess.uid?`<button class="it lk" id="sUid"><div style="flex:1;min-width:0"><b>Account ID</b><br><small class="mono" data-notr style="word-break:break-all;font-size:12px">${esc(Cloud.sess.uid)}</small><br><small>The same ID Supabase shows for you · tap to copy</small></div></button>`:''}${m.role!=='guest'?LK('sPin','Account PIN',LS.get('hasPin',false)?'Asked when your account is brought to a new phone · tap to change':'Set a 4-digit PIN so nobody else can take over your account','','lock','#7a5b12'):''}${m.role!=='guest'?LK('sRec','Recovery code','Get your exact account back on any phone, even if you are signed out','','key','#1f4d36'):''}</div>`:''}
+   ${m?`<div class="msec">Account</div><div class="list sgroup">${Cloud.sess&&Cloud.sess.uid?`<button class="it lk" id="sUid"><div style="flex:1;min-width:0"><b>Account ID</b><br><small class="mono" data-notr style="word-break:break-all;font-size:12px">${esc(Cloud.sess.uid)}</small><br><small>The same ID Supabase shows for you · tap to copy</small></div></button>`:''}${LK('sRe',T('Reinstall the app'),T('Fresh copy on your Home Screen, you stay signed in'),'','route','#5f6368')}${m.role!=='guest'?LK('sPin','Account PIN',LS.get('hasPin',false)?'Asked when your account is brought to a new phone · tap to change':'Set a 4-digit PIN so nobody else can take over your account','','lock','#7a5b12'):''}${m.role!=='guest'?LK('sRec','Recovery code','Get your exact account back on any phone, even if you are signed out','','key','#1f4d36'):''}</div>`:''}
    <div class="msec">Make it yours</div><div class="list sgroup">${LK('sCust',T('Character, car and colours'),T('Your animal, your car on the map, route and trail colours, voice'),'','star','#e37400')}</div>
-   <div class="msec">Map data</div><div class="list sgroup">${LK('sOff','Offline map','',esc(offlineStatus()))}${m?LK('sShare','Sharing status',shareStatus(),''):''}${m&&m.role==='admin'?LK('sUpd','Require everyone to update','Version '+APP_BUILD,''):''}</div>
+   <div class="msec">Map data</div><div class="list sgroup">${LK('sOff','Offline map','',esc(offlineStatus()))}${m?LK('sShare','Sharing status',shareStatus(),''):''}${m&&m.role==='admin'?LK('sUpd',T('Updates and reinstall'),T('Send the newest version to everyone, or ask everyone to reinstall'),'v'+APP_BUILD,'down','#1a73e8'):''}</div>
    ${m&&!m.locked?'<button class="mout" id="sOut">Sign out</button>':''}<div class="sub" style="text-align:center;font-size:11.5px;margin-top:10px">Khaya Ndlovu game drive map · version ${APP_BUILD}</div>`,()=>{
-    if($('sRec'))$('sRec').onclick=()=>recSheet();if($('sPin'))$('sPin').onclick=()=>pinSheet();if($('sCust'))$('sCust').onclick=()=>custFlow(0);
+    if($('sRec'))$('sRec').onclick=()=>recSheet();if($('sPin'))$('sPin').onclick=()=>pinSheet();if($('sRe'))$('sRe').onclick=()=>reinstallSheet();if($('sCust'))$('sCust').onclick=()=>custFlow(0);
     if($('sUid'))$('sUid').onclick=async()=>{const u=Cloud.sess.uid;try{await navigator.clipboard.writeText(u)}catch(e){fallbackCopy(u)}toast('Account ID copied')};
     document.querySelectorAll('[data-lg]').forEach(b=>b.onclick=()=>{if(b.dataset.lg===LANG)return;LS.set('lang',b.dataset.lg);toast(b.dataset.lg==='af'?'Afrikaans...':'English...');setTimeout(()=>location.reload(),300)});
     const tg=(id,fn)=>{const b=$(id);if(b)b.onclick=()=>{fn();b.classList.toggle('on')}};
@@ -4371,11 +4380,22 @@ async function reinstall(elId){const el=$(elId||'uwSteps');if(!el)return;el.inne
   else if(inApp&&and){const u=new URL(url);go.href='intent://'+u.host+u.pathname+u.search+'#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url='+encodeURIComponent(url)+';end'}
   if(inApp){go.removeAttribute('target');go.onclick=()=>{setTimeout(()=>{if(!document.hidden)help.textContent=T(isIOS?"Didn't open Safari? Tap Copy the link, open Safari and paste it in the address bar.":"Didn't open Chrome? Tap Copy the link, open Chrome and paste it in the address bar.")},1800)}}
   el.querySelector('#reCopy').onclick=async()=>{try{await navigator.clipboard.writeText(url)}catch(e){fallbackCopy(url)}help.textContent=T(isIOS?'Link copied. Open Safari, tap the address bar, paste it and go.':'Link copied. Open Chrome, tap the address bar, paste it and go.')}}
-function updAdminSheet(){openSheet(`<h2>Require an update</h2><div class="sub" style="line-height:1.45">Everyone on an older version than ${APP_BUILD} gets an "Update needed" screen and must update before they can use the map. SOS keeps working, and nobody is stopped in the middle of a drive. Everyone on an old version also gets a news message asking them to update, even very old copies of the app.</div>
-   <div class="rpm" style="margin-top:12px"><div><b class="g">${APP_BUILD}</b><small>Newest</small></div><div><b>${UPD.min||'-'}</b><small>Required now</small></div></div>
-   <div class="row" style="margin-top:14px"><button class="btn" id="uaNo">Cancel</button><button class="btn pri" id="uaGo">${LI('down',18)} Require version ${APP_BUILD}</button></div>`,()=>{
-    $('uaNo').onclick=closeSheet;$('uaGo').onclick=async()=>{try{await rpc('set_min_build',{p_build:APP_BUILD});UPD.min=APP_BUILD;toast('Done. Everyone on an older version will be asked to update.',4000);closeSheet()}catch(e){toast(errTxt(e),6000)}}})}
-
+function reinstallSheet(){openSheet(`<h2>${T('Reinstall the app')}</h2><div class="sub" style="line-height:1.45">${T('Gets a completely fresh copy of the map on your Home Screen. You stay signed in and keep your settings, drives and places.')}</div><div id="reSteps" style="margin-top:12px"></div><button class="btn" id="reBack" style="width:100%;margin-top:12px">${T('Back')}</button>`,()=>{$('reBack').onclick=()=>settingsSheet();reinstall('reSteps')})}
+async function updAdminSheet(){await loadVers();const need=APP_BUILD,old=VERS?Object.values(VERS).filter(x=>!x.v||x.v<need).length:null;
+  openSheet(`<h2>${T('Updates and reinstall')}</h2>
+   <div class="rpm" style="margin-top:8px"><div><b class="g">${APP_BUILD}</b><small>${T('Newest')}</small></div><div><b>${UPD.min||'-'}</b><small>${T('Required now')}</small></div><div><b>${old==null?'-':old}</b><small>${T('On an old version')}</small></div></div>
+   <div class="msec" style="margin-top:16px">${T('Send the update')}</div>
+   <div class="sub" style="line-height:1.45">${T('Everyone\'s app updates itself to version')} ${APP_BUILD} ${T('the next time it is open and not driving. Nobody is signed out.')}</div>
+   <button class="btn pri" id="uaGo" style="width:100%;margin-top:10px">${LI('down',18)} ${T('Send version')} ${APP_BUILD} ${T('to everyone')}</button>
+   <div class="msec" style="margin-top:18px">${T('Ask everyone to reinstall')}</div>
+   <div class="sub" style="line-height:1.45">${T('Posts news everyone sees as a pop-up, telling them how to reinstall. They stay signed in.')}</div>
+   <textarea class="inp" id="uaTxt" maxlength="600" style="height:96px;padding:10px 12px;resize:vertical;font:inherit;margin-top:8px">${T('Please reinstall the Khaya Ndlovu map so you get the newest version: open the menu, tap the gear (Settings), then Reinstall the app and follow the 3 steps. You stay signed in.')}</textarea>
+   <button class="btn" id="uaRe" style="width:100%;margin-top:10px">${LI('mega',18)} ${T('Send the reinstall message')}</button>
+   <button class="btn" id="uaNo" style="width:100%;margin-top:10px">${T('Back')}</button>`,()=>{
+    $('uaNo').onclick=()=>settingsSheet();
+    $('uaGo').onclick=async()=>{if(!navigator.onLine){toast(T('You need signal to do this'));return}$('uaGo').disabled=true;try{await rpc('set_min_build',{p_build:APP_BUILD});UPD.min=APP_BUILD;toast(T('Sent. Phones update themselves next time the map is open.'),4500);updAdminSheet()}catch(e){toast(errTxt(e),6000);$('uaGo').disabled=false}};
+    $('uaRe').onclick=async()=>{const body=$('uaTxt').value.trim();if(!body){toast(T('Write something first'));return}if(!navigator.onLine){toast(T('You need signal to do this'));return}$('uaRe').disabled=true;const cid=cidNew();
+      try{await api('/rest/v1/announcements',{method:'POST',headers:{Prefer:'return=minimal'},body:JSON.stringify({client_id:cid,body,expires_at:new Date(Date.now()+3*864e5).toISOString()})});annSeen.add(cid);LS.set('annSeen',[...annSeen]);rtPing();toast(T('Sent. Everyone sees it as a pop-up for 3 days.'),4500)}catch(e){toast(errTxt(e),6000)}$('uaRe').disabled=false}})}
 /* ============ places: admins add, rename, move and remove them; closed roads ============ */
 let PLACES=LS.get('places',[]),CLOSED=LS.get('closed',{});
 function applyPlaces(){const byBase={};PLACES.forEach(p=>{if(p.base)byBase[p.base]=p});
@@ -5156,17 +5176,34 @@ function inboxSheet(){const L=CHAT.inbox||[];
    <div class="chl">${L.length?L.map(row).join(''):`<div class="sub" style="margin:16px 0">${navigator.onLine?T('Loading...'):T('You need signal to see messages.')}</div>`}</div>`,()=>{
     document.querySelectorAll('[data-room]').forEach(b=>b.onclick=()=>b.dataset.room==='main'?chatSheet('main',null,inboxSheet):chatSheet(b.dataset.room,b.dataset.n,inboxSheet))});
   if(!L.length)chatPoll()}
+function chatView(inner){const v=document.createElement('div');v.className='chview';v.innerHTML=inner+`<button aria-label="Close">${LI('x',24)}</button>`;v.onclick=e=>{if(e.target.tagName!=='VIDEO')v.remove()};document.body.appendChild(v)}
 async function chatSheet(withId,name,back){withId=withId||'main';const isMain=withId==='main';let L=null,err=false;CHAT.open=null;
   const draw=()=>{const typed=$('chT')?$('chT').value:'';const me=Cloud.member||{};
     let lastDay='',lastU='';
     const bub=m=>{const d=new Date(m.t).toDateString();let h='';if(d!==lastDay){lastDay=d;lastU='';h+=`<div class="chday">${esc(chatDay(Date.parse(m.t)))}</div>`}
       const cont=lastU===m.u;lastU=m.u;
       return h+`<div class="chb${m.mine?' cmine':''}${cont?' cont':''}${m.wait?' wait':''}">${!m.mine&&isMain?`<span class="chba" data-prof="${esc(m.u)}" data-pn="${esc(m.by)}">${cont?'':avatarHtml(m.av,m.by,30)}</span>`:''}
-        <div class="chbb">${!m.mine&&isMain&&!cont?`<b data-prof="${esc(m.u)}" data-pn="${esc(m.by)}">${NM(esc(m.by),m.rl)}</b>`:''}<span>${esc(m.s)}</span><small>${esc(new Date(m.t).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}))}${m.wait?' · '+T('Sending...'):''}${m.can&&!m.wait?` · <button data-chdel="${esc(m.id)}">${T('Delete')}</button>`:''}</small></div></div>`};
+        <div class="chbb">${!m.mine&&isMain&&!cont?`<b data-prof="${esc(m.u)}" data-pn="${esc(m.by)}">${NM(esc(m.by),m.rl)}</b>`:''}${(m.media||[]).length?`<span class="chmd">${m.media.map(x=>x.k==='vid'?`<span class="chv" data-chv="${esc(x.f)}" data-ct="${esc(x.ct||'')}">${x.p?`<img data-chi="${esc(x.p)}" alt="">`:''}<i>${LI('play',22)}</i></span>`:`<img data-chi="${esc(x.f)}" data-full="${esc(x.f)}" alt="">`).join('')}</span>`:''}${m.s?`<span>${esc(m.s)}</span>`:''}<small>${esc(new Date(m.t).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}))}${m.wait?' · '+T('Sending...'):''}${m.can&&!m.wait?` · <button data-chdel="${esc(m.id)}">${T('Delete')}</button>`:''}</small></div></div>`};
     openSheet(`<div class="cmh"><button class="sm" id="chBack">‹ ${T('Back')}</button><b class="chtitle">${isMain?T('Main chat'):`<span data-prof="${esc(withId)}" data-pn="${esc(name||'')}">${esc(name||T('Message'))}</span>`}</b><span style="width:60px"></span></div>
       ${isMain?`<div class="sub" style="text-align:center;margin:-4px 0 6px">${T('Everyone on the map can read this')}</div>`:`<div class="sub" style="text-align:center;margin:-4px 0 6px">${T('Only the two of you can read this')}</div>`}
       <div class="chlist" id="chList">${L===null?`<div class="sub" style="text-align:center;margin:20px 0">${T('Loading...')}</div>`:L.length?L.map(bub).join(''):`<div class="sub" style="text-align:center;margin:20px 0">${err?T('Messages need signal.'):isMain?T('No messages yet. Say hi to everyone!'):T('No messages yet. Say hi!')}</div>`}</div>
-      <form class="cmin" id="chF"><input class="inp" id="chT" maxlength="1000" placeholder="${T('Message...')}" autocomplete="off" enterkeyhint="send"><button class="cmsend" type="submit" aria-label="${T('Send')}">${LI('arrow',20)}</button></form>`,()=>{
+      <form class="cmin" id="chF"><label class="chcam" aria-label="${T('Photo or video')}">${LI('cam',21)}<input type="file" id="chFile" accept="image/*,video/*" multiple hidden></label><input class="inp" id="chT" maxlength="1000" placeholder="${T('Message...')}" autocomplete="off" enterkeyhint="send"><button class="cmsend" type="submit" aria-label="${T('Send')}">${LI('arrow',20)}</button></form>`,()=>{
+      // fill in the pictures (from this phone first, else downloaded once and kept)
+      document.querySelectorAll('#chList img[data-chi]').forEach(async im=>{const u=await fmImg(im.dataset.chi);if(u)im.src=u});
+      document.querySelectorAll('#chList img[data-full]').forEach(im=>im.onclick=async()=>{const u=await fmImg(im.dataset.full);if(u)chatView(`<img src="${u}" alt="">`)});
+      document.querySelectorAll('#chList [data-chv]').forEach(v=>v.onclick=async()=>{toast(T('Loading video...'),1500);const u=await fmVid(v.dataset.chv);if(u)chatView(`<video src="${u}" controls autoplay playsinline></video>`);else toast(T('The video needs signal'))});
+      $('chFile').onchange=async e=>{const fs=[...e.target.files].slice(0,6);e.target.value='';if(!fs.length)return;if(!navigator.onLine){toast(T('You need signal to send photos and videos'));return}
+        const id='cm-'+cidNew().replace(/[^A-Za-z0-9_-]/g,''),base='fm-ch-'+id.slice(3),media=[],cap=$('chT').value.trim(),m={id,s:cap,media:[],t:new Date().toISOString(),u:me.uid,mine:true,by:me.name,av:MYAV,wait:true};
+        $('chT').value='';L=(L||[]).concat([m]);draw();
+        try{for(let k=0;k<fs.length;k++){const f=fs[k];
+            if(/^video\//.test(f.type)||/\.(mov|mp4|webm|m4v)$/i.test(f.name)){if(f.size>50*1048576){toast(T('That video is too big. Keep it under 50 MB, about a minute'),5000);continue}
+              const v=await vidMeta(f),ct=f.type||(/\.mov$/i.test(f.name)?'video/quicktime':'video/mp4'),ext=/quicktime/.test(ct)?'mov':/webm/.test(ct)?'webm':'mp4',fn=base+'-'+k+'.'+ext,it={k:'vid',f:fn,ct,d:v?Math.round(v.d):0};
+              await photoPut(fn,f);if(await fmUpload(fn,ct)==='big'){toast(T('That video is too big to send'),4000);continue}
+              if(v&&v.poster){it.p=base+'-'+k+'p.jpg';await photoPut(it.p,v.poster);await fmUpload(it.p,'image/jpeg')}media.push(it)}
+            else{const b=await shrinkPhoto(f),fn=base+'-'+k+'.jpg';await photoPut(fn,b);await fmUpload(fn,'image/jpeg');media.push({k:'img',f:fn})}}
+          if(!media.length&&!cap){L=L.filter(q=>q.id!==id);draw();return}
+          const r=await rpc('chat_send',{p_id:id,p_with:withId,p_body:cap,p_media:media});if(r&&r.room)CHAT.open=r.room;m.media=media;m.wait=false;m.can=true;draw();chatPoll()}
+        catch(x){L=L.filter(q=>q.id!==id);draw();toast(/setup/.test(String(x.message))?T('Photos need the Feed storage set up in Supabase'):errTxt(x),5000)}};
       $('chT').value=typed;const el=$('chList');if(el)el.scrollTop=el.scrollHeight;$('sheetBody')&&($('sheetBody').scrollTop=1e6);
       $('chBack').onclick=()=>{stop();back?back():inboxSheet()};
       document.querySelectorAll('#sheet [data-prof]').forEach(e=>e.onclick=()=>{stop();profileSheet(e.dataset.prof,e.dataset.pn)});
@@ -5263,7 +5300,12 @@ function afterGate2(){setTimeout(()=>custPop(),600)}
 {const q=new URLSearchParams(location.search).get('guest');if(q){try{history.replaceState(null,'',location.pathname)}catch(e){}if(needGate()){$('gCode').value=q.toUpperCase().slice(0,12);
   // came from a scanned QR code: the code is already in, so only ask for their name
   const g=$('gate');g.classList.add('qrjoin');const h=g.querySelector('.gcard h2'),pp=g.querySelector('.gcard p');if(h)h.textContent=T('Welcome to Khaya Ndlovu');if(pp)pp.textContent=T('Your pass is ready. Just type your name and you\'re in.');
-  setTimeout(()=>{try{$('gName').focus()}catch(e){}},600)}}}
+  setTimeout(()=>{try{$('gName').focus()}catch(e){}},600)}
+  else if(Cloud.member){const code=q.toUpperCase().slice(0,12);
+    // this phone is already signed in, so the pass can't be used here: say so instead of doing nothing
+    setTimeout(()=>openSheet(`<div style="text-align:center">${LI('ticket',38)}<h2 style="margin:6px 0 4px">${T('Guest pass')} ${esc(code)}</h2></div>
+      <div class="sub" style="line-height:1.5;text-align:center">${T('This phone is already signed in as')} <b>${esc(Cloud.member.name||'')}</b>. ${T('Guest passes are for the guest\'s own phone: let them scan the QR code with their camera.')}</div>
+      <button class="btn pri" id="gpOk" style="width:100%;margin-top:14px">${T('Got it')}</button>`,()=>$('gpOk').onclick=()=>closeSheet()),2500)}}}
 /* iPhone Home Screen apps can't see the Safari login. After signing in, the Safari link carries a one-time pass (?resume=),
    so the icon made with Add to Home Screen opens already signed in as the same person. */
 const isIOS=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
