@@ -1016,7 +1016,14 @@ body:not(.navon) #saPop{bottom:calc(var(--bb) + 100px)}
 .qsg button{display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 4px 10px;border-radius:18px;background:var(--card2,#f4f1ea);border:1px solid rgba(0,0,0,.06);font:800 14px system-ui,-apple-system,sans-serif;color:inherit;min-height:92px}
 .qsg button:active{transform:scale(.96)}
 body.night .qsg button{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.08)}
-#qsBtn{width:60px!important;height:60px!important;border-radius:50%!important;padding:0!important;background:none!important;border:0!important;box-shadow:0 5px 14px rgba(0,0,0,.4)!important;overflow:hidden}#qsBtn .qsimg{width:100%;height:100%;display:block;border-radius:50%}#qsBtn svg{width:36px!important;height:36px!important;stroke:none!important;color:inherit!important}
+
+.stprof{display:flex;align-items:center;gap:14px;width:100%;padding:14px;margin:6px 0 14px;border-radius:22px;border:1px solid rgba(233,196,106,.45);background:linear-gradient(135deg,rgba(233,196,106,.16),rgba(31,77,54,.22));font:inherit;color:inherit;text-align:left}
+.stprof .stpm{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}.stprof .stpm b{font-size:19px}.stprof small{opacity:.75;font-size:12.5px}
+.stbig{display:flex;flex-direction:column;align-items:center;gap:6px;margin:6px 0 16px}.stbig b{font-size:21px}
+.renm{display:block;color:#b06000;font-size:11.5px;margin-top:1px}body.night .renm{color:#ffc23d}
+.mcw{display:flex;gap:8px;align-items:center;margin-top:12px}.mcw .inp{flex:1}
+.mcr{display:grid;gap:5px;margin-top:10px;font-size:13px}.mcr div{opacity:.55;display:flex;align-items:center;gap:6px}.mcr div.ok{opacity:1;color:#188038}body.night .mcr div.ok{color:#7ed39b}
+#qsBtn{border-radius:50%!important;padding:0!important;background:none!important;border:0!important;box-shadow:0 5px 14px rgba(0,0,0,.4)!important;overflow:hidden}#qsBtn .qsimg{width:100%;height:100%;display:block;border-radius:50%}#qsBtn svg{width:36px!important;height:36px!important;stroke:none!important;color:inherit!important}
 .dssat{position:relative;margin:10px 0 4px;border-radius:18px;overflow:hidden;aspect-ratio:16/10;background:#1c2118}
 .dssat canvas{width:100%;height:100%;display:block}
 
@@ -1102,13 +1109,19 @@ body.spbar #roadPill{bottom:calc(var(--bb) + 222px)!important}
 .avc{display:inline-flex;flex:none;border-radius:50%;overflow:hidden}.avc:has(.pfi){overflow:visible}.avc svg{width:100%;height:100%}
 .obdots{display:flex;gap:6px;margin-bottom:10px}.obdots i{flex:1;height:4px;border-radius:2px;background:rgba(0,0,0,.12)}.obdots i.on{background:#ffc23d}
 .cuopt{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.cuopt.c4{grid-template-columns:1fr 1fr}
+.cuo,.qsg button{position:relative;transition:background .15s,border-color .15s,box-shadow .15s}
+.cuo.sel,.qsg button.sel{border:2px solid #e9c46a!important;background:rgba(233,196,106,.2)!important;box-shadow:0 0 0 3px rgba(233,196,106,.28)!important}
+.cuo.sel::after,.qsg button.sel::after{content:'✓';position:absolute;top:6px;right:8px;width:22px;height:22px;border-radius:11px;background:#e9c46a;color:#0b1a11;font:900 13px/22px system-ui,-apple-system,sans-serif;text-align:center}
+.swat button{position:relative;transition:transform .15s}
+.swat button.sel{box-shadow:0 0 0 3px #e9c46a,0 0 0 6px rgba(233,196,106,.3)!important;transform:scale(1.12)}
+.swat button.sel::after{content:'✓';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font:900 17px system-ui,-apple-system,sans-serif;text-shadow:0 1px 3px rgba(0,0,0,.7)}
 .cuo{display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 10px;border-radius:18px;background:var(--card2,#f4f1ea);border:2px solid transparent;font:inherit;color:inherit;text-align:center}
 .cuo small{font-size:12px;opacity:.7}.cuo.sel,.qsg button .pfi{margin-top:8px}
 .obwel{text-align:center;padding-top:10px}.obwel .glogo{width:min(66vw,250px);margin:0 auto 10px;padding:12px 16px;border-radius:20px;background:#f6efe2;box-shadow:0 4px 14px rgba(0,0,0,.15)}.obwel .glogo img{width:100%}
 .avsec{display:flex;align-items:center;gap:6px;margin-top:16px}
 .qsg button.sel{border-color:#ffc23d;box-shadow:0 0 0 3px rgba(255,194,61,.25)}
 .cucar{display:block;width:44px;height:56px;position:relative}.cucar .chev{position:static!important;display:block!important;width:44px;height:56px;filter:drop-shadow(0 2px 3px rgba(0,0,0,.35))}
-.swat{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}.swat button{width:40px;height:40px;border-radius:20px;border:3px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.15)}.swat button.sel{box-shadow:0 0 0 3px #ffc23d}
+.swat{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;padding:5px}.swat button{width:40px;height:40px;border-radius:20px;border:3px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.15)}.swat button.sel{box-shadow:0 0 0 3px #ffc23d}
 .cuname{display:flex;align-items:center;gap:12px;margin-top:12px;padding:10px 12px;border-radius:16px;background:var(--card2,#f4f1ea)}.cuname small{display:block;font-size:12px;opacity:.65}
 .prh .pfi{margin:12px 14px 0 20px}.prh{display:flex;align-items:center;gap:14px}
 .me.iscar.nav .chev{width:40px;height:50px;left:-12px;top:-14px;filter:drop-shadow(0 3px 4px rgba(0,0,0,.5))!important}.me.iscar.nav .chev path,.me.iscar.nav .chev rect{stroke-width:inherit}
@@ -1810,6 +1823,12 @@ function queue(op){if(!Cloud.on||!Cloud.member)return;if(DM.on&&(op.t==='drives'
 async function joinReserve(name,code,claim,pin){
   await ensureSession();
   let res;
+  // "I already have an account": their own code first (capitals count)
+  if(!String(name||'').trim()){try{const raw=String(code||'').trim();const d=await api('/rest/v1/rpc/join_mycode',{method:'POST',body:JSON.stringify({p_code:raw,...(claim!=null?{p_claim:claim}:{}),...(pin?{p_pin:pin}:{})})});
+    if(d&&d.reason==='claim')return {claim:d.who};if(d&&/^(pin|badpin|pintries|tries|expired)$/.test(d.reason))return d.reason;
+    if(d&&d.ok){if(d.avatar){MYAV=d.avatar;LS.set('avatar',d.avatar)}LS.set('custDone',true);LS.set('obIntro',true);LS.set('myCode',true);LS.set('roleSeen',d.role||'owner');if(pin)LS.set('hasPin',true);
+      Cloud.member={name:d.name||'Member',uid:Cloud.sess.uid,t:Date.now(),role:d.role||'owner',exp:d.expires_at?Date.parse(d.expires_at):null,locked:!!d.locked};LS.set('devKeyFor','');saveCloud();sync();armExpiry();setTimeout(rtConnect,500);setTimeout(armHandover,900);setTimeout(reportBuild,1500);return true}}
+    catch(e){if(!/404|PGRST202|Could not find/.test(String(e.message)))throw e}}
   code=String(code||'').trim().replace(/\s+/g,'').toUpperCase();
   // the Database code is separate from every other code: try it first
   try{const d=await api('/rest/v1/rpc/join_database',{method:'POST',body:JSON.stringify({p_code:code,p_name:name})});
@@ -1981,6 +2000,8 @@ function annPop(){const a=ANN.filter(x=>!annSeen.has(x.client_id)&&(!x.expires_a
 
 /* ============ what's new: shown once to owners and admins after an update ============ */
 const WHATS_NEW=[
+ [144,'gear','New Settings','Settings has a page for each topic now. Tap your picture at the top for Profile settings: change your picture or your name, set your PIN, or make your own sign-in code.'],
+ [144,'users','Your picture on posts','New posts show your profile picture.'],
  [143,'key','I already have an account','Signed out? On the sign-in screen tap I already have an account and type your code. Database accounts now have two codes, Database code 1 and 2, in Admin tools.'],
  [141,'ticket','Invites as a card','When you send a code, tap Send the card: it goes as a photo with the code, who it is for and when it ends. Links in WhatsApp now show a preview too.'],
  [141,'shield','Your code is yours','If someone gets signed out, they type the code they were sent and they are back in their own account, on any phone. Owners and admins also enter their PIN.'],
@@ -3132,7 +3153,7 @@ function vidMeta(f){return new Promise(res=>{const v=document.createElement('vid
   v.onerror=()=>fin(null);setTimeout(()=>fin(isFinite(v.duration)&&v.duration?{d:v.duration,w:v.videoWidth,h:v.videoHeight,poster:null}:null),9000);v.src=URL.createObjectURL(f)})}
 function composeSheet(pre){if(!Cloud.member){toast(T('Join the map first'));return}const C={text:'',what:(pre&&pre.what)||'',items:[],here:!!(me&&inArea(me.ll))};
   const draw=()=>{openSheet(`<div class="cmh"><button class="sm" id="cpX">${T('Cancel')}</button><b>${T('New post')}</b><button class="btn pri sm" id="cpGo">${T('Post')}</button></div>
-    <div class="cph"><span class="poa" style="background:${mateCol(myName())}">${iniOf(myName())}</span><div><b>${esc(myName())}</b><small>${C.here&&me?LI('pin',11)+' '+esc(postPlace({lat:me.ll[1],lng:me.ll[0]})):T('Everyone on the map can see it')}</small></div></div>
+    <div class="cph">${MYAV?avatarHtml(MYAV,myName(),40):`<span class="poa" style="background:${mateCol(myName())}">${iniOf(myName())}</span>`}<div><b>${NM(esc(myName()),Cloud.member.role,Cloud.member.locked)}</b><small>${C.here&&me?LI('pin',11)+' '+esc(postPlace({lat:me.ll[1],lng:me.ll[0]})):T('Everyone on the map can see it')}</small></div></div>
     <textarea class="inp cpt" id="cpT" maxlength="2000" placeholder="${T('What did you see today?')}">${esc(C.text)}</textarea>
     ${C.items.length?`<div class="cpm">${C.items.map((it,k)=>`<div class="cpi">${it.k==='vid'?`<video src="${it.url}" muted playsinline preload="metadata"></video><span class="cpd">${LI('play',11)} ${fmtSec(it.d)}</span>`:`<img src="${it.url}" alt="">`}<button data-rmi="${k}" aria-label="Remove">${LI('x',14)}</button></div>`).join('')}</div>`:''}
     <label class="cpadd">${LI('cam',20)}<div><b>${T('Photo or video')}</b><small>${T('Up to 6. Videos up to 3 minutes and 50 MB')}</small></div><input type="file" id="cpF" accept="image/*,video/*" multiple hidden></label>
@@ -3174,7 +3195,7 @@ function feedDraw(){FEED.open=true;setTimeout(()=>{if(FEED.open&&$('sheet').clas
   const all=pend.concat(FEED.list.filter(p=>!pend.some(q=>q.c===p.c)));
   const chip=(attr,val,label,on)=>`<button class="osg${on?' sel':''}" ${attr}="${esc(val)}">${label}</button>`;
   openSheet(`<div class="fdh"><h2>${T('Feed')}</h2><button class="sm" id="fdRe" aria-label="Refresh">${LI('clock',16)}</button></div>
-   ${Cloud.member?`<button class="fcomp" id="fdNew"><span class="poa" style="background:${mateCol(myName())}">${iniOf(myName())}</span><span class="fcph">${T('What did you see today?')}</span><span class="fcic">${LI('cam',20)}</span></button>`:''}
+   ${Cloud.member?`<button class="fcomp" id="fdNew">${MYAV?avatarHtml(MYAV,myName(),40):`<span class="poa" style="background:${mateCol(myName())}">${iniOf(myName())}</span>`}<span class="fcph">${T('What did you see today?')}</span><span class="fcic">${LI('cam',20)}</span></button>`:''}
    <div class="osug fdf">${chip('data-fk','',T('Everything'),!FEED.kind&&!FEED.what&&!FEED.near)}${chip('data-fk','post',LI('msg',13)+' '+T('Posts'),FEED.kind==='post')}${chip('data-fk','video',LI('play',13)+' '+T('Videos'),FEED.kind==='video')}${chip('data-fk','sight',LI('binoc',13)+' '+T('Sightings'),FEED.kind==='sight')}${chip('data-fn','1',LI('pin',13)+' '+T('Near me'),FEED.near)}${kinds.map(k=>chip('data-ff',k,esc(T(k)),FEED.what===k)).join('')}</div>
    ${FEED.local?`<div class="sub" style="margin-top:8px;font-size:12.5px">${LI('clock',12)} ${T('Showing the sightings on this phone')}${isAdm()?'. '+T('Run the latest all_in_one.sql in Supabase to turn on posts, videos, likes and comments.'):'. '+T('The full feed comes back with signal.')}</div>`:''}
    <div id="fdList">${all.length?all.map(postCard).join(''):`<div class="sub" style="margin-top:16px">${navigator.onLine?T('Nothing here yet. Post a photo or video, or mark a sighting, and it shows up for everyone.'):T('The feed needs signal.')}</div>`}</div>
@@ -3312,7 +3333,13 @@ setInterval(routeTicks,1500);
 function navTick(){
   if(!nav||!me)return;try{routeTicks()}catch(e){}
   const pr=projectOnRoute(nav.segs,me.ll);
-  if(pr.d>45){offCount++;if(offCount>=3){offCount=0;const r=navRoute();if(r){const b=buildSteps(r);Object.assign(nav,{r,...b});toast('Rerouting...',1500);say('Rerouting','rr'+Date.now());return navTick()}}}else offCount=0;
+  // off the route: reroute quickly. Driving away from the line (a missed turn) counts after 25 m, otherwise after 35 m
+  {const mv=(me.speed||speedS||0)>1.5&&me.heading!=null;let away=false;
+    if(mv&&pr.d>25){try{const a=pr.along,p1=pointAt(nav.segs,Math.max(0,a-10)),p2=pointAt(nav.segs,Math.min(nav.total,a+10)),rb=bearing(p1,p2);away=Math.abs(((me.heading-rb+540)%360)-180)>55}catch(e){}}
+    if(pr.d>35||away){offCount++;if(offCount>=(away?1:2)&&Date.now()-(nav.rrAt||0)>4000){offCount=0;nav.rrAt=Date.now();const r=navRoute();if(r){const b=buildSteps(r);Object.assign(nav,{r,...b});
+      // the fastest way back is behind you: say so
+      let ut=false;try{if(mv&&b.segs.length){const rb=bearing(b.segs[0].a,pointAt(b.segs,Math.min(b.total,30)));ut=Math.abs(((me.heading-rb+540)%360)-180)>120}}catch(e){}
+      nav.uturn=ut;if(ut){toast(T('Missed the turn. Make a U-turn when it is safe'),3500);say(T('Make a U-turn when it is safe'),'rr'+Date.now(),true)}else{toast(T('Rerouting...'),1500);say(T('Rerouting'),'rr'+Date.now())}return navTick()}}}else offCount=0}
   const along=pr.along,left=Math.max(0,nav.total-along);
   // remaining line
   const rem=[pr.q];for(const s of nav.segs){if(s.cum+s.L>along)rem.push(s.b)}
@@ -4182,13 +4209,14 @@ function welcomeFlow(){if(!Cloud.member)return;const inst=!isStandalone(),ios=/i
   if(!LS.get('custDone',false))custFlow(0)}
 function avPickHtml(){const g=(L,lbl)=>`${lbl?`<div class="msec avsec">${lbl}</div>`:''}<div class="qsg">${L.map(a=>`<button class="${MYAV===a?'sel':''}" data-v="${esc(a)}" data-ch>${PFP(a,62)}<span>${esc(T(avBase(a)))}</span></button>`).join('')}</div>`;
   const m=Cloud.member||{};const adm=m.role==='admin'||!!m.locked;return g(CHARS,'')+(adm||m.role==='owner'?g(AV_GOLD,T('Gold · owners and admins')):'')+(adm?g(AV_PRISM,`${ADMIN_BADGE} ${T('Prismatic · admins only')}`):'')}
-function custFlow(step){const needPin=Cloud.member&&Cloud.member.role!=='guest'&&!LS.get('hasPin',false)&&!LS.get('custDone',false),total=needPin?7:6;const pg=(n,title,sub,body,bind)=>{openSheet(`<div class="obdots">${Array.from({length:total},(_,i)=>`<i class="${i<=n?'on':''}"></i>`).join('')}</div><h2>${title}</h2><div class="sub" style="margin-top:4px">${sub}</div>${body}
+function custFlow(step){if(custFlow.only!=null&&step!==custFlow.only){const b=custFlow.back;custFlow.only=null;custFlow.back=null;toast(T('Saved'));b?b():closeSheet();return}
+  const one=custFlow.only!=null;const needPin=Cloud.member&&Cloud.member.role!=='guest'&&!LS.get('hasPin',false)&&!LS.get('custDone',false),total=needPin?7:6;const pg=(n,title,sub,body,bind)=>{if(one){openSheet(`<div class="cmh"><button class="sm" id="cuBack">‹ ${T('Back')}</button><b></b><span style="width:60px"></span></div><h2>${title}</h2><div class="sub" style="margin-top:4px">${sub}</div>${body}<button class="btn pri" id="cuNext" style="width:100%;margin-top:16px">${T('Save')}</button>`,()=>{$('cuBack').onclick=()=>{const b=custFlow.back;custFlow.only=null;custFlow.back=null;b?b():closeSheet()};bind&&bind()});return}openSheet(`<div class="obdots">${Array.from({length:total},(_,i)=>`<i class="${i<=n?'on':''}"></i>`).join('')}</div><h2>${title}</h2><div class="sub" style="margin-top:4px">${sub}</div>${body}
     <div class="row" style="margin-top:16px">${n>0?`<button class="btn" id="cuBack">${T('Back')}</button>`:''}<button class="btn pri" id="cuNext">${n===total-1?T('Open the map'):T('Next')}</button></div>`,()=>{$('sheet').classList.add('full');if($('cuBack'))$('cuBack').onclick=()=>custFlow(n===6&&!needPin?4:n-1);bind&&bind()})};
   const pick=(sel,fn)=>document.querySelectorAll(sel).forEach(b=>b.onclick=()=>{document.querySelectorAll(sel).forEach(x=>x.classList.remove('sel'));b.classList.add('sel');fn(b.dataset.v)});
   if(step===0){pg(0,T('Make it yours'),T('Pick how the map looks. You can change it any time in Layers.'),`<div class="cuopt">${[['sat',T('Satellite'),T('Real photos of the reserve')],['map',T('Map'),T('Clean map with the bush drawn in')]].map(([v,a,b])=>`<button class="cuo${mode===v?' sel':''}" data-v="${v}" data-cm><b>${a}</b><small>${b}</small></button>`).join('')}</div>`,
       ()=>{pick('[data-cm]',v=>{mode=v;LS.set('mode',v);applyMode()});$('cuNext').onclick=()=>custFlow(1)});return}
   if(step===1){const nm=Cloud.member&&Cloud.member.name||'';pg(1,T('Your character'),T('Pick an animal. It shows next to your name on the map and in the Feed. Each animal has its own colour.'),
-      `<div class="cuname">${avatarHtml(MYAV,nm,44)}<div><b>${NM(esc(nm),Cloud.member&&Cloud.member.role,Cloud.member&&Cloud.member.locked)}</b>${badgeFor(Cloud.member&&Cloud.member.role,Cloud.member&&Cloud.member.locked)}<small>${T('Your name can\'t be changed')}</small></div></div>${avPickHtml()}`,
+      `<div class="cuname">${avatarHtml(MYAV,nm,44)}<div><b>${NM(esc(nm),Cloud.member&&Cloud.member.role,Cloud.member&&Cloud.member.locked)}</b>${badgeFor(Cloud.member&&Cloud.member.role,Cloud.member&&Cloud.member.locked)}<small>${T('Change your name in Settings › Profile')}</small></div></div>${avPickHtml()}`,
       ()=>{pick('[data-ch]',v=>{MYAV=v;LS.set('avatar',v);const c=document.querySelector('.cuname');if(c)c.firstChild.outerHTML=avatarHtml(v,nm,44)});$('cuNext').onclick=()=>{if(!MYAV){toast(T('Pick your animal first'));return}saveAvatar();custFlow(2)}});return}
   if(step===2){pg(2,T('Your car on the map'),T('This is you while you drive.'),`<div class="cuopt c4">${CAR_OPTS.map(([v,a])=>`<button class="cuo${CARICON===v?' sel':''}" data-v="${v}" data-car><span class="cucar">${carSvg(v,MECOL)}</span><b>${T(a)}</b></button>`).join('')}</div><div class="msec" style="margin-top:12px">${T('Colour')}</div><div class="swat">${ME_COLS.map(c=>`<button class="${MECOL===c?'sel':''}" data-v="${c}" data-mc style="background:${c}"></button>`).join('')}</div>`,
       ()=>{pick('[data-car]',v=>{CARICON=v;LS.set('carIcon',v);applyMe()});pick('[data-mc]',v=>{MECOL=v;LS.set('meCol',v);applyMe();document.querySelectorAll('[data-car]').forEach(b=>{b.querySelector('.cucar').innerHTML=carSvg(b.dataset.v,MECOL)})});$('cuNext').onclick=()=>custFlow(3)});return}
@@ -4207,7 +4235,7 @@ function custFlow(step){const needPin=Cloud.member&&Cloud.member.role!=='guest'&
        <div class="prof perm" style="margin-top:12px">${[['users',T('Change your picture, car or colours'),T('Menu, then tap your picture, or Settings › Make it yours')],['binoc',T('Mark a sighting'),T('The binoculars button on the map')],['msg',T('Chats'),T('Menu › Chats: the main chat and private messages')],['gear',T('Everything else'),T('Menu › the gear (Settings)')]].map(([i,a,b])=>`<div class="pr"><span>${LI(i,20)}</span><div>${a}<small>${b}</small></div></div>`).join('')}</div>`,
       ()=>{$('cuNext').onclick=()=>{LS.set('custDone',true);LS.set('obIntro',true);closeSheet();toast(T('All set. Enjoy the drive'),3000)}});return}}
 async function saveAvatar(){if(MYAV&&!avAllowed(MYAV))return;if(!MYAV||!Cloud.member||!navigator.onLine){LS.set('avPending',!!MYAV);return}try{await rpc('set_avatar',{p_avatar:MYAV});LS.set('avPending',false)}catch(e){LS.set('avPending',true)}}
-async function syncProfile(){if(!Cloud.member||!navigator.onLine)return;try{if(LS.get('avPending',false))await saveAvatar();const r=await rpc('my_profile',{});if(r&&typeof r.pin==='boolean')LS.set('hasPin',r.pin);if(r&&typeof r.db==='boolean'&&Cloud.member&&!!Cloud.member.locked!==r.db){Cloud.member.locked=r.db;saveCloud()}if(r&&r.name){if(Cloud.member.name!==r.name){Cloud.member.name=r.name;saveCloud()}if(r.avatar&&r.avatar!==MYAV){MYAV=r.avatar;LS.set('avatar',r.avatar)}}}catch(e){}}
+async function syncProfile(){if(!Cloud.member||!navigator.onLine)return;try{if(LS.get('avPending',false))await saveAvatar();const r=await rpc('my_profile',{});if(r&&typeof r.pin==='boolean')LS.set('hasPin',r.pin);if(r&&typeof r.mycode==='boolean')LS.set('myCode',r.mycode);if(r&&typeof r.db==='boolean'&&Cloud.member&&!!Cloud.member.locked!==r.db){Cloud.member.locked=r.db;saveCloud()}if(r&&r.name){if(Cloud.member.name!==r.name){Cloud.member.name=r.name;saveCloud()}if(r.avatar&&r.avatar!==MYAV){MYAV=r.avatar;LS.set('avatar',r.avatar)}}}catch(e){}}
 setTimeout(syncProfile,5000);setInterval(syncProfile,10*6e4);
 /* everyone who hasn't been through it yet (new and current users) sees it once, never while driving */
 /* people who were already using the map before the setup screens existed never get the setup again (it looked like being signed out) */
@@ -4342,21 +4370,38 @@ function shareSheet(){const st=Cloud.stuck||[],w=Cloud.outbox.length;const nm=o=
    <div class="rpm" style="margin-top:12px"><div><b class="g">${w}</b><small>Waiting</small></div><div><b>${st.length}</b><small>Refused</small></div><div><b>${Cloud.lastSync?new Date(Cloud.lastSync).toTimeString().slice(0,5):'-'}</b><small>Last sync</small></div></div>
    ${st.length?`<div class="msec" style="margin-top:14px">Not shared yet</div><div class="list sgroup">${st.slice(0,8).map(o=>`<div class="it"><div style="min-width:0"><b>${esc(nm(o))}</b><br><small>${esc(o.err||'')}</small></div></div>`).join('')}</div><div class="sub" style="font-size:12.5px;margin-top:6px">These are tried again every few minutes. If it says something about the database, the latest SQL update in Supabase may be missing.</div>`:''}
    <button class="btn pri" id="shGo" style="width:100%;margin-top:14px">Share now</button>`,()=>{$('shGo').onclick=async()=>{if(!navigator.onLine){toast('No signal right now');return}Cloud.stuckT=0;toast('Sharing...');await sync();shareSheet()}})}
-function settingsSheet(){const m=Cloud.member;const notif='Notification' in window&&Notification.permission!=='granted';
+function openCust(step,back){custFlow.only=step;custFlow.back=back;custFlow(step)}
+/* ============ settings: your profile on top, then one page per topic ============ */
+function settingsSheet(page){const m=Cloud.member;const notif='Notification' in window&&Notification.permission!=='granted';
   const th=(k,l)=>`<button data-th="${k}" class="${theme===k?'sel':''}">${l}</button>`;
-  openSheet(`<h2>Settings</h2>
-   <div class="msec">Language</div><div class="seg" style="margin:0 0 12px" data-notr><button data-lg="en" class="${LANG!=='af'?'sel':''}">English</button><button data-lg="af" class="${LANG==='af'?'sel':''}">Afrikaans</button></div>
-   <div class="msec">Appearance</div><div class="seg" style="margin:0 0 8px">${th('auto','Auto')}${th('day','Light')}${th('night','Dark')}</div><div class="sub" style="margin:-2px 2px 10px;font-size:12.5px">Auto goes dark at sunset and light again at sunrise</div>
-   <div class="list sgroup">${TG('sRedAuto','Red screen every night','Keeps your night vision. On after sunset, off at sunrise',redAuto)}${TG('sRed','Red screen now','',redOn)}</div>
-   ${m?`<div class="msec">Alerts</div><div class="list sgroup">${TG('sAlert','New sighting alerts','Pop-up when someone else marks a sighting',alertOn)}${LK('sAW','Which animals alert me','',esc(alertWhatTxt()))}${TG('sSound','Alert sound','A bing with each alert',alertSound)}${TG('sQuiet','Quiet hours','No alert sounds or pop-ups from '+QUIET.from+' to '+QUIET.to+' unless you are out driving.',quietOn)}${notif?LK('sNotif','Phone notifications','Also alert you while the app is in the background','Turn on'):''}</div>`:''}
-   <div class="msec">Location</div>${MS.admin_sees_all?'<div class="sub" style="margin:-4px 2px 8px;font-size:12.5px">'+LI('eye',12)+' Admins can see your car while you drive on the reserve, even with sharing off. Your home stays hidden.</div>':''}<div class="list sgroup">${m?LK('sLive','Share live location','',shareLoc?'On':'Off'):''}${LK('sHome','Home point','',home?'Set':'Not set')}${LK('sCal','Calibrate GPS','If your dot sits next to the road',calib[0]||calib[1]?'Active':'')}${isIOS?LK('sLoc','Stop the location question','If the map asks for your location every time',''):''}</div>
-   <div class="msec">Driving</div>${MS.rules&&MS.rules.lock?'<div class="sub" style="margin:-4px 2px 8px;font-size:12.5px">'+LI('lock',12)+' Speed warning, quiet hours and sunset reminder are set by an admin for everyone</div>':''}<div class="list sgroup">${TG('sSpd','Speed warning','Red alert over '+SPEED_LIMIT+' km/h on the reserve',speedWarn)}${TG('sSun','Sunset reminder',(SUNMIN===60?'1 hour':SUNMIN+' minutes')+' before sunset if you are still out and far from home',sunRemind)}${LK('sFocus','Focus mode','Only what you need on the map while you drive',{drive:'When driving',on:'Always',off:'Off'}[FOCUSM])}${TG('sSpot','Spotify button','Music controls on the map. Off unless you want them',SPOTON)+TG('sAutoRec','Record every drive','Starts when you leave home, keeps going through routes and stops, and finishes when you get home',AUTOREC)}${TG('sTop','Top-down view at turns','From 100 m before a turn the map goes flat so you can see which way to go',TOPTURN)}${TG('sNorth','Keep north up while driving','The map stays north-up instead of turning with you',NORTHUP)}${TG('sSpdo','Show speedometer','',SHOWSPD)}${TG('sAwake','Keep the screen on','The screen stays on the whole time the map is open',KEEPAWAKE)}${TG('sAvoid','Avoid rough tracks','Routes stay on the main roads when there is another way',AVOIDTRK)}</div><div class="msec">Voice directions</div>${vmSeg('sVm')}<div class="sub" style="margin:6px 2px 4px;font-size:12.5px">Alerts only speaks at the turn itself and for gates, stops and rerouting</div>
-   ${m?`<div class="msec">Account</div><div class="list sgroup">${Cloud.sess&&Cloud.sess.uid?`<button class="it lk" id="sUid"><div style="flex:1;min-width:0"><b>Account ID</b><br><small class="mono" data-notr style="word-break:break-all;font-size:12px">${esc(Cloud.sess.uid)}</small><br><small>The same ID Supabase shows for you · tap to copy</small></div></button>`:''}${LK('sRe',T('Reinstall the app'),T('Fresh copy on your Home Screen, you stay signed in'),'','route','#5f6368')}${m.role!=='guest'?LK('sPin','Account PIN',LS.get('hasPin',false)?'Asked when your account is brought to a new phone · tap to change':'Set a 4-digit PIN so nobody else can take over your account','','lock','#7a5b12'):''}${m.role!=='guest'?LK('sRec','Recovery code','Get your exact account back on any phone, even if you are signed out','','key','#1f4d36'):''}</div>`:''}
-   <div class="msec">Make it yours</div><div class="list sgroup">${LK('sCust',T('Character, car and colours'),T('Your animal, your car on the map, route and trail colours, voice'),'','star','#e37400')}</div>
-   <div class="msec">Map data</div><div class="list sgroup">${LK('sOff','Offline map','',esc(offlineStatus()))}${m?LK('sShare','Sharing status',shareStatus(),''):''}${m&&m.role==='admin'?LK('sUpd',T('Updates and reinstall'),T('Send the newest version to everyone, or ask everyone to reinstall'),'v'+APP_BUILD,'down','#1a73e8'):''}</div>
-   ${m&&!m.locked?'<button class="mout" id="sOut">Sign out</button>':''}<div class="sub" style="text-align:center;font-size:11.5px;margin-top:10px">Khaya Ndlovu game drive map · version ${APP_BUILD}</div>`,()=>{
-    if($('sRec'))$('sRec').onclick=()=>recSheet();if($('sPin'))$('sPin').onclick=()=>acctPinSheet();if($('sRe'))$('sRe').onclick=()=>reinstallSheet();if($('sCust'))$('sCust').onclick=()=>custFlow(0);
-    if($('sUid'))$('sUid').onclick=async()=>{const u=Cloud.sess.uid;try{await navigator.clipboard.writeText(u)}catch(e){fallbackCopy(u)}toast('Account ID copied')};
+  const head=t=>`<div class="cmh"><button class="sm" id="stBack">‹ ${T('Settings')}</button><b>${T(t)}</b><span style="width:60px"></span></div>`;
+  const back=()=>settingsSheet(page);let html='';
+  if(!page){const nm=m&&m.name||'';
+    html=`<h2>${T('Settings')}</h2>
+    ${m?`<button class="stprof" id="sProf">${avatarHtml(MYAV,nm,62)}<span class="stpm"><b>${NM(esc(nm),m.role,m.locked)}</b>${badgeFor(m.role,m.locked)}<small>${T('Profile settings')}: ${T('picture, name, PIN and your code')}</small></span><span class="ar">›</span></button>`:''}
+    <div class="list sgroup stg">${LK('sgApp',T('Appearance'),T('Light or dark, map look, your car and colours'),'','star','#b06000')}
+     ${m?LK('sgAl',T('Alerts'),T('Sighting pop-ups, sounds, quiet hours'),alertOn?T('On'):T('Off'),'alert','#c5221f'):''}
+     ${LK('sgLoc',T('Location'),T('Live location, home point, GPS'),'','pin','#1a73e8')}
+     ${LK('sgDrv',T('Driving and voice'),T('Speed warning, recording, focus mode, directions'),'','route','#188038')}
+     ${LK('sgMus',T('Music'),T('Spotify button on the map'),SPOTON?T('On'):T('Off'),'play','#1db954')}
+     ${LK('sgLang',T('Language'),'',LANG==='af'?'Afrikaans':'English','msg','#5f6368')}
+     ${LK('sgData',T('Map data and updates'),T('Offline map, sharing, reinstall'),'','down','#3c4043')}</div>
+    ${m&&!m.locked?'<button class="mout" id="sOut">'+T('Sign out')+'</button>':''}<div class="sub" style="text-align:center;font-size:11.5px;margin-top:10px">Khaya Ndlovu game drive map · version ${APP_BUILD}</div>`}
+  else if(page==='app')html=head('Appearance')+`
+    <div class="msec">${T('Light or dark')}</div><div class="seg" style="margin:0 0 8px">${th('auto','Auto')}${th('day','Light')}${th('night','Dark')}</div><div class="sub" style="margin:-2px 2px 10px;font-size:12.5px">Auto goes dark at sunset and light again at sunrise</div>
+    <div class="list sgroup">${TG('sRedAuto','Red screen every night','Keeps your night vision. On after sunset, off at sunrise',redAuto)}${TG('sRed','Red screen now','',redOn)}</div>
+    <div class="msec">${T('On the map')}</div><div class="list sgroup">${LK('saLook',T('Map look'),T('Satellite photos or the drawn map'),mode==='sat'?T('Satellite'):T('Map'),'map','#188038')}${LK('saCar',T('Your car'),T('How you show on the map while you drive'),'','car','#1a73e8')}${LK('saCol',T('Route and trail colours'),T('The line you follow and the line your drives leave'),'','route','#7b1fa2')}</div>`;
+  else if(page==='al')html=head('Alerts')+`<div class="list sgroup">${TG('sAlert','New sighting alerts','Pop-up when someone else marks a sighting',alertOn)}${LK('sAW','Which animals alert me','',esc(alertWhatTxt()))}${TG('sSound','Alert sound','A bing with each alert',alertSound)}${TG('sQuiet','Quiet hours','No alert sounds or pop-ups from '+QUIET.from+' to '+QUIET.to+' unless you are out driving.',quietOn)}${notif?LK('sNotif','Phone notifications','Also alert you while the app is in the background','Turn on'):''}</div>`;
+  else if(page==='loc')html=head('Location')+`${MS.admin_sees_all?'<div class="sub" style="margin:-4px 2px 8px;font-size:12.5px">'+LI('eye',12)+' Admins can see your car while you drive on the reserve, even with sharing off. Your home stays hidden.</div>':''}<div class="list sgroup">${m?LK('sLive','Share live location','',shareLoc?'On':'Off'):''}${LK('sHome','Home point','',home?'Set':'Not set')}${LK('sCal','Calibrate GPS','If your dot sits next to the road',calib[0]||calib[1]?'Active':'')}${isIOS?LK('sLoc','Stop the location question','If the map asks for your location every time',''):''}</div>`;
+  else if(page==='drv')html=head('Driving and voice')+`${MS.rules&&MS.rules.lock?'<div class="sub" style="margin:-4px 2px 8px;font-size:12.5px">'+LI('lock',12)+' Speed warning, quiet hours and sunset reminder are set by an admin for everyone</div>':''}<div class="list sgroup">${TG('sSpd','Speed warning','Red alert over '+SPEED_LIMIT+' km/h on the reserve',speedWarn)}${TG('sSun','Sunset reminder',(SUNMIN===60?'1 hour':SUNMIN+' minutes')+' before sunset if you are still out and far from home',sunRemind)}${LK('sFocus','Focus mode','Only what you need on the map while you drive',{drive:'When driving',on:'Always',off:'Off'}[FOCUSM])}${TG('sAutoRec','Record every drive','Starts when you leave home, keeps going through routes and stops, and finishes when you get home',AUTOREC)}${TG('sTop','Top-down view at turns','From 100 m before a turn the map goes flat so you can see which way to go',TOPTURN)}${TG('sNorth','Keep north up while driving','The map stays north-up instead of turning with you',NORTHUP)}${TG('sSpdo','Show speedometer','',SHOWSPD)}${TG('sAwake','Keep the screen on','The screen stays on the whole time the map is open',KEEPAWAKE)}${TG('sAvoid','Avoid rough tracks','Routes stay on the main roads when there is another way',AVOIDTRK)}</div><div class="msec">Voice directions</div>${vmSeg('sVm')}<div class="sub" style="margin:6px 2px 4px;font-size:12.5px">Alerts only speaks at the turn itself and for gates, stops and rerouting</div>`;
+  else if(page==='mus')html=head('Music')+`<div class="list sgroup">${TG('sSpot','Spotify button','Music controls on the map. Off unless you want them',SPOTON)}</div><div class="sub" style="margin:8px 2px;font-size:12.5px">${T('Tap the Spotify button on the map to connect your account the first time.')}</div>`;
+  else if(page==='lang')html=head('Language')+`<div class="seg" style="margin:4px 0 12px" data-notr><button data-lg="en" class="${LANG!=='af'?'sel':''}">English</button><button data-lg="af" class="${LANG==='af'?'sel':''}">Afrikaans</button></div>`;
+  else if(page==='data')html=head('Map data and updates')+`<div class="list sgroup">${LK('sOff','Offline map','',esc(offlineStatus()))}${m?LK('sShare','Sharing status',shareStatus(),''):''}${m?LK('sRe',T('Reinstall the app'),T('Fresh copy on your Home Screen, you stay signed in'),'','route','#5f6368'):''}${m&&m.role==='admin'?LK('sUpd',T('Updates and reinstall'),T('Send the newest version to everyone, or ask everyone to reinstall'),'v'+APP_BUILD,'down','#1a73e8'):''}</div>`;
+  openSheet(html,()=>{const on=(id,f)=>{const b=$(id);if(b)b.onclick=f};
+    on('stBack',()=>settingsSheet());on('sProf',()=>profileSettings());
+    [['sgApp','app'],['sgAl','al'],['sgLoc','loc'],['sgDrv','drv'],['sgMus','mus'],['sgLang','lang'],['sgData','data']].forEach(([id,pg])=>on(id,()=>settingsSheet(pg)));
+    on('saLook',()=>openCust(0,back));on('saCar',()=>openCust(2,back));on('saCol',()=>openCust(3,back));
+    on('sRe',()=>reinstallSheet());
     document.querySelectorAll('[data-lg]').forEach(b=>b.onclick=()=>{if(b.dataset.lg===LANG)return;LS.set('lang',b.dataset.lg);toast(b.dataset.lg==='af'?'Afrikaans...':'English...');setTimeout(()=>location.reload(),300)});
     const tg=(id,fn)=>{const b=$(id);if(b)b.onclick=()=>{fn();b.classList.toggle('on')}};
     tg('sAlert',()=>{alertOn=!alertOn;LS.set('alertOn',alertOn)});
@@ -4364,18 +4409,48 @@ function settingsSheet(){const m=Cloud.member;const notif='Notification' in wind
     const locked=MS.rules&&MS.rules.lock;if(locked)['sQuiet','sSun','sSpd'].forEach(id=>{const b=$(id);if(b){b.style.opacity=.45;b.onclick=()=>toast('An admin set this for everyone')}});
     if(!locked){tg('sQuiet',()=>{quietOn=!quietOn;LS.set('quiet',quietOn)});tg('sSun',()=>{sunRemind=!sunRemind;LS.set('sunRemind',sunRemind)});
     tg('sSpd',()=>{speedWarn=!speedWarn;LS.set('speedWarn',speedWarn);if(me)speedCheck(me.ll)})}
-    if($('sFocus'))$('sFocus').onclick=focusSheet;bindVm();tg('sAutoRec',()=>{AUTOREC=!AUTOREC;LS.set('autoRec',AUTOREC)});tg('sSpot',()=>{SPOTON=!SPOTON;LS.set('spotOn',SPOTON);document.body.classList.toggle('spon',SPOTON)});tg('sTop',()=>{TOPTURN=!TOPTURN;LS.set('topTurn',TOPTURN)});tg('sNorth',()=>{NORTHUP=!NORTHUP;LS.set('northUp',NORTHUP)});tg('sSpdo',()=>{SHOWSPD=!SHOWSPD;LS.set('showSpd',SHOWSPD);document.body.classList.toggle('nospd',!SHOWSPD)});tg('sAwake',()=>{KEEPAWAKE=!KEEPAWAKE;LS.set('keepAwake',KEEPAWAKE);wantWake(KEEPAWAKE)});tg('sAvoid',()=>{AVOIDTRK=!AVOIDTRK;LS.set('avoidTracks',AVOIDTRK)});
+    on('sFocus',focusSheet);if($('sVm'))bindVm();tg('sAutoRec',()=>{AUTOREC=!AUTOREC;LS.set('autoRec',AUTOREC)});tg('sSpot',()=>{SPOTON=!SPOTON;LS.set('spotOn',SPOTON);document.body.classList.toggle('spon',SPOTON)});tg('sTop',()=>{TOPTURN=!TOPTURN;LS.set('topTurn',TOPTURN)});tg('sNorth',()=>{NORTHUP=!NORTHUP;LS.set('northUp',NORTHUP)});tg('sSpdo',()=>{SHOWSPD=!SHOWSPD;LS.set('showSpd',SHOWSPD);document.body.classList.toggle('nospd',!SHOWSPD)});tg('sAwake',()=>{KEEPAWAKE=!KEEPAWAKE;LS.set('keepAwake',KEEPAWAKE);wantWake(KEEPAWAKE)});tg('sAvoid',()=>{AVOIDTRK=!AVOIDTRK;LS.set('avoidTracks',AVOIDTRK)});
     tg('sRed',()=>setRed(!redOn));
     tg('sRedAuto',()=>{redAuto=!redAuto;LS.set('redAuto',redAuto);redCheck()});
-    if($('sAW'))$('sAW').onclick=()=>alertWhatSheet();
-    if($('sNotif'))$('sNotif').onclick=async()=>{try{const r=await Notification.requestPermission();toast(r==='granted'?'Notifications on':'Notifications are blocked. Allow them in Settings.',3500)}catch(e){toast('Add the app to your Home Screen first',3500)}settingsSheet()};
-    if($('sLive'))$('sLive').onclick=()=>liveSheet();
-    $('sHome').onclick=()=>homeSheet();
-    $('sCal').onclick=()=>{closeSheet();startCal()};if($('sLoc'))$('sLoc').onclick=()=>locHelp();
-    document.querySelectorAll('#sheetBody [data-th]').forEach(b=>b.onclick=()=>{theme=b.dataset.th;LS.set('theme',theme);checkNight();applyMode();settingsSheet()});
-    $('sOff').onclick=()=>offlineSheet(false);if($('sShare'))$('sShare').onclick=()=>shareSheet();if($('sUpd'))$('sUpd').onclick=()=>updAdminSheet();
-    if($('sSync'))$('sSync').onclick=async()=>{if(!navigator.onLine){toast('No signal right now. It syncs by itself when signal comes back.');return}toast('Syncing...');await sync();settingsSheet();toast(Cloud.err?'Sync failed, will retry':'Up to date')};
-    if($('sOut'))$('sOut').onclick=()=>signOutSheet()})}
+    on('sAW',()=>alertWhatSheet());
+    on('sNotif',async()=>{try{const r=await Notification.requestPermission();toast(r==='granted'?'Notifications on':'Notifications are blocked. Allow them in Settings.',3500)}catch(e){toast('Add the app to your Home Screen first',3500)}settingsSheet('al')});
+    on('sLive',()=>liveSheet());on('sHome',()=>homeSheet());
+    on('sCal',()=>{closeSheet();startCal()});on('sLoc',()=>locHelp());
+    document.querySelectorAll('#sheetBody [data-th]').forEach(b=>b.onclick=()=>{theme=b.dataset.th;LS.set('theme',theme);checkNight();applyMode();settingsSheet('app')});
+    on('sOff',()=>offlineSheet(false));on('sShare',()=>shareSheet());on('sUpd',()=>updAdminSheet());
+    on('sOut',()=>signOutSheet())})}
+/* profile settings: picture, name, PIN, your own code, recovery code */
+function profileSettings(){const m=Cloud.member;if(!m){settingsSheet();return}const nm=m.name||'';const own=m.role!=='guest';
+  openSheet(`<div class="cmh"><button class="sm" id="stBack">‹ ${T('Settings')}</button><b>${T('Profile settings')}</b><span style="width:60px"></span></div>
+   <div class="stbig">${avatarHtml(MYAV,nm,96)}<b>${NM(esc(nm),m.role,m.locked)}</b>${badgeFor(m.role,m.locked)}</div>
+   <div class="list sgroup">${LK('ppPic',T('Profile picture'),T('Your animal next to your name everywhere'),MYAV?esc(T(avBase(MYAV))):T('Pick one'),'users','#e37400')}${LK('ppName',T('Your name'),T('Admins are told when you change it'),esc(nm),'ticket','#1a73e8')}</div>
+   <div class="msec">${T('Signing in')}</div><div class="list sgroup">${LK('ppCode',T('Your sign-in code'),T('Make your own code. Use it under I already have an account on any phone'),LS.get('myCode',false)?T('Set'):T('Not set'),'key','#1f4d36')}
+    ${own?LK('ppPin',T('Account PIN'),LS.get('hasPin',false)?T('Asked when your account moves to a new phone · tap to change'):T('Set a 4-digit PIN so nobody else can take over your account'),LS.get('hasPin',false)?T('Set'):T('Not set'),'lock','#7a5b12'):''}
+    ${own?LK('ppRec',T('Recovery code'),T('Get your exact account back on any phone, even if you are signed out'),'','shield','#5f6368'):''}</div>
+   ${Cloud.sess&&Cloud.sess.uid?`<div class="list sgroup" style="margin-top:12px"><button class="it lk" id="sUid"><div style="flex:1;min-width:0"><b>Account ID</b><br><small class="mono" data-notr style="word-break:break-all;font-size:12px">${esc(Cloud.sess.uid)}</small><br><small>The same ID Supabase shows for you · tap to copy</small></div></button></div>`:''}`,()=>{
+    $('stBack').onclick=()=>settingsSheet();$('ppPic').onclick=()=>openCust(1,profileSettings);$('ppName').onclick=()=>nameSheet();$('ppCode').onclick=()=>myCodeSheet();
+    if($('ppPin'))$('ppPin').onclick=()=>acctPinSheet();if($('ppRec'))$('ppRec').onclick=()=>recSheet();
+    if($('sUid'))$('sUid').onclick=async()=>{const u=Cloud.sess.uid;try{await navigator.clipboard.writeText(u)}catch(e){fallbackCopy(u)}toast('Account ID copied')}})}
+function nameSheet(){const m=Cloud.member;openSheet(`<div class="cmh"><button class="sm" id="nmBack">‹ ${T('Back')}</button><b>${T('Your name')}</b><span style="width:60px"></span></div>
+   <div class="sub" style="line-height:1.45">${T('This is how everyone sees you on the map, in the Feed and in Chats. When you change it, every admin gets a message and the People list shows your old name for two weeks. You can change it once a day.')}</div>
+   <input class="inp" id="nmIn" maxlength="40" autocapitalize="words" value="${esc(m.name||'')}" style="margin-top:12px"><button class="btn pri" id="nmGo" style="width:100%;margin-top:12px">${T('Save name')}</button>`,()=>{
+    $('nmBack').onclick=()=>profileSettings();
+    $('nmGo').onclick=async()=>{const v=$('nmIn').value.trim();if(v===m.name){profileSettings();return}if(v.length<2){toast(T('Your name needs 2 to 40 letters'));return}if(!navigator.onLine){toast(T('You need signal to do this'));return}
+      $('nmGo').disabled=true;try{const r=await rpc('set_my_name',{p_name:v});Cloud.member.name=r&&r.name||v;saveCloud();try{applyMe()}catch(e){}toast(T('Name changed. Admins have been told.'),3500);profileSettings()}
+      catch(e){$('nmGo').disabled=false;toast(/404|PGRST202|Could not find/.test(e.message)?T('Run the latest SQL in Supabase first'):errTxt(e).replace(/^Database said: /,''),4500)}}})}
+function myCodeSheet(){const rules=[[/^.{8,}$/,'At least 8 characters'],[/[0-9]/,'A number'],[/[A-Z]/,'A capital letter'],[/[^A-Za-z0-9\s]/,'A special character, like ! # @ or $']];
+  openSheet(`<div class="cmh"><button class="sm" id="mcBack">‹ ${T('Back')}</button><b>${T('Your sign-in code')}</b><span style="width:60px"></span></div>
+   <div class="sub" style="line-height:1.45">${T('Your own code, just for you. If you ever get signed out, tap I already have an account on the sign-in screen and type it. Capitals count. Once you set it, the code you were sent no longer brings your account back.')}${Cloud.member.role!=='guest'?' '+T('Your PIN is still asked on a new phone.'):''}</div>
+   <div class="mcw"><input class="inp mono" id="mcA" type="password" autocomplete="new-password" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="${T('New code')}"><button class="sm" id="mcEye" type="button">${T('Show')}</button></div>
+   <input class="inp mono" id="mcB" type="password" autocomplete="new-password" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="${T('Type it again')}" style="margin-top:8px">
+   <div class="mcr" id="mcR">${rules.map((r,i)=>`<div data-r="${i}">${LI('check',14)} ${T(r[1])}</div>`).join('')}</div>
+   <button class="btn pri" id="mcGo" style="width:100%;margin-top:12px" disabled>${T('Save my code')}</button>`,()=>{
+    const A=$('mcA'),B=$('mcB'),go=$('mcGo');$('mcBack').onclick=()=>profileSettings();
+    $('mcEye').onclick=()=>{const t=A.type==='password'?'text':'password';A.type=t;B.type=t;$('mcEye').textContent=T(t==='text'?'Hide':'Show')};
+    const chk=()=>{let ok=!/\s/.test(A.value);rules.forEach((r,i)=>{const p=r[0].test(A.value);ok=ok&&p;document.querySelector(`#mcR [data-r="${i}"]`).classList.toggle('ok',p)});go.disabled=!(ok&&A.value===B.value);return ok};A.oninput=chk;B.oninput=chk;
+    go.onclick=async()=>{if(!chk())return;if(A.value!==B.value){toast(T('The two codes are not the same'));return}if(!navigator.onLine){toast(T('You need signal to do this'));return}
+      go.disabled=true;try{await rpc('set_my_code',{p_code:A.value});LS.set('myCode',true);toast(T('Your code is saved. Keep it somewhere safe.'),4000);profileSettings()}
+      catch(e){go.disabled=false;toast(/404|PGRST202|Could not find/.test(e.message)?T('Run the latest SQL in Supabase first'):errTxt(e).replace(/^Database said: /,''),4500)}}})}
 function locHelp(){const st=(n,t,d)=>`<div class="pr"><span class="stn">${n}</span><div>${t}<small>${d}</small></div></div>`;
   openSheet(`<h2>Stop the location question</h2><div class="sub" style="line-height:1.45">iPhone asks websites for your location each time unless you allow it once in Settings. Do these two steps and it will not ask again.</div>
    <div class="prof perm">${st(1,'Settings › Privacy & Security › Location Services','Scroll to Safari Websites and choose While Using the App')}${st(2,'Settings › Apps › Safari › Location','Choose Allow')}${st(3,'Open the map again','It finds you straight away from now on')}</div>
@@ -4649,7 +4724,7 @@ function peopleSections(L,top){L=Array.isArray(L)?L:[];const D=L.filter(x=>x.loc
 function personRow(x){PEOPLE[x.user_id]=x;const a=activeTxt(x),live=a==='active now'||!!x.locked;
   const sub=x.locked?'Runs the map · always online':x.role==='guest'?'Ends '+fmtExp(Date.parse(x.expires_at))+' · '+left(Date.parse(x.expires_at))+' left'+(x.added_by?' · invited by '+x.added_by:''):(a||'');
   return `<button class="pr2" data-person="${esc(x.user_id)}">${x.avatar&&ALLAV.includes(x.avatar)?avatarHtml(x.avatar,x.name,40):`<span class="gav av-${x.locked?'db':x.role||'owner'}">${esc((x.name||'?').trim()[0]||'?').toUpperCase()}</span>`}
-   <span class="pr2m"><span class="pr2n"><b>${NM(esc(x.name||'No name'),x.role,x.locked)}</b>${x.me?' <span class="tag t-you">You</span>':''}${roleTag(x)}${oldTag(x.user_id)}</span><small>${live?'<i class="dotg"></i>':''}${esc(sub)}</small></span><span class="ar">›</span></button>`}
+   <span class="pr2m"><span class="pr2n"><b>${NM(esc(x.name||'No name'),x.role,x.locked)}</b>${x.me?' <span class="tag t-you">You</span>':''}${roleTag(x)}${oldTag(x.user_id)}</span><small>${live?'<i class="dotg"></i>':''}${esc(sub)}</small>${x.prev_name?`<small class="renm">${T('Name changed from')} ${esc(x.prev_name)}${x.renamed_at?' · '+esc(ago(Date.parse(x.renamed_at))):''}</small>`:''}</span><span class="ar">›</span></button>`}
 function bindPeople(root,back){root.querySelectorAll('[data-person]').forEach(b=>b.onclick=()=>{const x=PEOPLE[b.dataset.person];if(x)personSheet(x,back)})}
 
 /* removing someone: you have to type the sentence with their name, so nobody gets removed by a slip of the finger */

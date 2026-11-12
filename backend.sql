@@ -1605,6 +1605,8 @@ begin
   begin update public.members set avatar = m.avatar, app_build = m.app_build where user_id = dst; exception when others then null; end;
   begin execute 'update public.members set pin_hash = (select pin_hash from public.members where user_id = $1) where user_id = $2' using src, dst; exception when others then null; end;
   begin execute 'update public.members set rec_hash = (select rec_hash from public.members where user_id = $1), dev_hash = null where user_id = $2' using src, dst; exception when others then null; end;
+  begin execute 'with o as (update public.members s set my_code_hash = null, name_changed_at = null from (select my_code_hash h, prev_name p, name_changed_at t from public.members where user_id = $1) x where s.user_id = $1 returning x.h, x.p, x.t)
+    update public.members set my_code_hash = o.h, prev_name = o.p, name_changed_at = o.t from o where user_id = $2' using src, dst; exception when others then null; end;
   begin update public.sightings set user_id = dst where user_id = src; exception when others then null; end;
   begin update public.reports set user_id = dst where user_id = src; exception when others then null; end;
   begin update public.drives set user_id = dst where user_id = src; exception when others then null; end;
@@ -2144,7 +2146,7 @@ begin
   select * into g from public.guest_codes where upper(guest_codes.code) = c;
   select * into cand from public.members m
    where m.user_id <> me and not coalesce(m.locked, false)
-     and ((g.code is not null and m.code = g.code)
+     and ((g.code is not null and m.code = g.code and m.my_code_hash is null)
        or (lower(trim(m.name)) = lower(nm) and ((c = 'ADMIN' || owner_code and m.role = 'admin') or (c = owner_code and m.role in ('owner', 'admin')))))
    order by (g.code is not null and m.code = g.code) desc, m.last_seen desc nulls last limit 1;
   -- "I already have an account" sends just the code: never make a new account from that
@@ -2277,6 +2279,115 @@ begin
   return c;
 end $$;
 grant execute on function public.set_db_code(text, int) to authenticated;
+
+-- ============ v144: profile settings: change your name (admins are told), your own sign-in code ============
+alter table public.members add column if not exists prev_name text;
+alter table public.members add column if not exists name_changed_at timestamptz;
+alter table public.members add column if not exists my_code_hash text;
+create unique index if not exists members_my_code on public.members (my_code_hash) where my_code_hash is not null;
+create or replace function public.kn_mycode(t text) returns text language sql immutable as $$
+  select encode(sha256(convert_to('kn-mycode:' || btrim(coalesce(t, '')), 'UTF8')), 'hex') $$;
+revoke all on function public.kn_mycode(text) from public, anon, authenticated;
+
+create or replace function public.set_my_name(p_name text)
+returns json language plpgsql security definer set search_path = public as $$
+declare nm text := regexp_replace(btrim(coalesce(p_name, '')), '\s+', ' ', 'g'); m public.members; a record;
+begin
+  select * into m from public.members where user_id = auth.uid();
+  if not found then raise exception 'members only'; end if;
+  if char_length(nm) < 2 or char_length(nm) > 40 then raise exception 'Your name needs 2 to 40 letters'; end if;
+  if nm = m.name then return json_build_object('ok', true, 'name', nm); end if;
+  if lower(nm) like 'database%' and not coalesce(m.locked, false) then raise exception 'The name Database is reserved. Pick another name'; end if;
+  if m.name_changed_at > now() - interval '1 day' and not public.is_admin() then raise exception 'You can change your name once a day'; end if;
+  perform set_config('kn.rename', '1', true);
+  update public.members set name = nm, prev_name = m.name, name_changed_at = now() where user_id = m.user_id;
+  perform set_config('kn.rename', '', true);
+  begin perform public.kn_log('profile', m.name || ' changed their name to ' || nm); exception when others then null; end;
+  -- every admin gets a message
+  for a in select user_id from public.members where role = 'admin' and user_id <> m.user_id loop
+    insert into public.direct_msgs (to_user, from_name, body) values (a.user_id, 'Khaya Ndlovu', m.name || ' changed their name to ' || nm || '.');
+  end loop;
+  return json_build_object('ok', true, 'name', nm);
+end $$;
+grant execute on function public.set_my_name(text) to authenticated;
+
+-- your own code: at least 8 long with a number, a capital letter and a special character. It replaces the code you were sent for signing back in.
+create or replace function public.set_my_code(p_code text)
+returns json language plpgsql security definer set search_path = public as $$
+declare c text := btrim(coalesce(p_code, '')); h text;
+begin
+  if not exists (select 1 from public.members where user_id = auth.uid()) then raise exception 'members only'; end if;
+  if char_length(c) < 8 or char_length(c) > 40 then raise exception 'Your code needs 8 to 40 characters'; end if;
+  if c ~ '\s' then raise exception 'No spaces in your code'; end if;
+  if c !~ '[0-9]' then raise exception 'Add at least one number'; end if;
+  if c !~ '[A-Z]' then raise exception 'Add at least one capital letter'; end if;
+  if c !~ '[^A-Za-z0-9]' then raise exception 'Add at least one special character, like ! or #'; end if;
+  h := public.kn_mycode(c);
+  if exists (select 1 from public.members where my_code_hash = h and user_id <> auth.uid()) then raise exception 'Pick a different code'; end if;
+  update public.members set my_code_hash = h where user_id = auth.uid();
+  begin perform public.kn_log('code', 'set their own sign-in code'); exception when others then null; end;
+  return json_build_object('ok', true);
+end $$;
+grant execute on function public.set_my_code(text) to authenticated;
+
+create or replace function public.my_profile()
+returns json language sql stable security definer set search_path = public, extensions as $$
+  select json_build_object('name', m.name, 'avatar', m.avatar, 'role', m.role, 'db', coalesce(m.locked, false), 'pin', m.pin_hash is not null, 'mycode', m.my_code_hash is not null)
+  from public.members m where m.user_id = auth.uid() $$;
+grant execute on function public.my_profile() to authenticated;
+
+-- signing back in with your own code (case matters)
+create or replace function public.join_mycode(p_code text, p_claim boolean default null, p_pin text default null)
+returns json language plpgsql security definer set search_path = public, extensions as $$
+declare me uuid := auth.uid(); cand public.members; n int;
+begin
+  if me is null then raise exception 'not signed in'; end if;
+  if (select count(*) from public.recovery_tries where user_id = me and at > now() - interval '1 hour') >= 20 then return json_build_object('ok', false, 'reason', 'tries'); end if;
+  select * into cand from public.members where my_code_hash = public.kn_mycode(p_code);
+  if cand.user_id is null then insert into public.recovery_tries (user_id) values (me); return json_build_object('ok', false, 'reason', 'noacct'); end if;
+  if cand.user_id = me then return json_build_object('ok', true, 'role', cand.role, 'expires_at', cand.expires_at, 'name', cand.name, 'avatar', cand.avatar, 'locked', coalesce(cand.locked, false)); end if;
+  if cand.role = 'guest' and cand.expires_at is not null and cand.expires_at <= now() then return json_build_object('ok', false, 'reason', 'expired'); end if;
+  if p_claim is null or p_claim is false then
+    return json_build_object('ok', false, 'reason', 'claim', 'who', json_build_object('name', cand.name, 'role', cand.role, 'db', coalesce(cand.locked, false), 'avatar', cand.avatar,
+      'last_seen', cand.last_seen, 'joined_at', cand.joined_at, 'pin', cand.pin_hash is not null, 'sightings', (select count(*) from public.sightings_log l where l.user_id = cand.user_id and not l.still)));
+  end if;
+  if cand.pin_hash is not null then
+    select count(*) into n from public.pin_tries where user_id = cand.user_id and at > now() - interval '1 hour';
+    if n >= 5 then return json_build_object('ok', false, 'reason', 'pintries'); end if;
+    if p_pin is null then return json_build_object('ok', false, 'reason', 'pin'); end if;
+    if crypt(p_pin, cand.pin_hash) <> cand.pin_hash then
+      insert into public.pin_tries (user_id) values (cand.user_id);
+      return json_build_object('ok', false, 'reason', case when n >= 4 then 'pintries' else 'badpin' end);
+    end if;
+  end if;
+  perform public.kn_move_member(cand.user_id, me);
+  update public.members set last_login = now(), last_seen = now() where user_id = me;
+  begin perform public.kn_log('login', cand.name || ' signed back in on a new phone with their own code'); exception when others then null; end;
+  return (select json_build_object('ok', true, 'role', m.role, 'expires_at', m.expires_at, 'name', m.name, 'avatar', m.avatar, 'locked', coalesce(m.locked, false), 'moved', true) from public.members m where m.user_id = me);
+end $$;
+grant execute on function public.join_mycode(text, boolean, text) to authenticated;
+
+create or replace function public.list_members()
+returns json language plpgsql stable security definer set search_path = public as $$
+#variable_conflict use_column
+begin
+  if not public.is_owner() then raise exception 'owners only'; end if;
+  return coalesce((select json_agg(row_to_json(x) order by x.role_order, x.exp_order, x.name) from (
+    select m.user_id, m.name, m.role, m.joined_at, m.avatar,
+           case when public.is_admin() or m.user_id = auth.uid() then m.last_seen end as last_seen,
+           case when public.is_admin() or m.user_id = auth.uid() then m.last_login end as last_login,
+           case when m.role = 'guest' then m.expires_at end as expires_at, m.code,
+           m.user_id = auth.uid() as me, coalesce(m.locked, false) as locked,
+           g.label as code_label,
+           coalesce(m.invited_by, g.created_by_name) as added_by,
+           case when m.name_changed_at > now() - interval '14 days' then m.prev_name end as prev_name,
+           case when m.name_changed_at > now() - interval '14 days' then m.name_changed_at end as renamed_at,
+           case when m.locked then 0 when m.role = 'admin' then 1 when m.role = 'owner' then 2 else 3 end as role_order,
+           case when m.role = 'guest' then m.expires_at end as exp_order
+    from public.members m left join public.guest_codes g on g.code = m.code
+    where m.role <> 'guest' or (m.expires_at > now() and not coalesce(g.revoked, false))) x), '[]'::json);
+end $$;
+grant execute on function public.list_members() to authenticated;
 
 select * from public.kn_backend_selftest();
 
