@@ -3063,6 +3063,8 @@ begin
      and ((g.code is not null and m.code = g.code)
        or (lower(trim(m.name)) = lower(nm) and ((c = 'ADMIN' || owner_code and m.role = 'admin') or (c = owner_code and m.role in ('owner', 'admin')))))
    order by (g.code is not null and m.code = g.code) desc, m.last_seen desc nulls last limit 1;
+  -- "I already have an account" sends just the code: never make a new account from that
+  if cand.user_id is null and nullif(trim(coalesce(display_name, '')), '') is null then return json_build_object('ok', false, 'reason', 'noacct'); end if;
   if cand.user_id is null or p_claim is false then return public.join_reserve2(code, display_name); end if;
   -- a removed code, or a guest code that has ended, can't bring the account back
   if g.code is not null and (g.revoked or (coalesce(g.kind, 'guest') = 'guest' and g.expires_at <= now())) then return public.join_reserve2(code, display_name); end if;
@@ -3097,10 +3099,105 @@ returns json language sql stable security definer set search_path = public as $$
 revoke all on function public.code_preview(text) from public;
 grant execute on function public.code_preview(text) to anon, authenticated;
 
+-- ============ v143: two Database accounts, each with its own code ============
+-- Database code 1 and Database code 2. Typing one on the sign-in screen ("I already have an account") brings
+-- that Database account onto the phone with everything in it. The old phone is signed out.
+create table if not exists private.db_slots (slot int primary key check (slot in (1, 2)), user_id uuid, code text not null unique);
+revoke all on private.db_slots from public, anon, authenticated;
+do $$ declare a text := 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; c text; i int; u1 uuid; u2 uuid;
+begin
+  if not exists (select 1 from private.db_slots where slot = 1) then
+    select user_id into u1 from public.members where locked order by (user_id = '9fb4d097-87d6-4cec-9f5b-c60eca08a23d') desc, (user_id = 'f2f31fe6-5256-4b05-88ee-d7237649f681') asc, joined_at nulls last limit 1;
+    insert into private.db_slots (slot, user_id, code) values (1, u1, (select db_code from private.config limit 1));
+  end if;
+  if not exists (select 1 from private.db_slots where slot = 2) then
+    -- the second account (f2f31fe6...) gets put on the map if that phone ever signed in, so both show in People
+    if not exists (select 1 from public.members where user_id = 'f2f31fe6-5256-4b05-88ee-d7237649f681')
+       and exists (select 1 from auth.users where id = 'f2f31fe6-5256-4b05-88ee-d7237649f681') then
+      perform set_config('kn.lockadmin', '1', true);
+      insert into public.members (user_id, name, role, locked, last_seen) values ('f2f31fe6-5256-4b05-88ee-d7237649f681', 'Database 2', 'admin', true, now());
+      perform set_config('kn.lockadmin', '', true);
+    end if;
+    select user_id into u2 from public.members where locked and user_id is distinct from (select user_id from private.db_slots where slot = 1)
+      order by (user_id = 'f2f31fe6-5256-4b05-88ee-d7237649f681') desc, joined_at nulls last limit 1;
+    c := 'DB2-';
+    for i in 1..12 loop c := c || substr(a, 1 + floor(random() * 32)::int, 1); if i % 4 = 0 and i < 12 then c := c || '-'; end if; end loop;
+    insert into private.db_slots (slot, user_id, code) values (2, u2, c);
+  end if;
+end $$;
+
+create or replace function public.join_database(p_code text, p_name text)
+returns json language plpgsql security definer set search_path = public, private as $$
+declare me uuid := auth.uid(); s private.db_slots; nm text := left(btrim(coalesce(p_name, '')), 40); m public.members;
+begin
+  if me is null then raise exception 'not signed in'; end if;
+  if (select count(*) from public.recovery_tries where user_id = me and at > now() - interval '1 hour') >= 20 then return json_build_object('ok', false, 'reason', 'tries'); end if;
+  select * into s from private.db_slots where public.kn_hash(upper(regexp_replace(btrim(coalesce(p_code, '')), '\s+', '', 'g'))) = public.kn_hash(upper(code));
+  if s.slot is null then insert into public.recovery_tries (user_id) values (me); return json_build_object('ok', false, 'reason', 'wrong'); end if;
+  if exists (select 1 from private.db_slots where slot <> s.slot and user_id = me) then return json_build_object('ok', false, 'reason', 'other'); end if;
+  if s.user_id is not null and s.user_id <> me and exists (select 1 from public.members where user_id = s.user_id) then
+    -- bring that Database account here, with its name, picture and everything else
+    perform public.kn_move_member(s.user_id, me);
+    perform public.kn_log('join', 'Database ' || s.slot || ' signed in on a new phone');
+  elsif not exists (select 1 from public.members where user_id = me and locked) then
+    if nm = '' or lower(nm) = 'database' then nm := case when s.slot = 1 then 'Database' else 'Database ' || s.slot end; end if;
+    perform set_config('kn.lockadmin', '1', true);
+    insert into public.members (user_id, name, role, locked, last_seen, last_login) values (me, nm, 'admin', true, now(), now())
+      on conflict (user_id) do update set role = 'admin', locked = true, expires_at = null, code = null, last_seen = now(), last_login = now();
+    perform set_config('kn.lockadmin', '', true);
+    perform public.kn_log('join', 'Database ' || s.slot || ' joined');
+  end if;
+  update private.db_slots set user_id = me where slot = s.slot;
+  update public.members set last_seen = now(), last_login = now() where user_id = me;
+  select * into m from public.members where user_id = me;
+  return json_build_object('ok', true, 'role', 'admin', 'locked', true, 'name', m.name, 'avatar', m.avatar, 'slot', s.slot, 'moved', true);
+end $$;
+grant execute on function public.join_database(text, text) to authenticated;
+
+-- a Database account moved to a new phone some other way (reinstall handover) keeps its code slot
+create or replace function public.kn_trg_db_slot() returns trigger language plpgsql security definer set search_path = public, private as $$
+begin
+  if coalesce(current_setting('kn.handover', true), '') <> '1' then return null; end if;
+  if tg_op = 'DELETE' then
+    if old.locked and coalesce(current_setting('kn.newlocked', true), '') <> '' then
+      update private.db_slots set user_id = current_setting('kn.newlocked', true)::uuid where user_id = old.user_id;
+    end if;
+  elsif new.locked then perform set_config('kn.newlocked', new.user_id::text, true);
+  end if;
+  return null;
+end $$;
+drop trigger if exists kn_db_slot on public.members;
+create trigger kn_db_slot after insert or update or delete on public.members for each row execute function public.kn_trg_db_slot();
+
+-- Database accounts see both codes; each code can be changed
+create or replace function public.get_db_code() returns text language sql stable security definer set search_path = public, private as $$
+  select case when exists (select 1 from public.members where user_id = auth.uid() and locked) then (select code from private.db_slots where slot = 1) end $$;
+grant execute on function public.get_db_code() to authenticated;
+create or replace function public.get_db_codes() returns json language sql stable security definer set search_path = public, private as $$
+  select case when exists (select 1 from public.members where user_id = auth.uid() and locked) then
+    (select json_agg(json_build_object('slot', d.slot, 'code', d.code, 'name', m.name, 'mine', d.user_id = auth.uid()) order by d.slot) from private.db_slots d left join public.members m on m.user_id = d.user_id) end $$;
+grant execute on function public.get_db_codes() to authenticated;
+drop function if exists public.set_db_code(text);
+create or replace function public.set_db_code(p_code text, p_slot int default 1)
+returns text language plpgsql security definer set search_path = public, private as $$
+declare c text := upper(regexp_replace(btrim(coalesce(p_code, '')), '\s+', '', 'g')); inv text;
+begin
+  if not exists (select 1 from public.members where user_id = auth.uid() and locked) then raise exception 'Only Database accounts can do this'; end if;
+  if p_slot not in (1, 2) then raise exception 'Pick Database code 1 or 2'; end if;
+  if char_length(c) < 8 then raise exception 'The Database code needs at least 8 letters or numbers'; end if;
+  select upper(replace(invite_code, ' ', '')) into inv from private.config limit 1;
+  if c in (inv, 'ADMIN' || inv) or exists (select 1 from public.guest_codes where upper(code) = c) or exists (select 1 from private.db_slots where slot <> p_slot and upper(code) = c) then raise exception 'Pick a code nobody else uses'; end if;
+  update private.db_slots set code = c where slot = p_slot;
+  if p_slot = 1 then update private.config set db_code = c; end if;
+  perform public.kn_log('code', 'changed Database code ' || p_slot);
+  return c;
+end $$;
+grant execute on function public.set_db_code(text, int) to authenticated;
+
 
 
 -- =====================================================================
--- PUSH THE UPDATE (version 141)
+-- PUSH THE UPDATE (version 143)
 -- =====================================================================
 
 alter table private.config add column if not exists min_build int not null default 0;
@@ -3170,9 +3267,9 @@ begin
 end $$;
 grant execute on function public.set_min_build(int) to authenticated;
 
--- push it now: require version 141 and post the news. It is sent by the database, not by any person.
-update private.config set min_build = 141;
-select public.kn_update_news(141);
+-- push it now: require version 143 and post the news. It is sent by the database, not by any person.
+update private.config set min_build = 143;
+select public.kn_update_news(143);
 
 notify pgrst, 'reload schema';
 
@@ -3182,10 +3279,11 @@ select 'Tables: members, sightings, reports, drives, news, SOS, live location, p
   case when (select count(*) from information_schema.tables where table_schema = 'public' and table_name in ('members','sightings','reports','drives','announcements','sos','live_locs','animal_misses','places','road_closures','private_notes','suggestions','feed_posts','feed_comments')) = 14 then 'YES' else 'NO' end as result
 union all select 'Codes and logins self-test', case when (select count(*) from public.kn_selftest() where result not like 'PASS%') = 0 then 'YES' else 'NO: ' || (select string_agg(test, ', ') from public.kn_selftest() where result not like 'PASS%') end
 union all select 'Protected account (9fb4d097...) locked as admin', case when exists (select 1 from public.members where locked and role = 'admin') then 'YES' else 'NO: that account is not on the map yet. Open the map on that phone, then run this again' end
-union all select 'Second Database account (f2f31fe6...)', case when exists (select 1 from public.members where user_id = 'f2f31fe6-5256-4b05-88ee-d7237649f681' and locked and role = 'admin') then 'YES' else 'NO: that account is not on the map yet. Open the map on that phone, then run this again' end
-union all select 'Your Database code (keep it secret, it gives full control)', (select db_code from private.config limit 1)
+union all select 'Two Database accounts on the map', case when (select count(*) from private.db_slots d join public.members m on m.user_id = d.user_id and m.locked) = 2 then 'YES' else 'NOT YET: sign in with Database code 2 on any phone (I already have an account)' end
+union all select 'Database code 1 (keep it secret, it gives full control)', (select code from private.db_slots where slot = 1) || coalesce('  ·  ' || (select m.name from private.db_slots d join public.members m on m.user_id = d.user_id where d.slot = 1), '')
+union all select 'Database code 2 (keep it secret, it gives full control)', (select code from private.db_slots where slot = 2) || coalesce('  ·  ' || (select m.name from private.db_slots d join public.members m on m.user_id = d.user_id where d.slot = 2), '')
 union all select 'Backend self-test', case when (select count(*) from public.kn_backend_selftest() where result not like 'PASS%') = 0 then 'YES' else 'NO: ' || (select string_agg(test, ', ') from public.kn_backend_selftest() where result not like 'PASS%') end
-union all select 'Everyone must be on version 141', case when (select min_build from private.config limit 1) = 141 then 'YES' else 'NO' end
-union all select 'Update news posted (only old versions see it)', case when exists (select 1 from public.announcements where for_old_build = 141 and not removed) then 'YES' else 'NO' end
+union all select 'Everyone must be on version 143', case when (select min_build from private.config limit 1) = 143 then 'YES' else 'NO' end
+union all select 'Update news posted (only old versions see it)', case when exists (select 1 from public.announcements where for_old_build = 143 and not removed) then 'YES' else 'NO' end
 union all select 'Your owner code (unchanged)', (select upper(invite_code) from private.config limit 1)
-union all select 'People who still need to update', (select count(*)::text from public.members where coalesce(app_build, 0) < 141 and (role <> 'guest' or expires_at > now()));
+union all select 'People who still need to update', (select count(*)::text from public.members where coalesce(app_build, 0) < 143 and (role <> 'guest' or expires_at > now()));

@@ -1075,7 +1075,7 @@ body.spbar #roadPill{bottom:calc(var(--bb) + 222px)!important}
 .chview img,.chview video{max-width:100%;max-height:100%;border-radius:10px}
 .chview button{position:absolute;top:calc(var(--safe-t) + 10px);right:12px;width:40px;height:40px;border-radius:50%;border:0;background:rgba(255,255,255,.15);color:#fff;display:flex;align-items:center;justify-content:center}
 .gscan{width:100%;margin-top:10px;display:flex!important;align-items:center;justify-content:center;gap:8px}
-#gate.qrjoin .gscan,#gForm.rec .gscan{display:none!important}
+#gate.qrjoin .gscan,#gForm.rec .gscan,#gForm.have .gscan,#gForm.rec #gHave{display:none!important}#gForm.have #gCode{letter-spacing:.06em}
 .qrscan{position:fixed;inset:0;z-index:600;background:#000;display:flex;align-items:center;justify-content:center}
 .qrscan video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .qrscan .qrbox{position:relative;width:min(70vw,280px);aspect-ratio:1;border-radius:24px;box-shadow:0 0 0 2000px rgba(0,0,0,.45);border:3px solid #ffd36b}
@@ -1134,7 +1134,7 @@ body.night .cuo,body.night .cuname{background:rgba(255,255,255,.06)}
 
 <div id="gate" class="hide"><div class="gbg"></div><div class="glogo">__LOGO__</div><div class="gout hide" id="gOut"></div><div class="gcard"><div class="gem"><svg viewBox="0 0 48 48" width="46" height="46"><defs><linearGradient id="gemg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd36b"/><stop offset="1" stop-color="#d9900f"/></linearGradient></defs><path d="M24 4 40 10v12c0 11-7 18.5-16 22C15 40.5 8 33 8 22V10z" fill="#1f4d36"/><path d="M24 4 40 10v12c0 11-7 18.5-16 22C15 40.5 8 33 8 22V10z" fill="none" stroke="url(#gemg)" stroke-width="2"/><rect x="17" y="21" width="14" height="11" rx="2.5" fill="url(#gemg)"/><path d="M19.5 21v-3a4.5 4.5 0 0 1 9 0v3" fill="none" stroke="url(#gemg)" stroke-width="2.4" stroke-linecap="round"/><circle cx="24" cy="26.5" r="1.6" fill="#1f4d36"/></svg></div><h2>Members only</h2><p>A private map for Khaya Ndlovu owners and their guests. Enter your name and the code you were sent.</p>
 <form id="gForm" autocomplete="off"><input class="inp" id="gName" placeholder="Your name" maxlength="40" autocapitalize="words"><input class="inp mono" id="gCode" placeholder="Your code" autocapitalize="characters" autocorrect="off" spellcheck="false">
-<button class="btn pri" id="gGo" type="submit">Open map</button><div class="err" id="gErr">Oops, that code is wrong</div><button type="button" class="btn gscan" id="gScan"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3M7 12h10"/></svg> Scan a QR code</button><button type="button" class="glk" id="gRec">Owner or admin and lost access? Use your recovery code</button></form></div><div class="lock"><svg class="li" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg> Secure access · one-time codes</div><div class="credits">Map imagery © Esri, Maxar, Earthstar Geographics · Terrain: Mapzen/AWS · Weather: Open-Meteo · Map engine: MapLibre</div></div>
+<button class="btn pri" id="gGo" type="submit">Open map</button><div class="err" id="gErr">Oops, that code is wrong</div><button type="button" class="btn gscan" id="gScan"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3M7 12h10"/></svg> Scan a QR code</button><button type="button" class="glk" id="gHave">I already have an account</button><button type="button" class="glk" id="gRec">Owner or admin and lost access? Use your recovery code</button></form></div><div class="lock"><svg class="li" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg> Secure access · one-time codes</div><div class="credits">Map imagery © Esri, Maxar, Earthstar Geographics · Terrain: Mapzen/AWS · Weather: Open-Meteo · Map engine: MapLibre</div></div>
 <script type="text/plain" id="jsqrSrc">__JSQR__</script>
 <div id="top">
   <div id="search">
@@ -1813,8 +1813,8 @@ async function joinReserve(name,code,claim,pin){
   code=String(code||'').trim().replace(/\s+/g,'').toUpperCase();
   // the Database code is separate from every other code: try it first
   try{const d=await api('/rest/v1/rpc/join_database',{method:'POST',body:JSON.stringify({p_code:code,p_name:name})});
-    if(d&&d.ok){Cloud.member={name:d.name||name,uid:Cloud.sess.uid,t:Date.now(),role:'admin',exp:null,locked:true};LS.set('devKeyFor','');saveCloud();sync();armExpiry();setTimeout(rtConnect,500);setTimeout(armHandover,900);setTimeout(reportBuild,1500);return true}
-    if(d&&d.reason==='tries')return 'tries'}catch(e){if(!/404|PGRST202|Could not find/.test(String(e.message)))throw e}
+    if(d&&d.ok){if(d.avatar){MYAV=d.avatar;LS.set('avatar',d.avatar)}if(d.moved){LS.set('custDone',true);LS.set('obIntro',true);LS.set('roleSeen','admin')}Cloud.member={name:d.name||name,uid:Cloud.sess.uid,t:Date.now(),role:'admin',exp:null,locked:true};LS.set('devKeyFor','');saveCloud();sync();armExpiry();setTimeout(rtConnect,500);setTimeout(armHandover,900);setTimeout(reportBuild,1500);return true}
+    if(d&&d.reason==='tries')return 'tries';if(d&&d.reason==='other')return 'dbother'}catch(e){if(!/404|PGRST202|Could not find/.test(String(e.message)))throw e}
   if(name.trim().toLowerCase()==='database')return 'dbname';
   // a phone without your account: if one with your name already uses this code, ask "Is this your account?"
   try{res=await api('/rest/v1/rpc/join_reserve3',{method:'POST',body:JSON.stringify({code,display_name:name,...(claim!=null?{p_claim:claim}:{}),...(pin?{p_pin:pin}:{})})})}
@@ -1981,6 +1981,7 @@ function annPop(){const a=ANN.filter(x=>!annSeen.has(x.client_id)&&(!x.expires_a
 
 /* ============ what's new: shown once to owners and admins after an update ============ */
 const WHATS_NEW=[
+ [143,'key','I already have an account','Signed out? On the sign-in screen tap I already have an account and type your code. Database accounts now have two codes, Database code 1 and 2, in Admin tools.'],
  [141,'ticket','Invites as a card','When you send a code, tap Send the card: it goes as a photo with the code, who it is for and when it ends. Links in WhatsApp now show a preview too.'],
  [141,'shield','Your code is yours','If someone gets signed out, they type the code they were sent and they are back in their own account, on any phone. Owners and admins also enter their PIN.'],
  [140,'msg','Replies, typing and seen','Hold a message or tap Reply to answer it. You can see when someone is typing and when your message was seen. Pull down to refresh.'],
@@ -4767,8 +4768,8 @@ async function adminSheet(){const R=MS.rules||{};let removed=[],bans=[];if(navig
   const chips=(id,opts,cur)=>`<div class="gpres" data-grp="${id}">${opts.map(([v,l])=>`<button class="chip${String(cur)===String(v)?' sel':''}" data-v="${v}">${l}</button>`).join('')}</div>`;
   const AO=new Set(MS.admin_only||[]);
   openSheet(`<h2>Admin tools</h2><div class="sub">Changes here apply to everyone on the map straight away.</div>
-   ${Cloud.member&&Cloud.member.locked?`<div class="msec" style="margin-top:14px">Database</div><div class="dbc" style="margin-bottom:8px"><div class="dbi">${LI('key',24)}</div><div style="min-width:0"><b>Database code</b><p class="mono" id="aDbCode" data-notr style="font-size:16px;color:#fff;letter-spacing:.06em;word-break:break-all">${navigator.onLine?'Loading...':'Needs signal'}</p><p>Anyone who signs in with this code becomes a Database account with full control. Keep it to yourself.</p></div></div>
-   <div class="row"><button class="btn" id="aDbCopy">Copy code</button><button class="btn" id="aDbNew">Change code</button></div>`:''}
+   ${Cloud.member&&Cloud.member.locked?`<div class="msec" style="margin-top:14px">Database codes</div><div id="aDbCodes">${[1,2].map(n=>`<div class="dbc" style="margin-bottom:8px"><div class="dbi">${LI('key',24)}</div><div style="min-width:0;flex:1"><b>Database code ${n}</b> <small id="aDbW${n}" style="opacity:.8"></small><p class="mono" id="aDbC${n}" data-notr style="font-size:16px;color:#fff;letter-spacing:.06em;word-break:break-all">${navigator.onLine?'Loading...':'Needs signal'}</p></div></div>
+   <div class="row" style="margin-bottom:10px"><button class="btn" data-dbcopy="${n}">Copy code ${n}</button><button class="btn" data-dbnew="${n}">Change code ${n}</button></div>`).join('')}</div><div class="sub" style="margin-bottom:6px">On the sign-in screen, tap I already have an account and type the code: that Database account opens on the phone with everything in it, and the other phone is signed out. Keep both codes to yourself.</div>`:''}
    <div class="msec" style="margin-top:14px">Pause the map</div><div class="list sgroup"><div class="it"><div style="flex:1;min-width:0"><b>${MS.paused?'The map is paused':'Pause the map for everyone'}</b><br><small>${MS.paused?'Only admins can use it right now':'Everyone except admins sees a pause screen. SOS keeps working.'}</small></div><button class="tgl ${MS.paused?'on':''}" id="aPause"><i></i></button></div></div>
    ${MS.paused?'':'<input class="inp" id="aPauseMsg" maxlength="300" placeholder="Message (optional), e.g. Fire on the eastern boundary" style="margin-top:8px">'}
    <div class="msec" style="margin-top:16px">Rivers and dams</div><div class="list sgroup"><div class="it" id="aDry" style="cursor:pointer"><div style="flex:1;min-width:0"><b>Dry rivers and dams</b><br><small>${DRY0.length?DRY0.length+' marked as dry':'Everything shows with water'}</small></div><span class="ar">›</span></div></div>
@@ -4795,12 +4796,13 @@ async function adminSheet(){const R=MS.rules||{};let removed=[],bans=[];if(navig
    <div class="msec" style="margin-top:16px">Banned phones</div><div class="gw" style="margin-top:0">${(bans||[]).map(b=>`<div class="gg" style="align-items:center"><div style="flex:1;min-width:0"><b>${esc(b.name||'A phone')}</b><small>${esc('Banned by '+(b.by||'an admin')+' · '+ago(Date.parse(b.at)))}</small></div><button class="sm" data-unban="${esc(b.h)}">Lift ban</button></div>`).join('')||'<div class="sub">No banned phones.</div>'}</div>
    <button class="btn" id="aBack" style="width:100%;margin-top:14px">Back</button>`,()=>{
     $('aBack').onclick=()=>$('menuBtn').click();
-    if($('aDbCode')){rpc('get_db_code',{}).then(c=>{if(c&&$('aDbCode'))$('aDbCode').textContent=c}).catch(()=>{});
-      $('aDbCopy').onclick=async()=>{const c=$('aDbCode').textContent;try{await navigator.clipboard.writeText(c)}catch(e){fallbackCopy(c)}toast('Database code copied')};
-      $('aDbNew').onclick=()=>openSheet(`<h2>Change the Database code</h2><div class="sub" style="line-height:1.45">The old code stops working straight away. Database accounts that are already signed in stay signed in.</div>
+    if($('aDbCodes')){rpc('get_db_codes',{}).then(L=>{(L||[]).forEach(d=>{const c=$('aDbC'+d.slot),w=$('aDbW'+d.slot);if(c)c.textContent=d.code;if(w)w.textContent=d.mine?'· '+T('this phone'):d.name?'· '+d.name:'· '+T('not signed in yet')})})
+        .catch(()=>rpc('get_db_code',{}).then(c=>{if(c&&$('aDbC1'))$('aDbC1').textContent=c;if($('aDbC2'))$('aDbC2').textContent=T('Run the latest SQL to get code 2')}).catch(()=>{}));
+      document.querySelectorAll('[data-dbcopy]').forEach(b=>b.onclick=async()=>{const c=$('aDbC'+b.dataset.dbcopy).textContent;try{await navigator.clipboard.writeText(c);toast('Database code '+b.dataset.dbcopy+' copied')}catch(e){fallbackCopy(c,'Database code '+b.dataset.dbcopy+' copied')}});
+      document.querySelectorAll('[data-dbnew]').forEach(b=>b.onclick=()=>{const slot=+b.dataset.dbnew;openSheet(`<h2>Change Database code ${slot}</h2><div class="sub" style="line-height:1.45">The old code stops working straight away. Database accounts that are already signed in stay signed in.</div>
         <input class="inp mono" id="dbNew" placeholder="New code, at least 8 letters or numbers" autocapitalize="characters" autocomplete="off" style="margin-top:12px">
         <div class="row" style="margin-top:12px"><button class="btn" id="dbNo">Cancel</button><button class="btn pri" id="dbGo">Save new code</button></div>`,()=>{
-        $('dbNo').onclick=()=>adminSheet();$('dbGo').onclick=async()=>{try{const c=await rpc('set_db_code',{p_code:$('dbNew').value});toast('New Database code: '+c,5000);adminSheet()}catch(e){toast(errTxt(e),5000)}}})}
+        $('dbNo').onclick=()=>adminSheet();$('dbGo').onclick=async()=>{try{const c=await rpc('set_db_code',{p_code:$('dbNew').value,p_slot:slot});toast('New Database code '+slot+': '+c,5000);adminSheet()}catch(e){toast(errTxt(e),5000)}}})})}
     document.querySelectorAll('[data-grp]').forEach(g=>g.querySelectorAll('button').forEach(b=>b.onclick=()=>{g.querySelectorAll('button').forEach(x=>x.classList.remove('sel'));b.classList.add('sel')}));
     const sel=g=>{const b=document.querySelector(`[data-grp="${g}"] .sel`);return b?b.dataset.v:null};
     $('aLock').onclick=()=>$('aLock').classList.toggle('on');$('aSeeAll').onclick=()=>$('aSeeAll').classList.toggle('on');
@@ -5407,6 +5409,10 @@ function showGate(){const g=$('gate');g.classList.remove('hide');
   $('gRec').onclick=()=>{const on=!$('gForm').classList.contains('rec');$('gForm').classList.toggle('rec',on);$('gName').classList.toggle('hide',on);
     $('gCode').placeholder=T(on?'Recovery code':'Your code');$('gGo').textContent=T(on?'Get my account back':'Open map');$('gRec').textContent=T(on?'Back to normal sign in':'Owner or admin and lost access? Use your recovery code');$('gErr').classList.remove('on');$('gCode').value='';$('gCode').focus()};
   if($('gScan'))$('gScan').onclick=()=>qrScanner();
+  /* signed out? just the code: their own code (or a Database code) brings their account back */
+  $('gHave').onclick=()=>{const f=$('gForm'),on=!f.classList.contains('have');f.classList.remove('rec');f.classList.toggle('have',on);$('gName').classList.toggle('hide',on);
+    $('gCode').placeholder=T('Your code');$('gGo').textContent=T(on?'Sign in':'Open map');$('gHave').textContent=T(on?'New here? Join with your name':'I already have an account');
+    $('gRec').textContent=T('Owner or admin and lost access? Use your recovery code');$('gErr').classList.remove('on');$('gCode').focus()};
   $('gForm').onsubmit=async e=>{e.preventDefault();const n=$('gName').value.trim(),c=$('gCode').value.trim(),err=$('gErr');
     if($('gForm').classList.contains('rec')){if(!c){err.textContent=T('Type your recovery code');bad();return}if(!navigator.onLine){err.textContent=T('You need signal to do this');bad();return}
       $('gGo').textContent=T('Checking...');$('gGo').disabled=true;let r=null;try{await ensureSession();r=await rpc('use_recovery_code',{p_code:c})}catch(x){r={ok:false,reason:'net'}}
@@ -5415,16 +5421,18 @@ function showGate(){const g=$('gate');g.classList.remove('hide');
       Cloud.member={name:r.name||'Member',uid:Cloud.sess.uid,t:Date.now(),role:r.role||'owner',exp:r.expires_at?Date.parse(r.expires_at):null,locked:!!r.locked};LS.set('roleSeen',Cloud.member.role);LS.set('devKeyFor','');saveCloud();
       sync();armExpiry();setTimeout(rtConnect,500);err.classList.remove('on');$('gOut').classList.add('hide');g.classList.add('hide');$('gForm').classList.remove('rec');$('gName').classList.remove('hide');
       toast(T('Welcome back, ')+Cloud.member.name+'!',3000);setTimeout(afterGate2,1200);return}
-    $('gName').classList.toggle('bad',!n);$('gCode').classList.toggle('bad',!c);
-    if(!n||!c){err.textContent=!n?'Please enter your name':'Please enter the invite code';bad();return}
+    const have=$('gForm').classList.contains('have');
+    $('gName').classList.toggle('bad',!n&&!have);$('gCode').classList.toggle('bad',!c);
+    if((!n&&!have)||!c){err.textContent=!n?'Please enter your name':'Please enter the invite code';bad();return}
     if(!navigator.onLine){err.textContent='You need signal the first time you open the map';bad();return}
     $('gGo').textContent='Checking...';$('gGo').disabled=true;
     let ok=false;try{ok=await joinReserve(n,c)}catch(x){err.textContent=/timeout|Failed to fetch|NetworkError|Load failed/i.test(String(x.message||x))?'Could not check the code, try again with better signal':'Could not check the code (map server error). Tell an admin.';console.warn('join failed',x);bad();$('gGo').textContent='Open map';$('gGo').disabled=false;return}
-    $('gGo').textContent='Open map';$('gGo').disabled=false;
+    $('gGo').textContent=T(have?'Sign in':'Open map');$('gGo').disabled=false;
+    if(ok==='noacct'){err.textContent=T('No account uses that code yet. If you joined with the shared owner code, tap New here and type your name with it.');$('gCode').classList.add('bad');bad();return}
     if(ok&&ok.claim){const w=ok.claim,roleNm=w.db?'Database':w.role==='admin'?'Admin':w.role==='guest'?'Guest':'Owner';
       const ask=document.createElement('div');ask.className='claim';ask.innerHTML=`<div class="clc"><h2>${T('Is this your account?')}</h2><div class="clp">${avatarHtml(w.avatar,w.name,56)}<div><b>${NM(esc(w.name),w.role,w.db)}</b> ${badgeFor(w.role,w.db)}<small>${T(roleNm)}${w.last_seen?' · '+T('last used')+' '+esc(ago(Date.parse(w.last_seen))):''}${w.sightings?' · '+w.sightings+' '+T('sightings'):''}</small></div></div>
         <div class="sub" style="margin-top:10px">${T('Yes brings it to this phone with your sightings, drives and settings. If it is still open on another phone, that one gets signed out.')}</div>
-        ${w.pin?`<div class="sub" style="margin-top:12px"><b>${T('Your account PIN')}</b></div><input id="clPin" class="pinin" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off" placeholder="••••"><div class="err" id="clErr"></div>`:''}<button class="btn pri" id="clYes" style="width:100%;margin-top:14px">${T("Yes, that's me")}</button><button class="btn" id="clNo" style="width:100%;margin-top:8px">${T('No, make a new account')}</button></div>`;document.body.appendChild(ask);
+        ${w.pin?`<div class="sub" style="margin-top:12px"><b>${T('Your account PIN')}</b></div><input id="clPin" class="pinin" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off" placeholder="••••"><div class="err" id="clErr"></div>`:''}<button class="btn pri" id="clYes" style="width:100%;margin-top:14px">${T("Yes, that's me")}</button><button class="btn" id="clNo" style="width:100%;margin-top:8px">${T(have?'Not me':'No, make a new account')}</button></div>`;document.body.appendChild(ask);
       const pinIn=$('clPin'),pErr=m=>{const e=$('clErr');e.textContent=m;e.classList.add('on');pinIn.value='';pinIn.focus();ask.querySelectorAll('button').forEach(b=>b.disabled=false);try{navigator.vibrate&&navigator.vibrate([60,40,60])}catch(x){}};
       if(pinIn){pinIn.oninput=()=>{pinIn.value=pinIn.value.replace(/\D/g,'').slice(0,4);$('clErr').classList.remove('on')};setTimeout(()=>pinIn.focus(),300)}
       const go=async claim=>{const pin=claim&&pinIn?pinIn.value:'';if(claim&&pinIn&&!/^\d{4}$/.test(pin)){pErr(T('Type your 4-digit PIN'));return}
@@ -5433,9 +5441,9 @@ function showGate(){const g=$('gate');g.classList.remove('hide');
         ask.remove();
         if(r2===true){err.classList.remove('on');$('gOut').classList.add('hide');g.classList.add('ok');toast(claim?T('Welcome back, ')+Cloud.member.name+'!':T('Welcome, ')+Cloud.member.name+'!',2500);setTimeout(()=>{g.classList.remove('ok');if(!Cloud.member)return;g.classList.add('hide');afterGate()},500)}
         else{err.textContent=T('Could not sign in, try again');bad()}};
-      $('clYes').onclick=()=>go(true);$('clNo').onclick=()=>go(false);return}
-    if(ok!==true){$('gate').classList.remove('qrjoin');err.textContent=ok==='expired'?'That guest code has expired':ok==='revoked'?'That guest code was cancelled':ok==='full'?'The admin code is already used by 4 people':ok==='used'?'That invite has already been used':ok==='dbname'?'The name Database is reserved. Pick another name':ok==='tries'?'Too many tries. Wait an hour and try again':'Oops, that code is wrong';$('gCode').classList.add('bad');$('gCode').select();bad();return}
-    err.classList.remove('on');$('gOut').classList.add('hide');g.classList.add('ok');toast('Welcome, '+n+'!',2500);
+      $('clYes').onclick=()=>go(true);$('clNo').onclick=()=>have?ask.remove():go(false);return}
+    if(ok!==true){$('gate').classList.remove('qrjoin');err.textContent=ok==='expired'?'That guest code has expired':ok==='revoked'?'That guest code was cancelled':ok==='full'?'The admin code is already used by 4 people':ok==='used'?'That invite has already been used':ok==='dbname'?'The name Database is reserved. Pick another name':ok==='dbother'?'This phone already has the other Database account':ok==='tries'?'Too many tries. Wait an hour and try again':'Oops, that code is wrong';$('gCode').classList.add('bad');$('gCode').select();bad();return}
+    err.classList.remove('on');$('gOut').classList.add('hide');g.classList.add('ok');toast((have?T('Welcome back, '):T('Welcome, '))+(Cloud.member&&Cloud.member.name||n)+'!',2500);if(have){$('gForm').classList.remove('have');$('gName').classList.remove('hide')}
     setTimeout(()=>{g.classList.remove('ok');if(!Cloud.member)return;g.classList.add('hide');afterGate()},500)};
   function bad(){const er=$('gErr');er.classList.add('on');g.classList.remove('shake');void g.offsetWidth;g.classList.add('shake');try{navigator.vibrate&&navigator.vibrate([60,40,60])}catch(e){}}
   $('gCode').oninput=()=>{$('gCode').classList.remove('bad');$('gErr').classList.remove('on')};$('gName').oninput=()=>$('gName').classList.remove('bad');
