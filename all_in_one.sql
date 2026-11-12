@@ -3305,10 +3305,36 @@ begin
 end $$;
 grant execute on function public.list_members() to authenticated;
 
+-- ============ v152: owners only see their own guests; no monthly code limit ============
+create or replace function public.list_members()
+returns json language plpgsql stable security definer set search_path = public as $$
+#variable_conflict use_column
+begin
+  if not public.is_owner() then raise exception 'owners only'; end if;
+  return coalesce((select json_agg(row_to_json(x) order by x.role_order, x.exp_order, x.name) from (
+    select m.user_id, m.name, m.role, m.joined_at, m.avatar,
+           case when public.is_admin() or m.user_id = auth.uid() then m.last_seen end as last_seen,
+           case when public.is_admin() or m.user_id = auth.uid() then m.last_login end as last_login,
+           case when m.role = 'guest' then m.expires_at end as expires_at, m.code,
+           m.user_id = auth.uid() as me, coalesce(m.locked, false) as locked,
+           g.label as code_label,
+           coalesce(m.invited_by, g.created_by_name) as added_by,
+           case when m.name_changed_at > now() - interval '14 days' then m.prev_name end as prev_name,
+           case when m.name_changed_at > now() - interval '14 days' then m.name_changed_at end as renamed_at,
+           case when m.locked then 0 when m.role = 'admin' then 1 when m.role = 'owner' then 2 else 3 end as role_order,
+           case when m.role = 'guest' then m.expires_at end as exp_order
+    from public.members m left join public.guest_codes g on g.code = m.code
+    where m.role <> 'guest' or (m.expires_at > now() and not coalesce(g.revoked, false)
+      -- owners only see their own guests; admins and Database see everyone
+      and (public.is_admin() or g.created_by = auth.uid() or m.user_id = auth.uid()))) x), '[]'::json);
+end $$;
+grant execute on function public.list_members() to authenticated;
+update private.config set codes_per_month = null;
+
 
 
 -- =====================================================================
--- PUSH THE UPDATE (version 144)
+-- PUSH THE UPDATE (version 152)
 -- =====================================================================
 
 alter table private.config add column if not exists min_build int not null default 0;
@@ -3378,9 +3404,9 @@ begin
 end $$;
 grant execute on function public.set_min_build(int) to authenticated;
 
--- push it now: require version 144 and post the news. It is sent by the database, not by any person.
-update private.config set min_build = 144;
-select public.kn_update_news(144);
+-- push it now: require version 152 and post the news. It is sent by the database, not by any person.
+update private.config set min_build = 152;
+select public.kn_update_news(152);
 
 notify pgrst, 'reload schema';
 
@@ -3394,7 +3420,7 @@ union all select 'Two Database accounts on the map', case when (select count(*) 
 union all select 'Database code 1 (keep it secret, it gives full control)', (select code from private.db_slots where slot = 1) || coalesce('  ·  ' || (select m.name from private.db_slots d join public.members m on m.user_id = d.user_id where d.slot = 1), '')
 union all select 'Database code 2 (keep it secret, it gives full control)', (select code from private.db_slots where slot = 2) || coalesce('  ·  ' || (select m.name from private.db_slots d join public.members m on m.user_id = d.user_id where d.slot = 2), '')
 union all select 'Backend self-test', case when (select count(*) from public.kn_backend_selftest() where result not like 'PASS%') = 0 then 'YES' else 'NO: ' || (select string_agg(test, ', ') from public.kn_backend_selftest() where result not like 'PASS%') end
-union all select 'Everyone must be on version 144', case when (select min_build from private.config limit 1) = 144 then 'YES' else 'NO' end
-union all select 'Update news posted (only old versions see it)', case when exists (select 1 from public.announcements where for_old_build = 144 and not removed) then 'YES' else 'NO' end
+union all select 'Everyone must be on version 152', case when (select min_build from private.config limit 1) = 152 then 'YES' else 'NO' end
+union all select 'Update news posted (only old versions see it)', case when exists (select 1 from public.announcements where for_old_build = 152 and not removed) then 'YES' else 'NO' end
 union all select 'Your owner code (unchanged)', (select upper(invite_code) from private.config limit 1)
-union all select 'People who still need to update', (select count(*)::text from public.members where coalesce(app_build, 0) < 144 and (role <> 'guest' or expires_at > now()));
+union all select 'People who still need to update', (select count(*)::text from public.members where coalesce(app_build, 0) < 152 and (role <> 'guest' or expires_at > now()));

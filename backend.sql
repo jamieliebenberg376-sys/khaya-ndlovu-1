@@ -2389,5 +2389,31 @@ begin
 end $$;
 grant execute on function public.list_members() to authenticated;
 
+-- ============ v152: owners only see their own guests; no monthly code limit ============
+create or replace function public.list_members()
+returns json language plpgsql stable security definer set search_path = public as $$
+#variable_conflict use_column
+begin
+  if not public.is_owner() then raise exception 'owners only'; end if;
+  return coalesce((select json_agg(row_to_json(x) order by x.role_order, x.exp_order, x.name) from (
+    select m.user_id, m.name, m.role, m.joined_at, m.avatar,
+           case when public.is_admin() or m.user_id = auth.uid() then m.last_seen end as last_seen,
+           case when public.is_admin() or m.user_id = auth.uid() then m.last_login end as last_login,
+           case when m.role = 'guest' then m.expires_at end as expires_at, m.code,
+           m.user_id = auth.uid() as me, coalesce(m.locked, false) as locked,
+           g.label as code_label,
+           coalesce(m.invited_by, g.created_by_name) as added_by,
+           case when m.name_changed_at > now() - interval '14 days' then m.prev_name end as prev_name,
+           case when m.name_changed_at > now() - interval '14 days' then m.name_changed_at end as renamed_at,
+           case when m.locked then 0 when m.role = 'admin' then 1 when m.role = 'owner' then 2 else 3 end as role_order,
+           case when m.role = 'guest' then m.expires_at end as exp_order
+    from public.members m left join public.guest_codes g on g.code = m.code
+    where m.role <> 'guest' or (m.expires_at > now() and not coalesce(g.revoked, false)
+      -- owners only see their own guests; admins and Database see everyone
+      and (public.is_admin() or g.created_by = auth.uid() or m.user_id = auth.uid()))) x), '[]'::json);
+end $$;
+grant execute on function public.list_members() to authenticated;
+update private.config set codes_per_month = null;
+
 select * from public.kn_backend_selftest();
 

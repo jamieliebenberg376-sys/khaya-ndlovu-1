@@ -867,7 +867,7 @@ body:has(#sheet.open) #pausePill,body:has(#sheet.open) #viewPill{display:none}
 .ppt .ppx{position:absolute;right:5px;top:5px;min-width:24px;height:24px;border-radius:12px;background:rgba(0,0,0,.55);color:#fff;font:800 14px/24px system-ui;padding:0 6px}.ppt .ppx.sure{background:#d93025;font-size:11px}
 .ppt .ppw{position:absolute;left:0;right:0;top:0;background:rgba(255,194,61,.9);color:#3a2a00;font:700 9.5px system-ui;text-align:center;padding:2px}
 .ppn{margin-top:10px;padding:10px;border-radius:16px;background:rgba(127,127,127,.08)}.ppn img{width:100%;max-height:220px;object-fit:cover;border-radius:12px;display:block}.ppn .inp{margin-top:8px}.ppn .row{margin-top:8px}
-#prMsg,#pMsg,#shS,#mMsg,#msgBan{display:none!important}
+#prMsg,#shS,#mMsg,#msgBan,#fdNew{display:none!important}
 #homeNag{position:fixed;left:50%;top:calc(var(--safe-t) + 118px);transform:translate(-50%,-14px);z-index:8;display:flex;align-items:center;gap:7px;padding:9px 14px;border-radius:999px;border:0;background:linear-gradient(135deg,#ffe29a,#e9a72a);color:#1d1406;font:800 14px system-ui,-apple-system,sans-serif;box-shadow:0 8px 20px rgba(233,167,42,.45);opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;white-space:nowrap}#homeNag.on{opacity:1;transform:translate(-50%,0);pointer-events:auto;animation:hnPulse 2.4s ease-in-out infinite}#homeNag span{font-size:18px;opacity:.7}@keyframes hnPulse{50%{box-shadow:0 8px 26px rgba(233,167,42,.75)}}body.navon #homeNag{display:none}
 #storyQ{position:fixed;left:10px;right:10px;top:calc(var(--safe-t) + 112px);z-index:30;display:flex;align-items:center;gap:10px;padding:10px 10px 14px 10px;border-radius:20px;overflow:hidden;
   background:linear-gradient(135deg,rgba(32,42,30,.97),rgba(14,18,13,.98));border:1px solid rgba(255,194,61,.3);box-shadow:0 14px 36px rgba(0,0,0,.4);color:#fff;
@@ -1243,7 +1243,7 @@ body.night .cuo,body.night .cuname{background:rgba(255,255,255,.06)}
 
 <div id="gate" class="hide"><div class="gbg"></div><div class="glogo">__LOGO__</div><div class="gout hide" id="gOut"></div><div class="gcard"><div class="gem"><svg viewBox="0 0 48 48" width="46" height="46"><defs><linearGradient id="gemg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd36b"/><stop offset="1" stop-color="#d9900f"/></linearGradient></defs><path d="M24 4 40 10v12c0 11-7 18.5-16 22C15 40.5 8 33 8 22V10z" fill="#1f4d36"/><path d="M24 4 40 10v12c0 11-7 18.5-16 22C15 40.5 8 33 8 22V10z" fill="none" stroke="url(#gemg)" stroke-width="2"/><rect x="17" y="21" width="14" height="11" rx="2.5" fill="url(#gemg)"/><path d="M19.5 21v-3a4.5 4.5 0 0 1 9 0v3" fill="none" stroke="url(#gemg)" stroke-width="2.4" stroke-linecap="round"/><circle cx="24" cy="26.5" r="1.6" fill="#1f4d36"/></svg></div><h2>Members only</h2><p>A private map for Khaya Ndlovu owners and their guests. Enter your name and the code you were sent.</p>
 <form id="gForm" autocomplete="off"><input class="inp" id="gName" placeholder="Your name" maxlength="40" autocapitalize="words"><input class="inp mono" id="gCode" placeholder="Your code" autocapitalize="characters" autocorrect="off" spellcheck="false">
-<button class="btn pri" id="gGo" type="submit">Open map</button><div class="err" id="gErr">Oops, that code is wrong</div><button type="button" class="btn gscan" id="gScan"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3M7 12h10"/></svg> Scan a QR code</button><button type="button" class="glk" id="gHave">I already have an account</button><button type="button" class="glk" id="gRec">Owner or admin and lost access? Use your recovery code</button></form></div><div class="lock"><svg class="li" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg> Secure access · one-time codes</div><div class="credits">Map imagery © Esri, Maxar, Earthstar Geographics · Terrain: Mapzen/AWS · Weather: Open-Meteo · Map engine: MapLibre</div></div>
+<button class="btn pri" id="gGo" type="submit">Open map</button><div class="err" id="gErr">Oops, that code is wrong</div><button type="button" class="btn gscan" id="gScan"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3M7 12h10"/></svg> Scan a QR code</button><button type="button" class="glk" id="gHave">I already have an account</button><button type="button" class="glk hide" id="gRec">Owner or admin and lost access? Use your recovery code</button></form></div><div class="lock"><svg class="li" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg> Secure access · one-time codes</div><div class="credits">Map imagery © Esri, Maxar, Earthstar Geographics · Terrain: Mapzen/AWS · Weather: Open-Meteo · Map engine: MapLibre</div></div>
 <script type="text/plain" id="jsqrSrc">__JSQR__</script>
 <div id="top">
   <div id="search">
@@ -3312,6 +3312,8 @@ function storySheet(cid,what,back){openSheet(`<div style="text-align:center"><di
       if(navigator.onLine){try{await rpc('set_story',{p_cid:cid,p_text:t})}catch(e){queue({op:'story',cid,text:t})}}else queue({op:'story',cid,text:t});
       toast('Posted to the feed');refreshOverlays();back?back():closeSheet()}})}
 let STORYQ=LS.get('storyQ',[]);
+/* red screen is retired: make sure nobody is stuck in it */
+try{if(LS.get('redAuto',false)||LS.get('redOn',false)){LS.set('redAuto',false);LS.set('redOn',false);redAuto=false;setRed(false)}}catch(e){}
 function storyLater(cid,what){if(DM.on||!Cloud.member)return;STORYQ.push({cid,what,t:Date.now(),n:0,snooze:0});STORYQ=STORYQ.slice(-10);LS.set('storyQ',STORYQ)}
 /* the story question: asked once, when the app is opened. Ignore it and it never comes back for that sighting */
 const STORY_T0=Date.now();let storyShown=false;
@@ -3431,9 +3433,9 @@ function routeTicks(){if(!mapReady||!map.getSource('rticks'))return;if(!nav||!na
   let a=0;try{a=projectOnRoute(nav.segs,me.ll).along}catch(e){return}if(Math.abs(a-RTK.at)<15&&RTK.key===String(nav.total))return;RTK={at:a,key:String(nav.total)};
   const F=[];for(let s=Math.ceil((a+120)/500)*500;s<Math.min(nav.total-120,a+3000);s+=500){const d=s-a,txt=d<950?Math.round(d/50)*50+' m':(d/1000).toFixed(1).replace('.0','')+' km';F.push({type:'Feature',properties:{t:txt},geometry:{type:'Point',coordinates:pointAt(nav.segs,s)}})}
   RTK.f=F;map.getSource('rticks').setData({type:'FeatureCollection',features:F})}
-setInterval(routeTicks,1500);
+/* distance markers on the route are retired: the top bar already shows the distance */
 function navTick(){
-  if(!nav||!me)return;try{routeTicks()}catch(e){}
+  if(!nav||!me)return;
   const pr=projectOnRoute(nav.segs,me.ll);
   // off the route: reroute quickly. Driving away from the line (a missed turn) counts after 25 m, otherwise after 35 m
   {const mv=(me.speed||speedS||0)>1.5&&me.heading!=null;let away=false;
@@ -4468,7 +4470,7 @@ $('menuBtn').onclick=()=>{
     ${m&&owner?LK('lAnn','News',ANN.length?ANN.length+' live announcement'+(ANN.length==1?'':'s'):'No announcements',unread?'<span class="tag t-new">'+unread+' new</span>':'','mega','#7b1fa2'):''}
     ${m&&CHATS_ON?LK('lBest',T('Best time'),wx?Math.round(wx.c.temperature_2m)+'° · '+T('sun, moon and animals'):T('Sun, moon, animals'),'','sun','#f9ab00'):''}
     ${m?LK('lLive','Share live location',shareLoc?'On · '+esc(liveWhy().short):'Off','','live','#1a73e8'):''}
-    ${m&&m.locked?LK('lSug','Suggestions',SUG.list.length?SUG.list.length+' from people on the map':'Nothing yet',SUG.list.filter(x=>!x.read).length?'<span class="tag t-new">'+SUG.list.filter(x=>!x.read).length+' new</span>':'','msg','#0b8043'):m?LK('lSug','Suggest something','Ideas, problems or wishes for the map','','msg','#0b8043'):''}
+
     ${m&&isAdm2()&&!m.viewAs?LK('lUpd',T('Updates and reinstall'),T('Send the newest version to everyone'),'v'+APP_BUILD,'down','#1a73e8'):''}
     ${m&&isAdm2()&&!m.viewAs?LK('lAdm','Admin tools',MS.paused?'The map is paused':'Pause, rules, guest limits, reports','','shield','#b06000'):''}
     ${LK('lOff','Offline map',esc(offlineStatus()),'','down','#00796b')}
@@ -4513,21 +4515,20 @@ function settingsSheet(page){const m=Cloud.member;const notif='Notification' in 
     <div class="list sgroup stg">${LK('sgApp',T('Appearance'),T('Light or dark, map look, your car and colours'),'','star','#b06000')}
      ${m?LK('sgAl',T('Alerts'),T('Sighting pop-ups, sounds, quiet hours'),alertOn?T('On'):T('Off'),'alert','#c5221f'):''}
      ${LK('sgLoc',T('Location'),T('Live location, home point, GPS'),'','pin','#1a73e8')}
-     ${LK('sgDrv',T('Driving and voice'),T('Speed warning, recording, focus mode, directions'),'','route','#188038')}
+     ${LK('sgDrv',T('Driving and voice'),T('Keep the screen on, voice directions'),'','route','#188038')}
      ${LK('sgMus',T('Music'),T('Spotify button on the map'),SPOTON?T('On'):T('Off'),'play','#1db954')}
      ${LK('sgLang',T('Language'),'',LANG==='af'?'Afrikaans':'English','msg','#5f6368')}
      ${LK('sgData',T('Map data and updates'),T('Offline map, sharing, reinstall'),'','down','#3c4043')}</div>
     ${m&&!m.locked?'<button class="mout" id="sOut">'+T('Sign out')+'</button>':''}<div class="sub" style="text-align:center;font-size:11.5px;margin-top:10px">Khaya Ndlovu game drive map · version ${APP_BUILD}</div>`}
   else if(page==='app')html=head('Appearance')+`
     <div class="msec">${T('Light or dark')}</div><div class="seg" style="margin:0 0 8px">${th('auto','Auto')}${th('day','Light')}${th('night','Dark')}</div><div class="sub" style="margin:-2px 2px 10px;font-size:12.5px">Auto goes dark at sunset and light again at sunrise</div>
-    <div class="list sgroup">${TG('sRedAuto','Red screen every night','Keeps your night vision. On after sunset, off at sunrise',redAuto)}${TG('sRed','Red screen now','',redOn)}</div>
     <div class="msec">${T('On the map')}</div><div class="list sgroup">${LK('saLook',T('Map look'),T('Satellite photos or the drawn map'),mode==='sat'?T('Satellite'):T('Map'),'map','#188038')}${LK('saCar',T('Your car'),T('How you show on the map while you drive'),'','car','#1a73e8')}${LK('saCol',T('Route and trail colours'),T('The line you follow and the line your drives leave'),'','route','#7b1fa2')}</div>`;
   else if(page==='al')html=head('Alerts')+`<div class="list sgroup">${TG('sAlert','New sighting alerts','Pop-up when someone else marks a sighting',alertOn)}${LK('sAW','Which animals alert me','',esc(alertWhatTxt()))}${TG('sSound','Alert sound','A bing with each alert',alertSound)}${TG('sQuiet','Quiet hours','No alert sounds or pop-ups from '+QUIET.from+' to '+QUIET.to+' unless you are out driving.',quietOn)}${notif?LK('sNotif','Phone notifications','Also alert you while the app is in the background','Turn on'):''}</div>`;
-  else if(page==='loc')html=head('Location')+`${MS.admin_sees_all?'<div class="sub" style="margin:-4px 2px 8px;font-size:12.5px">'+LI('eye',12)+' Admins can see your car while you drive on the reserve, even with sharing off. Your home stays hidden.</div>':''}<div class="list sgroup">${m?TG('sSee',T('See other drivers'),T('Other members show as coloured cars on your map while they drive on the reserve'),SEEOTH):''}${m?LK('sLive','Share live location','',shareLoc?'On':'Off'):''}${LK('sHome','Home point','',home?'Set':'Not set')}${LK('sCal','Calibrate GPS','If your dot sits next to the road',calib[0]||calib[1]?'Active':'')}${isIOS?LK('sLoc','Stop the location question','If the map asks for your location every time',''):''}</div>`;
-  else if(page==='drv')html=head('Driving and voice')+`${MS.rules&&MS.rules.lock?'<div class="sub" style="margin:-4px 2px 8px;font-size:12.5px">'+LI('lock',12)+' Speed warning, quiet hours and sunset reminder are set by an admin for everyone</div>':''}<div class="list sgroup">${TG('sSpd','Speed warning','Red alert over '+SPEED_LIMIT+' km/h on the reserve',speedWarn)}${TG('sSun','Sunset reminder',(SUNMIN===60?'1 hour':SUNMIN+' minutes')+' before sunset if you are still out and far from home',sunRemind)}${LK('sFocus','Focus mode','Only what you need on the map while you drive',{drive:'When driving',on:'Always',off:'Off'}[FOCUSM])}${TG('sAutoRec','Record every drive','Starts when you leave home, keeps going through routes and stops, and finishes when you get home',AUTOREC)}${TG('sTop','Top-down view at turns','From 100 m before a turn the map goes flat so you can see which way to go',TOPTURN)}${TG('sNorth','Keep north up while driving','The map stays north-up instead of turning with you',NORTHUP)}${TG('sSpdo','Show speedometer','',SHOWSPD)}${TG('sAwake','Keep the screen on','The screen stays on the whole time the map is open',KEEPAWAKE)}${TG('sAvoid','Avoid rough tracks','Routes stay on the main roads when there is another way',AVOIDTRK)}</div><div class="msec">Voice directions</div>${vmSeg('sVm')}<div class="sub" style="margin:6px 2px 4px;font-size:12.5px">Alerts only speaks at the turn itself and for gates, stops and rerouting</div>`;
+  else if(page==='loc')html=head('Location')+`${MS.admin_sees_all?'<div class="sub" style="margin:-4px 2px 8px;font-size:12.5px">'+LI('eye',12)+' Admins can see your car while you drive on the reserve, even with sharing off. Your home stays hidden.</div>':''}<div class="list sgroup">${m?TG('sSee',T('See other drivers'),T('Other members show as coloured cars on your map while they drive on the reserve'),SEEOTH):''}${m?LK('sLive','Share live location','',shareLoc?'On':'Off'):''}${LK('sHome','Home point','',home?'Set':'Not set')}${isAdm()?LK('sCal','Calibrate GPS','If your dot sits next to the road',calib[0]||calib[1]?'Active':''):''}${isAdm()&&isIOS?LK('sLoc','Stop the location question','If the map asks for your location every time',''):''}</div>`;
+  else if(page==='drv')html=head('Driving and voice')+`<div class="list sgroup">${TG('sAwake','Keep the screen on','The screen stays on the whole time the map is open',KEEPAWAKE)}</div><div class="msec">Voice directions</div>${vmSeg('sVm')}<div class="sub" style="margin:6px 2px 4px;font-size:12.5px">Alerts only speaks at the turn itself and for gates, stops and rerouting</div>`;
   else if(page==='mus')html=head('Music')+`<div class="list sgroup">${TG('sSpot','Spotify button','Music controls on the map. Off unless you want them',SPOTON)}</div><div class="sub" style="margin:8px 2px;font-size:12.5px">${T('Tap the Spotify button on the map to connect your account the first time.')}</div>`;
   else if(page==='lang')html=head('Language')+`<div class="seg" style="margin:4px 0 12px" data-notr><button data-lg="en" class="${LANG!=='af'?'sel':''}">English</button><button data-lg="af" class="${LANG==='af'?'sel':''}">Afrikaans</button></div>`;
-  else if(page==='data')html=head('Map data and updates')+`<div class="list sgroup">${LK('sOff','Offline map','',esc(offlineStatus()))}${m?LK('sShare','Sharing status',shareStatus(),''):''}${m?LK('sRe',T('Reinstall the app'),T('Fresh copy on your Home Screen, you stay signed in'),'','route','#5f6368'):''}${m&&m.role==='admin'?LK('sUpd',T('Updates and reinstall'),T('Send the newest version to everyone, or ask everyone to reinstall'),'v'+APP_BUILD,'down','#1a73e8'):''}</div>`;
+  else if(page==='data')html=head('Map data and updates')+`<div class="list sgroup">${LK('sOff','Offline map','',esc(offlineStatus()))}${m&&isAdm()?LK('sShare','Sharing status',shareStatus(),''):''}${m&&isAdm()?LK('sRe',T('Reinstall the app'),T('Fresh copy on your Home Screen, you stay signed in'),'','route','#5f6368'):''}${m&&m.role==='admin'?LK('sUpd',T('Updates and reinstall'),T('Send the newest version to everyone, or ask everyone to reinstall'),'v'+APP_BUILD,'down','#1a73e8'):''}</div>`;
   openSheet(html,()=>{const on=(id,f)=>{const b=$(id);if(b)b.onclick=f};
     on('stBack',()=>settingsSheet());on('sProf',()=>profileSettings());
     [['sgApp','app'],['sgAl','al'],['sgLoc','loc'],['sgDrv','drv'],['sgMus','mus'],['sgLang','lang'],['sgData','data']].forEach(([id,pg])=>on(id,()=>settingsSheet(pg)));
@@ -4557,8 +4558,8 @@ function profileSettings(){const m=Cloud.member;if(!m){settingsSheet();return}co
    <div class="list sgroup">${LK('ppPic',T('Profile picture'),T('Your animal next to your name everywhere'),MYAV?esc(T(avBase(MYAV))):T('Pick one'),'users','#e37400')}${LK('ppName',T('Your name'),T('Admins are told when you change it'),esc(nm),'ticket','#1a73e8')}</div>
    <div class="msec">${T('Signing in')}</div><div class="list sgroup">${LK('ppCode',T('Your sign-in code'),T('Make your own code. Use it under I already have an account on any phone'),LS.get('myCode',false)?T('Set'):T('Not set'),'key','#1f4d36')}
     ${own?LK('ppPin',T('Account PIN'),LS.get('hasPin',false)?T('Asked when your account moves to a new phone · tap to change'):T('Set a 4-digit PIN so nobody else can take over your account'),LS.get('hasPin',false)?T('Set'):T('Not set'),'lock','#7a5b12'):''}
-    ${own?LK('ppRec',T('Recovery code'),T('Get your exact account back on any phone, even if you are signed out'),'','shield','#5f6368'):''}</div>
-   ${Cloud.sess&&Cloud.sess.uid?`<div class="list sgroup" style="margin-top:12px"><button class="it lk" id="sUid"><div style="flex:1;min-width:0"><b>Account ID</b><br><small class="mono" data-notr style="word-break:break-all;font-size:12px">${esc(Cloud.sess.uid)}</small><br><small>The same ID Supabase shows for you · tap to copy</small></div></button></div>`:''}`,()=>{
+</div>
+   ${Cloud.sess&&Cloud.sess.uid&&isAdm()?`<div class="list sgroup" style="margin-top:12px"><button class="it lk" id="sUid"><div style="flex:1;min-width:0"><b>Account ID</b><br><small class="mono" data-notr style="word-break:break-all;font-size:12px">${esc(Cloud.sess.uid)}</small><br><small>The same ID Supabase shows for you · tap to copy</small></div></button></div>`:''}`,()=>{
     $('stBack').onclick=()=>settingsSheet();$('ppPic').onclick=()=>openCust(1,profileSettings);$('ppName').onclick=()=>nameSheet();$('ppCode').onclick=()=>myCodeSheet();
     if($('ppPin'))$('ppPin').onclick=()=>acctPinSheet();if($('ppRec'))$('ppRec').onclick=()=>recSheet();
     if($('sUid'))$('sUid').onclick=async()=>{const u=Cloud.sess.uid;try{await navigator.clipboard.writeText(u)}catch(e){fallbackCopy(u)}toast('Account ID copied')}})}
@@ -4902,7 +4903,7 @@ function personSheet(x,back){const admin=Cloud.member&&Cloud.member.role==='admi
     if($('pOwn'))$('pOwn').onclick=()=>roleConfirm(x.user_id,x.name||'They','owner');
     if($('pRm'))$('pRm').onclick=()=>removeConfirm(x,()=>personSheet(x,back),back);
     if($('pDbDel'))$('pDbDel').onclick=()=>typeConfirm({title:'Delete '+(x.name||'this')+' Database account?',body:['It is logged out straight away. Only use this for old Database accounts you no longer use.'],name:x.name||'Database',btn:'Delete',cancel:()=>personSheet(x,back),go:async()=>{await rpc('delete_database',{p_user:x.user_id});toast('Old Database account deleted',3500);back?back():guestSheet()}});
-    if($('pBan'))$('pBan').onclick=()=>banConfirm(x,back);if($('pMsg'))$('pMsg').onclick=()=>chatSheet(x.user_id,x.name,()=>personSheet(x,back));if($('pView'))$('pView').onclick=()=>viewAsStart(x)})}
+    if($('pBan'))$('pBan').onclick=()=>banConfirm(x,back);if($('pMsg'))$('pMsg').onclick=()=>directSheet(x,()=>personSheet(x,back));if($('pView'))$('pView').onclick=()=>viewAsStart(x)})}
 
 /* ================= ADMIN POWER ================= */
 let MS=LS.get('mapState',{paused:false,rules:{},admin_only:[]});
@@ -4991,8 +4992,7 @@ async function adminSheet(){const R=MS.rules||{};let removed=[],bans=[];if(navig
    <div class="msec" style="margin-top:16px">Guest limits for owners</div>
    <div class="sub" style="margin:2px 0 6px">Longest guest pass</div>${chips('gdays',[[0,'No limit'],[1,'1 day'],[3,'3 days'],[7,'1 week'],[14,'2 weeks'],[30,'1 month']],MS.guest_max_days||0)}
    <div class="sub" style="margin:10px 0 6px">Guests per owner at once</div>${chips('gmax',[[0,'No limit'],[2,'2'],[5,'5'],[10,'10']],MS.guest_max_per_owner||0)}
-   <div class="sub" style="margin:10px 0 6px">${T('Codes each owner can make per month')}</div>${chips('gmon',[[0,'Unlimited'],[5,'5'],[10,'10'],[15,'15'],[20,'20'],[30,'30']],MS.codes_per_month===undefined?15:(MS.codes_per_month||0))}
-   <div class="sub" style="font-size:12.5px;margin-top:4px">${T('Admins and Database accounts are never limited')}</div>
+
    <button class="btn pri" id="aGL" style="width:100%;margin-top:10px">Save guest limits</button>
    <div class="msec" style="margin-top:16px">Live map</div><div class="list sgroup">${TG('aSeeAll','Admins see every car','Even people who turned off sharing. Everyone is told about this in their Settings. Homes stay hidden.',!!MS.admin_sees_all)}</div>
    <div class="msec" style="margin-top:16px">Reports and people</div><div class="list sgroup">
@@ -5018,7 +5018,7 @@ async function adminSheet(){const R=MS.rules||{};let removed=[],bans=[];if(navig
     if($('aDry'))$('aDry').onclick=dryAdminSheet;
     $('aRules').onclick=()=>{const q=sel('quiet');run('set_rules',{p_rules:{speed:+sel('speed'),quiet:q!=='off',qfrom:q!=='off'?q.split('-')[0]:null,qto:q!=='off'?q.split('-')[1]:null,sunmin:+sel('sun'),lock:$('aLock').classList.contains('on')}},'Reserve rules saved')};
     $('aAO').onclick=()=>run('set_admin_only',{p_animals:[...document.querySelectorAll('[data-ao].sel')].map(b=>b.dataset.ao)},'Saved');
-    $('aGL').onclick=async()=>{try{await rpc('set_codes_per_month',{p_n:+sel('gmon')||null})}catch(e){}run('set_guest_limits',{p_days:+sel('gdays'),p_max:+sel('gmax')},'Guest limits saved')};
+    $('aGL').onclick=async()=>{run('set_guest_limits',{p_days:+sel('gdays'),p_max:+sel('gmax')},'Guest limits saved')};
     $('aSeeAll').onclick=async()=>{const on=!$('aSeeAll').classList.contains('on');$('aSeeAll').classList.toggle('on',on);await run('set_admin_sees_all',{p_on:on},on?'Admins now see every car':'Admins only see cars that share')};
     $('aWeek').onclick=()=>reportSheet();$('aLog').onclick=()=>activitySheet();
     document.querySelectorAll('[data-undo]').forEach(b=>b.onclick=async()=>{b.textContent='...';try{const r=await rpc('restore_member',{p_user:b.dataset.undo});toast((r&&r.name||'They')+' is back on the map. Their phone reconnects by itself.',4500);adminSheet()}catch(e){toast(errTxt(e),5000);b.textContent='Undo'}});
@@ -5104,7 +5104,7 @@ async function shareInviteCard(G,text){try{const b=await inviteCard(G);const f=n
     if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],text});return true}
     const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=f.name;a.click();toast(T('Card saved. Send it with the message'));return true}catch(e){if(e&&e.name==='AbortError')return true;return false}}
 function fallbackCopy(t,m){const a=document.createElement('textarea');a.value=t;a.setAttribute('readonly','');a.style.cssText='position:fixed;top:-100px;opacity:0';document.body.appendChild(a);a.select();a.setSelectionRange(0,99999);try{document.execCommand('copy');toast(m)}catch(e){toast(t)}a.remove()}
-async function loadQuota(){const el=$('gQuota');if(!el)return;let q=null;try{q=await rpc('code_quota')}catch(e){}if(!q||!$('gQuota'))return;
+async function loadQuota(){const el=$('gQuota');if(el)el.textContent='';return;if(!el)return;let q=null;try{q=await rpc('code_quota')}catch(e){}if(!q||!$('gQuota'))return;
   if(q.limit==null){el.textContent=T('Admins can make as many codes as they need');return}
   const left=Math.max(0,q.limit-(+q.used||0));el.innerHTML=`<b>${left}</b> ${T('of')} ${q.limit} ${T('codes left this month')} · ${T('more on')} ${esc(new Date(q.resets).toLocaleDateString([],{day:'numeric',month:'short'}))}`;
   if(!left&&$('gMake')){$('gMake').disabled=true;$('gMake').textContent=T('No codes left this month')}}
@@ -5618,7 +5618,7 @@ function showGate(){const g=$('gate');g.classList.remove('hide');
   /* signed out? just the code: their own code (or a Database code) brings their account back */
   $('gHave').onclick=()=>{const f=$('gForm'),on=!f.classList.contains('have');f.classList.remove('rec');f.classList.toggle('have',on);$('gName').classList.toggle('hide',on);
     $('gCode').placeholder=T('Your code');$('gGo').textContent=T(on?'Sign in':'Open map');$('gHave').textContent=T(on?'New here? Join with your name':'I already have an account');
-    $('gRec').textContent=T('Owner or admin and lost access? Use your recovery code');$('gErr').classList.remove('on');$('gCode').focus()};
+    $('gErr').classList.remove('on');$('gCode').focus()};
   $('gForm').onsubmit=async e=>{e.preventDefault();const n=$('gName').value.trim(),c=$('gCode').value.trim(),err=$('gErr');
     if($('gForm').classList.contains('rec')){if(!c){err.textContent=T('Type your recovery code');bad();return}if(!navigator.onLine){err.textContent=T('You need signal to do this');bad();return}
       $('gGo').textContent=T('Checking...');$('gGo').disabled=true;let r=null;try{await ensureSession();r=await rpc('use_recovery_code',{p_code:c})}catch(x){r={ok:false,reason:'net'}}
