@@ -321,6 +321,8 @@ body.night .inp{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.
 #nav .main{position:relative;overflow:hidden;background:linear-gradient(135deg,rgba(32,42,30,.96),rgba(14,18,13,.97));border:1px solid rgba(255,194,61,.28);border-radius:26px;box-shadow:0 14px 40px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.08);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);padding:16px 18px;gap:16px}
 #nav .main:before{content:'';position:absolute;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='160' fill='none' stroke='%23ffc23d' stroke-opacity='.07' stroke-width='1.2'%3E%3Cpath d='M-10 40c50-30 90 20 150-5s100-35 170 5'/%3E%3Cpath d='M-10 70c50-30 95 25 155-5s100-35 165 5'/%3E%3Cpath d='M-10 105c55-25 95 25 160-5s95-30 160 5'/%3E%3Cpath d='M-10 140c55-25 100 25 165-5s90-30 155 5'/%3E%3C/svg%3E");background-size:300px 160px;pointer-events:none}
 #nav .main>*{position:relative}
+#nav.uturn .thenrow,#nav.uturn .nchips{display:none!important}
+#nav.jxon .jx{max-height:132px;margin-top:6px!important;padding-top:6px!important}.jx .jd{width:64px!important;height:60px!important}.jx .jg{grid-template-columns:1fr 64px 1fr!important;gap:6px!important}.jr2{font-size:13px!important}.jr2.take{font-size:14px!important}.jr2 .ja{width:15px;height:15px}.jx .jc{gap:4px!important}.jx .jm .js{white-space:nowrap!important;max-width:none!important}
 #nav .arr{width:64px;height:64px;padding:9px;box-sizing:border-box;border-radius:20px;background:linear-gradient(160deg,#ffd36b,#f2a516);color:#1d1406;box-shadow:0 6px 16px rgba(242,165,22,.4),inset 0 1px 0 rgba(255,255,255,.5)}
 #nav .arr *{fill:#1d1406!important;stroke:#1d1406}
 #nav .dist{color:#ffc23d;font-size:24px;font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
@@ -2000,6 +2002,7 @@ function annPop(){const a=ANN.filter(x=>!annSeen.has(x.client_id)&&(!x.expires_a
 
 /* ============ what's new: shown once to owners and admins after an update ============ */
 const WHATS_NEW=[
+ [145,'route','Smarter driving view','The map zooms in when you crawl and out a little on the main roads, without jumping out at turns. Busy junctions show a small picture of the roads from 150 m. Miss a turn and the map reroutes straight away, with a big U-turn arrow when the way back is behind you.'],
  [144,'gear','New Settings','Settings has a page for each topic now. Tap your picture at the top for Profile settings: change your picture or your name, set your PIN, or make your own sign-in code.'],
  [144,'users','Your picture on posts','New posts show your profile picture.'],
  [143,'key','I already have an account','Signed out? On the sign-in screen tap I already have an account and type your code. Database accounts now have two codes, Database code 1 and 2, in Admin tools.'],
@@ -2762,7 +2765,7 @@ function camTick(){
   meMk.setLngLat(anim.pos);meMk.setRotation(anim.hd);
   const driving=follow===2;meEl.classList.toggle('nav',driving||!!nav);
   if(driving&&!userMoving){
-    const kmh=(speedS||0)*3.6;{const z=camState.zl||17.4;camState.zl=z===17.4?(kmh>29?16.9:17.4):z===16.9?(kmh>50?16.4:kmh<20?17.4:16.9):(kmh<38?16.9:16.4)}/* approaching a turn: from 100 m the camera goes flat and top-down so you can see exactly which turn it is, then tilts back once you're through */
+    const kmh=(speedS||0)*3.6;{/* zoom follows your speed: close in when you crawl past animals, further out on the main roads. Each level has a gap so it never flickers */const Z=[17.8,17.4,16.9,16.4],UP=[14,29,50],DN=[9,20,38];let li=Z.indexOf(camState.zl);if(li<0)li=1;if(li<3&&kmh>UP[li])li++;else if(li>0&&kmh<DN[li-1])li--;camState.zl=Z[li]}/* approaching a turn: from 100 m the camera goes flat and top-down so you can see exactly which turn it is, then tilts back once you're through */
     const pvOn=PV&&PV.on,flat=TOPTURN&&nav&&!pvOn&&(nav.near2||(nav.nearT&&Date.now()-nav.nearT<2500));
     const zt=flat?Math.max(camState.zl,18.1):nav&&nav.near&&!pvOn?Math.max(camState.zl,17.75):camState.zl;const kz=1-Math.exp(-dt/(flat||camState.wasFlat?1.1:2.6));if(flat!==camState.wasFlat)$('nav').classList.toggle('flat',!!flat);camState.wasFlat=flat;camState.zoom=camState.zoom==null?map.getZoom():camState.zoom+(zt-camState.zoom)*kz;
     const p=tilt&&!NORTHUP?(flat?0:nav&&nav.near?46:60):0,pt=map.getPitch();
@@ -2816,7 +2819,7 @@ function jxSvg(list){const C=[50,56],R=40;const pt=t=>{const a=t*Math.PI/180;ret
     else o+=`<path d="M${C[0]} ${C[1]}L${x.toFixed(1)} ${y.toFixed(1)}" stroke="rgba(255,255,255,.55)" stroke-width="8" fill="none" stroke-linecap="round"/>`});
   return `<svg viewBox="-4 4 108 100" class="jd"><path d="M50 100L50 56" stroke="rgba(255,255,255,.55)" stroke-width="8" stroke-linecap="round"/>${o}${g}<circle cx="50" cy="56" r="5.5" fill="#fff"/></svg>`}
 function showJx(st,dd,idx){const el=$('navJx');if(!el)return;
-  const stage=!st||!st.junc||st.junc.length<2?0:dd<=55?3:0;
+  const stage=!st||!st.junc||st.junc.length<2||(nav&&nav.uturn)?0:dd<=150?3:0;
   if(!stage){if(jxKey){el.innerHTML='';el.classList.remove('sat');jxSatKey='';$('nav').classList.remove('jxon');jxKey=''}return}
   const key=idx+':'+stage+':'+Math.round(dd/50);if(key===jxKey)return;const pop=!jxKey.startsWith(idx+':'+stage+':');jxKey=key;
   const lab=r=>`<div class="jl${r.take?' take':''}">${esc(r.name)}</div>`;
@@ -3321,7 +3324,7 @@ $('ovBtn').onclick=()=>{if(!nav||!me)return;if(ovOn){ovOn=false;setFollow(2);ret
   let b=new maplibregl.LngLatBounds(pts[0],pts[0]);pts.forEach(p=>b.extend(p));setFollow(0);ovOn=true;try{map.setPadding({top:0,bottom:0,left:0,right:0})}catch(e){}
   const top=$('nav').getBoundingClientRect().bottom+30,bot=innerHeight-$('navBottom').getBoundingClientRect().top+40;
   requestAnimationFrame(()=>map.fitBounds(b,{padding:{top:$('nav').querySelector('.r1').getBoundingClientRect().bottom+40,bottom:bot,left:80,right:90},bearing:0,pitch:0,duration:900,maxZoom:16.5}))};
-const ARROWS={straight:'M12 3l6 7h-4v11h-4V10H6z',left:'M4 10l7-6v4h5a4 4 0 0 1 4 4v9h-4v-9h-5v4z',right:'M20 10l-7-6v4H8a4 4 0 0 0-4 4v9h4v-9h5v4z','slight-left':'M6 4h8l-3 3 6 6v8h-4v-6.5L8 9l-2 2z','slight-right':'M18 4h-8l3 3-6 6v8h4v-6.5L16 9l2 2z','sharp-left':'M5 15l3-8 2 3.5 6 3.5V21h-4v-5.5L8 13l-1 3z','sharp-right':'M19 15l-3-8-2 3.5-6 3.5V21h4v-5.5l4-2.5 1 3z',arrive:'M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z',depart:'M12 3l6 7h-4v11h-4V10H6z'};
+const ARROWS={straight:'M12 3l6 7h-4v11h-4V10H6z',left:'M4 10l7-6v4h5a4 4 0 0 1 4 4v9h-4v-9h-5v4z',right:'M20 10l-7-6v4H8a4 4 0 0 0-4 4v9h4v-9h5v4z','slight-left':'M6 4h8l-3 3 6 6v8h-4v-6.5L8 9l-2 2z','slight-right':'M18 4h-8l3 3-6 6v8h4v-6.5L16 9l2 2z','sharp-left':'M5 15l3-8 2 3.5 6 3.5V21h-4v-5.5L8 13l-1 3z','sharp-right':'M19 15l-3-8-2 3.5-6 3.5V21h4v-5.5l4-2.5 1 3z',uturn:'M18 21V9.5a6 6 0 0 0-12 0V14H3l4.5 5 4.5-5H9V9.5a3 3 0 0 1 6 0V21z',arrive:'M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z',depart:'M12 3l6 7h-4v11h-4V10H6z'};
 
 /* distance markers on the route ahead: fixed spots every 500 m, each showing how far it is from the car */
 let RTK={at:-1e9,key:''};
@@ -3351,7 +3354,10 @@ function navTick(){
   else{const st=nav.steps[i];txt=st.text;icon=st.icon||'straight';dd=st.startAt-along;const nx=nav.steps[i+1];then=nx?(nx.noname?'Then '+nx.text.toLowerCase():'Then '+nx.text.toLowerCase().replace(/ onto .*/,'')+' onto '+nx.road):'Then arrive at '+nav.target.name;
     const curStep=nav.steps[i-1];if(dd>250&&curStep&&curStep.road){then='On '+curStep.road+' · '+then}}
   nav.curI=i;nav.curDD=dd;nav.along=along;nav.near=i>=0&&dd<170&&(icon||'straight')!=='straight';nav.near2=nav.near&&dd<=100;if(nav.near2)nav.nearT=Date.now();
-  if(!PV.on){
+  // missed the turn and the way back is behind you: a big U-turn arrow until you're heading along the line again
+  if(nav.uturn){let ok=false;try{const p1=pointAt(nav.segs,Math.max(0,along-10)),p2=pointAt(nav.segs,Math.min(nav.total,along+10));ok=pr.d<20&&me.heading!=null&&Math.abs(((me.heading-bearing(p1,p2)+540)%360)-180)<70}catch(e){}if(ok||me.heading==null)nav.uturn=false}
+  if(nav.uturn&&!PV.on){$('navArr').innerHTML=`<path fill="#fff" d="${ARROWS.uturn}"/>`;$('navDist').textContent=T('Make a U-turn');$('navIns').innerHTML='<span class="pre">'+T('when it is safe')+'</span>';$('navThenRow').style.display='none';$('nav').classList.add('uturn');showJx(null)}
+  else if(!PV.on){$('nav').classList.remove('uturn');
   $('navArr').innerHTML=`<path fill="#fff" d="${ARROWS[icon]||ARROWS.straight}"/>`;
   $('navDist').textContent=fmtNav(dd);{const road=txt.replace(/^(Turn|Bear|Sharp|Continue) (left |right )?onto /,'').replace(/^Continue to /,'')||txt;const pre=/^Continue to/.test(txt)?'to':(icon==='straight'?'towards':'onto');const st0=i>=0?nav.steps[i]:null;$('navIns').innerHTML=st0&&st0.noname?esc(T(txt)):'<span class="pre">'+pre+'</span> '+esc(road)}
   const nx=i>=0?nav.steps[i+1]:null;const tr=$('navThenRow');
@@ -3359,7 +3365,7 @@ function navTick(){
   else{tr.style.display='none';$('nav').classList.remove('then-on')}
   }
   if(i>=0)speakStep(i,dd,txt);
-  if(!PV.on){const J=nav.juncs||[];const ji=J.findIndex(q=>q.at>along+3);if(ji>=0)showJx(J[ji],J[ji].at-along,ji);else showJx(null)}
+  if(!PV.on&&!nav.uturn){const J=nav.juncs||[];const ji=J.findIndex(q=>q.at>along+3);if(ji>=0)showJx(J[ji],J[ji].at-along,ji);else showJx(null)}
   const kmh=me.speed*3.6;const v=(kmh>5?Math.max(10,Math.min(40,kmh)):18)/3.6;
   const eta=new Date(Date.now()+left/v*1000);
   $('navEta').textContent=fmtT(left/v);
@@ -3424,7 +3430,8 @@ let calMode=false;
 /* ============ Google-style driving: rounded countdown, turn arrow, next-road bubble, swipe turn cards, stops, other way, long press pin, measure, scale bar, blue dot sheet ============ */
 var TRACKR=new Set(),TRACKN=new Set(),AVOIDTRK=LS.get('avoidTracks',false),ALTPEN=null,RPFORCE=null,NAVSTOPS=[],RP=null;
 {const by={};ROADS.forEach((f,i)=>{const n=f.properties.name;if(f.properties.track)TRACKR.add(i);(by[n]=by[n]||[]).push(!!f.properties.track)});for(const n in by)if(by[n].every(Boolean))TRACKN.add(n)}
-var TOPTURN=LS.get('topTurn',true),VMODE=LS.get('vmode',voiceOn?'on':'off'),NORTHUP=LS.get('northUp',false),SHOWSPD=LS.get('showSpd',true),KEEPAWAKE=LS.get('keepAwake',true);
+if(!LS.get('ttMig',false)){LS.set('ttMig',true);LS.set('topTurn',false)}
+var TOPTURN=LS.get('topTurn',false),VMODE=LS.get('vmode',voiceOn?'on':'off'),NORTHUP=LS.get('northUp',false),SHOWSPD=LS.get('showSpd',true),KEEPAWAKE=LS.get('keepAwake',true);
 var PV={on:false,i:0,t:0},MEAS=null,lpAt=0,dotTap=0,tapT=null,lastTouch=0,compassAcc=-1;
 document.body.classList.toggle('nospd',!SHOWSPD);
 function rpPen(u,to,road,w){return (AVOIDTRK&&TRACKR.has(road)?w*5:0)+(ALTPEN&&ALTPEN.has(u+'_'+to)?w*1.4:0)}
