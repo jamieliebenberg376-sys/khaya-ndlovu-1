@@ -184,7 +184,7 @@ body.night .wxm{background:rgba(32,34,38,.92);color:#e8eaed}body.night .wxm smal
 #sheet.obx .prof.perm,#sheet.obx .cuo,#sheet.obx .qsg button,#sheet.obx .cuname{background:rgba(255,255,255,.07)!important;border:1px solid rgba(255,255,255,.12);backdrop-filter:blur(10px);color:#f4efe3}
 #sheet.obx .prof.perm .pr{border-color:rgba(255,255,255,.08)!important}
 #sheet.obx .stn{background:linear-gradient(150deg,#ffe29a,#e9a72a)!important;color:#1d1406!important;box-shadow:0 0 0 4px rgba(233,196,106,.18)}
-#sheet.obx .msec{color:#e9c46a}#sheet.obx .prof.perm .pr>span:not(.stn){color:#e9c46a!important}#sheet.obx .prof.perm .pr>span svg{color:#e9c46a!important;fill:currentColor}
+#sheet.obx .msec{color:#e9c46a}#sheet.obx .obperm{margin-top:10px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:4px 12px}#sheet.obx .obperm summary{color:#e9c46a;font-weight:800}#sheet.obx .obperm .prof{background:none!important;border:0}#sheet.obx .prof.perm .pr>span:not(.stn){color:#e9c46a!important}#sheet.obx .prof.perm .pr>span svg{color:#e9c46a!important;fill:currentColor}
 #sheet.obx .cuo.sel,#sheet.obx .qsg button.sel{background:rgba(233,196,106,.22)!important}
 #sheet.obx .pinin,#sheet.obx .inp{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,.18);color:#fff}
 #sheet.obx .uwl{color:#e9c46a}
@@ -4347,9 +4347,9 @@ function custFlow(step){if(custFlow.only!=null&&step!==custFlow.only){const b=cu
           if(!navigator.onLine){toast(T('You need signal to save the PIN. You can set it later in Settings.'),4000);custFlow(6);return}
           try{await rpc('set_pin',{p_pin:a});LS.set('hasPin',true);LS.set('pinAsked',true);toast(T('PIN saved'))}catch(e){toast(errTxt(e),4000);return}custFlow(6)}});return}
   if(step===6){const nm=Cloud.member&&Cloud.member.name||'';pg(total-1,T('You\'re all set'),T('Here\'s where to find things later.'),
-      `<div class="obpass">${passCard(Object.assign({},Cloud.member,{uid:Cloud.member&&(Cloud.member.uid||'')}))}</div>
+      `<div class="obpass">${passCard(Object.assign({},Cloud.member,{uid:Cloud.member&&(Cloud.member.uid||'')}))}</div><details class="permd obperm"><summary>${T('What you can do as')} ${T(Cloud.member&&Cloud.member.locked?'Database':({guest:'a guest',owner:'an owner',admin:'an admin'})[Cloud.member&&Cloud.member.role]||'a member')}${LI('down',16)}</summary>${permsHtml(Cloud.member&&Cloud.member.role||'owner')}</details>
        <div class="prof perm" style="margin-top:12px">${[['users',T('Change your picture, car or colours'),T('Menu › Settings › tap your picture at the top')],['binoc',T('Mark a sighting'),T('The binoculars button on the map')],['msg',T('Chats'),T('Menu › Chats: the main chat and private messages')],['gear',T('Everything else'),T('Menu › the gear (Settings)')]].map(([i,a,b])=>`<div class="pr"><span>${LI(i,20)}</span><div>${a}<small>${b}</small></div></div>`).join('')}</div>`,
-      ()=>{$('cuNext').onclick=()=>{LS.set('custDone',true);LS.set('obIntro',true);closeSheet();toast(T('All set. Enjoy the drive'),3000)}});return}}
+      ()=>{$('cuNext').onclick=()=>{LS.set('custDone',true);LS.set('obIntro',true);if(Cloud.member)LS.set('roleSeen',Cloud.member.role||'owner');closeSheet();toast(T('All set. Enjoy the drive'),3000)}});return}}
 async function saveAvatar(){if(MYAV&&!avAllowed(MYAV))return;if(!MYAV||!Cloud.member||!navigator.onLine){LS.set('avPending',!!MYAV);return}try{await rpc('set_avatar',{p_avatar:MYAV});LS.set('avPending',false)}catch(e){LS.set('avPending',true)}}
 async function syncProfile(){if(!Cloud.member||!navigator.onLine)return;try{if(LS.get('avPending',false))await saveAvatar();const r=await rpc('my_profile',{});if(r&&typeof r.pin==='boolean')LS.set('hasPin',r.pin);if(r&&typeof r.mycode==='boolean')LS.set('myCode',r.mycode);if(r&&typeof r.db==='boolean'&&Cloud.member&&!!Cloud.member.locked!==r.db){Cloud.member.locked=r.db;saveCloud()}if(r&&r.name){if(Cloud.member.name!==r.name){Cloud.member.name=r.name;saveCloud()}if(r.avatar&&r.avatar!==MYAV){MYAV=r.avatar;LS.set('avatar',r.avatar)}}}catch(e){}}
 setTimeout(syncProfile,5000);setInterval(syncProfile,10*6e4);
@@ -5677,7 +5677,7 @@ function roleSheet(then){const m=Cloud.member;if(!m){then&&then();return}const r
     $('roleOk').onclick=()=>{LS.set('roleSeen',r);closeSheet();setTimeout(()=>{if(then)then();else annPop()},350)}});
 }
 const needRole=()=>Cloud.member&&LS.get('roleSeen','')!==(Cloud.member.role||'owner');
-function afterGate(){if(needRole()){roleSheet(()=>afterGate2());return}afterGate2()}
+function afterGate(){if(needRole()&&LS.get('custDone',false)){roleSheet(()=>afterGate2());return}afterGate2()}
 function afterGate2(){setTimeout(()=>custPop(),600)}
 {const n=new URLSearchParams(location.search).get('n');if(n&&$('gName')&&!$('gName').value)$('gName').value=n.slice(0,40)}
 {const q=new URLSearchParams(location.search).get('guest')||(location.pathname.match(/^\/j\/([A-Za-z0-9-]{4,20})/)||[])[1];if(q){try{history.replaceState(null,'',location.pathname)}catch(e){}if(needGate()){$('gCode').value=q.toUpperCase().slice(0,12);
@@ -5715,7 +5715,7 @@ async function tryResume(t){const fail=msg=>{showGate();if(msg){$('gErr').textCo
 const fresh=rt&&rt!==LS.get('hoTok','')&&rt!==LS.get('usedTok','');
 if(rt&&needGate())tryResume(rt);
 else if(fresh&&Cloud.member)softResume(rt);
-else if(needGate())showGate();else{armExpiry();setTimeout(armHandover,3000);setTimeout(()=>{if(needRole()&&!$('sheet').classList.contains('open'))roleSheet()},4200)}}
+else if(needGate())showGate();else{armExpiry();setTimeout(armHandover,3000);setTimeout(()=>{if(needRole()&&LS.get('custDone',false)&&!$('sheet').classList.contains('open'))roleSheet()},4200)}}
 
 /* ============ offline download ============ */
 const isStandalone=()=>window.matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
