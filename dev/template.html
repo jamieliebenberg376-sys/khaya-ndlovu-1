@@ -4653,16 +4653,17 @@ function bindPeople(root,back){root.querySelectorAll('[data-person]').forEach(b=
 
 /* removing someone: you have to type the sentence with their name, so nobody gets removed by a slip of the finger */
 function typeConfirm(o){const phrase=o.verb==='ban'?(LANG==='af'?'Ek wil '+o.name+' van die app verban':'I want to ban '+o.name+' from the app'):(LANG==='af'?'Ek wil '+o.name+' van die app verwyder':'I want to remove '+o.name+' off the app');
+  /* the Database account just taps the button, no sentence to type */
+  const quick=!!(Cloud.member&&Cloud.member.locked);
   const norm=t=>t.toLowerCase().replace(/[“”"'.]/g,'').replace(/\s+/g,' ').trim();
   openSheet(`<div style="text-align:center;padding-top:4px"><div style="color:#d93025">${LI('x',36)}</div><h2 style="margin:6px 0 2px">${esc(o.title)}</h2>
    ${(Array.isArray(o.body)?o.body:[o.body]).map(t=>`<div class="sub" style="line-height:1.45">${esc(t)}</div>`).join('')}</div>
-   <div class="sub" style="margin-top:14px">To confirm, type:</div><div class="rmp" data-notr>${esc(phrase)}</div>
-   <input class="inp" id="rmIn" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Type the sentence above">
-   <div class="row" style="margin-top:12px"><button class="btn" id="rmNo">Cancel</button><button class="btn red" id="rmGo" disabled>${esc(o.btn||'Remove')}</button></div>`,()=>{
-    const inp=$('rmIn'),go=$('rmGo');setTimeout(()=>inp.focus(),300);
-    inp.oninput=()=>{go.disabled=norm(inp.value)!==norm(phrase)};
+   ${quick?'':`<div class="sub" style="margin-top:14px">To confirm, type:</div><div class="rmp" data-notr>${esc(phrase)}</div>
+   <input class="inp" id="rmIn" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Type the sentence above">`}
+   <div class="row" style="margin-top:12px"><button class="btn" id="rmNo">Cancel</button><button class="btn red" id="rmGo"${quick?'':' disabled'}>${esc(o.btn||'Remove')}</button></div>`,()=>{
+    const inp=$('rmIn'),go=$('rmGo');if(inp){setTimeout(()=>inp.focus(),300);inp.oninput=()=>{go.disabled=norm(inp.value)!==norm(phrase)}}
     $('rmNo').onclick=o.cancel;
-    go.onclick=async()=>{if(norm(inp.value)!==norm(phrase))return;go.disabled=true;go.textContent=T('Removing...');try{await o.go()}catch(e){toast(errTxt(e),5000);go.disabled=false;go.textContent=T(o.btn||'Remove')}}})}
+    go.onclick=async()=>{if(!quick&&norm(inp.value)!==norm(phrase))return;go.disabled=true;go.textContent=T('Removing...');try{await o.go()}catch(e){toast(errTxt(e),5000);go.disabled=false;go.textContent=T(o.btn||'Remove')}}})}
 function removeConfirm(x,cancel,back){const nm=(x.name||'them').trim();
   typeConfirm({title:'Remove '+nm+'?',body:[nm+' is logged out straight away and loses access to the map.',x.role==='guest'?'Their guest pass stops working.':'They need a new invite to come back.'],name:nm,cancel,
     go:async()=>{await rpc('remove_member',{p_user:x.user_id});toast(nm+' was removed and will be logged out',3500);back?back():guestSheet()}})}
