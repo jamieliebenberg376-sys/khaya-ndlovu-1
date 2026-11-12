@@ -156,6 +156,75 @@ body.night .wxm{background:rgba(32,34,38,.92);color:#e8eaed}body.night .wxm smal
 #sheet{position:fixed;left:0;right:0;bottom:calc(0px - var(--bfix));z-index:20;background:#fff;border-radius:20px 20px 0 0;box-shadow:0 -4px 18px rgba(0,0,0,.2);padding:8px 18px calc(var(--safe-b) + 18px);transform:translateY(110%);transition:transform .28s cubic-bezier(.2,.8,.2,1);max-height:78vh;overflow:auto}
 #sheet.open{transform:none}
 #sheet.full{top:0;bottom:0;max-height:none;height:100%;border-radius:0;padding-top:calc(var(--safe-t) + 8px)}#sheet.full .grab,#sheet.full .sgrab{display:none}
+/* ===== onboarding: full screen, dark green and gold, everything animates in ===== */
+#sheet.obx{background:radial-gradient(120% 70% at 50% -10%,#2c5a3c 0%,#15301f 45%,#0a1810 100%)!important;color:#f4efe3!important;padding-left:22px;padding-right:22px;overflow-x:hidden}
+#sheet.obx:before{content:'';position:absolute;inset:-40%;pointer-events:none;opacity:.22;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='420' height='260' fill='none' stroke='%23e9c46a' stroke-width='1.1'%3E%3Cpath d='M-20 60c70-40 130 25 210-5s140-45 240 5'/%3E%3Cpath d='M-20 100c70-40 135 30 215-5s140-45 235 5'/%3E%3Cpath d='M-20 145c75-35 135 30 220-5s135-40 230 5'/%3E%3Cpath d='M-20 195c75-35 140 30 225-5s130-40 225 5'/%3E%3C/svg%3E");background-size:420px 260px;animation:obTopo 60s linear infinite}
+#sheet.obx:after{content:'';position:absolute;width:420px;height:420px;left:50%;top:-180px;margin-left:-210px;border-radius:50%;background:radial-gradient(circle,rgba(233,196,106,.28),rgba(233,196,106,0) 65%);pointer-events:none;animation:obGlow 6s ease-in-out infinite}
+@keyframes obTopo{to{transform:translate(-420px,-260px)}}@keyframes obGlow{50%{opacity:.55;transform:scale(1.12)}}
+#sheet.obx #sheetBody{position:relative;z-index:1;padding-bottom:calc(var(--safe-b,0px) + 24px)}
+#sheet.obx #sheetBody>*{animation:obIn .6s cubic-bezier(.2,.8,.2,1) both}
+#sheet.obx #sheetBody>*:nth-child(2){animation-delay:.07s}#sheet.obx #sheetBody>*:nth-child(3){animation-delay:.14s}#sheet.obx #sheetBody>*:nth-child(4){animation-delay:.21s}#sheet.obx #sheetBody>*:nth-child(5){animation-delay:.28s}#sheet.obx #sheetBody>*:nth-child(n+6){animation-delay:.34s}
+@keyframes obIn{from{opacity:0;transform:translateY(22px) scale(.98)}to{opacity:1;transform:none}}
+#sheet.obx .sub,#sheet.obx small{color:rgba(244,239,227,.72)!important}
+#sheet.obx .obh,#sheet.obx h2{font-size:30px;line-height:1.1;font-weight:900;letter-spacing:-.4px;margin:10px 0 6px;background:linear-gradient(180deg,#fff 30%,#f3d27a);-webkit-background-clip:text;background-clip:text;color:transparent}
+#sheet.obx .obh .nm,#sheet.obx .obh span{-webkit-text-fill-color:initial}
+#sheet.obx .obtop{display:flex;flex-direction:column;gap:6px;margin-bottom:6px}
+#sheet.obx .obdots{margin:0;gap:5px}#sheet.obx .obdots i{height:5px;background:rgba(255,255,255,.14);position:relative;overflow:hidden}
+#sheet.obx .obdots i.on{background:linear-gradient(90deg,#ffe29a,#e9a72a);box-shadow:0 0 10px rgba(255,194,61,.55)}
+#sheet.obx .obdots i.now:after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.8),transparent);animation:obShine 1.8s ease-in-out infinite}
+.obstep{font-size:11.5px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;color:#e9c46a}
+.obhero{width:78px;height:78px;border-radius:26px;margin:14px 0 4px;display:flex;align-items:center;justify-content:center;color:#1d1406;background:linear-gradient(150deg,#ffe29a,#e9a72a);box-shadow:0 12px 30px rgba(233,167,42,.45),inset 0 1px 0 rgba(255,255,255,.6);animation:obFloat 3.2s ease-in-out infinite}
+.obhero.big{width:auto;height:auto;background:none;box-shadow:none;border-radius:50%;margin:14px auto 4px;position:relative;filter:drop-shadow(0 10px 24px rgba(233,196,106,.5))}
+@keyframes obFloat{50%{transform:translateY(-6px) rotate(-2deg)}}
+#sheet.obx .btn{border-radius:18px;min-height:52px;font-size:16.5px;background:rgba(255,255,255,.08);color:#f4efe3;border:1px solid rgba(255,255,255,.14);backdrop-filter:blur(8px)}
+#sheet.obx .btn.pri{position:relative;overflow:hidden;background:linear-gradient(135deg,#ffe29a,#e9a72a 55%,#c9860f)!important;color:#1d1406!important;border:0;font-weight:900;box-shadow:0 10px 26px rgba(233,167,42,.4)!important}
+#sheet.obx .btn.pri:after{content:'';position:absolute;top:0;bottom:0;width:40%;left:-60%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.65),transparent);animation:obShine 2.6s ease-in-out infinite}
+@keyframes obShine{0%{transform:translateX(0)}60%,100%{transform:translateX(420%)}}
+#sheet.obx .btn:active{transform:scale(.97)}#sheet.obx .row,#sheet.obx .obbtns{overflow:visible!important}#sheet.obx #sheetBody>*{will-change:auto}.dlring svg{overflow:visible}
+#sheet.obx .prof.perm,#sheet.obx .cuo,#sheet.obx .qsg button,#sheet.obx .cuname{background:rgba(255,255,255,.07)!important;border:1px solid rgba(255,255,255,.12);backdrop-filter:blur(10px);color:#f4efe3}
+#sheet.obx .prof.perm .pr{border-color:rgba(255,255,255,.08)!important}
+#sheet.obx .stn{background:linear-gradient(150deg,#ffe29a,#e9a72a)!important;color:#1d1406!important;box-shadow:0 0 0 4px rgba(233,196,106,.18)}
+#sheet.obx .msec{color:#e9c46a}#sheet.obx .prof.perm .pr>span:not(.stn){color:#e9c46a!important}#sheet.obx .prof.perm .pr>span svg{color:#e9c46a!important;fill:currentColor}
+#sheet.obx .cuo.sel,#sheet.obx .qsg button.sel{background:rgba(233,196,106,.22)!important}
+#sheet.obx .pinin,#sheet.obx .inp{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,.18);color:#fff}
+#sheet.obx .uwl{color:#e9c46a}
+.obwel{padding-top:24px}
+.obglow{position:relative;width:min(66vw,250px);margin:6px auto 16px}
+.obglow i{position:absolute;left:50%;top:50%;width:100%;padding-top:100%;border-radius:50%;border:2px solid rgba(233,196,106,.5);transform:translate(-50%,-50%) scale(.6);opacity:0;animation:obRing 3.2s ease-out infinite}
+.obglow i:nth-child(2){animation-delay:1.05s}.obglow i:nth-child(3){animation-delay:2.1s}
+@keyframes obRing{0%{opacity:.8;transform:translate(-50%,-50%) scale(.55)}100%{opacity:0;transform:translate(-50%,-50%) scale(1.35)}}
+#sheet.obx .obwel .glogo{position:relative;width:100%;margin:0;animation:obPop .9s cubic-bezier(.2,1.4,.3,1) both,obFloat 4s 1s ease-in-out infinite;box-shadow:0 18px 40px rgba(0,0,0,.45),0 0 0 1px rgba(233,196,106,.4)}
+@keyframes obPop{from{opacity:0;transform:scale(.6) rotate(-6deg)}to{opacity:1;transform:none}}
+.dlring{position:relative;width:190px;height:190px;margin:22px auto 4px}
+.dlring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.dlring .dlt{fill:none;stroke:rgba(255,255,255,.1);stroke-width:9}
+.dlring .dlf{fill:none;stroke:url(#dlg);stroke-width:9;stroke-linecap:round;stroke-dasharray:327;stroke-dashoffset:327;transition:stroke-dashoffset .35s ease;filter:drop-shadow(0 0 6px rgba(255,194,61,.6))}
+.dlring .dlok{fill:none;stroke:#ffe29a;stroke-width:8;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:70;stroke-dashoffset:70;transform:rotate(90deg);transform-origin:60px 60px}
+.dlring.done .dlok{animation:obDraw .6s .15s ease forwards}.dlring.done{animation:obPulse .8s ease}
+@keyframes obDraw{to{stroke-dashoffset:0}}@keyframes obPulse{40%{transform:scale(1.07)}}
+.dlpc{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.dlpc b{font-size:40px;font-weight:900;color:#fff;letter-spacing:-1px}.dlpc small{font-size:13px}
+.dlring:not(.go):not(.done) .dlt{stroke-dasharray:6 10;animation:obSpin 12s linear infinite;transform-origin:60px 60px}
+@keyframes obSpin{to{transform:rotate(360deg)}}
+#obConf{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:5}
+#obIL{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;text-align:center;color:#fff;background:radial-gradient(90% 60% at 50% 45%,#24502f 0%,#0d1f14 55%,#050c08 100%);animation:ilIn .5s ease both;overflow:hidden}
+#obIL.out{animation:ilOut .55s ease forwards}
+@keyframes ilIn{from{opacity:0}}@keyframes ilOut{to{opacity:0;transform:scale(1.08);filter:blur(6px)}}
+#obIL canvas{position:absolute;inset:0;width:100%;height:100%}
+#obIL .ilr i{position:absolute;left:50%;top:44%;width:150px;height:150px;margin:-75px 0 0 -75px;border-radius:50%;border:2px solid rgba(233,196,106,.7);opacity:0;animation:ilRing 2.6s cubic-bezier(.2,.7,.3,1) infinite}
+#obIL .ilr i:nth-child(2){animation-delay:.85s}#obIL .ilr i:nth-child(3){animation-delay:1.7s}
+@keyframes ilRing{0%{opacity:.9;transform:scale(.4)}100%{opacity:0;transform:scale(4.2)}}
+#obIL .ilm{position:relative;z-index:1;padding:0 28px}
+#obIL .ilic{width:104px;height:104px;margin:0 auto 26px;border-radius:34px;display:flex;align-items:center;justify-content:center;color:#1d1406;background:linear-gradient(150deg,#ffe29a,#e9a72a);box-shadow:0 0 0 10px rgba(233,196,106,.12),0 0 60px rgba(255,194,61,.65);animation:ilPop 1s cubic-bezier(.2,1.5,.3,1) both,obFloat 3s 1s ease-in-out infinite}
+@keyframes ilPop{from{opacity:0;transform:scale(.2) rotate(-40deg)}to{opacity:1;transform:none}}
+#obIL h1{font-size:38px;line-height:1.08;font-weight:900;letter-spacing:-.6px;margin:0}
+#obIL h1 span{display:inline-block;opacity:0;background:linear-gradient(180deg,#fff 35%,#f3d27a);-webkit-background-clip:text;background-clip:text;color:transparent;animation:ilWord .7s cubic-bezier(.2,.8,.2,1) forwards}
+@keyframes ilWord{from{opacity:0;transform:translateY(26px) scale(.9);filter:blur(8px)}to{opacity:1;transform:none;filter:none}}
+#obIL p{margin:16px 0 0;font-size:16px;color:rgba(244,239,227,.75);opacity:0;animation:obIn .7s 1.5s forwards}
+#obIL .ilgo{margin-top:34px;background:none;border:0;color:#e9c46a;font:800 13px system-ui,-apple-system,sans-serif;letter-spacing:1.6px;text-transform:uppercase;opacity:0;animation:obIn .6s 2.2s forwards,ilBlink 1.6s 2.8s ease-in-out infinite}
+@keyframes ilBlink{50%{opacity:.4}}
+@media (prefers-reduced-motion:reduce){#sheet.obx *,#sheet.obx:before,#sheet.obx:after,#obIL *{animation-duration:.01s!important;animation-iteration-count:1!important}}
+
 #sheet.full .chlist{min-height:calc(100dvh - 210px)}
 #sheet.full .cmin{padding-bottom:4px}
 #sheet .grab{width:44px;height:5px;border-radius:3px;background:#ccc;margin:0 auto 12px;position:relative}#sheet .grab:before{content:'';position:absolute;left:-60px;right:-60px;top:-14px;bottom:-14px}#sheet.drag{transition:none}
@@ -2002,6 +2071,7 @@ function annPop(){const a=ANN.filter(x=>!annSeen.has(x.client_id)&&(!x.expires_a
 
 /* ============ what's new: shown once to owners and admins after an update ============ */
 const WHATS_NEW=[
+ [146,'star','A brand new welcome','New people get a whole new setup: big gold animations, a download ring, a Time to customise your experience moment and confetti at the end.'],
  [145,'route','Smarter driving view','The map zooms in when you crawl and out a little on the main roads, without jumping out at turns. Busy junctions show a small picture of the roads from 150 m. Miss a turn and the map reroutes straight away, with a big U-turn arrow when the way back is behind you.'],
  [144,'gear','New Settings','Settings has a page for each topic now. Tap your picture at the top for Profile settings: change your picture or your name, set your PIN, or make your own sign-in code.'],
  [144,'users','Your picture on posts','New posts show your profile picture.'],
@@ -2917,8 +2987,8 @@ $('compass').onclick=()=>{if(follow===2)setFollow(1);map.easeTo({bearing:0,pitch
 $('layerBtn').onclick=()=>openSheet(layerSheet());
 
 /* ============ sheet ============ */
-function openSheet(html,onOpen){{const sp=document.getElementById('saPop');if(sp)sp.classList.remove('on')}$('sheet').style.transform='';$('sheet').classList.remove('full');SHEET_REFRESH=null;$('sheetBody').innerHTML=html;$('sheet').classList.add('open');$('scrim').classList.add('on');if(onOpen)onOpen()}
-function closeSheet(){if(DSPREV){const m=DSPREV;DSPREV=null;mode=m;try{applyMode()}catch(e){}}$('sheet').classList.remove('open');$('scrim').classList.remove('on');clearPin()}
+function openSheet(html,onOpen){{const sp=document.getElementById('saPop');if(sp)sp.classList.remove('on')}$('sheet').style.transform='';$('sheet').classList.remove('full','obx');SHEET_REFRESH=null;$('sheetBody').innerHTML=html;try{$('sheetBody').scrollTop=0;$('sheet').scrollTop=0}catch(e){}$('sheet').classList.add('open');$('scrim').classList.add('on');if(onOpen)onOpen()}
+function closeSheet(){$('sheet').classList.remove('obx');if(DSPREV){const m=DSPREV;DSPREV=null;mode=m;try{applyMode()}catch(e){}}$('sheet').classList.remove('open');$('scrim').classList.remove('on');clearPin()}
 $('scrim').onclick=closeSheet;
 /* swipe the sheet down to close it (from the grab line, or anywhere when the sheet is scrolled to the top) */
 /* pull down from the top of a list to refresh it (Feed, Chats): a small round spinner */
@@ -4193,32 +4263,42 @@ function applyColours(){if(!mapReady)return;const sh=(h,f)=>{const n=parseInt(h.
   try{map.setPaintProperty('route','line-color',ROUTECOL);map.setPaintProperty('route-case','line-color',sh(ROUTECOL,-.32));map.setPaintProperty('route-glow','line-color',ROUTECOL);map.setPaintProperty('route-core','line-color',sh(ROUTECOL,.55));map.setPaintProperty('rtick-dot','circle-stroke-color',ROUTECOL)}catch(e){}refreshOverlays()}
 applyMe();
 /* the welcome steps (new people) and the "make it yours" screens (everyone, once) */
-function obStep(n,of,title,body,btns,after){openSheet(`<div class="obdots">${Array.from({length:of},(_,i)=>`<i class="${i<n?'on':''}"></i>`).join('')}</div><h2>${title}</h2>${body}<div class="row" style="margin-top:16px">${btns}</div>`,()=>{$('sheet').classList.add('full');after&&after()})}
+function obStep(n,of,title,body,btns,after,icon){openSheet(`<div class="obtop"><div class="obdots">${Array.from({length:of},(_,i)=>`<i class="${i<n?'on':''}${i===n-1?' now':''}"></i>`).join('')}</div><div class="obstep">${T('Step')} ${n} ${T('of')} ${of}</div></div>${icon?`<div class="obhero">${LI(icon,38)}</div>`:''}<h2 class="obh">${title}</h2>${body}<div class="row obbtns" style="margin-top:18px">${btns}</div>`,()=>{$('sheet').classList.add('full','obx');after&&after()})}
 function welcomeFlow(){if(!Cloud.member)return;const inst=!isStandalone(),ios=/iPhone|iPad/.test(navigator.userAgent);
   if(!LS.get('obIntro',false)&&!LS.get('custDone',false)){const m=Cloud.member,r=m.locked?'Database':m.role==='admin'?'admin':m.role==='guest'?'guest':'owner';
-    openSheet(`<div class="obwel"><div class="glogo">${(document.querySelector('#gate .glogo')||{}).innerHTML||''}</div><h2>${T('Welcome')}, ${NM(esc((m.name||'').split(' ')[0]),m.role,m.locked)}</h2>
+    openSheet(`<div class="obwel"><div class="obglow"><i></i><i></i><i></i><div class="glogo">${(document.querySelector('#gate .glogo')||{}).innerHTML||''}</div></div><h2 class="obh">${T('Welcome')}, ${NM(esc((m.name||'').split(' ')[0]),m.role,m.locked)}</h2>
       <div class="sub">${T('You\'re on the Khaya Ndlovu map as')} ${r==='admin'||r==='owner'?T('an'):T('a')} <b>${T(r)}</b>. ${T('Let\'s get you set up. It takes about a minute.')}</div>
       <div class="prof perm" style="margin-top:14px;text-align:left">${[['1',T('Put the map on your Home Screen'),T('So it opens like an app')],['2',T('Download the map'),T('So it works with no signal')],['3',T('Make it yours'),T('Your picture, car and colours')]].map(([a,b,c])=>`<div class="pr"><span class="stn">${a}</span><div>${b}<small>${c}</small></div></div>`).join('')}</div>
       <div class="sub" style="margin-top:10px;font-size:12.5px">${T('You can change everything later in Settings.')}</div>
-      <button class="btn pri" id="obGo" style="width:100%;margin-top:14px">${T('Let\'s go')}</button></div>`,()=>{$('sheet').classList.add('full');$('obGo').onclick=()=>{LS.set('obIntro',true);welcomeFlow()}});return}
+      <button class="btn pri obgo" id="obGo" style="width:100%;margin-top:16px">${T('Let\'s go')}</button></div>`,()=>{$('sheet').classList.add('full','obx');$('obGo').onclick=()=>{LS.set('obIntro',true);welcomeFlow()}});return}
   // 1. Home Screen (skipped if it's already the Home Screen app)
   if(inst&&!LS.get('obHome',false)){obStep(1,3,T('Add the map to your Home Screen'),`<div class="sub" style="margin-top:6px">${T('It opens like a normal app and works with no signal.')}</div><div class="prof perm" style="margin-top:12px">${(ios?[['1',T('Tap the Share button'),T('The square with the arrow, at the bottom of Safari')],['2',T('Tap Add to Home Screen'),T('Scroll down a little if you don\'t see it')],['3',T('Tap Add, then open the map from the new icon'),T('You stay signed in')]]:[['1',T('Tap the ⋮ menu'),T('Top right of Chrome')],['2',T('Tap Install app or Add to Home screen'),''],['3',T('Open the map from the new icon'),T('You stay signed in')]]).map(([a,b,c])=>`<div class="pr"><span class="stn">${a}</span><div>${b}<small>${c}</small></div></div>`).join('')}</div>`,
-    `<button class="btn" id="obSkip">${T('Later')}</button><button class="btn pri" id="obDone">${T("I've done it")}</button>`,()=>{$('obSkip').onclick=()=>{LS.set('obHome',true);welcomeFlow()};$('obDone').onclick=()=>{LS.set('obHome',true);if(ios){toast(T('Now open the map from the new icon'),4000);closeSheet()}else welcomeFlow()}});return}
+    `<button class="btn" id="obSkip">${T('Later')}</button><button class="btn pri" id="obDone">${T("I've done it")}</button>`,()=>{$('obSkip').onclick=()=>{LS.set('obHome',true);welcomeFlow()};$('obDone').onclick=()=>{LS.set('obHome',true);if(ios){toast(T('Now open the map from the new icon'),4000);closeSheet()}else welcomeFlow()}},'share');return}
   // 2. download the map
-  if(!LS.get('offline',null)&&!LS.get('obDlSkip',false)){obStep(2,3,T('Download the map'),`<div class="sub" style="margin-top:6px">${T('The satellite photos, terrain and the app for the whole reserve, about 30 to 60 MB. Use Wi-Fi if you can.')}</div><div class="bar" id="dlBar" style="width:100%;margin-top:14px;display:none"><i id="dlFill"></i></div><div class="sub" id="dlTxt" style="margin-top:8px"></div>`,
+  if(!LS.get('offline',null)&&!LS.get('obDlSkip',false)){obStep(2,3,T('Download the map'),`<div class="sub" style="margin-top:6px">${T('The satellite photos, terrain and the app for the whole reserve, about 30 to 60 MB. Use Wi-Fi if you can.')}</div><div class="dlring" id="dlBar"><svg viewBox="0 0 120 120"><defs><linearGradient id="dlg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffe29a"/><stop offset="1" stop-color="#d9900f"/></linearGradient></defs><circle cx="60" cy="60" r="52" class="dlt"/><circle cx="60" cy="60" r="52" class="dlf" id="dlFill"/><path class="dlok" d="M40 61l14 14 27-29"/></svg><div class="dlpc"><b id="dlPc">0%</b><small id="dlMb">${T('Ready')}</small></div></div><div class="sub" id="dlTxt" style="margin-top:8px;text-align:center"></div>`,
     `<button class="btn" id="obSkip">${T('Later')}</button><button class="btn pri" id="obDl">${T('Download map')}</button>`,()=>{$('obSkip').onclick=()=>{LS.set('obDlSkip',true);welcomeFlow()};
-      $('obDl').onclick=async()=>{if(!navigator.onLine){toast(T('No signal right now. Try again with Wi-Fi or signal.'));return}const b=$('obDl');b.disabled=true;b.textContent=T('Downloading...');$('dlBar').style.display='block';
-        const r=await downloadOffline((d,n,by)=>{const f=$('dlFill');if(f)f.style.width=Math.round(d/n*100)+'%';const x=$('dlTxt');if(x)x.textContent=Math.round(d/n*100)+'% · '+(by/1048576).toFixed(1)+' MB'});
-        if(r.n>r.total*.95){LS.set('onboarded',true);const x=$('dlTxt');if(x)x.textContent=T('Map downloaded. You can use it offline now.');b.textContent=T('Next');b.disabled=false;b.onclick=()=>welcomeFlow()}
-        else{b.disabled=false;b.textContent=T('Try again');const x=$('dlTxt');if(x)x.textContent=T('Some of it didn\'t download. The signal may have dropped, tap Try again.')}}});return}
+      $('obDl').onclick=async()=>{if(!navigator.onLine){toast(T('No signal right now. Try again with Wi-Fi or signal.'));return}const b=$('obDl');b.disabled=true;b.textContent=T('Downloading...');$('dlBar').classList.add('go');
+        const r=await downloadOffline((d,n,by)=>{const pc=Math.round(d/n*100),f=$('dlFill');if(f)f.style.strokeDashoffset=String(327*(1-d/n));if($('dlPc'))$('dlPc').textContent=pc+'%';if($('dlMb'))$('dlMb').textContent=(by/1048576).toFixed(1)+' MB'});
+        if(r.n>r.total*.95){LS.set('onboarded',true);const f=$('dlFill');if(f)f.style.strokeDashoffset='0';if($('dlBar'))$('dlBar').classList.add('done');if($('dlPc'))$('dlPc').textContent='';if($('dlMb'))$('dlMb').textContent='';const x=$('dlTxt');if(x)x.textContent=T('Map downloaded. It works with no signal now.');b.textContent=T('Next');b.disabled=false;b.onclick=()=>welcomeFlow();setTimeout(()=>{if($('dlBar')&&$('dlBar').classList.contains('done'))welcomeFlow()},1800)}
+        else{b.disabled=false;b.textContent=T('Try again');const x=$('dlTxt');if(x)x.textContent=T('Some of it didn\'t download. The signal may have dropped, tap Try again.')}}},'down');return}
   LS.set('onboarded',true);
-  // 3. make it yours
-  if(!LS.get('custDone',false))custFlow(0)}
+  // 3. make it yours, with the big "time to customise" moment first
+  if(!LS.get('custDone',false)){if(!LS.get('obIL',false)){LS.set('obIL',true);obInterlude(()=>custFlow(0))}else custFlow(0)}}
+/* the "time to customise your experience" moment: gold rings, sparks and the words coming in one by one */
+function obInterlude(next){closeSheet();const el=document.createElement('div');el.id='obIL';const words=T('Time to customise your experience').split(' ');
+  el.innerHTML=`<canvas id="obILc"></canvas><div class="ilr"><i></i><i></i><i></i></div><div class="ilm"><div class="ilic">${LI('star',44)}</div><h1>${words.map((w,i)=>`<span style="animation-delay:${.55+i*.13}s">${esc(w)}</span>`).join(' ')}</h1><p>${T('Your picture, your car, your colours')}</p><button class="ilgo">${T('Tap to start')}</button></div>`;
+  document.body.appendChild(el);let done=false;const go=()=>{if(done)return;done=true;el.classList.add('out');setTimeout(()=>{el.remove();next&&next()},550)};
+  el.onclick=go;setTimeout(go,4200);sparks($('obILc'),90,3.6)}
+/* little gold sparks / confetti on a canvas, gone after a few seconds */
+function sparks(cv,n,secs,confetti){if(!cv)return;try{if(matchMedia('(prefers-reduced-motion: reduce)').matches)return}catch(e){}const dpr=Math.min(2,devicePixelRatio||1),W=cv.clientWidth||innerWidth,H=cv.clientHeight||innerHeight;cv.width=W*dpr;cv.height=H*dpr;const c=cv.getContext('2d');c.scale(dpr,dpr);
+  const cols=confetti?['#ffc23d','#7ed39b','#ffffff','#e9b8ff','#5fd0ff','#f3d27a']:['#ffe29a','#ffc23d','#fff4d6'];const P=Array.from({length:n},()=>{const a=Math.random()*Math.PI*2,v=(confetti?5:2.2)+Math.random()*(confetti?7:4.5);return{x:W/2,y:confetti?H*.38:H/2,vx:Math.cos(a)*v,vy:Math.sin(a)*v-(confetti?6:0),r:confetti?3+Math.random()*4:1+Math.random()*2.4,c:cols[Math.random()*cols.length|0],rot:Math.random()*6,vr:(Math.random()-.5)*.3,life:0}});
+  const t0=performance.now();const f=t=>{const k=(t-t0)/1000;if(k>secs||!cv.isConnected){c.clearRect(0,0,W,H);return}c.clearRect(0,0,W,H);for(const p of P){p.x+=p.vx;p.y+=p.vy;p.vx*=.985;p.vy=p.vy*.985+(confetti?.22:.015);p.rot+=p.vr;const a=Math.max(0,1-k/secs);c.globalAlpha=a;c.fillStyle=p.c;
+      if(confetti){c.save();c.translate(p.x,p.y);c.rotate(p.rot);c.fillRect(-p.r,-p.r/2.5,p.r*2,p.r/1.25);c.restore()}else{c.beginPath();c.arc(p.x,p.y,p.r,0,7);c.fill()}}requestAnimationFrame(f)};requestAnimationFrame(f)}
 function avPickHtml(){const g=(L,lbl)=>`${lbl?`<div class="msec avsec">${lbl}</div>`:''}<div class="qsg">${L.map(a=>`<button class="${MYAV===a?'sel':''}" data-v="${esc(a)}" data-ch>${PFP(a,62)}<span>${esc(T(avBase(a)))}</span></button>`).join('')}</div>`;
   const m=Cloud.member||{};const adm=m.role==='admin'||!!m.locked;return g(CHARS,'')+(adm||m.role==='owner'?g(AV_GOLD,T('Gold · owners and admins')):'')+(adm?g(AV_PRISM,`${ADMIN_BADGE} ${T('Prismatic · admins only')}`):'')}
 function custFlow(step){if(custFlow.only!=null&&step!==custFlow.only){const b=custFlow.back;custFlow.only=null;custFlow.back=null;toast(T('Saved'));b?b():closeSheet();return}
-  const one=custFlow.only!=null;const needPin=Cloud.member&&Cloud.member.role!=='guest'&&!LS.get('hasPin',false)&&!LS.get('custDone',false),total=needPin?7:6;const pg=(n,title,sub,body,bind)=>{if(one){openSheet(`<div class="cmh"><button class="sm" id="cuBack">‹ ${T('Back')}</button><b></b><span style="width:60px"></span></div><h2>${title}</h2><div class="sub" style="margin-top:4px">${sub}</div>${body}<button class="btn pri" id="cuNext" style="width:100%;margin-top:16px">${T('Save')}</button>`,()=>{$('cuBack').onclick=()=>{const b=custFlow.back;custFlow.only=null;custFlow.back=null;b?b():closeSheet()};bind&&bind()});return}openSheet(`<div class="obdots">${Array.from({length:total},(_,i)=>`<i class="${i<=n?'on':''}"></i>`).join('')}</div><h2>${title}</h2><div class="sub" style="margin-top:4px">${sub}</div>${body}
-    <div class="row" style="margin-top:16px">${n>0?`<button class="btn" id="cuBack">${T('Back')}</button>`:''}<button class="btn pri" id="cuNext">${n===total-1?T('Open the map'):T('Next')}</button></div>`,()=>{$('sheet').classList.add('full');if($('cuBack'))$('cuBack').onclick=()=>custFlow(n===6&&!needPin?4:n-1);bind&&bind()})};
+  const one=custFlow.only!=null;const needPin=Cloud.member&&Cloud.member.role!=='guest'&&!LS.get('hasPin',false)&&!LS.get('custDone',false),total=needPin?7:6;const pg=(n,title,sub,body,bind)=>{if(one){openSheet(`<div class="cmh"><button class="sm" id="cuBack">‹ ${T('Back')}</button><b></b><span style="width:60px"></span></div><h2>${title}</h2><div class="sub" style="margin-top:4px">${sub}</div>${body}<button class="btn pri" id="cuNext" style="width:100%;margin-top:16px">${T('Save')}</button>`,()=>{$('cuBack').onclick=()=>{const b=custFlow.back;custFlow.only=null;custFlow.back=null;b?b():closeSheet()};bind&&bind()});return}const HI=['map','users','car','route','mega','lock','star'][n===total-1?6:n];openSheet(`<div class="obtop"><div class="obdots">${Array.from({length:total},(_,i)=>`<i class="${i<=n?'on':''}${i===n?' now':''}"></i>`).join('')}</div><div class="obstep">${n===total-1?T('Done'):T('Make it yours')+' · '+(n+1)+' '+T('of')+' '+(total-1)}</div></div><div class="obhero${n===total-1?' big':''}">${n===total-1?avatarHtml(MYAV,(Cloud.member&&Cloud.member.name)||'',84):LI(HI,38)}</div><h2 class="obh">${title}</h2><div class="sub" style="margin-top:4px">${sub}</div>${body}
+    <div class="row" style="margin-top:16px">${n>0?`<button class="btn" id="cuBack">${T('Back')}</button>`:''}<button class="btn pri" id="cuNext">${n===total-1?T('Open the map'):T('Next')}</button></div>${n===total-1?'<canvas id="obConf"></canvas>':''}`,()=>{$('sheet').classList.add('full','obx');if($('obConf'))setTimeout(()=>sparks($('obConf'),140,3.2,true),250);if($('cuBack'))$('cuBack').onclick=()=>custFlow(n===6&&!needPin?4:n-1);bind&&bind()})};
   const pick=(sel,fn)=>document.querySelectorAll(sel).forEach(b=>b.onclick=()=>{document.querySelectorAll(sel).forEach(x=>x.classList.remove('sel'));b.classList.add('sel');fn(b.dataset.v)});
   if(step===0){pg(0,T('Make it yours'),T('Pick how the map looks. You can change it any time in Layers.'),`<div class="cuopt">${[['sat',T('Satellite'),T('Real photos of the reserve')],['map',T('Map'),T('Clean map with the bush drawn in')]].map(([v,a,b])=>`<button class="cuo${mode===v?' sel':''}" data-v="${v}" data-cm><b>${a}</b><small>${b}</small></button>`).join('')}</div>`,
       ()=>{pick('[data-cm]',v=>{mode=v;LS.set('mode',v);applyMode()});$('cuNext').onclick=()=>custFlow(1)});return}
@@ -4239,7 +4319,7 @@ function custFlow(step){if(custFlow.only!=null&&step!==custFlow.only){const b=cu
           try{await rpc('set_pin',{p_pin:a});LS.set('hasPin',true);LS.set('pinAsked',true);toast(T('PIN saved'))}catch(e){toast(errTxt(e),4000);return}custFlow(6)}});return}
   if(step===6){const nm=Cloud.member&&Cloud.member.name||'';pg(total-1,T('You\'re all set'),T('Here\'s where to find things later.'),
       `<div class="cuname" style="margin-top:12px">${avatarHtml(MYAV,nm,48)}<div><b>${NM(esc(nm),Cloud.member&&Cloud.member.role,Cloud.member&&Cloud.member.locked)}</b>${badgeFor(Cloud.member&&Cloud.member.role,Cloud.member&&Cloud.member.locked)}<small>${T('Looking good')}</small></div></div>
-       <div class="prof perm" style="margin-top:12px">${[['users',T('Change your picture, car or colours'),T('Menu, then tap your picture, or Settings › Make it yours')],['binoc',T('Mark a sighting'),T('The binoculars button on the map')],['msg',T('Chats'),T('Menu › Chats: the main chat and private messages')],['gear',T('Everything else'),T('Menu › the gear (Settings)')]].map(([i,a,b])=>`<div class="pr"><span>${LI(i,20)}</span><div>${a}<small>${b}</small></div></div>`).join('')}</div>`,
+       <div class="prof perm" style="margin-top:12px">${[['users',T('Change your picture, car or colours'),T('Menu › Settings › tap your picture at the top')],['binoc',T('Mark a sighting'),T('The binoculars button on the map')],['msg',T('Chats'),T('Menu › Chats: the main chat and private messages')],['gear',T('Everything else'),T('Menu › the gear (Settings)')]].map(([i,a,b])=>`<div class="pr"><span>${LI(i,20)}</span><div>${a}<small>${b}</small></div></div>`).join('')}</div>`,
       ()=>{$('cuNext').onclick=()=>{LS.set('custDone',true);LS.set('obIntro',true);closeSheet();toast(T('All set. Enjoy the drive'),3000)}});return}}
 async function saveAvatar(){if(MYAV&&!avAllowed(MYAV))return;if(!MYAV||!Cloud.member||!navigator.onLine){LS.set('avPending',!!MYAV);return}try{await rpc('set_avatar',{p_avatar:MYAV});LS.set('avPending',false)}catch(e){LS.set('avPending',true)}}
 async function syncProfile(){if(!Cloud.member||!navigator.onLine)return;try{if(LS.get('avPending',false))await saveAvatar();const r=await rpc('my_profile',{});if(r&&typeof r.pin==='boolean')LS.set('hasPin',r.pin);if(r&&typeof r.mycode==='boolean')LS.set('myCode',r.mycode);if(r&&typeof r.db==='boolean'&&Cloud.member&&!!Cloud.member.locked!==r.db){Cloud.member.locked=r.db;saveCloud()}if(r&&r.name){if(Cloud.member.name!==r.name){Cloud.member.name=r.name;saveCloud()}if(r.avatar&&r.avatar!==MYAV){MYAV=r.avatar;LS.set('avatar',r.avatar)}}}catch(e){}}
@@ -4352,7 +4432,7 @@ $('menuBtn').onclick=()=>{
    </div>
    ${m&&!m.locked?'<button class="mout" id="mOut">Sign out</button>':''}`,()=>{
     $('mSet').onclick=()=>settingsSheet();
-    $('tSight').onclick=()=>sightHub();$('tFeed').onclick=()=>feedHome();if($('mAv'))$('mAv').onclick=()=>custFlow(1);
+    $('tSight').onclick=()=>sightHub();$('tFeed').onclick=()=>feedHome();if($('mAv'))$('mAv').onclick=()=>openCust(1,()=>$('menuBtn').onclick());
     $('tRec').onclick=()=>{closeSheet();toggleRec()};
     if($('tBest'))$('tBest').onclick=()=>bestSheet();
     if($('tAnn'))$('tAnn').onclick=()=>{loadAnn();annSheet()};
