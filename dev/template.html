@@ -867,6 +867,7 @@ body:has(#sheet.open) #pausePill,body:has(#sheet.open) #viewPill{display:none}
 .ppt .ppx{position:absolute;right:5px;top:5px;min-width:24px;height:24px;border-radius:12px;background:rgba(0,0,0,.55);color:#fff;font:800 14px/24px system-ui;padding:0 6px}.ppt .ppx.sure{background:#d93025;font-size:11px}
 .ppt .ppw{position:absolute;left:0;right:0;top:0;background:rgba(255,194,61,.9);color:#3a2a00;font:700 9.5px system-ui;text-align:center;padding:2px}
 .ppn{margin-top:10px;padding:10px;border-radius:16px;background:rgba(127,127,127,.08)}.ppn img{width:100%;max-height:220px;object-fit:cover;border-radius:12px;display:block}.ppn .inp{margin-top:8px}.ppn .row{margin-top:8px}
+#prMsg,#pMsg,#shS,#mMsg,#msgBan{display:none!important}
 #homeNag{position:fixed;left:50%;top:calc(var(--safe-t) + 118px);transform:translate(-50%,-14px);z-index:8;display:flex;align-items:center;gap:7px;padding:9px 14px;border-radius:999px;border:0;background:linear-gradient(135deg,#ffe29a,#e9a72a);color:#1d1406;font:800 14px system-ui,-apple-system,sans-serif;box-shadow:0 8px 20px rgba(233,167,42,.45);opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;white-space:nowrap}#homeNag.on{opacity:1;transform:translate(-50%,0);pointer-events:auto;animation:hnPulse 2.4s ease-in-out infinite}#homeNag span{font-size:18px;opacity:.7}@keyframes hnPulse{50%{box-shadow:0 8px 26px rgba(233,167,42,.75)}}body.navon #homeNag{display:none}
 #storyQ{position:fixed;left:10px;right:10px;top:calc(var(--safe-t) + 112px);z-index:30;display:flex;align-items:center;gap:10px;padding:10px 10px 14px 10px;border-radius:20px;overflow:hidden;
   background:linear-gradient(135deg,rgba(32,42,30,.97),rgba(14,18,13,.98));border:1px solid rgba(255,194,61,.3);box-shadow:0 14px 36px rgba(0,0,0,.4);color:#fff;
@@ -2372,7 +2373,7 @@ async function pullTrails(){if(!isAdm()){if(Object.keys(TRAILS).some(k=>!k.start
   try{const L=await rpc('live_trails',{p_hours:2});const keep={};Object.keys(TRAILS).forEach(k=>{if(k.startsWith('demo'))keep[k]=TRAILS[k]});
     (L||[]).forEach(x=>{keep[x.u]={n:x.n,pts:x.pts||[]}});TRAILS=keep;drawTrails()}catch(e){if(/404|PGRST202|Could not find/.test(String(e.message)))Cloud.noTrail=true}}
 setInterval(pullTrails,60000);setTimeout(pullTrails,6000);
-function drawTrails(){if(!mapReady||!map.getSource('trails'))return;const now=Date.now()/1000,me_=Cloud.sess&&Cloud.sess.uid;
+function drawTrails(){if(!mapReady||!map.getSource('trails'))return;/* other drivers' routes are never shown */map.getSource('trails').setData({type:'FeatureCollection',features:[]});return;const now=Date.now()/1000,me_=Cloud.sess&&Cloud.sess.uid;
   const F=Object.entries(TRAILS).filter(([u,T])=>(isAdm()||u.startsWith('demo'))&&u!==me_&&T.pts.length>1&&now-T.pts[T.pts.length-1][2]<7200).map(([u,T])=>({type:'Feature',properties:{uid:u,col:mateCol(u),op:now-T.pts[T.pts.length-1][2]>900?.4:.85,sel:u===trailSel?1:0},geometry:{type:'LineString',coordinates:T.pts.map(p=>[p[0],p[1]])}}));
   map.getSource('trails').setData({type:'FeatureCollection',features:F})}
 let trailSel=null;
@@ -2402,19 +2403,13 @@ function mateFrame(){mateRAF=0;if(!mapReady||!map.getSource('mates'))return;cons
 function mateSeen(uid){const T=TRAILS[uid];if(!T||T.pts.length<2)return [];const out=[];
   allSights().forEach(x=>{let best=null;for(const p of T.pts){if(dist([p[0],p[1]],x.ll)<120){best=p[2];break}}if(best)out.push({x,t:best*1000})});
   return out.sort((a,b)=>b.t-a.t).slice(0,8)}
-function mateSheet(r){const ll=r?[r.lng,r.lat]:null,uid=r.user_id,d=me&&ll?fmtD(dist(me.ll,ll)):'',ti=trailInfo(uid),col=mateCol(uid),live=r.updated_at&&Date.now()-Date.parse(r.updated_at)<150000;
-  openSheet(`<div class="rph"><span class="mav2" style="background:${col}">${esc((r.name||'?').trim()[0]||'?').toUpperCase()}</span><div style="min-width:0"><small>${live?'On the reserve now':'Earlier today'}</small><b>${esc(r.name||'Member')}</b></div></div>
-   <div class="sub" style="margin-top:6px">${live?esc(liveTxt(r))+' · updated '+esc(ago(Date.parse(r.updated_at))):'Last seen '+esc(ago(ti?ti.start+ti.mins*6e4:Date.now()))}${d?' · '+d+' from you':''}</div>
-   ${ti?`<div class="rpm"><div><b class="g">${fmtD(ti.len)}</b><small>Driven</small></div><div><b>${fmtT(ti.mins*60)}</b><small>Time</small></div><div><b>${new Date(ti.start).toTimeString().slice(0,5)}</b><small>Started</small></div></div>
-   ${ti.roads.length?`<div class="rpv">${LI('route',17)}<span>${ti.roads.slice(-6).map(esc).join(' <i>›</i> ')}</span></div>`:''}`:'<div class="sub" style="margin-top:10px">No route yet. It shows once they have driven a bit.</div>'}
-   ${(()=>{const g=(DEMO.info[uid]||{}).goal;return g?`<div class="rpv" style="margin-top:8px">${LI('arrow',17)}<span>${esc(g)}</span></div>`:''})()}
-   ${(()=>{const L=mateSeen(uid);return L.length?`<div class="msec" style="margin-top:14px">Sightings on their drive</div><div class="list sgroup">${L.map(q=>`<button class="it lk" data-msx="${esc(q.x.cid)}"><span style="flex:none;display:flex">${AN(q.x.what,30)}</span><div style="flex:1;min-width:0"><b>${esc(q.x.what)}</b><br><small>Passed ${esc(ago(q.t))}</small></div><span class="ar">›</span></button>`).join('')}</div>`:''})()}
-   <div class="sub" style="margin-top:10px;font-size:12px">Routes start 400 m from each person's house, to keep homes private.</div>
-   <div class="row" style="margin-top:12px">${ti?'<button class="btn" id="mRoute">'+LI('route',18)+' Show route</button>':''}${live?'<button class="btn pri" id="mGo">Go to them</button>':''}</div>`,()=>{
-    if($('mGo'))$('mGo').onclick=()=>{closeSheet();startNav({kind:'pin',name:r.name||'Member',ll})};
-    if($('mRoute'))$('mRoute').onclick=()=>{showTrail(uid);toast(esc(r.name||'Their')+' route · '+fmtD(ti.len),2500)};
-    document.querySelectorAll('[data-msx]').forEach(b=>b.onclick=()=>{const x=allSights().find(q=>q.cid===b.dataset.msx);if(x)showPlace(sightPlace(x))});
-    trailSel=uid;drawTrails();drawPlan(uid);clearTimeout(mateSheet.t);mateSheet.t=setTimeout(()=>{if(trailSel===uid){trailSel=null;drawTrails();drawPlan(null)}},90000)})}
+function mateSheet(r){const ll=r?[r.lng,r.lat]:null,d=me&&ll?fmtD(dist(me.ll,ll)):'',col=mateCol(r.user_id),live=r.updated_at&&Date.now()-Date.parse(r.updated_at)<150000;
+  /* you can see other drivers, but never their route and never navigate to them */
+  openSheet(`<div class="rph"><span class="mav2" style="background:${col}">${esc((r.name||'?').trim()[0]||'?').toUpperCase()}</span><div style="min-width:0"><small>${live?T('On the reserve now'):T('Earlier today')}</small><b>${esc(r.name||'Member')}</b></div></div>
+   <div class="sub" style="margin-top:6px">${live?esc(liveTxt(r))+' · '+T('updated')+' '+esc(ago(Date.parse(r.updated_at))):T('Not driving right now')}${d?' · '+d+' '+T('from you'):''}</div>
+   <div class="sub" style="margin-top:10px;font-size:12px">${T('Other drivers only show where they are now. Their routes stay private.')}</div>
+   ${r.user_id&&r.user_id!==(Cloud.sess&&Cloud.sess.uid)?`<button class="btn" id="mMsg" style="width:100%;margin-top:12px">${LI('msg',18)} ${T('Message')}</button>`:''}`,()=>{
+    if($('mMsg'))$('mMsg').onclick=()=>{try{chatSheet(r.user_id,r.name||'Member')}catch(e){}}})}
 setInterval(liveTick,4000);setInterval(livePull,12000);setInterval(renderLive,15000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){livePull();liveTick()}});
 /* ============ new sighting alerts ============ */
@@ -4441,6 +4436,8 @@ function nearSheet(){const at=me?me.ll:map.getCenter().toArray();const dir=b=>['
 const MI=(id,icon,t,s)=>`<button class="mi" id="${id}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${icon}</svg><span>${t}${s?`<small>${s}</small>`:''}</span></button>`;
 const fmtExp=t=>new Date(t).toLocaleString([],{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
 function cloudStatus(){if(!Cloud.on)return 'Not set up yet';if(!Cloud.member)return 'Tap to join with the invite code';if(Cloud.member.role==='guest'&&Cloud.member.exp)return 'Guest until '+fmtExp(Cloud.member.exp);const p=Cloud.outbox.length?' · '+Cloud.outbox.length+' waiting for signal':'';return Cloud.owners+' owner'+(Cloud.owners==1?'':'s')+(Cloud.guests?' · '+Cloud.guests+' guest'+(Cloud.guests==1?'':'s'):'')+' · '+(RT.ok?'live':Cloud.lastSync?'synced '+ago(Cloud.lastSync):'not synced yet')+p}
+/* Chats are archived: the code stays, switched off */
+const CHATS_ON=false;
 const TILE=(id,e,t,sub,badge,cls,col)=>`<button class="tile ${cls||''}" id="${id}"><span class="te" style="background:${col||'#1a73e8'}">${e}</span><b>${t}</b><small>${sub||''}</small>${badge?`<span class="bd">${badge}</span>`:''}</button>`;
 const TG=(id,t,sub,on)=>`<div class="it"><div style="flex:1;min-width:0"><b>${t}</b>${sub?`<br><small>${sub}</small>`:''}</div><button class="tgl ${on?'on':''}" id="${id}" aria-label="${t}"><i></i></button></div>`;
 const LK=(id,t,sub,right,ic,col)=>`<button class="it lk" id="${id}">${ic?`<span class="lki" style="background:${col||'#5f6368'}">${LI(ic,19)}</span>`:''}<div style="flex:1;min-width:0"><b>${t}</b>${sub?`<br><small>${sub}</small>`:''}</div>${right?`<small>${right}</small>`:''}<span class="ar">›</span></button>`;
@@ -4461,7 +4458,7 @@ $('menuBtn').onclick=()=>{
    <div class="tiles">
     ${TILE('tSight',LI('binoc',24),'Sightings',today?today+' today':now?now+' on the map':'None yet',today||'','','#e37400')}
     ${TILE('tRec',LI(recTrack?'stop':'rec',24),recTrack?'Stop drive':'Record drive',recTrack?fmtD(recTrack.len)+' so far':'Save your route','',recTrack?'rec':'','#d93025')}
-    ${m?TILE('tChat',LI('msg',24),T('Chats'),chatUnread()?chatUnread()+' '+T('unread'):T('Main and private'),chatUnread()||'','','#1a73e8'):TILE('tBest',wx?wxIcon(wx.c.weather_code,wx.c.is_day,30):LI('sun',24),'Best time',wx?Math.round(wx.c.temperature_2m)+'° · sun & moon':'Sun, moon, animals','','',wx?'#5b8def':'#f9ab00')}
+    ${m&&CHATS_ON?TILE('tChat',LI('msg',24),T('Chats'),chatUnread()?chatUnread()+' '+T('unread'):T('Main and private'),chatUnread()||'','','#1a73e8'):TILE('tBest',wx?wxIcon(wx.c.weather_code,wx.c.is_day,30):LI('sun',24),'Best time',wx?Math.round(wx.c.temperature_2m)+'° · sun & moon':'Sun, moon, animals','','',wx?'#5b8def':'#f9ab00')}
     ${m?TILE('tHome',LI('home',24),'Home',home?'Take me home':canHome()?'Set your home':'Not set yet','','','#188038'):TILE('tJoin',LI('key',24),'Join','Enter your code','','','#188038')}
     ${owner?TILE('tPeople',LI('users',24),'People','Codes & members','','','#7b1fa2'):TILE('tAnn',LI('mega',24),'News',ANN.length?ANN.length+' live':'Nothing new',unread||'','','#7b1fa2')}
     ${TILE('tDrives',LI('route',24),'My drives',tracks.length?tracks.length+' saved':'Summaries','','','#00796b')}
@@ -4469,7 +4466,7 @@ $('menuBtn').onclick=()=>{
    <div class="msec">More</div>
    <div class="list sgroup">
     ${m&&owner?LK('lAnn','News',ANN.length?ANN.length+' live announcement'+(ANN.length==1?'':'s'):'No announcements',unread?'<span class="tag t-new">'+unread+' new</span>':'','mega','#7b1fa2'):''}
-    ${m?LK('lBest',T('Best time'),wx?Math.round(wx.c.temperature_2m)+'° · '+T('sun, moon and animals'):T('Sun, moon, animals'),'','sun','#f9ab00'):''}
+    ${m&&CHATS_ON?LK('lBest',T('Best time'),wx?Math.round(wx.c.temperature_2m)+'° · '+T('sun, moon and animals'):T('Sun, moon, animals'),'','sun','#f9ab00'):''}
     ${m?LK('lLive','Share live location',shareLoc?'On · '+esc(liveWhy().short):'Off','','live','#1a73e8'):''}
     ${m&&m.locked?LK('lSug','Suggestions',SUG.list.length?SUG.list.length+' from people on the map':'Nothing yet',SUG.list.filter(x=>!x.read).length?'<span class="tag t-new">'+SUG.list.filter(x=>!x.read).length+' new</span>':'','msg','#0b8043'):m?LK('lSug','Suggest something','Ideas, problems or wishes for the map','','msg','#0b8043'):''}
     ${m&&isAdm2()&&!m.viewAs?LK('lUpd',T('Updates and reinstall'),T('Send the newest version to everyone'),'v'+APP_BUILD,'down','#1a73e8'):''}
@@ -5475,7 +5472,7 @@ const CHAT={inbox:LS.get('chatInbox',[]),unread:0,seenTop:LS.get('chatTop',{}),o
 function chatDay(t){const d=new Date(t),n=new Date(),y=new Date();y.setDate(n.getDate()-1);return d.toDateString()===n.toDateString()?T('Today'):d.toDateString()===y.toDateString()?T('Yesterday'):d.toLocaleDateString([],{weekday:'short',day:'numeric',month:'short'})}
 function chatUnread(){return (CHAT.inbox||[]).reduce((a,x)=>a+(+x.unread||0),0)}
 function chatBadge(){const n=chatUnread();CHAT.unread=n;const b=$('menuBtn');if(b){let d=b.querySelector('.mdot');if(n&&!d){d=document.createElement('i');d.className='mdot';b.appendChild(d)}if(d){if(n)d.textContent=n>9?'9+':n;else d.remove()}}}
-async function chatPoll(){if(!Cloud.member||!navigator.onLine||document.hidden)return;let L;try{L=await rpc('chat_inbox')}catch(e){return}if(!Array.isArray(L))return;
+async function chatPoll(){if(!CHATS_ON)return;if(!Cloud.member||!navigator.onLine||document.hidden)return;let L;try{L=await rpc('chat_inbox')}catch(e){return}if(!Array.isArray(L))return;
   const before=CHAT.seenTop;CHAT.inbox=L;LS.set('chatInbox',L.slice(0,40));chatBadge();if($('chInbox'))inboxSheet();
   // a new message that is not in the chat you have open: a small banner you can tap
   const fresh=L.filter(x=>+x.unread>0&&x.t&&!x.last_mine&&before[x.room]!==x.t&&CHAT.open!==x.room);
@@ -5485,7 +5482,7 @@ function msgBanner(x){let b=$('msgBan');if(!b){b=document.createElement('button'
   b.innerHTML=`${x.main?`<span class="mbic"><img src="${APPLOGO}" alt=""></span>`:avatarHtml(x.av,x.name,34)}<span class="mbt"><b>${x.main?T('Main chat'):NM(esc(x.name||T('Someone')),x.rl)}</b><small>${x.main?esc(x.last_by||'')+': ':''}${esc((x.s||'').slice(0,80))}</small></span>`;
   b.classList.add('on');clearTimeout(b._t);b._t=setTimeout(()=>b.classList.remove('on'),6000);
   b.onclick=()=>{b.classList.remove('on');x.main?chatSheet('main'):chatSheet(x.with_id,x.name)}}
-setTimeout(chatPoll,5000);setInterval(chatPoll,45000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout(chatPoll,800)});
+if(CHATS_ON){setTimeout(chatPoll,5000);setInterval(chatPoll,45000)}document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout(chatPoll,800)});
 function inboxSheet(){const L=CHAT.inbox||[];
   const row=x=>`<button class="chr" data-room="${esc(x.main?'main':x.with_id||'')}" data-n="${esc(x.name||'')}">${x.main?`<span class="chav main"><img src="${APPLOGO}" alt=""></span>`:avatarHtml(x.av,x.name,46)}
     <span class="chm"><span class="cht"><b>${x.main?T('Main chat'):NM(esc(x.name||T('Someone')),x.rl)}</b><small>${x.t?esc(ago(Date.parse(x.t))):''}</small></span>
