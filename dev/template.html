@@ -1314,7 +1314,8 @@ const MAP_VERSION = __MAPVER__;
 let DATA = __DATA__;
 try{const v=+localStorage.getItem('kn_mapVer')||0,d=localStorage.getItem('kn_mapdata');if(d&&v>MAP_VERSION)DATA=JSON.parse(d)}catch(e){}
 /* live demo: a real town map (every road from OpenStreetMap) instead of the reserve, saved on this phone */
-const LIVEMAP=(()=>{try{if(localStorage.getItem('kn_liveOn')!=='true')return null;const d=localStorage.getItem('kn_liveMap');return d?JSON.parse(d):null}catch(e){return null}})();
+/* the Stellenbosch map is retired: anyone still on it comes back to Khaya Ndlovu */
+const LIVEMAP=(()=>{try{if(localStorage.getItem('kn_liveOn')==='true')localStorage.setItem('kn_liveOn','false');return null;const d=localStorage.getItem('kn_liveMap');return d?JSON.parse(d):null}catch(e){return null}})();
 if(LIVEMAP)DATA=LIVEMAP.data;
 const LIVEK=new Set(['tracks','rec','recents','favs','offline','home','demCached','trailKey','cam']);
 const AREA_NAME=LIVEMAP?LIVEMAP.name:'Khaya Ndlovu';
@@ -4474,7 +4475,7 @@ $('menuBtn').onclick=()=>{
     ${m&&isAdm2()&&!m.viewAs?LK('lUpd',T('Updates and reinstall'),T('Send the newest version to everyone'),'v'+APP_BUILD,'down','#1a73e8'):''}
     ${m&&isAdm2()&&!m.viewAs?LK('lAdm','Admin tools',MS.paused?'The map is paused':'Pause, rules, guest limits, reports','','shield','#b06000'):''}
     ${LK('lOff','Offline map',esc(offlineStatus()),'','down','#00796b')}
-    ${isAdm()||LIVEMAP?LK('lSwap',LIVEMAP?'Swap to Khaya Ndlovu':'Swap to Stellenbosch',LIVEMAP?'You are on the Stellenbosch map':liveSaved()?'Every real road, saved on this phone':'Every real road · drive it with your GPS','','map','#c48a1a'):''}${isAdm()?LK('lDemo','Demo mode',DM.on?'You are in demo mode · tap to see who is in it':(()=>{const L=Object.values(DEMO.outside).filter(p=>Date.now()-p.t<20000);return L.length?L.map(p=>p.name).slice(0,2).join(' and ')+(L.length>2?' and others':'')+(L.length>1?' are':' is')+' in demo mode now · tap to join':'Pretend to be anywhere and test everything'})(),'','play','#5f6368'):''}
+    ${LIVEMAP?LK('lSwap',LIVEMAP?'Swap to Khaya Ndlovu':'Swap to Stellenbosch',LIVEMAP?'You are on the Stellenbosch map':liveSaved()?'Every real road, saved on this phone':'Every real road · drive it with your GPS','','map','#c48a1a'):''}${DM.on?LK('lDemo','Demo mode',DM.on?'You are in demo mode · tap to see who is in it':(()=>{const L=Object.values(DEMO.outside).filter(p=>Date.now()-p.t<20000);return L.length?L.map(p=>p.name).slice(0,2).join(' and ')+(L.length>2?' and others':'')+(L.length>1?' are':' is')+' in demo mode now · tap to join':'Pretend to be anywhere and test everything'})(),'','play','#5f6368'):''}
    </div>
    ${m&&!m.locked?'<button class="mout" id="mOut">Sign out</button>':''}`,()=>{
     $('mSet').onclick=()=>settingsSheet();
