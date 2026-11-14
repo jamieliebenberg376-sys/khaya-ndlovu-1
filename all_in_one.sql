@@ -3331,10 +3331,42 @@ end $$;
 grant execute on function public.list_members() to authenticated;
 update private.config set codes_per_month = null;
 
+-- ============ v154: any picture for everyone; who liked or commented on your sightings ============
+create or replace function public.set_avatar(p_avatar text)
+returns void language plpgsql security definer set search_path = public as $$
+begin
+  if auth.uid() is null or not exists (select 1 from public.members where user_id = auth.uid()) then raise exception 'members only'; end if;
+  -- everyone can pick any picture (normal, Gold or Prismatic). Rainbow is retired.
+  if p_avatar like 'Rainbow %' then raise exception 'Pick another picture'; end if;
+  update public.members set avatar = p_avatar where user_id = auth.uid();
+end $$;
+grant execute on function public.set_avatar(text) to authenticated;
+
+-- likes and comments on your sightings and posts since a time, grouped per post and kind
+create or replace function public.feed_activity(p_since timestamptz default null)
+returns json language sql stable security definer set search_path = public as $$
+  with mine as (
+    select client_id c, what w from public.sightings_log where user_id = auth.uid() and created_at > now() - interval '60 days'
+    union all select id, what from public.feed_posts where user_id = auth.uid() and created_at > now() - interval '60 days'),
+  ev as (
+    select 'like' k, f.client_id c, f.user_id u, f.at t, null::text s from public.feed_likes f join mine on mine.c = f.client_id
+      where f.user_id <> auth.uid() and f.at > coalesce(p_since, now() - interval '14 days')
+    union all
+    select 'comment', fc.post, fc.user_id, fc.created_at, fc.body from public.feed_comments fc join mine on mine.c = fc.post
+      where fc.user_id <> auth.uid() and fc.created_at > coalesce(p_since, now() - interval '14 days'))
+  select coalesce((select json_agg(g order by g->>'t' desc) from (
+    select json_build_object('c', ev.c, 'k', ev.k, 'w', (select w from mine where mine.c = ev.c limit 1), 'n', count(*), 't', max(ev.t),
+      'names', (select json_agg(nm) from (select coalesce(m.name, 'Someone') nm from (select distinct on (e2.u) e2.u, e2.t from ev e2 where e2.c = ev.c and e2.k = ev.k order by e2.u, e2.t desc) q left join public.members m on m.user_id = q.u order by q.t desc limit 3) z),
+      'people', count(distinct ev.u),
+      's', (select e3.s from ev e3 where e3.c = ev.c and e3.k = ev.k order by e3.t desc limit 1),
+      'av', (select m.avatar from ev e4 left join public.members m on m.user_id = e4.u where e4.c = ev.c and e4.k = ev.k order by e4.t desc limit 1)) g
+    from ev group by ev.c, ev.k order by max(ev.t) desc limit 40) x), '[]'::json) $$;
+grant execute on function public.feed_activity(timestamptz) to authenticated;
+
 
 
 -- =====================================================================
--- PUSH THE UPDATE (version 152)
+-- PUSH THE UPDATE (version 154)
 -- =====================================================================
 
 alter table private.config add column if not exists min_build int not null default 0;
@@ -3404,9 +3436,9 @@ begin
 end $$;
 grant execute on function public.set_min_build(int) to authenticated;
 
--- push it now: require version 152 and post the news. It is sent by the database, not by any person.
-update private.config set min_build = 152;
-select public.kn_update_news(152);
+-- push it now: require version 154 and post the news. It is sent by the database, not by any person.
+update private.config set min_build = 154;
+select public.kn_update_news(154);
 
 notify pgrst, 'reload schema';
 
@@ -3420,7 +3452,7 @@ union all select 'Two Database accounts on the map', case when (select count(*) 
 union all select 'Database code 1 (keep it secret, it gives full control)', (select code from private.db_slots where slot = 1) || coalesce('  ·  ' || (select m.name from private.db_slots d join public.members m on m.user_id = d.user_id where d.slot = 1), '')
 union all select 'Database code 2 (keep it secret, it gives full control)', (select code from private.db_slots where slot = 2) || coalesce('  ·  ' || (select m.name from private.db_slots d join public.members m on m.user_id = d.user_id where d.slot = 2), '')
 union all select 'Backend self-test', case when (select count(*) from public.kn_backend_selftest() where result not like 'PASS%') = 0 then 'YES' else 'NO: ' || (select string_agg(test, ', ') from public.kn_backend_selftest() where result not like 'PASS%') end
-union all select 'Everyone must be on version 152', case when (select min_build from private.config limit 1) = 152 then 'YES' else 'NO' end
-union all select 'Update news posted (only old versions see it)', case when exists (select 1 from public.announcements where for_old_build = 152 and not removed) then 'YES' else 'NO' end
+union all select 'Everyone must be on version 154', case when (select min_build from private.config limit 1) = 154 then 'YES' else 'NO' end
+union all select 'Update news posted (only old versions see it)', case when exists (select 1 from public.announcements where for_old_build = 154 and not removed) then 'YES' else 'NO' end
 union all select 'Your owner code (unchanged)', (select upper(invite_code) from private.config limit 1)
-union all select 'People who still need to update', (select count(*)::text from public.members where coalesce(app_build, 0) < 152 and (role <> 'guest' or expires_at > now()));
+union all select 'People who still need to update', (select count(*)::text from public.members where coalesce(app_build, 0) < 154 and (role <> 'guest' or expires_at > now()));

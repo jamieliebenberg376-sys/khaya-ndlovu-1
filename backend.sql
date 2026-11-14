@@ -2415,5 +2415,37 @@ end $$;
 grant execute on function public.list_members() to authenticated;
 update private.config set codes_per_month = null;
 
+-- ============ v154: any picture for everyone; who liked or commented on your sightings ============
+create or replace function public.set_avatar(p_avatar text)
+returns void language plpgsql security definer set search_path = public as $$
+begin
+  if auth.uid() is null or not exists (select 1 from public.members where user_id = auth.uid()) then raise exception 'members only'; end if;
+  -- everyone can pick any picture (normal, Gold or Prismatic). Rainbow is retired.
+  if p_avatar like 'Rainbow %' then raise exception 'Pick another picture'; end if;
+  update public.members set avatar = p_avatar where user_id = auth.uid();
+end $$;
+grant execute on function public.set_avatar(text) to authenticated;
+
+-- likes and comments on your sightings and posts since a time, grouped per post and kind
+create or replace function public.feed_activity(p_since timestamptz default null)
+returns json language sql stable security definer set search_path = public as $$
+  with mine as (
+    select client_id c, what w from public.sightings_log where user_id = auth.uid() and created_at > now() - interval '60 days'
+    union all select id, what from public.feed_posts where user_id = auth.uid() and created_at > now() - interval '60 days'),
+  ev as (
+    select 'like' k, f.client_id c, f.user_id u, f.at t, null::text s from public.feed_likes f join mine on mine.c = f.client_id
+      where f.user_id <> auth.uid() and f.at > coalesce(p_since, now() - interval '14 days')
+    union all
+    select 'comment', fc.post, fc.user_id, fc.created_at, fc.body from public.feed_comments fc join mine on mine.c = fc.post
+      where fc.user_id <> auth.uid() and fc.created_at > coalesce(p_since, now() - interval '14 days'))
+  select coalesce((select json_agg(g order by g->>'t' desc) from (
+    select json_build_object('c', ev.c, 'k', ev.k, 'w', (select w from mine where mine.c = ev.c limit 1), 'n', count(*), 't', max(ev.t),
+      'names', (select json_agg(nm) from (select coalesce(m.name, 'Someone') nm from (select distinct on (e2.u) e2.u, e2.t from ev e2 where e2.c = ev.c and e2.k = ev.k order by e2.u, e2.t desc) q left join public.members m on m.user_id = q.u order by q.t desc limit 3) z),
+      'people', count(distinct ev.u),
+      's', (select e3.s from ev e3 where e3.c = ev.c and e3.k = ev.k order by e3.t desc limit 1),
+      'av', (select m.avatar from ev e4 left join public.members m on m.user_id = e4.u where e4.c = ev.c and e4.k = ev.k order by e4.t desc limit 1)) g
+    from ev group by ev.c, ev.k order by max(ev.t) desc limit 40) x), '[]'::json) $$;
+grant execute on function public.feed_activity(timestamptz) to authenticated;
+
 select * from public.kn_backend_selftest();
 
