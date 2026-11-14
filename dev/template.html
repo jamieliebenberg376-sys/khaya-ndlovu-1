@@ -1476,7 +1476,7 @@ const AFP=[
  [/^Signed in as (.+)$/,'Aangeteken as $1'],[/^(.+) · made by (.+)$/,'$1 · gemaak deur $2'],[/^made by (.+)$/,'gemaak deur $1'],
  [/^Sunset was (\S+) · sunrise (\S+)$/,'Son het om $1 gesak · sonop $2'],[/^Sunrise (\S+) · sunset (\S+)$/,'Sonop $1 · sononder $2'],[/^Sunset (\S+) \((.+)\)$/,'Sononder $1 ($2)'],
  [/^morning window to (.+)$/,'oggendvenster tot $1'],[/^afternoon from (.+)$/,'middag vanaf $1'],
- [/^Downloaded (.+) · (\d+) MB$/,'Afgelaai $1 · $2 MB'],[/^Version (\d+)$/,'Weergawe $1'],[/^Require version (\d+)$/,'Vereis weergawe $1'],[/^You have version (\d+) · newest is (\d+)$/,'Jy het weergawe $1 · nuutste is $2'],[/^Khaya Ndlovu game drive map · version (\d+)$/,'Khaya Ndlovu-wildritkaart · weergawe $1'],
+ [/^Downloaded (.+) · (\d+) MB$/,'Afgelaai $1 · $2 MB'],[/^Version (\d+)$/,'Weergawe $1'],[/^Require version (\d+)$/,'Vereis weergawe $1'],[/^You have version (\d+) · newest is (\d+)$/,'Jy het weergawe $1 · nuutste is $2'],[/^Khaya Ndlovu game drive map · version ([\d.]+)$/,'Khaya Ndlovu-wildritkaart · weergawe $1'],
  [/^Everyone on an older version than (\d+) gets an "Update needed" screen and must update before they can use the map\. SOS keeps working, and nobody is stopped mid-drive\.$/,'Almal op \'n ouer weergawe as $1 kry \'n "Opdatering nodig"-skerm en moet opdateer voordat hulle die kaart kan gebruik. SOS werk steeds, en niemand word in die middel van \'n rit gestop nie.'],
  [/^Where you tapped on (.+) · (.+) away by road$/,'Waar jy getik het op $1 · $2 ver per pad'],[/^Where you tapped on (.+)$/,'Waar jy getik het op $1'],[/^(.+) away by road$/,'$1 ver per pad'],[/^(.+) away$/,'$1 ver'],
  [/^Shows on everyone's map straight away · near (.+)$/,'Wys dadelik op almal se kaart · naby $1'],[/^Close (.+)\?$/,'Sluit $1?'],[/^Reopen (.+)$/,'Maak $1 weer oop'],[/^Others can see you right now: (.+)\.$/,(m,a)=>'Ander kan jou nou sien: '+_live(a)+'.'],
@@ -2166,7 +2166,7 @@ function whatsNew(){LS.set('wnSeen',APP_BUILD);return;const m=Cloud.member;if(!m
   const from=last||(LS.get('onboarded',false)?69:0);if(!from){LS.set('wnSeen',APP_BUILD);return}
   if(nav||$('sheet').classList.contains('open')||!$('gate').classList.contains('hide')||needRole()){setTimeout(whatsNew,8000);return}
   const L=WHATS_NEW.filter(x=>x[0]>from&&x[0]<=APP_BUILD&&(!x[4]||x[4]===m.role||(x[4]==='admin'&&isAdm())));LS.set('wnSeen',APP_BUILD);if(!L.length)return;
-  openSheet(`<div class="wnh"><div class="wni">${LI('star',34)}</div><h2>What's new</h2><div class="sub">Version ${APP_BUILD} · ${L.length===1?'1 new thing':L.length+' new things'}</div></div>
+  openSheet(`<div class="wnh"><div class="wni">${LI('star',34)}</div><h2>What's new</h2><div class="sub">Version ${VER(APP_BUILD)} · ${L.length===1?'1 new thing':L.length+' new things'}</div></div>
    <div class="list sgroup" style="margin-top:12px">${L.map(x=>`<div class="it"><span class="lki" style="background:#1f4d36">${LI(x[1],19)}</span><div style="flex:1;min-width:0"><b>${esc(x[2])}</b><br><small>${esc(x[3])}</small></div></div>`).join('')}</div>
    <button class="btn pri" id="wnOk" style="width:100%;margin-top:14px">Got it</button>`,()=>{$('wnOk').onclick=closeSheet})}
 setTimeout(whatsNew,6000);setTimeout(()=>{applyMapState();viewAsPill()},1500);
@@ -4506,7 +4506,7 @@ $('menuBtn').onclick=()=>{
     ${m&&CHATS_ON?LK('lBest',T('Best time'),wx?Math.round(wx.c.temperature_2m)+'° · '+T('sun, moon and animals'):T('Sun, moon, animals'),'','sun','#f9ab00'):''}
     ${m?LK('lLive','Share live location',shareLoc?'On · '+esc(liveWhy().short):'Off','','live','#1a73e8'):''}
 
-    ${m&&isAdm2()&&!m.viewAs?LK('lUpd',T('Updates and reinstall'),T('Send the newest version to everyone'),'v'+APP_BUILD,'down','#1a73e8'):''}
+    ${m&&isAdm2()&&!m.viewAs?LK('lUpd',T('Updates and reinstall'),T('Send the newest version to everyone'),'v'+VER(APP_BUILD),'down','#1a73e8'):''}
     ${m&&isAdm2()&&!m.viewAs?LK('lAdm','Admin tools',MS.paused?'The map is paused':'Pause, rules, guest limits, reports','','shield','#b06000'):''}
     ${LK('lOff','Offline map',esc(offlineStatus()),'','down','#00796b')}
     ${LIVEMAP?LK('lSwap',LIVEMAP?'Swap to Khaya Ndlovu':'Swap to Stellenbosch',LIVEMAP?'You are on the Stellenbosch map':liveSaved()?'Every real road, saved on this phone':'Every real road · drive it with your GPS','','map','#c48a1a'):''}${DM.on?LK('lDemo','Demo mode',DM.on?'You are in demo mode · tap to see who is in it':(()=>{const L=Object.values(DEMO.outside).filter(p=>Date.now()-p.t<20000);return L.length?L.map(p=>p.name).slice(0,2).join(' and ')+(L.length>2?' and others':'')+(L.length>1?' are':' is')+' in demo mode now · tap to join':'Pretend to be anywhere and test everything'})(),'','play','#5f6368'):''}
@@ -4554,7 +4554,7 @@ function settingsSheet(page){const m=Cloud.member;const notif='Notification' in 
      ${LK('sgMus',T('Music'),T('Spotify button on the map'),SPOTON?T('On'):T('Off'),'play','#1db954')}
      ${LK('sgLang',T('Language'),'',LANG==='af'?'Afrikaans':'English','msg','#5f6368')}
      ${LK('sgData',T('Map data and updates'),T('Offline map, sharing, reinstall'),'','down','#3c4043')}</div>
-    ${m&&!m.locked?'<button class="mout" id="sOut">'+T('Sign out')+'</button>':''}<div class="sub" style="text-align:center;font-size:11.5px;margin-top:10px">Khaya Ndlovu game drive map · version ${APP_BUILD}</div>`}
+    ${m&&!m.locked?'<button class="mout" id="sOut">'+T('Sign out')+'</button>':''}<div class="sub" style="text-align:center;font-size:11.5px;margin-top:10px">Khaya Ndlovu game drive map · version ${VER(APP_BUILD)}</div>`}
   else if(page==='app')html=head('Appearance')+`
     <div class="msec">${T('Light or dark')}</div><div class="seg" style="margin:0 0 8px">${th('auto','Auto')}${th('day','Light')}${th('night','Dark')}</div><div class="sub" style="margin:-2px 2px 10px;font-size:12.5px">Auto goes dark at sunset and light again at sunrise</div>
     <div class="msec">${T('On the map')}</div><div class="list sgroup">${LK('saLook',T('Map look'),T('Satellite photos or the drawn map'),mode==='sat'?T('Satellite'):T('Map'),'map','#188038')}${LK('saCar',T('Your car'),T('How you show on the map while you drive'),'','car','#1a73e8')}${LK('saCol',T('Route and trail colours'),T('The line you follow and the line your drives leave'),'','route','#7b1fa2')}</div>`;
@@ -4563,7 +4563,7 @@ function settingsSheet(page){const m=Cloud.member;const notif='Notification' in 
   else if(page==='drv')html=head('Driving and voice')+`<div class="list sgroup">${TG('sAwake','Keep the screen on','The screen stays on the whole time the map is open',KEEPAWAKE)}</div><div class="msec">Voice directions</div>${vmSeg('sVm')}<div class="sub" style="margin:6px 2px 4px;font-size:12.5px">Alerts only speaks at the turn itself and for gates, stops and rerouting</div>`;
   else if(page==='mus')html=head('Music')+`<div class="list sgroup">${TG('sSpot','Spotify button','Music controls on the map. Off unless you want them',SPOTON)}</div><div class="sub" style="margin:8px 2px;font-size:12.5px">${T('Tap the Spotify button on the map to connect your account the first time.')}</div>`;
   else if(page==='lang')html=head('Language')+`<div class="seg" style="margin:4px 0 12px" data-notr><button data-lg="en" class="${LANG!=='af'?'sel':''}">English</button><button data-lg="af" class="${LANG==='af'?'sel':''}">Afrikaans</button></div>`;
-  else if(page==='data')html=head('Map data and updates')+`<div class="list sgroup">${LK('sOff','Offline map','',esc(offlineStatus()))}${m&&isAdm()?LK('sShare','Sharing status',shareStatus(),''):''}${m&&isAdm()?LK('sRe',T('Reinstall the app'),T('Fresh copy on your Home Screen, you stay signed in'),'','route','#5f6368'):''}${m&&m.role==='admin'?LK('sUpd',T('Updates and reinstall'),T('Send the newest version to everyone, or ask everyone to reinstall'),'v'+APP_BUILD,'down','#1a73e8'):''}</div>`;
+  else if(page==='data')html=head('Map data and updates')+`<div class="list sgroup">${LK('sOff','Offline map','',esc(offlineStatus()))}${m&&isAdm()?LK('sShare','Sharing status',shareStatus(),''):''}${m&&isAdm()?LK('sRe',T('Reinstall the app'),T('Fresh copy on your Home Screen, you stay signed in'),'','route','#5f6368'):''}${m&&m.role==='admin'?LK('sUpd',T('Updates and reinstall'),T('Send the newest version to everyone, or ask everyone to reinstall'),'v'+VER(APP_BUILD),'down','#1a73e8'):''}</div>`;
   openSheet(html,()=>{const on=(id,f)=>{const b=$(id);if(b)b.onclick=f};
     on('stBack',()=>settingsSheet());on('sProf',()=>profileSettings());
     [['sgApp','app'],['sgAl','al'],['sgLoc','loc'],['sgDrv','drv'],['sgMus','mus'],['sgLang','lang'],['sgData','data']].forEach(([id,pg])=>on(id,()=>settingsSheet(pg)));
@@ -4643,9 +4643,11 @@ function errTxt(e){const m=String(e&&e.message||e);let msg=m;try{const j=JSON.pa
   return 'Database said: '+msg.slice(0,140)}
 let VERS=null;
 async function loadVers(){if(!Cloud.member||Cloud.member.role==='guest'){VERS=null;return}try{const L=await rpc('member_versions');VERS={};(L||[]).forEach(x=>VERS[x.u]=x)}catch(e){VERS=null}}
+/* version numbers are shown as 1.54 instead of 154 */
+const VER=n=>n==null||n===''||isNaN(+n)?String(n==null?'':n):(+n/100).toFixed(2);
 function verTag(uid){if(!VERS)return '';const x=VERS[uid];const need=Math.max(UPD.min||0,APP_BUILD);
   if(!x||!x.v)return ' <span class="tag t-warn" title="Has not opened the new version yet">Old version</span>';
-  return x.v>=need?` <span class="tag t-ok">v${x.v}</span>`:` <span class="tag t-warn">v${x.v} · update</span>`}
+  return x.v>=need?` <span class="tag t-ok">v${VER(x.v)}</span>`:` <span class="tag t-warn">v${VER(x.v)} · update</span>`}
 function oldCount(L){if(!VERS)return 0;const need=Math.max(UPD.min||0,APP_BUILD);return (L||[]).filter(x=>{const v=VERS[x.user_id];return !v||!v.v||v.v<need}).length}
 async function remindUpdate(){try{if((UPD.min||0)<APP_BUILD)await rpc('set_min_build',{p_build:APP_BUILD});else await rpc('announce_update');rtPing();toast('Update reminder sent. Only people on an old version see it.',4000)}catch(e){toast(errTxt(e),6000)}}
 function updateWall(){let w=$('updWall');if(!w){w=document.createElement('button');w.id='updWall';document.body.appendChild(w)}
@@ -4686,10 +4688,10 @@ async function reinstall(elId){const el=$(elId||'uwSteps');if(!el)return;el.inne
 function reinstallSheet(){openSheet(`<h2>${T('Reinstall the app')}</h2><div class="sub" style="line-height:1.45">${T('Gets a completely fresh copy of the map on your Home Screen. You stay signed in and keep your settings, drives and places.')}</div><div id="reSteps" style="margin-top:12px"></div><button class="btn" id="reBack" style="width:100%;margin-top:12px">${T('Back')}</button>`,()=>{$('reBack').onclick=()=>settingsSheet();reinstall('reSteps')})}
 async function updAdminSheet(){await loadVers();const need=APP_BUILD,old=VERS?Object.values(VERS).filter(x=>!x.v||x.v<need).length:null;
   openSheet(`<h2>${T('Updates and reinstall')}</h2>
-   <div class="rpm" style="margin-top:8px"><div><b class="g">${APP_BUILD}</b><small>${T('Newest')}</small></div><div><b>${UPD.min||'-'}</b><small>${T('Required now')}</small></div><div><b>${old==null?'-':old}</b><small>${T('On an old version')}</small></div></div>
+   <div class="rpm" style="margin-top:8px"><div><b class="g">${VER(APP_BUILD)}</b><small>${T('Newest')}</small></div><div><b>${UPD.min?VER(UPD.min):'-'}</b><small>${T('Required now')}</small></div><div><b>${old==null?'-':old}</b><small>${T('On an old version')}</small></div></div>
    <div class="msec" style="margin-top:16px">${T('Send the update')}</div>
-   <div class="sub" style="line-height:1.45">${T('Everyone\'s app updates itself to version')} ${APP_BUILD} ${T('the next time it is open and not driving. Nobody is signed out.')}</div>
-   <button class="btn pri" id="uaGo" style="width:100%;margin-top:10px">${LI('down',18)} ${T('Send version')} ${APP_BUILD} ${T('to everyone')}</button>
+   <div class="sub" style="line-height:1.45">${T('Everyone\'s app updates itself to version')} ${VER(APP_BUILD)} ${T('the next time it is open and not driving. Nobody is signed out.')}</div>
+   <button class="btn pri" id="uaGo" style="width:100%;margin-top:10px">${LI('down',18)} ${T('Send version')} ${VER(APP_BUILD)} ${T('to everyone')}</button>
    <div class="msec" style="margin-top:18px">${T('Ask everyone to reinstall')}</div>
    <div class="sub" style="line-height:1.45">${T('Posts news everyone sees as a pop-up, telling them how to reinstall. They stay signed in.')}</div>
    <textarea class="inp" id="uaTxt" maxlength="600" style="height:96px;padding:10px 12px;resize:vertical;font:inherit;margin-top:8px">${T('Please reinstall the Khaya Ndlovu map so you get the newest version: open the menu, tap the gear (Settings), then Reinstall the app and follow the 3 steps. You stay signed in.')}</textarea>
@@ -4914,7 +4916,7 @@ function personSheet(x,back){const admin=Cloud.member&&Cloud.member.role==='admi
   const R=(l,val)=>val?`<div class="it"><div style="flex:1"><small>${esc(l)}</small><br><b style="font-weight:600">${val}</b></div></div>`:'';
   const role=x.locked?'Database':ROLE_NM[x.role]||'Owner';
   const can=admin&&!x.me&&!x.locked;
-  openSheet(`<div class="pc"><span class="gav big av-${x.locked?'db':x.role||'owner'}">${esc((x.name||'?').trim()[0]||'?').toUpperCase()}</span><div style="min-width:0"><h2 style="margin:0">${esc(x.name||'No name')}</h2><div class="pr2n" style="margin-top:4px">${x.me?'<span class="tag t-you">You</span>':''}${roleTag(x)}${oldTag(x.user_id)}</div></div></div>
+  openSheet(`<div class="pc">${x.avatar&&ALLAV.includes(x.avatar)?`<span style="display:flex;flex:none">${avatarHtml(x.avatar,x.name,72)}</span>`:`<span class="gav big av-${x.locked?'db':x.role||'owner'}">${esc((x.name||'?').trim()[0]||'?').toUpperCase()}</span>`}<div style="min-width:0"><h2 style="margin:0">${NM(esc(x.name||'No name'),x.role,x.locked,x.me?MYAV:x.avatar)}</h2><div class="pr2n" style="margin-top:4px">${x.me?'<span class="tag t-you">You</span>':''}${roleTag(x)}${oldTag(x.user_id)}</div></div></div>
    <div class="list sgroup" style="margin-top:14px">
     ${R('Role',esc(role))}
     ${R('Status',x.locked?'<span style="display:inline-flex;align-items:center;gap:7px"><i class="dotg"></i>Always online</span>':esc(activeTxt(x)||'Not seen yet'))}
@@ -4922,7 +4924,7 @@ function personSheet(x,back){const admin=Cloud.member&&Cloud.member.role==='admi
     ${R('Joined',x.joined_at?esc(new Date(x.joined_at).toLocaleDateString([],{day:'numeric',month:'short',year:'numeric'})):'')}
     ${R('Invited by',x.added_by&&!/code$/.test(x.added_by)?esc(x.added_by)+(x.code_label?' · '+esc(x.code_label):''):'')}
     ${x.locked?'':R('Last signed in',x.last_login?esc(fmtDay(Date.parse(x.last_login))):'')}
-    ${x.locked?'':R('App version',VERS?(v&&v.v?'Version '+v.v+(v.v<need?' · needs the update':' · up to date'):'Has not opened the new version yet'):'')}
+    ${x.locked?'':R('App version',VERS?(v&&v.v?'Version '+VER(v.v)+(v.v<need?' · needs the update':' · up to date'):'Has not opened the new version yet'):'')}
    </div>
    <div class="msec" style="margin-top:16px">${x.locked?'About this account':x.me?'What you can do':'What they can do'}</div>
    ${x.locked?`<div class="dbc"><div class="dbi">${LI('shield',26)}</div><div><b>This account is the database</b><p>It is what runs the Khaya Ndlovu map: it keeps everyone's sightings, routes, codes and alerts working, and it is always online.</p><p>It has every admin power, and nobody can remove it or change its role.</p></div></div>`:permsHtml(x.role||'owner')}
