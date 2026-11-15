@@ -3377,7 +3377,7 @@ returns void language plpgsql security definer set search_path = public as $$
 declare m public.members; n int := jsonb_array_length(coalesce(p_pts, '[]'::jsonb));
 begin
   select * into m from public.members where user_id = auth.uid();
-  if not found or not (m.role = 'admin' or coalesce(m.locked, false)) then raise exception 'admins only'; end if;
+  if not found then raise exception 'members only'; end if;
   if n < 5 or n > 2000 or p_len < 60 then return; end if;
   if (select count(*) from public.track_finds where user_id = auth.uid() and created_at > now() - interval '1 day') >= 200 then return; end if;
   insert into public.track_finds (id, user_id, name, pts, len, lat, lng)
@@ -3466,7 +3466,7 @@ grant execute on function public.edit_discovered_road(text, text, boolean) to au
 
 
 -- =====================================================================
--- PUSH THE UPDATE (version 158)
+-- PUSH THE UPDATE (version 165)
 -- =====================================================================
 
 alter table private.config add column if not exists min_build int not null default 0;
@@ -3536,9 +3536,9 @@ begin
 end $$;
 grant execute on function public.set_min_build(int) to authenticated;
 
--- push it now: require version 158 and post the news. It is sent by the database, not by any person.
-update private.config set min_build = 158;
-select public.kn_update_news(158);
+-- push it now: require version 1165 and post the news. It is sent by the database, not by any person.
+update private.config set min_build = 1165;
+select public.kn_update_news(1165);
 
 notify pgrst, 'reload schema';
 
@@ -3552,7 +3552,7 @@ union all select 'Two Database accounts on the map', case when (select count(*) 
 union all select 'Database code 1 (keep it secret, it gives full control)', (select code from private.db_slots where slot = 1) || coalesce('  ·  ' || (select m.name from private.db_slots d join public.members m on m.user_id = d.user_id where d.slot = 1), '')
 union all select 'Database code 2 (keep it secret, it gives full control)', (select code from private.db_slots where slot = 2) || coalesce('  ·  ' || (select m.name from private.db_slots d join public.members m on m.user_id = d.user_id where d.slot = 2), '')
 union all select 'Backend self-test', case when (select count(*) from public.kn_backend_selftest() where result not like 'PASS%') = 0 then 'YES' else 'NO: ' || (select string_agg(test, ', ') from public.kn_backend_selftest() where result not like 'PASS%') end
-union all select 'Everyone must be on version 158', case when (select min_build from private.config limit 1) = 158 then 'YES' else 'NO' end
-union all select 'Update news posted (only old versions see it)', case when exists (select 1 from public.announcements where for_old_build = 158 and not removed) then 'YES' else 'NO' end
+union all select 'Everyone must be on version 165', case when (select min_build from private.config limit 1) = 165 then 'YES' else 'NO' end
+union all select 'Update news posted (only old versions see it)', case when exists (select 1 from public.announcements where for_old_build = 165 and not removed) then 'YES' else 'NO' end
 union all select 'Your owner code (unchanged)', (select upper(invite_code) from private.config limit 1)
-union all select 'People who still need to update', (select count(*)::text from public.members where coalesce(app_build, 0) < 158 and (role <> 'guest' or expires_at > now()));
+union all select 'People who still need to update', (select count(*)::text from public.members where coalesce(app_build, 0) < 165 and (role <> 'guest' or expires_at > now()));

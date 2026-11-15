@@ -2461,7 +2461,7 @@ returns void language plpgsql security definer set search_path = public as $$
 declare m public.members; n int := jsonb_array_length(coalesce(p_pts, '[]'::jsonb));
 begin
   select * into m from public.members where user_id = auth.uid();
-  if not found or not (m.role = 'admin' or coalesce(m.locked, false)) then raise exception 'admins only'; end if;
+  if not found then raise exception 'members only'; end if;
   if n < 5 or n > 2000 or p_len < 60 then return; end if;
   if (select count(*) from public.track_finds where user_id = auth.uid() and created_at > now() - interval '1 day') >= 200 then return; end if;
   insert into public.track_finds (id, user_id, name, pts, len, lat, lng)
