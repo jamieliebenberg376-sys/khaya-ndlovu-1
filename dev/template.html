@@ -875,6 +875,38 @@ body.night .fdheart{background:rgba(255,255,255,.08)}.fdheart.on{color:#e0245e;b
 .actr{align-items:center;gap:12px}.actr b{font-size:14.5px;line-height:1.3;font-weight:700}.actr small{display:block}.acts{font-style:italic;opacity:.85;margin-top:2px}
 .actk{flex:none;width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;background:#e0245e}.actk.comment{background:#1a73e8}
 .post.flash{animation:actFlash 1.6s ease}@keyframes actFlash{0%,40%{box-shadow:0 0 0 3px #ffc23d}100%{box-shadow:none}}
+.tfr{gap:6px;align-items:center}.tfr .sm{padding:7px 10px}.tfr .tfadd{background:linear-gradient(135deg,#ffe29a,#e9a72a);color:#1d1406;font-weight:800}
+#tfIL{position:fixed;inset:0;z-index:9998;display:flex;flex-direction:column;padding:calc(var(--safe-t) + 10px) 18px calc(var(--safe-b,0px) + 16px);background:radial-gradient(120% 70% at 50% -10%,#2c5a3c 0%,#15301f 45%,#0a1810 100%);color:#f4efe3;animation:ilIn .5s ease both;overflow:hidden}
+#tfIL.out{animation:ilOut .4s ease forwards}
+#tfIL .tih{display:flex;justify-content:space-between;align-items:center}
+#tfIL .tibadge{display:inline-flex;align-items:center;gap:6px;font:800 11px system-ui,-apple-system,sans-serif;letter-spacing:1.2px;text-transform:uppercase;color:#1d1406;background:linear-gradient(135deg,#ffe29a,#e9a72a);padding:5px 10px;border-radius:9px}
+#tfIL .tix{width:36px;height:36px;border-radius:18px;border:0;background:rgba(255,255,255,.1);color:#fff;font-size:15px}
+#tfIL .tist{position:relative;flex:1;min-height:0;margin-top:10px;border-radius:24px;overflow:hidden;border:1px solid rgba(233,196,106,.35);box-shadow:0 20px 50px rgba(0,0,0,.45)}
+#tfIL .tisvg{width:100%;height:100%;display:block}
+#tfIL .tibg{fill:#4a5a33}#tfIL .tib{fill:#3a5a33;opacity:.75}
+#tfIL .tiroads path{fill:none;stroke:#d8c7a0;stroke-width:7;stroke-linecap:round;stroke-linejoin:round}
+#tfIL .tirl{font:700 9.5px system-ui,-apple-system,sans-serif;fill:#fff7e0;paint-order:stroke;stroke:#2c3a1c;stroke-width:3px;text-anchor:middle}
+#tfIL .tiapp{fill:none;stroke:#4f8cff;stroke-width:4;stroke-linecap:round;opacity:.9}
+#tfIL .tinew{fill:none;stroke:#ff4fa3;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 5px rgba(255,79,163,.8))}
+#tfIL .tidone{fill:none;stroke:#e9d7ad;stroke-width:7;stroke-linecap:round;stroke-linejoin:round}
+#tfIL .tipulse{fill:none;stroke:#ffe29a;stroke-width:3}
+#tfIL .ticar{fill:#ffc23d;stroke:#1d1406;stroke-width:2.5;filter:drop-shadow(0 3px 4px rgba(0,0,0,.5))}
+#tfIL .tilbl{font:800 11px system-ui,-apple-system,sans-serif;fill:#1d1406;opacity:0;transition:opacity .6s .9s}#tfIL.s-done .tilbl{opacity:1}
+#tfIL .tibub,#tfIL .tiname,#tfIL .tiadd{position:absolute;left:50%;transform:translate(-50%,16px) scale(.92);opacity:0;transition:all .45s cubic-bezier(.2,1.3,.3,1)}
+#tfIL .tibub{top:14px;padding:8px 14px;border-radius:14px;background:rgba(10,24,16,.85);border:1px solid rgba(255,79,163,.6);font:800 13.5px system-ui,-apple-system,sans-serif;white-space:nowrap;display:flex;align-items:center;gap:6px}
+#tfIL .tiname{bottom:78px;padding:10px 18px;border-radius:16px;background:rgba(255,255,255,.95);color:#1d1406;text-align:center;white-space:nowrap;box-shadow:0 10px 26px rgba(0,0,0,.4)}
+#tfIL .tiname small{display:block;font:700 10.5px system-ui,-apple-system,sans-serif;letter-spacing:1px;text-transform:uppercase;color:#8a6a1f}#tfIL .tiname b{font:900 18px system-ui,-apple-system,sans-serif}
+#tfIL .tiadd{bottom:22px;border:0;padding:12px 26px;border-radius:16px;font:900 16px system-ui,-apple-system,sans-serif;color:#1d1406;background:linear-gradient(135deg,#ffe29a,#e9a72a);box-shadow:0 10px 24px rgba(233,167,42,.45)}
+#tfIL.s-bub .tibub,#tfIL.s-name .tiname,#tfIL.s-add .tiadd{opacity:1;transform:translate(-50%,0) scale(1)}
+#tfIL.s-tap .tiadd{transform:translate(-50%,0) scale(.94)}#tfIL.s-done .tiadd{opacity:0;transform:translate(-50%,10px) scale(.9)}#tfIL.s-done .tibub,#tfIL.s-done .tiname{opacity:0}
+#tfIL .tifinger{position:absolute;right:-6px;bottom:-12px;width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.85);box-shadow:0 0 0 0 rgba(255,255,255,.6);opacity:0;transform:translate(30px,30px)}
+#tfIL.s-add .tifinger{opacity:1;transform:none;transition:all .8s .4s ease}#tfIL.s-tap .tifinger{animation:tiTap .7s ease}#tfIL.s-done .tifinger{opacity:0}
+@keyframes tiTap{0%{box-shadow:0 0 0 0 rgba(255,255,255,.7)}100%{box-shadow:0 0 0 22px rgba(255,255,255,0)}}
+#tfIL .ticap{padding:16px 4px 6px;min-height:118px}#tfIL .tidots{display:flex;gap:5px;margin-bottom:10px}#tfIL .tidots i{flex:1;height:4px;border-radius:2px;background:rgba(255,255,255,.14);transition:background .4s}#tfIL .tidots i.on{background:linear-gradient(90deg,#ffe29a,#e9a72a)}
+#tfIL h3{margin:0;font:900 24px/1.15 system-ui,-apple-system,sans-serif;letter-spacing:-.3px;background:linear-gradient(180deg,#fff 30%,#f3d27a);-webkit-background-clip:text;background-clip:text;color:transparent}
+#tfIL p{margin:6px 0 0;font-size:15px;line-height:1.4;color:rgba(244,239,227,.78)}
+#tfIL .tibtns{display:flex;gap:10px;margin-top:8px}#tfIL .tibtns .btn{flex:1;min-height:50px;border-radius:16px;font-size:16px}
+#tfIL .tibtns .btn:not(.pri){background:rgba(255,255,255,.08)!important;color:#fff!important;border:1px solid rgba(255,255,255,.14)}#tfIL .tibtns .btn.pri{background:linear-gradient(135deg,#ffe29a,#e9a72a)!important;color:#1d1406!important;font-weight:900}
 #homeNag{position:fixed;left:50%;top:calc(var(--safe-t) + 118px);transform:translate(-50%,-14px);z-index:8;display:flex;align-items:center;gap:7px;padding:9px 14px;border-radius:999px;border:0;background:linear-gradient(135deg,#ffe29a,#e9a72a);color:#1d1406;font:800 14px system-ui,-apple-system,sans-serif;box-shadow:0 8px 20px rgba(233,167,42,.45);opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;white-space:nowrap}#homeNag.on{opacity:1;transform:translate(-50%,0);pointer-events:auto;animation:hnPulse 2.4s ease-in-out infinite}#homeNag span{font-size:18px;opacity:.7}@keyframes hnPulse{50%{box-shadow:0 8px 26px rgba(233,167,42,.75)}}body.navon #homeNag{display:none}
 #storyQ{position:fixed;left:10px;right:10px;top:calc(var(--safe-t) + 112px);z-index:30;display:flex;align-items:center;gap:10px;padding:10px 10px 14px 10px;border-radius:20px;overflow:hidden;
   background:linear-gradient(135deg,rgba(32,42,30,.97),rgba(14,18,13,.98));border:1px solid rgba(255,194,61,.3);box-shadow:0 14px 36px rgba(0,0,0,.4);color:#fff;
@@ -1538,6 +1570,13 @@ let toastT;function toast(t,ms=2600){const e=$('toast');e.textContent=t;e.classL
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
 /* ============ road network ============ */
+/* roads that admins found and added go in first, with their ends joined onto the roads they meet, so directions can use them */
+const DROADS=(()=>{try{const v=JSON.parse(localStorage.getItem('kn_droads')||'[]');return Array.isArray(v)?v:[]}catch(e){return []}})();
+(function injectDroads(){if(!DROADS.length)return;const R=DATA.roads.features,r6=c=>[+(+c[0]).toFixed(6),+(+c[1]).toFixed(6)];
+  const snap=pt=>{let best=null;for(let ri=0;ri<R.length;ri++){const cs=R[ri].geometry.coordinates;if(R[ri].properties.discovered)continue;for(let i=0;i<cs.length-1;i++){const pr=projSeg(pt,cs[i],cs[i+1]);if(pr.d<=60&&(!best||pr.d<best.d))best={ri,i,d:pr.d,q:pr.q}}}
+    if(!best)return null;const cs=R[best.ri].geometry.coordinates,a=cs[best.i],b=cs[best.i+1];if(dist(a,best.q)<2)return r6(a);if(dist(b,best.q)<2)return r6(b);const q=r6(best.q);cs.splice(best.i+1,0,q);return q};
+  for(const d of DROADS){try{const c=(d.coords||[]).map(r6);if(c.length<2)continue;const s0=snap(c[0]),s1=snap(c[c.length-1]);if(s0&&dist(s0,c[0])>1)c.unshift(s0);else if(s0)c[0]=s0;if(s1&&dist(s1,c[c.length-1])>1)c.push(s1);else if(s1)c[c.length-1]=s1;
+    R.push({type:'Feature',properties:{name:d.name,discovered:true,did:d.id},geometry:{type:'LineString',coordinates:c}})}catch(e){}}})();
 const ROADS=DATA.roads.features;
 const nodes=[], nodeIdx=new Map(), adj=[];
 function nid(c){const k=c[0].toFixed(6)+','+c[1].toFixed(6);let i=nodeIdx.get(k);if(i===undefined){i=nodes.length;nodes.push(c);nodeIdx.set(k,i);adj.push([])}return i}
@@ -2828,8 +2867,8 @@ function tfPast(){if(!tfMe())return;const done=new Set(LS.get('tfPast',[]));let 
 document.addEventListener('visibilitychange',()=>{if(document.hidden){tfEnd();TF.last=null}});
 setTimeout(()=>{try{tfPast()}catch(e){}tfSend()},20000);setInterval(tfSend,120000);
 /* Database accounts: the list, on the map, and as a file to send on */
-async function tfLoad(all){if(!Cloud.member||!Cloud.member.locked||!navigator.onLine)return TF.list;try{const L=await rpc('list_track_finds',{p_all:!!all});TF.list=Array.isArray(L)?L:[];TF.count=TF.list.filter(x=>x.status==='new').length}catch(e){}return TF.list}
-setTimeout(()=>{if(Cloud.member&&Cloud.member.locked)tfLoad()},15000);
+async function tfLoad(all){if(!tfMe()||!navigator.onLine)return TF.list;try{const L=await rpc('list_track_finds',{p_all:!!all});TF.list=Array.isArray(L)?L:[];TF.count=TF.list.filter(x=>x.status==='new').length}catch(e){}return TF.list}
+setTimeout(()=>{if(tfMe())tfLoad()},15000);
 function tfShow(L){if(!mapReady)return;const F=(L||[]).map(x=>({type:'Feature',properties:{id:x.id},geometry:{type:'LineString',coordinates:x.pts.map(p=>[p[0],p[1]])}}));
   if(!map.getSource('tfinds')){map.addSource('tfinds',{type:'geojson',data:{type:'FeatureCollection',features:[]}});map.addLayer({id:'tfinds-glow',type:'line',source:'tfinds',paint:{'line-color':'#ff4fa3','line-width':10,'line-opacity':.25}});map.addLayer({id:'tfinds',type:'line',source:'tfinds',layout:{'line-cap':'round'},paint:{'line-color':'#ff4fa3','line-width':4,'line-dasharray':[1.5,1.2]}})}
   map.getSource('tfinds').setData({type:'FeatureCollection',features:F});TF.shown=F.length>0;
@@ -2837,19 +2876,109 @@ function tfShow(L){if(!mapReady)return;const F=(L||[]).map(x=>({type:'Feature',p
     toast(T('New tracks are the pink dashed lines. Open New tracks found again to hide them.'),4500)}}
 function tfFile(L){const fc={type:'FeatureCollection',features:L.map(x=>({type:'Feature',properties:{id:x.id,by:x.name,length_m:x.len,found:x.created_at},geometry:{type:'LineString',coordinates:x.pts.map(p=>[p[0],p[1]])}}))};
   return new File([JSON.stringify(fc)],'khaya-new-tracks-'+new Date().toISOString().slice(0,10)+'.geojson',{type:'application/geo+json'})}
+/* ============ "how new tracks work": a short animated film for admins and Database, shown once with this update ============
+   It uses Michael's real track from 15 Nov as the example. */
+const TF_EX=[[30.967382, -24.378552], [30.96738, -24.378468], [30.967373, -24.378373], [30.96737, -24.378318], [30.967364, -24.378263], [30.967356, -24.378206], [30.967348, -24.378148], [30.967337, -24.378092], [30.967325, -24.378038], [30.967301, -24.377941], [30.967282, -24.377844], [30.967285, -24.377746], [30.967318, -24.377655], [30.967368, -24.377571], [30.967423, -24.377492], [30.967497, -24.37743], [30.96757, -24.377371], [30.967644, -24.377313], [30.967696, -24.377245], [30.96773, -24.377171], [30.96773, -24.377091], [30.967674, -24.377025], [30.96761, -24.376955], [30.967548, -24.376877], [30.967498, -24.376791], [30.967458, -24.376702], [30.967379, -24.37664], [30.967294, -24.376593], [30.967221, -24.376529], [30.967177, -24.376454], [30.96716, -24.376394], [30.967098, -24.376339], [30.967007, -24.37633], [30.966904, -24.376348], [30.966792, -24.376358], [30.966681, -24.376357], [30.966583, -24.376393], [30.966495, -24.37645], [30.966413, -24.376506], [30.966336, -24.376568], [30.966269, -24.376646], [30.966212, -24.376733], [30.966165, -24.376817], [30.966151, -24.376899], [30.96617, -24.376993], [30.966166, -24.37709], [30.966147, -24.377142], [30.966082, -24.377225], [30.965996, -24.377268], [30.965914, -24.377304], [30.96583, -24.377339], [30.965741, -24.377372], [30.965651, -24.377416], [30.965562, -24.377465], [30.965471, -24.377509], [30.965378, -24.377546], [30.965291, -24.377576], [30.965213, -24.377594], [30.965163, -24.377627], [30.965139, -24.377696], [30.965123, -24.377784], [30.965092, -24.377872], [30.965027, -24.377953], [30.964952, -24.378028], [30.964876, -24.378106], [30.964837, -24.378147], [30.964798, -24.378191], [30.96476, -24.378233], [30.964679, -24.378313], [30.96459, -24.378378], [30.964503, -24.378428], [30.964413, -24.378472], [30.964325, -24.378498], [30.964238, -24.378509], [30.964159, -24.378493], [30.964082, -24.378493], [30.963994, -24.378525], [30.9639, -24.378578], [30.963818, -24.378646], [30.963741, -24.37871], [30.963651, -24.378751], [30.963552, -24.378787], [30.963453, -24.378836], [30.963356, -24.37889], [30.963268, -24.378953], [30.963196, -24.379032], [30.963146, -24.379124], [30.963089, -24.379212], [30.963006, -24.379262], [30.962926, -24.379253], [30.962843, -24.379198], [30.962752, -24.37914], [30.962656, -24.37909], [30.962561, -24.379088], [30.962483, -24.379126], [30.962408, -24.379188], [30.962328, -24.379237], [30.96226, -24.37927], [30.962224, -24.379329], [30.962205, -24.3794], [30.962188, -24.379464], [30.962165, -24.379534], [30.962158, -24.379613], [30.962163, -24.379681], [30.962153, -24.379836]];
+function tfIntro(force){if(!force&&(LS.get('tfIntro1',false)||!tfMe()))return;LS.set('tfIntro1',true);try{closeSheet()}catch(e){}
+  const ex=TF_EX,nm=tfName(ex);let A=null;try{const st=ex[0];const cand=nodes.map((n,k)=>[k,dist(n,st)]).filter(q=>q[1]>220&&q[1]<420&&compOf[q[0]]===MAINC).sort((a,b)=>a[1]-b[1]);for(const [k] of cand.slice(0,25)){const r=route(nodes[k],st);if(r&&r.pts&&r.pts.length>1&&r.len<700){A=r.pts.map(p=>[p[0],p[1]]);break}}}catch(e){}
+  if(!A)A=[[ex[0][0]+.0018,ex[0][1]+.0012],ex[0]];
+  const all=A.concat(ex);let b=[180,90,-180,-90];all.forEach(c=>{b=[Math.min(b[0],c[0]),Math.min(b[1],c[1]),Math.max(b[2],c[0]),Math.max(b[3],c[1])]});
+  const W=360,H=420,pad=.28,dx=(b[2]-b[0])||.002,dy=(b[3]-b[1])||.002,kx=KX,ky=KY;let sx=W/((dx*(1+2*pad))*kx),sy=H/((dy*(1+2*pad))*ky),sc=Math.min(sx,sy);
+  const cx=(b[0]+b[2])/2,cy=(b[1]+b[3])/2,P=c=>[W/2+(c[0]-cx)*kx*sc,H/2-(c[1]-cy)*ky*sc],pth=L=>L.map((c,i)=>(i?'L':'M')+P(c).map(v=>v.toFixed(1)).join(' ')).join('');
+  const lo=[cx-W/2/(kx*sc),cy-H/2/(ky*sc)],hi=[cx+W/2/(kx*sc),cy+H/2/(ky*sc)];
+  const roads=ROADS.filter(f=>!f.properties.discovered&&f.geometry.coordinates.some(c=>c[0]>lo[0]-.002&&c[0]<hi[0]+.002&&c[1]>lo[1]-.002&&c[1]<hi[1]+.002));
+  const rdPaths=roads.map(f=>`<path d="${pth(f.geometry.coordinates)}"/>`).join(''),lab=roads.slice(0,6).map((f,i)=>{const cs=f.geometry.coordinates.filter(c=>c[0]>lo[0]&&c[0]<hi[0]&&c[1]>lo[1]&&c[1]<hi[1]);if(cs.length<2)return '';const m=P(cs[Math.floor(cs.length/2)]);return `<text x="${m[0].toFixed(0)}" y="${(m[1]-8).toFixed(0)}" class="tirl">${esc(f.properties.name)}</text>`}).join('');
+  const mi=Math.floor(ex.length/2),lr=P(ex[Math.max(0,mi-3)])[0]>P(ex[Math.min(ex.length-1,mi+3)])[0]?ex.slice().reverse():ex;
+  const bush=Array.from({length:26},(_,i)=>{const x=(i*97)%W,y=(i*151+40)%H,r=4+(i*7)%7;return `<circle cx="${x}" cy="${y}" r="${r}" class="tib"/>`}).join('');
+  const el=document.createElement('div');el.id='tfIL';
+  el.innerHTML=`<div class="tih"><span class="tibadge">${LI('shield',13)} ${T('Admins only')}</span><button class="tix" aria-label="Close">✕</button></div>
+   <div class="tist"><svg viewBox="0 0 ${W} ${H}" class="tisvg" preserveAspectRatio="xMidYMid slice"><rect x="-400" y="-400" width="${W+800}" height="${H+800}" class="tibg"/>${bush}<g class="tiroads">${rdPaths}</g>${lab}
+     <path id="tiNew" d="${pth(ex)}" class="tinew"/><path id="tiDone" d="${pth(ex)}" class="tidone"/><path id="tiLp" d="${pth(lr)}" fill="none" stroke="none"/><path id="tiApp" d="${pth(A)}" class="tiapp"/>
+     <circle id="tiP0" r="0" class="tipulse"/><circle id="tiP1" r="0" class="tipulse"/>
+     <g id="tiCar"><circle r="11" class="ticar"/><path d="M0 -7 L5 5 L0 2 L-5 5 Z" fill="#1d1406"/></g>
+     <text id="tiLbl" class="tilbl"><textPath href="#tiLp" startOffset="50%" text-anchor="middle">${esc(nm)}</textPath></text></svg>
+     <div class="tibub" id="tiBub">${LI('route',15)} ${T('New track found')} · ${fmtD(990)}</div>
+     <div class="tiname" id="tiName"><small>${T('Suggested name')}</small><b>${esc(nm)}</b></div>
+     <button class="tiadd" id="tiAdd">${T('Add to map')}<i class="tifinger"></i></button></div>
+   <div class="ticap"><div class="tidots">${[0,1,2,3,4].map(i=>`<i data-ti="${i}"></i>`).join('')}</div><h3 id="tiH"></h3><p id="tiT"></p></div>
+   <div class="tibtns"><button class="btn" id="tiRe">${T('Replay')}</button><button class="btn pri" id="tiOk">${T('Got it')}</button></div>`;
+  document.body.appendChild(el);
+  const S=[[T('Drive like normal'),T('Admin and Database phones keep an eye on where they go. Keep the map open on the dash.')],
+    [T('Off the map? It notices'),T('More than 30 m from every road, the app starts drawing the track you are on.')],
+    [T('Back on a road'),T('The stretch is saved and sent to admins and Database. No signal? It waits and sends it later.')],
+    [T('It names itself'),T('From the roads it leaves and joins: Hyena Link, Hyena-Leopard Link, or Hyena Spur if it stops.')],
+    [T('Add to map'),T('Check it with Show, keep or change the name, tap Add. It goes on everyone\'s map and directions can use it.')]];
+  const app=$('tiApp'),nw=$('tiNew'),dn=$('tiDone'),car=$('tiCar'),La=app.getTotalLength(),Ln=nw.getTotalLength();
+  [[app,La],[nw,Ln],[dn,Ln]].forEach(([p,L])=>{p.style.strokeDasharray=L;p.style.strokeDashoffset=L});
+  const at=(path,L,f)=>{const q=path.getPointAtLength(L*f),q2=path.getPointAtLength(Math.min(L,L*f+2));return [q.x,q.y,Math.atan2(q2.y-q.y,q2.x-q.x)*180/Math.PI+90]};
+  const p0=P(ex[0]),p1=P(ex[ex.length-1]);let t0=0,raf=0,stage=-1;
+  const setStage=k=>{if(k===stage)return;stage=k;$('tiH').textContent=S[k][0];$('tiT').textContent=S[k][1];el.querySelectorAll('[data-ti]').forEach(d=>d.classList.toggle('on',+d.dataset.ti<=k))};
+  const pulse=(c,pt,f)=>{c.setAttribute('cx',pt[0]);c.setAttribute('cy',pt[1]);c.setAttribute('r',(6+f*26).toFixed(1));c.style.opacity=(1-f).toFixed(2)};
+  const tick=now=>{if(!el.isConnected)return;if(!t0)t0=now;const t=(now-t0)/1000;el.classList.toggle('s-bub',t>9.6);el.classList.toggle('s-name',t>11);el.classList.toggle('s-add',t>12.8);el.classList.toggle('s-tap',t>14.2);el.classList.toggle('s-done',t>14.8);
+    if(t<4){setStage(0);const f=Math.min(1,t/4),q=at(app,La,f);app.style.strokeDashoffset=La*(1-f);car.setAttribute('transform',`translate(${q[0]},${q[1]}) rotate(${q[2]})`)}
+    else if(t<9.2){setStage(1);app.style.strokeDashoffset=0;const f=Math.min(1,(t-4)/5.2),q=at(nw,Ln,f);nw.style.strokeDashoffset=Ln*(1-f);car.setAttribute('transform',`translate(${q[0]},${q[1]}) rotate(${q[2]})`);if(t<5.2)pulse($('tiP0'),p0,(t-4)/1.2)}
+    else if(t<11){setStage(2);nw.style.strokeDashoffset=0;pulse($('tiP1'),p1,Math.min(1,(t-9.2)/1.2))}
+    else if(t<12.8)setStage(3);
+    else{setStage(4);if(t>14.8){const f=Math.min(1,(t-14.8)/1.4);dn.style.strokeDashoffset=Ln*(1-f);nw.style.opacity=(1-f).toFixed(2)}}
+    if(t<17.5)raf=requestAnimationFrame(tick);else el.classList.add('s-end')};
+  const play=()=>{cancelAnimationFrame(raf);t0=0;stage=-1;el.className='';nw.style.opacity=1;[[app,La],[nw,Ln],[dn,Ln]].forEach(([p,L])=>p.style.strokeDashoffset=L);raf=requestAnimationFrame(tick)};
+  const close=()=>{cancelAnimationFrame(raf);el.classList.add('out');setTimeout(()=>el.remove(),400)};
+  el.querySelector('.tix').onclick=close;$('tiOk').onclick=close;$('tiRe').onclick=play;play()}
+setTimeout(()=>{try{if(tfMe()&&LS.get('custDone',false)&&!setupOn()&&!nav&&!(speedS>2)&&$('gate').classList.contains('hide')&&!$('sheet').classList.contains('open'))tfIntro()}catch(e){}},11000);
+/* suggested names: Hyena Link (same road out and back), Hyena-Leopard Link (one road to another), Hyena Spur (goes in and stops) */
+const rdShort=n=>String(n||'').replace(/\s+(Road|Rd|Track|Drive|Loop|Way|Lane|Avenue|Street)$/i,'').trim();
+function tfEndRoad(ll){const e=nearestEdge(ll,45);return e?ROADS[e.e.road].properties.name:null}
+function tfName(pts){const a=tfEndRoad([pts[0][0],pts[0][1]]),b=tfEndRoad([pts[pts.length-1][0],pts[pts.length-1][1]]);
+  let base=a&&b?(a===b?rdShort(a)+' Link':rdShort(a)+'-'+rdShort(b)+' Link'):a||b?rdShort(a||b)+' Spur':T('New Track');
+  const taken=new Set(ROADS.map(f=>String(f.properties.name).toLowerCase()));if(!taken.has(base.toLowerCase()))return base;let n=2;while(taken.has((base+' '+n).toLowerCase()))n++;return base+' '+n}
+/* the GPS line is tidied before it goes on the map: wobble smoothed out, then thinned */
+function tfSmooth(pts){let P=pts.map(p=>[p[0],p[1]]);if(P.length>4)P=P.map((p,i)=>i===0||i===P.length-1?p:[(P[i-1][0]+p[0]+P[i+1][0])/3,(P[i-1][1]+p[1]+P[i+1][1])/3]);
+  const dp=(A,tol)=>{if(A.length<3)return A;let mi=0,md=0;for(let i=1;i<A.length-1;i++){const d=projSeg(A[i],A[0],A[A.length-1]).d;if(d>md){md=d;mi=i}}return md>tol?dp(A.slice(0,mi+1),tol).slice(0,-1).concat(dp(A.slice(mi),tol)):[A[0],A[A.length-1]]};
+  return dp(P,2.5).map(p=>[+p[0].toFixed(6),+p[1].toFixed(6)])}
+const tfLen=c=>{let L=0;for(let i=1;i<c.length;i++)L+=dist(c[i-1],c[i]);return Math.round(L)};
 async function tfSheet(all){openSheet(`<h2>${T('New tracks found')}</h2><div class="sub">${T('Loading...')}</div>`);await tfLoad(all);const L=TF.list;const nw=L.filter(x=>x.status==='new');
-  const row=x=>`<div class="it tfr"><div style="flex:1;min-width:0"><b>${fmtD(x.len)} ${T('of track')}</b><br><small>${esc(x.name||'Admin')} · ${esc(ago(Date.parse(x.created_at)))}${x.status!=='new'?' · '+T(x.status==='sent'?'sent':'ignored'):''}</small></div><button class="sm" data-tfs="${esc(x.id)}">${T('Show')}</button>${x.status==='new'?`<button class="sm" data-tfi="${esc(x.id)}">${T('Ignore')}</button>`:''}</div>`;
-  openSheet(`<h2>${T('New tracks found')}</h2><div class="sub" style="line-height:1.45">${T('When an admin or Database phone drives more than 30 m away from every road on the map, that stretch is saved here. Share them as a file and send it to be added to the map.')}</div>
-   ${L.length?`<div class="row" style="margin-top:12px"><button class="btn" id="tfAll">${LI('map',17)} ${T('Show all')}</button><button class="btn pri" id="tfShare">${LI('share',17)} ${T('Share as file')}</button></div>
-   ${TF.shown?`<button class="btn" id="tfHide" style="width:100%;margin-top:8px">${T('Hide them from the map')}</button>`:''}
-   <div class="list sgroup" style="margin-top:12px">${L.map(row).join('')}</div>${nw.length?`<button class="btn" id="tfSent" style="width:100%;margin-top:10px">${T('Mark all as sent')}</button>`:''}`:`<div class="sub" style="margin-top:16px">${T('Nothing yet. They show up here after admins drive tracks that are not on the map.')}</div>`}
-   <button class="uwl" id="tfOld" style="display:block;margin:12px auto 0">${all?T('Show only new ones'):T('Show sent and ignored ones too')}</button>`,()=>{
+  const row=x=>`<div class="it tfr"><div style="flex:1;min-width:0"><b>${esc(tfName(x.pts))}</b><br><small>${fmtD(x.len)} · ${esc(x.name||'Admin')} · ${esc(ago(Date.parse(x.created_at)))}${x.status!=='new'?' · '+T(x.status==='added'?'added':x.status==='sent'?'sent':'ignored'):''}</small></div><button class="sm" data-tfs="${esc(x.id)}">${T('Show')}</button>${x.status==='new'?`<button class="sm tfadd" data-tfa="${esc(x.id)}">${T('Add')}</button><button class="sm" data-tfi="${esc(x.id)}" aria-label="${T('Ignore')}">✕</button>`:''}</div>`;
+  openSheet(`<h2>${T('New tracks found')}</h2><div class="sub" style="line-height:1.45">${T('Stretches admins drove where there is no road on the map. Check one with Show, then Add puts it on everyone\'s map.')}</div>
+   <div class="row" style="margin-top:12px"><button class="btn" id="tfHow">${LI('play',17)} ${T('How it works')}</button><button class="btn" id="tfRoads">${LI('route',17)} ${T('Discovered roads')}${DROADS.length?' ('+DROADS.length+')':''}</button></div>
+   ${L.length?`${L.length>1?`<button class="btn" id="tfAll" style="width:100%;margin-top:8px">${LI('map',17)} ${T('Show all on the map')}</button>`:''}${TF.shown?`<button class="btn" id="tfHide" style="width:100%;margin-top:8px">${T('Hide them from the map')}</button>`:''}
+   <div class="list sgroup" style="margin-top:12px">${L.map(row).join('')}</div>${Cloud.member.locked?`<button class="uwl" id="tfShare" style="display:block;margin:10px auto 0">${T('Share them as a file')}</button>`:''}`:`<div class="sub" style="margin-top:16px">${T('Nothing new. Tracks show up here after admins drive somewhere that is not on the map.')}</div>`}
+   <button class="uwl" id="tfOld" style="display:block;margin:12px auto 0">${all?T('Show only new ones'):T('Show added and ignored ones too')}</button>`,()=>{
+    $('tfHow').onclick=()=>tfIntro(true);$('tfRoads').onclick=()=>droadsSheet();
     if($('tfAll'))$('tfAll').onclick=()=>tfShow(L);if($('tfHide'))$('tfHide').onclick=()=>{tfShow([]);tfSheet(all)};$('tfOld').onclick=()=>tfSheet(!all);
     document.querySelectorAll('[data-tfs]').forEach(b=>b.onclick=()=>tfShow(L.filter(x=>x.id===b.dataset.tfs)));
+    document.querySelectorAll('[data-tfa]').forEach(b=>b.onclick=()=>{const x=L.find(q=>q.id===b.dataset.tfa);if(x)tfAddSheet(x,all)});
     document.querySelectorAll('[data-tfi]').forEach(b=>b.onclick=async()=>{try{await rpc('set_track_finds',{p_ids:[b.dataset.tfi],p_status:'ignored'})}catch(e){toast(errTxt(e));return}tfSheet(all)});
-    if($('tfSent'))$('tfSent').onclick=async()=>{try{await rpc('set_track_finds',{p_ids:nw.map(x=>x.id),p_status:'sent'});toast(T('Marked as sent'))}catch(e){toast(errTxt(e));return}tfSheet(all)};
     if($('tfShare'))$('tfShare').onclick=async()=>{const f=tfFile(L);try{if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:'New tracks'});return}}catch(e){if(e&&e.name==='AbortError')return}
       const a=document.createElement('a');a.href=URL.createObjectURL(f);a.download=f.name;a.click();toast(T('File saved'))}})}
+function tfAddSheet(x,all){const nm=tfName(x.pts),c=tfSmooth(x.pts);
+  openSheet(`<div class="cmh"><button class="sm" id="taBack">‹ ${T('Back')}</button><b>${T('Add to map')}</b><span style="width:60px"></span></div>
+   <div class="sub" style="line-height:1.45">${T('This puts the track on everyone\'s map as a road. Directions can use it once their map has refreshed.')}</div>
+   <div class="msec" style="margin-top:14px">${T('Road name')}</div><input class="inp" id="taName" maxlength="40" value="${esc(nm)}" autocapitalize="words">
+   <div class="sub" style="margin-top:6px;font-size:12.5px">${T('Suggested from the roads it leaves and joins. Change it if it has a real name.')}</div>
+   <div class="list sgroup" style="margin-top:12px"><div class="it"><div style="flex:1"><small>${T('Length')}</small><br><b>${fmtD(tfLen(c))}</b></div><div style="flex:1"><small>${T('Driven by')}</small><br><b>${esc(x.name||'Admin')}</b></div></div></div>
+   <div class="row" style="margin-top:14px"><button class="btn" id="taShow">${LI('map',17)} ${T('Show')}</button><button class="btn pri" id="taGo">${T('Add to map')}</button></div>`,()=>{
+    $('taBack').onclick=()=>tfSheet(all);$('taShow').onclick=()=>tfShow([{id:x.id,pts:c}]);
+    $('taGo').onclick=async()=>{const n=$('taName').value.trim();if(n.length<2){toast(T('Give the road a name'));return}if(!navigator.onLine){toast(T('You need signal to do this'));return}$('taGo').disabled=true;
+      try{const r=await rpc('add_discovered_road',{p_id:'dr-'+x.id.slice(-20)+'-'+Date.now().toString(36),p_find:x.id,p_name:n,p_coords:c,p_len:tfLen(c)});
+        await droadsSync(true);toast(T('Added')+': '+((r&&r.name)||n)+'. '+T('The map refreshes to include it.'),3500);droadsReload(1800)}
+      catch(e){$('taGo').disabled=false;toast(/404|PGRST202|Could not find/.test(e.message)?T('Run the latest SQL in Supabase first'):errTxt(e).replace(/^Database said: /,''),4500)}}})}
+/* everyone keeps the discovered roads on their phone; changes are picked up in the background and applied the next time the map opens */
+async function droadsSync(force){if(!Cloud.member||!navigator.onLine)return false;try{const L=await rpc('list_discovered_roads');if(!Array.isArray(L))return false;
+  const sig=L.map(r=>r.id+':'+r.name).join('|'),old=LS.get('droadsSig','');try{localStorage.setItem('kn_droads',JSON.stringify(L.map(r=>({id:r.id,name:r.name,coords:r.coords,len:r.len,found_by:r.found_by,added_by:r.added_by,created_at:r.created_at}))))}catch(e){}
+  if(sig!==old){LS.set('droadsSig',sig);droadsSync.changed=true}return sig!==old}catch(e){return false}}
+function droadsReload(ms){setTimeout(()=>{if(nav||recTrack||(speedS||0)>2){droadsSync.changed=true;return}location.reload()},ms||0)}
+setTimeout(()=>droadsSync(),12000);setInterval(()=>droadsSync(),10*6e4);
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&droadsSync.changed&&!nav&&!recTrack)location.reload()});
+function droadsSheet(){const L=DROADS.slice().reverse();const adm=tfMe();
+  openSheet(`<div class="cmh"><button class="sm" id="drBack">‹ ${T('Back')}</button><b>${T('Discovered roads')}</b><span style="width:60px"></span></div>
+   ${L.length?`<div class="list sgroup" style="margin-top:12px">${L.map(r=>`<div class="it"><div style="flex:1;min-width:0"><b>${esc(r.name)}</b><br><small>${fmtD(r.len||0)} · ${T('found by')} ${esc(r.found_by||'?')} · ${T('added by')} ${esc(r.added_by||'?')} · ${esc(new Date(r.created_at).toLocaleDateString([],{day:'numeric',month:'short'}))}</small></div><button class="sm" data-drs="${esc(r.id)}">${T('Show')}</button>${adm?`<button class="sm" data-dre="${esc(r.id)}">${T('Edit')}</button>`:''}</div>`).join('')}</div>`:`<div class="sub" style="margin-top:20px;text-align:center">${T('No roads added yet. When an admin adds a new track, it shows up here.')}</div>`}`,()=>{
+    $('drBack').onclick=()=>tfMe()?tfSheet():closeSheet();
+    document.querySelectorAll('[data-drs]').forEach(b=>b.onclick=()=>{const r=DROADS.find(q=>q.id===b.dataset.drs);if(r)tfShow([{id:r.id,pts:r.coords}])});
+    document.querySelectorAll('[data-dre]').forEach(b=>b.onclick=()=>{const r=DROADS.find(q=>q.id===b.dataset.dre);if(!r)return;
+      openSheet(`<div class="cmh"><button class="sm" id="deBack">‹ ${T('Back')}</button><b>${esc(r.name)}</b><span style="width:60px"></span></div><div class="msec" style="margin-top:12px">${T('Road name')}</div><input class="inp" id="deName" maxlength="40" value="${esc(r.name)}"><button class="btn pri" id="deSave" style="width:100%;margin-top:12px">${T('Save name')}</button><button class="btn red" id="deDel" style="width:100%;margin-top:8px">${T('Remove from the map')}</button>`,()=>{
+        $('deBack').onclick=()=>droadsSheet();
+        $('deSave').onclick=async()=>{try{await rpc('edit_discovered_road',{p_id:r.id,p_name:$('deName').value,p_remove:false});await droadsSync(true);toast(T('Renamed. The map refreshes to show it.'));droadsReload(1500)}catch(e){toast(errTxt(e).replace(/^Database said: /,''),4000)}};
+        $('deDel').onclick=async()=>{try{await rpc('edit_discovered_road',{p_id:r.id,p_name:null,p_remove:true});await droadsSync(true);toast(T('Removed. The map refreshes.'));droadsReload(1500)}catch(e){toast(errTxt(e),4000)}}})})})}
 function handlePos(raw,acc,heading,speed,t){if((speed||0)>1.5)lastMoveT=Date.now();
   const ll=[raw[0]+calib[0],raw[1]+calib[1]];try{tfFix(ll,acc,speed,t)}catch(e){}
   if(lastPos){const dt=(t-lastPos.t)/1000,dd=dist(lastPos.ll,ll);if(dt>0){const v=dd/dt;if(speed==null||isNaN(speed))speed=v;if((heading==null||isNaN(heading))&&dd>3)heading=bearing(lastPos.ll,ll)}}
@@ -4559,7 +4688,7 @@ $('menuBtn').onclick=()=>{
     ${m?LK('lLive','Share live location',shareLoc?'On · '+esc(liveWhy().short):'Off','','live','#1a73e8'):''}
 
     ${m&&isAdm2()&&!m.viewAs?LK('lUpd',T('Updates and reinstall'),T('Send the newest version to everyone'),'v'+VER(APP_BUILD),'down','#1a73e8'):''}
-    ${m&&m.locked&&!m.viewAs?LK('lTf',T('New tracks found'),T('Roads admins drove that are not on the map yet'),TF.count?'<span class="tag t-new">'+TF.count+' new</span>':'','route','#c2185b'):''}
+    ${m&&(m.locked||m.role==='admin')&&!m.viewAs?LK('lTf',T('New tracks found'),T('Roads admins drove that are not on the map yet'),TF.count?'<span class="tag t-new">'+TF.count+' new</span>':'','route','#c2185b'):''}
     ${m&&isAdm2()&&!m.viewAs?LK('lAdm','Admin tools',MS.paused?'The map is paused':'Pause, rules, guest limits, reports','','shield','#b06000'):''}
     ${LK('lOff','Offline map',esc(offlineStatus()),'','down','#00796b')}
     ${LIVEMAP?LK('lSwap',LIVEMAP?'Swap to Khaya Ndlovu':'Swap to Stellenbosch',LIVEMAP?'You are on the Stellenbosch map':liveSaved()?'Every real road, saved on this phone':'Every real road · drive it with your GPS','','map','#c48a1a'):''}${DM.on?LK('lDemo','Demo mode',DM.on?'You are in demo mode · tap to see who is in it':(()=>{const L=Object.values(DEMO.outside).filter(p=>Date.now()-p.t<20000);return L.length?L.map(p=>p.name).slice(0,2).join(' and ')+(L.length>2?' and others':'')+(L.length>1?' are':' is')+' in demo mode now · tap to join':'Pretend to be anywhere and test everything'})(),'','play','#5f6368'):''}
