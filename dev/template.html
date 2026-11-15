@@ -1655,7 +1655,7 @@ const DROADS=(()=>{try{const v=JSON.parse(localStorage.getItem('kn_droads')||'[]
   const snap=pt=>{let best=null;for(let ri=0;ri<R.length;ri++){const cs=R[ri].geometry.coordinates;if(R[ri].properties.discovered)continue;for(let i=0;i<cs.length-1;i++){const pr=projSeg(pt,cs[i],cs[i+1]);if(pr.d<=60&&(!best||pr.d<best.d))best={ri,i,d:pr.d,q:pr.q}}}
     if(!best)return null;const cs=R[best.ri].geometry.coordinates,a=cs[best.i],b=cs[best.i+1];if(dist(a,best.q)<2)return r6(a);if(dist(b,best.q)<2)return r6(b);const q=r6(best.q);cs.splice(best.i+1,0,q);return q};
   for(const d of DROADS){try{const c=(d.coords||[]).map(r6);if(c.length<2)continue;const s0=snap(c[0]),s1=snap(c[c.length-1]);if(s0&&dist(s0,c[0])>1)c.unshift(s0);else if(s0)c[0]=s0;if(s1&&dist(s1,c[c.length-1])>1)c.push(s1);else if(s1)c[c.length-1]=s1;
-    R.push({type:'Feature',properties:{name:d.name,discovered:true,did:d.id},geometry:{type:'LineString',coordinates:c}})}catch(e){}}})();
+    let L=0;for(let k=1;k<c.length;k++)L+=dist(c[k-1],c[k]);R.push({type:'Feature',properties:{id:'d-'+d.id,name:d.name,farm:'KN',check:false,track:false,restricted:false,len:Math.round(L),discovered:true,did:d.id},geometry:{type:'LineString',coordinates:c}})}catch(e){}}})();
 const ROADS=DATA.roads.features;
 const nodes=[], nodeIdx=new Map(), adj=[];
 function nid(c){const k=c[0].toFixed(6)+','+c[1].toFixed(6);let i=nodeIdx.get(k);if(i===undefined){i=nodes.length;nodes.push(c);nodeIdx.set(k,i);adj.push([])}return i}
