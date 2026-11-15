@@ -919,6 +919,8 @@ body.tfFilm #top,body.tfFilm #fabs,body.tfFilm #layerBtn,body.tfFilm #navBottom,
 #tfFilm .tftap{display:none;margin-top:30px;flex-direction:column;align-items:center;gap:8px}#tfFilm.s-wait .tftap{display:flex}#tfFilm.s-wait{pointer-events:auto}
 #tfFilm .tfply{position:relative;width:84px;height:84px;border-radius:50%;display:flex;align-items:center;justify-content:center;padding-left:5px;color:#1d1406;background:linear-gradient(150deg,#ffe29a,#e9a72a);box-shadow:0 0 0 8px rgba(233,196,106,.15),0 14px 36px rgba(233,167,42,.55)}#tfFilm .tfply i{position:absolute;inset:0;border-radius:50%;border:2px solid rgba(255,226,154,.8);animation:ilRing 2.2s ease-out infinite}
 #tfFilm .tftap b{font:900 18px system-ui,-apple-system,sans-serif;color:#fff;margin-top:6px}#tfFilm .tftap small{font:700 12.5px system-ui,-apple-system,sans-serif;color:rgba(244,239,227,.75)}
+#tfFilm[data-q] .tfcap{bottom:calc(var(--safe-b,0px) + 96px)!important}
+#tfFilm .tfnext{position:absolute;right:12px;bottom:calc(var(--safe-b,0px) + 40px);pointer-events:auto;border:0;border-radius:14px;padding:9px 14px;background:rgba(10,24,16,.85);border:1px solid rgba(233,196,106,.5);color:#fff;font:800 13px system-ui,-apple-system,sans-serif;z-index:3;backdrop-filter:blur(8px)}#tfFilm .tfnext b{color:#ffe29a;margin-left:4px}#tfFilm.s-title .tfnext{opacity:0}
 #tfFilm .tfsoundhint{position:absolute;left:50%;top:calc(var(--safe-t) + 54px);transform:translateX(-50%);display:none;align-items:center;gap:6px;padding:7px 12px;border-radius:12px;background:rgba(255,194,61,.95);color:#1d1406;font:800 12.5px system-ui,-apple-system,sans-serif;white-space:nowrap;animation:hnPulse 1.6s infinite;z-index:3}#tfFilm .tfsoundhint svg{width:15px;height:15px}#tfFilm.s-mute .tfsoundhint{display:flex}#tfFilm.s-mute{pointer-events:auto}
 #tfFilm .tftitle p{margin:0;font-size:17px;color:rgba(244,239,227,.8);letter-spacing:.3px}
 #tfPost .tfbadge,#tfFilm .tfbadge{display:inline-flex;align-items:center;gap:6px;font:800 11px system-ui,-apple-system,sans-serif;letter-spacing:1.2px;text-transform:uppercase;color:#1d1406;background:linear-gradient(135deg,#ffe29a,#e9a72a);padding:5px 10px;border-radius:9px}
@@ -3052,7 +3054,7 @@ function tfPoster(){if(LS.get('tfFilm3',false)||!tfMe())return;LS.set('tfFilm3',
    Title card, camera flies in, chase cam behind your own car, the pink trail glows as it leaves the road,
    the camera lifts to show the whole track, the roads it joins light up, the name types itself,
    Add to map is tapped and the line turns into a real road with its name on it. */
-function tfFilm(force,wait,road,after){if(!road&&!force&&(LS.get('tfFilm2',false)||!tfMe()))return;if(!road)LS.set('tfFilm2',true);LS.set('tfIntro1',true);
+function tfFilm(force,wait,road,after,Q){if(!road&&!force&&(LS.get('tfFilm2',false)||!tfMe()))return;if(!road)LS.set('tfFilm2',true);LS.set('tfIntro1',true);
   if(!mapReady||!map.getSource('roads')){tfIntro(true);return}try{closeSheet()}catch(e){}
   const ex=road?road.coords.map(c=>[c[0],c[1]]):TF_EX,nm=road?road.name:tfName(ex),LEN=road?(road.len||tfLen(ex)):990,WHO=road?String(road.found_by||'an admin').split(' ')[0]:'Michael',BY=road?String(road.added_by||'an admin').split(' ')[0]:'',endA=tfEndRoad(ex[0]),endB=tfEndRoad(ex[ex.length-1]);
   let A=null;try{const st=ex[0];const cand=nodes.map((n,k)=>[k,dist(n,st)]).filter(q=>q[1]>260&&q[1]<520&&compOf[q[0]]===MAINC).sort((a,b)=>a[1]-b[1]);for(const [k] of cand.slice(0,30)){const r=route(nodes[k],st);if(r&&r.pts&&r.pts.length>1&&r.len<800){A=r.pts.map(p=>[p[0],p[1]]);break}}}catch(e){}
@@ -3080,7 +3082,8 @@ function tfFilm(force,wait,road,after){if(!road&&!force&&(LS.get('tfFilm2',false
   // the overlay
   const el=document.createElement('div');el.id='tfFilm';
   el.innerHTML=`<div class="tft"><div class="tftitle"><span class="tfbadge">${LI('shield',13)} ${T('Admins only')}</span><h1>${road?esc(nm):T('New tracks')}</h1><p>${road?T('A new road on the reserve'):T('How the map grows itself')}</p><div class="tftap" id="tfTap"><span class="tfply"><i></i><svg viewBox="0 0 24 24" width="30" height="30"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg></span><b>${T('Tap to play')}</b><small id="tfCount">${T('Starts by itself in')} 10</small></div></div></div>
-   <div class="tfhud"><span class="tfbadge">${LI('shield',12)} ${T('Admins only')}</span><button class="tfx">${T('Skip')}</button></div>
+   <div class="tfhud"><span class="tfbadge">${LI('shield',12)} ${Q&&Q.n>1?T('New road')+' '+Q.i+' '+T('of')+' '+Q.n:T('Admins only')}</span><button class="tfx">${Q&&Q.n>1?T('Close all'):T('Skip')}</button></div>
+   ${Q&&Q.i<Q.n?`<button class="tfnext" id="tfNext">${T('Skip to the next road')} <b>${Q.i+1}/${Q.n}</b> ›</button>`:''}
    <div class="tfoff" id="tfOff"><i></i><b id="tfOffN">0 m</b><small>${T('off the map')}</small></div>
    <div class="tffound" id="tfFound"><small>${T('New track found')}</small><b id="tfLen">0 m</b><span>${T('Driven by')} ${esc(WHO)}</span></div>
    <div class="tfname" id="tfName"><small>${T('Suggested name')}</small><b id="tfType"></b><span class="tfcur"></span><div class="tfwhy" id="tfWhy"></div></div>
@@ -3091,7 +3094,7 @@ function tfFilm(force,wait,road,after){if(!road&&!force&&(LS.get('tfFilm2',false
    <div class="tfcap" id="tfCap"><h3 id="tfH"></h3><p id="tfP"></p></div>
    <div class="tfvid"><span class="tftime" id="tfTime">0:00</span><div class="tfbar"><i id="tfBar"></i></div><span class="tftime">0:28</span></div>
    <div class="tfend" id="tfEnd"><button class="btn" id="tfRe">${LI('play',17)} ${T('Replay')}</button><button class="btn pri" id="tfOk">${T('Got it')}</button></div>`;
-  document.body.appendChild(el);
+  document.body.appendChild(el);if(Q&&Q.i<Q.n)el.dataset.q='1';
   const CAPR=road?[[esc(WHO)+' '+T('was out driving'),T('On')+' '+(endA||T('a road on the reserve'))+'.'],[T('Then left the map'),T('A track nobody had mapped yet, the app drew it as they drove.')],[fmtD(LEN)+' '+T('of new track'),T('Saved and sent to the admins and Database.')],[T('Named')+' '+nm,endA&&endB&&endA!==endB?T('From the roads it joins')+': '+endA+' '+T('and')+' '+endB+'.':endA?T('It leaves and comes back onto')+' '+endA+'.':T('Its own name.')],[T('Now a road'),(BY?T('Added by')+' '+BY+'. ':'')+T('Everyone has it on their map, and directions can use it.')]]:null;
   const CAP=[[T('Drive like normal'),T('Admin and Database phones watch where they go. Just keep the map open on the dash.')],
     [T('Off the map? It notices'),T('More than 30 m from every road, it starts drawing the track you are on.')],
@@ -3131,16 +3134,18 @@ function tfFilm(force,wait,road,after){if(!road&&!force&&(LS.get('tfFilm2',false
       if(f>2.7){const g=Math.min(1,(f-2.7)/2.8);map.jumpTo({center:ovC,zoom:mix(ovZ,ovZ+.15,E(g)),bearing:mix(0,-12,E(g)),pitch:mix(0,35,E(g)),padding:{top:0,bottom:Math.round(innerHeight*.12),left:0,right:0}})}}
     if(t>T5+4.6)el.classList.add('s-fin');
     else el.classList.remove('s-fin');
-    if(t>=TE){el.classList.add('s-end');return}
+    if(t>=TE){if(Q&&Q.i<Q.n&&Q.next){nextRoad();return}el.classList.add('s-end');return}
     raf=requestAnimationFrame(tick)};
   const reset=()=>{cancelAnimationFrame(raf);t0=0;tfT=0;PT.length=0;lastP=null;dx.clearRect(0,0,innerWidth,innerHeight);stage=-1;typed='';flags={};hd=bearing(A[0],A[Math.min(1,A.length-1)]);camHd=hd;el.className='';$('tfType').textContent='';$('tfWhy').textContent='';
     ['tff-app','tff-trail','tff-road'].forEach(sr=>map.getSource(sr).setData(fc([])));['tff-road-case','tff-road'].forEach(i=>map.setPaintProperty(i,'line-opacity',0));map.setPaintProperty('tff-lbl','text-opacity',0);map.setPaintProperty('tff-glow','line-opacity',.55);map.setPaintProperty('tff-line','line-opacity',1);map.setPaintProperty('tff-glow-ends','line-opacity',0);car.setLngLat(A[0])};
   const close=()=>{cancelAnimationFrame(raf);if(mus)mus.stop();el.classList.add('out');car.remove();L.forEach(i=>{try{map.removeLayer(i)}catch(e){}});['tff-ends','tff-app','tff-trail','tff-road'].forEach(sr=>{try{map.removeSource(sr)}catch(e){}});
     document.body.classList.remove('tfFilm');if(hideId)try{map.getSource('roads').setData({type:'FeatureCollection',features:ROADS})}catch(e){}if(after)setTimeout(after,1000);if(openSheet.later){const q=openSheet.later;openSheet.later=null;setTimeout(()=>openSheet(q[0],q[1]),1000)}map.easeTo({center:saved.center,zoom:saved.zoom,bearing:saved.bearing,pitch:saved.pitch,padding:{top:0,bottom:0,left:0,right:0},duration:900});setTimeout(()=>{el.remove();try{if(saved.follow)setFollow(saved.follow)}catch(e){}},950)};
-  el.querySelector('.tfx').onclick=close;$('tfOk').onclick=close;$('tfRe').onclick=()=>{reset();music(0);raf=requestAnimationFrame(tick)};
+  const nextRoad=()=>{const nx=Q&&Q.next;if(Q)Q.next=null;after=nx;close()};
+  if($('tfNext'))$('tfNext').onclick=e=>{e.stopPropagation();nextRoad()};
+  el.querySelector('.tfx').onclick=()=>{if(Q)Q.next=null;close()};$('tfOk').onclick=close;$('tfRe').onclick=()=>{reset();music(0);raf=requestAnimationFrame(tick)};
   if(wait){// sits on the first screen until it is tapped: that tap starts the picture and the music together
     el.classList.add('s-title','s-wait');map.jumpTo({center:mixLL(ovC,A[0],0),zoom:ovZ-2.6,bearing:-25,pitch:20,padding:{top:0,bottom:0,left:0,right:0}});
-    let left=10,cd=0;const go=e=>{if(e&&e.target.closest('.tfx'))return;if(e)e.preventDefault();clearInterval(cd);el.classList.remove('s-wait');el.removeEventListener('click',go);reset();raf=requestAnimationFrame(tick);music(0);
+    let left=10,cd=0;const go=e=>{if(e&&e.target.closest('.tfx,.tfnext'))return;if(e)e.preventDefault();clearInterval(cd);el.classList.remove('s-wait');el.removeEventListener('click',go);reset();raf=requestAnimationFrame(tick);music(0);
       // started by itself: the phone may hold the sound back until the screen is touched. The first touch brings it in, in time with the picture
       if(!e)setTimeout(()=>{const ac=tfMusic.ac;if(ac&&ac.state==='running')return;el.classList.add('s-mute');const on=ev=>{if(ev.target.closest('.tfx,.tfend'))return;el.classList.remove('s-mute');el.removeEventListener('pointerdown',on);music(tfT)};el.addEventListener('pointerdown',on)},400)};
     el.addEventListener('click',go);cd=setInterval(()=>{if(!el.isConnected){clearInterval(cd);return}left--;const c=$('tfCount');if(c)c.textContent=T('Starts by itself in')+' '+left;if(left<=0)go()},1000);return}
@@ -3189,7 +3194,9 @@ function seenRoadFilms(ids){const S=new Set(LS.get('roadFilms',[]));ids.forEach(
 /* another admin added a road: its film plays the next time this admin or Database account opens the map (newest one, the rest are just marked) */
 function roadFilmCheck(L){if(!tfMe()||!Array.isArray(L))return;if(!LS.get('roadFilmsInit',false)){LS.set('roadFilmsInit',true);seenRoadFilms(L.map(r=>r.id));return}
   const seen=new Set(LS.get('roadFilms',[])),me_=Cloud.member&&Cloud.member.name;const fresh=L.filter(r=>!seen.has(r.id)&&r.added_by!==me_);if(!fresh.length)return;seenRoadFilms(fresh.map(r=>r.id));
-  const r=fresh[fresh.length-1];const play=()=>{if(nav||(speedS||0)>2||setupOn()||$('sheet').classList.contains('open')||document.getElementById('tfFilm')){setTimeout(play,20000);return}tfFilm(true,true,r)};play()}
+  const list=fresh.slice().sort((a,b)=>Date.parse(a.created_at)-Date.parse(b.created_at));let i=0;
+  const playNext=first=>{if(i>=list.length)return;const r=list[i++];const Q={i,n:list.length,next:null};Q.next=()=>playNext(false);tfFilm(true,first,r,null,Q)};
+  const play=()=>{if(nav||(speedS||0)>2||setupOn()||$('sheet').classList.contains('open')||document.getElementById('tfFilm')){setTimeout(play,20000);return}playNext(true)};play()}
 async function droadsSync(force){if(!Cloud.member||!navigator.onLine)return false;try{const L=await rpc('list_discovered_roads');if(!Array.isArray(L))return false;DROADS_NEW=L;try{roadFilmCheck(L)}catch(e){}
   const sig=L.map(r=>r.id+':'+r.name).join('|'),old=LS.get('droadsSig','');try{localStorage.setItem('kn_droads',JSON.stringify(L.map(r=>({id:r.id,name:r.name,coords:r.coords,len:r.len,found_by:r.found_by,added_by:r.added_by,created_at:r.created_at}))))}catch(e){}
   if(sig!==old){LS.set('droadsSig',sig);droadsSync.changed=true}return sig!==old}catch(e){return false}}
