@@ -907,6 +907,59 @@ body.night .fdheart{background:rgba(255,255,255,.08)}.fdheart.on{color:#e0245e;b
 #tfIL p{margin:6px 0 0;font-size:15px;line-height:1.4;color:rgba(244,239,227,.78)}
 #tfIL .tibtns{display:flex;gap:10px;margin-top:8px}#tfIL .tibtns .btn{flex:1;min-height:50px;border-radius:16px;font-size:16px}
 #tfIL .tibtns .btn:not(.pri){background:rgba(255,255,255,.08)!important;color:#fff!important;border:1px solid rgba(255,255,255,.14)}#tfIL .tibtns .btn.pri{background:linear-gradient(135deg,#ffe29a,#e9a72a)!important;color:#1d1406!important;font-weight:900}
+body.tfFilm #top,body.tfFilm #fabs,body.tfFilm #layerBtn,body.tfFilm #navBottom,body.tfFilm #ping,body.tfFilm .maplibregl-ctrl,body.tfFilm #peek,body.tfFilm #speed,body.tfFilm #homeNag,body.tfFilm #storyQ,body.tfFilm #roadPill,body.tfFilm #spot,body.tfFilm #recenter,body.tfFilm #offPill,body.tfFilm #gpsWeak,body.tfFilm #toast,body.tfFilm #updWall{opacity:0!important;pointer-events:none!important;transition:opacity .4s}
+.tffcar{width:34px;height:42px;filter:drop-shadow(0 4px 6px rgba(0,0,0,.55))}.tffcar svg{width:100%;height:100%}
+.tffping{width:20px;height:20px;border-radius:50%;border:3px solid #ffe29a;animation:tfPing 1.3s ease-out 2;box-shadow:0 0 18px rgba(255,194,61,.8)}
+@keyframes tfPing{0%{transform:scale(.6);opacity:1}100%{transform:scale(5);opacity:0}}
+#tfFilm{position:fixed;inset:0;z-index:9998;pointer-events:none;color:#f4efe3;font-family:system-ui,-apple-system,sans-serif}
+#tfFilm.out{animation:ilOut .5s ease forwards}
+#tfFilm .tft{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:radial-gradient(80% 60% at 50% 45%,rgba(10,24,16,.55),rgba(5,12,8,.92));backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);opacity:0;transition:opacity .9s}
+#tfFilm.s-title .tft{opacity:1}#tfFilm .tftitle{text-align:center;transform:scale(.92);transition:transform 2.4s cubic-bezier(.2,.8,.2,1)}#tfFilm.s-title .tftitle{transform:scale(1)}
+#tfFilm .tftitle h1{margin:14px 0 4px;font:900 54px/1 system-ui,-apple-system,sans-serif;letter-spacing:-1.5px;background:linear-gradient(100deg,#fff 20%,#ffe29a 45%,#fff 60%,#f3d27a 80%);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:obSheen 2.4s linear infinite}
+#tfFilm .tftitle p{margin:0;font-size:17px;color:rgba(244,239,227,.8);letter-spacing:.3px}
+#tfFilm .tfbadge{display:inline-flex;align-items:center;gap:6px;font:800 11px system-ui,-apple-system,sans-serif;letter-spacing:1.2px;text-transform:uppercase;color:#1d1406;background:linear-gradient(135deg,#ffe29a,#e9a72a);padding:5px 10px;border-radius:9px}
+#tfFilm .tfhud{position:absolute;top:calc(var(--safe-t) + 10px);left:14px;right:14px;display:flex;justify-content:space-between;align-items:center;transition:opacity .5s}#tfFilm.s-title .tfhud{opacity:0}
+#tfFilm .tfx{pointer-events:auto;border:0;border-radius:14px;padding:8px 14px;background:rgba(10,24,16,.7);color:#fff;font:700 13.5px system-ui,-apple-system,sans-serif;backdrop-filter:blur(8px)}
+#tfFilm .tfoff,#tfFilm .tffound,#tfFilm .tfname{position:absolute;left:50%;top:calc(var(--safe-t) + 62px);transform:translate(-50%,-14px) scale(.9);opacity:0;transition:all .5s cubic-bezier(.2,1.4,.3,1);text-align:center;border-radius:20px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+#tfFilm .tfoff{display:flex;align-items:center;gap:8px;padding:9px 16px;background:rgba(40,8,24,.75);border:1px solid rgba(255,79,163,.7);box-shadow:0 0 24px rgba(255,79,163,.4)}
+#tfFilm .tfoff i{width:10px;height:10px;border-radius:50%;background:#ff4fa3;animation:hnPulse 1s infinite;box-shadow:0 0 10px #ff4fa3}#tfFilm .tfoff b{font:900 18px system-ui,-apple-system,sans-serif;color:#fff;font-variant-numeric:tabular-nums}#tfFilm .tfoff small{font-size:12.5px;color:#ffb3d6}
+#tfFilm.s-off .tfoff,#tfFilm.s-found .tffound,#tfFilm.s-name .tfname,#tfFilm.s-card .tfname{opacity:1;transform:translate(-50%,0) scale(1)}
+#tfFilm .tffound{padding:12px 22px;background:rgba(10,24,16,.85);border:1px solid rgba(255,79,163,.7);min-width:200px}
+#tfFilm .tffound small,#tfFilm .tfname small{display:block;font:800 11px system-ui,-apple-system,sans-serif;letter-spacing:1.4px;text-transform:uppercase;color:#ff8cc4}
+#tfFilm .tffound b{display:block;font:900 36px/1.1 system-ui,-apple-system,sans-serif;color:#fff;font-variant-numeric:tabular-nums}#tfFilm .tffound span{font-size:12.5px;color:rgba(244,239,227,.7)}
+#tfFilm .tfname{padding:12px 24px;background:rgba(255,255,255,.96);color:#1d1406;box-shadow:0 14px 34px rgba(0,0,0,.45);min-width:220px}#tfFilm .tfname small{color:#8a6a1f}
+#tfFilm .tfname b{font:900 28px/1.2 system-ui,-apple-system,sans-serif;letter-spacing:-.4px}#tfFilm .tfcur{display:inline-block;width:3px;height:26px;background:#e9a72a;margin-left:2px;vertical-align:-4px;animation:ilBlink .8s infinite}
+#tfFilm .tfwhy{margin-top:4px;font-size:12px;color:#6b5a3a;display:flex;align-items:center;justify-content:center;gap:4px;min-height:15px}
+#tfFilm .tfcard{position:absolute;left:14px;right:14px;bottom:calc(var(--safe-b,0px) + 150px);padding:16px;border-radius:24px;background:rgba(255,255,255,.97);color:#1d1406;box-shadow:0 20px 50px rgba(0,0,0,.5);transform:translateY(130%);opacity:0;transition:all .6s cubic-bezier(.2,1.1,.3,1)}
+#tfFilm.s-card .tfcard{transform:none;opacity:1}#tfFilm .tfch b{font:900 19px system-ui,-apple-system,sans-serif}#tfFilm .tfcard small{display:block;margin-top:10px;font:800 11px system-ui,-apple-system,sans-serif;letter-spacing:1.2px;text-transform:uppercase;color:#8a6a1f}
+#tfFilm .tfinp{margin-top:4px;padding:11px 13px;border-radius:13px;border:2px solid #e9c46a;font:700 17px system-ui,-apple-system,sans-serif}
+#tfFilm .tfrow{display:flex;justify-content:space-between;margin-top:10px;font-size:13px;color:#5f5440}
+#tfFilm .tfgo{position:relative;width:100%;margin-top:12px;border:0;border-radius:15px;padding:13px;font:900 16px system-ui,-apple-system,sans-serif;color:#1d1406;background:linear-gradient(135deg,#ffe29a,#e9a72a);box-shadow:0 10px 22px rgba(233,167,42,.45);transition:transform .15s}
+#tfFilm.s-tap .tfgo{transform:scale(.95)}#tfFilm .tffinger{position:absolute;right:30%;bottom:-16px;width:34px;height:34px;border-radius:50%;background:rgba(40,30,10,.25);border:2px solid rgba(255,255,255,.9);opacity:0;transform:translate(40px,40px);transition:all .9s .3s ease}
+#tfFilm.s-card .tffinger{opacity:1;transform:none}#tfFilm.s-tap .tffinger{animation:tiTap .6s ease}
+#tfFilm #tfConf{position:absolute;inset:0;width:100%;height:100%}
+#tfFilm .tfcap{position:absolute;left:12px;right:12px;bottom:calc(var(--safe-b,0px) + 14px);padding:14px 16px 16px;border-radius:22px;background:rgba(10,24,16,.82);border:1px solid rgba(233,196,106,.3);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 14px 34px rgba(0,0,0,.45);opacity:0;transition:opacity .5s}
+#tfFilm.s-title .tfcap{opacity:0!important}#tfFilm .tfcap.in{opacity:1}#tfFilm .tfcap.in h3,#tfFilm .tfcap.in p{animation:obIn .55s cubic-bezier(.2,.8,.2,1) both}#tfFilm .tfcap.in p{animation-delay:.08s}
+#tfFilm .tfdots{display:flex;gap:5px;margin-bottom:9px}#tfFilm .tfdots i{flex:1;height:4px;border-radius:2px;background:rgba(255,255,255,.14);transition:background .4s}#tfFilm .tfdots i.on{background:linear-gradient(90deg,#ffe29a,#e9a72a)}
+#tfFilm .tfcap h3{margin:0;font:900 22px/1.15 system-ui,-apple-system,sans-serif;background:linear-gradient(180deg,#fff 30%,#f3d27a);-webkit-background-clip:text;background-clip:text;color:transparent}
+#tfFilm .tfcap p{margin:5px 0 0;font-size:14.5px;line-height:1.4;color:rgba(244,239,227,.8)}
+#tfFilm .tfend{position:absolute;left:12px;right:12px;bottom:calc(var(--safe-b,0px) + 14px);display:flex;gap:10px;opacity:0;transform:translateY(20px);transition:all .5s;pointer-events:none}
+#tfFilm.s-end .tfend{opacity:1;transform:none;pointer-events:auto}#tfFilm.s-end .tfcap{bottom:calc(var(--safe-b,0px) + 80px)}
+#tfFilm .tfend .btn{flex:1;min-height:52px;border-radius:16px;font-size:16px}#tfFilm .tfend .btn:not(.pri){background:rgba(10,24,16,.85)!important;color:#fff!important;border:1px solid rgba(255,255,255,.16)}#tfFilm .tfend .btn.pri{background:linear-gradient(135deg,#ffe29a,#e9a72a)!important;color:#1d1406!important;font-weight:900}
+#tfFilm .tflb{position:absolute;left:0;right:0;height:0;background:#000;transition:height 1.1s cubic-bezier(.2,.8,.2,1);z-index:0}#tfFilm .tflb.t{top:0}#tfFilm .tflb.b{bottom:0}
+#tfFilm:not(.s-title):not(.s-end) .tflb.t{height:calc(var(--safe-t) + 4px)}#tfFilm:not(.s-title):not(.s-end) .tflb.b{height:calc(var(--safe-b,0px) + 46px)}
+#tfFilm .tfcap{background:none!important;border:0!important;box-shadow:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;text-align:center;bottom:calc(var(--safe-b,0px) + 58px)!important;padding:0 18px!important}
+#tfFilm .tfcap h3{font-size:24px!important;filter:drop-shadow(0 2px 6px rgba(0,0,0,.9)) drop-shadow(0 0 1px #000)}
+#tfFilm .tfcap p{color:#fff!important;text-shadow:0 1px 3px #000,0 0 10px rgba(0,0,0,.8);font-size:15px!important;max-width:340px;margin-left:auto!important;margin-right:auto!important}
+#tfFilm.s-card .tfcap{opacity:0!important}
+#tfFilm .tfvid{position:absolute;left:12px;right:12px;bottom:calc(var(--safe-b,0px) + 12px);display:flex;align-items:center;gap:9px;z-index:2;transition:opacity .4s}
+#tfFilm.s-title .tfvid,#tfFilm.s-end .tfvid{opacity:0}
+#tfFilm .tfbar{flex:1;height:4px;border-radius:2px;background:rgba(255,255,255,.22);overflow:hidden}#tfFilm .tfbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#ffe29a,#e9a72a);box-shadow:0 0 8px rgba(255,194,61,.8)}
+#tfFilm .tftime{font:700 11.5px system-ui,-apple-system,sans-serif;color:rgba(255,255,255,.85);font-variant-numeric:tabular-nums;min-width:28px}
+#tfFilm .tfsnd{pointer-events:auto;display:flex;align-items:center;gap:6px;border:0;border-radius:12px;padding:6px 10px;background:rgba(255,194,61,.95);color:#1d1406;font:800 12px system-ui,-apple-system,sans-serif;animation:hnPulse 1.6s infinite}
+#tfFilm.snd .tfsnd{background:rgba(255,255,255,.14);color:#fff;animation:none}
+#tfFilm .tfsnd svg{width:15px;height:15px}
+#tfFilm .tfcard{bottom:calc(var(--safe-b,0px) + 70px)!important}
 #homeNag{position:fixed;left:50%;top:calc(var(--safe-t) + 118px);transform:translate(-50%,-14px);z-index:8;display:flex;align-items:center;gap:7px;padding:9px 14px;border-radius:999px;border:0;background:linear-gradient(135deg,#ffe29a,#e9a72a);color:#1d1406;font:800 14px system-ui,-apple-system,sans-serif;box-shadow:0 8px 20px rgba(233,167,42,.45);opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;white-space:nowrap}#homeNag.on{opacity:1;transform:translate(-50%,0);pointer-events:auto;animation:hnPulse 2.4s ease-in-out infinite}#homeNag span{font-size:18px;opacity:.7}@keyframes hnPulse{50%{box-shadow:0 8px 26px rgba(233,167,42,.75)}}body.navon #homeNag{display:none}
 #storyQ{position:fixed;left:10px;right:10px;top:calc(var(--safe-t) + 112px);z-index:30;display:flex;align-items:center;gap:10px;padding:10px 10px 14px 10px;border-radius:20px;overflow:hidden;
   background:linear-gradient(135deg,rgba(32,42,30,.97),rgba(14,18,13,.98));border:1px solid rgba(255,194,61,.3);box-shadow:0 14px 36px rgba(0,0,0,.4);color:#fff;
@@ -2924,7 +2977,124 @@ function tfIntro(force){if(!force&&(LS.get('tfIntro1',false)||!tfMe()))return;LS
   const play=()=>{cancelAnimationFrame(raf);t0=0;stage=-1;el.className='';nw.style.opacity=1;[[app,La],[nw,Ln],[dn,Ln]].forEach(([p,L])=>p.style.strokeDashoffset=L);raf=requestAnimationFrame(tick)};
   const close=()=>{cancelAnimationFrame(raf);el.classList.add('out');setTimeout(()=>el.remove(),400)};
   el.querySelector('.tix').onclick=close;$('tiOk').onclick=close;$('tiRe').onclick=play;play()}
-setTimeout(()=>{try{if(tfMe()&&LS.get('custDone',false)&&!setupOn()&&!nav&&!(speedS>2)&&$('gate').classList.contains('hide')&&!$('sheet').classList.contains('open'))tfIntro()}catch(e){}},11000);
+setTimeout(()=>{try{if(tfMe()&&LS.get('custDone',false)&&!setupOn()&&!nav&&!(speedS>2)&&$('gate').classList.contains('hide')&&!$('sheet').classList.contains('open'))tfFilm()}catch(e){}},11000);
+/* the film's music: a short cinematic tune made live on the phone (no file to download), synced to what happens on screen */
+function tfMusic(T){const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return null;let ac;try{ac=tfMusic.ac||(tfMusic.ac=new AC())}catch(e){return null}
+  const out=ac.createGain();out.gain.value=0;const comp=ac.createDynamicsCompressor();out.connect(comp);comp.connect(ac.destination);
+  const nodes=[];const keep=n=>{nodes.push(n);return n};let base=0,off=0;
+  const noiseBuf=(()=>{const b=ac.createBuffer(1,ac.sampleRate,ac.sampleRate),d=b.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;return b})();
+  const hz=m=>440*Math.pow(2,(m-69)/12);
+  const at=t=>base+t-off,ok=t=>t>=off-0.05;
+  const tone=(t,f,dur,o)=>{o=o||{};const type=o.type||'sine',vol=o.vol==null?.2:o.vol,att=o.att==null?.01:o.att,rel=o.rel==null?.3:o.rel;if(!ok(t))return;
+    const osc=keep(ac.createOscillator()),g=ac.createGain();osc.type=type;osc.frequency.value=f;osc.detune.value=o.det||0;let n=osc;
+    if(o.cut){const fl=ac.createBiquadFilter();fl.type='lowpass';fl.frequency.value=o.cut;osc.connect(fl);n=fl}n.connect(g);g.connect(out);
+    const s0=at(t);g.gain.setValueAtTime(0,s0);g.gain.linearRampToValueAtTime(vol,s0+att);g.gain.setValueAtTime(vol,s0+Math.max(att,dur-rel));g.gain.linearRampToValueAtTime(0,s0+dur);osc.start(s0);osc.stop(s0+dur+.05)};
+  const noise=(t,dur,o)=>{o=o||{};if(!ok(t))return;const sr=keep(ac.createBufferSource()),g=ac.createGain(),f=ac.createBiquadFilter();sr.buffer=noiseBuf;sr.loop=true;f.type=o.lp?'lowpass':'highpass';f.frequency.value=o.lp||o.hp||6000;
+    const s0=at(t),vol=o.vol==null?.2:o.vol,att=o.att==null?.002:o.att;if(o.sweep)f.frequency.exponentialRampToValueAtTime(o.sweep,s0+dur);
+    sr.connect(f);f.connect(g);g.connect(out);g.gain.setValueAtTime(0.0001,s0);g.gain.linearRampToValueAtTime(vol,s0+att);g.gain.exponentialRampToValueAtTime(.0008,s0+dur);sr.start(s0);sr.stop(s0+dur+.05)};
+  const kick=t=>{if(!ok(t))return;const o=keep(ac.createOscillator()),g=ac.createGain(),s0=at(t);o.frequency.setValueAtTime(130,s0);o.frequency.exponentialRampToValueAtTime(42,s0+.18);g.gain.setValueAtTime(.55,s0);g.gain.exponentialRampToValueAtTime(.001,s0+.32);o.connect(g);g.connect(out);o.start(s0);o.stop(s0+.35)};
+  const BAR=60/96*4,CH=[[57,60,64],[53,57,60],[48,55,64],[55,59,62]];
+  function score(){const end=T.TE+2.5;
+    for(let b=0,t=0;t<end;b++,t+=BAR){const ch=CH[b%4],last=t+BAR>end-2.4,cut=Math.min(2600,700+t*70),len=last?BAR+2.2:BAR+.25;
+      ch.forEach(m=>{tone(t,hz(m),len,{type:'sawtooth',vol:.045,att:.5,rel:.6,cut,det:-7});tone(t,hz(m),len,{type:'sawtooth',vol:.045,att:.5,rel:.6,cut,det:7})});
+      if(t>=T.T1-.1)for(let k=0;k<4;k++)tone(t+k*BAR/4,hz(ch[0]-24),BAR/4*.9,{type:'triangle',vol:.22,att:.01,rel:.15});
+      if(t>=T.T2-.2&&t<T.T5+2.5)for(let k=0;k<4;k++){kick(t+k*BAR/4);noise(t+k*BAR/4+BAR/8,.05,{vol:.05,hp:8000})}
+      if(t>=T.T3&&t<T.T5+2.5)for(let k=0;k<8;k++)tone(t+k*BAR/8,hz(ch[k%3]+12),.14,{type:'square',vol:.018,cut:2400,rel:.1})}
+    noise(T.T1-1.8,1.8,{vol:.12,hp:400,sweep:9000,att:1.6});noise(T.T1,1.1,{vol:.16,lp:5000,sweep:200,att:.02});
+    [[T.T2,88],[T.T3,93]].forEach(([t,m])=>{tone(t,hz(m),1.2,{vol:.16,att:.005,rel:1.1});tone(t+.12,hz(m+7),1,{vol:.08,att:.005,rel:.9})});
+    for(let i=0;i<20;i++)tone(T.T3+.05+i*.08,hz(84+(i%5)),.04,{type:'square',vol:.02,cut:3000,rel:.03});
+    for(let i=0;i<12;i++)noise(T.T4+1.4+i*.14,.03,{vol:.07,hp:3000});
+    noise(T.T5+.6,1.5,{vol:.1,hp:300,sweep:8000,att:1.4});tone(T.T5+2.1,hz(96),.08,{vol:.12,rel:.06});
+    [72,76,79,84,88].forEach((m,i)=>tone(T.T5+2.7+i*.07,hz(m),1.8,{type:'triangle',vol:.12,att:.005,rel:1.6}));noise(T.T5+2.7,2.2,{vol:.09,hp:5000,att:.01})}
+  return {start(o2){off=o2||0;try{ac.resume()}catch(e){}base=ac.currentTime+.05;score();out.gain.cancelScheduledValues(ac.currentTime);out.gain.setValueAtTime(0,ac.currentTime);out.gain.linearRampToValueAtTime(.9,ac.currentTime+.6)},
+    stop(){try{out.gain.cancelScheduledValues(ac.currentTime);out.gain.setValueAtTime(out.gain.value,ac.currentTime);out.gain.linearRampToValueAtTime(0,ac.currentTime+.5)}catch(e){}setTimeout(()=>{nodes.forEach(n=>{try{n.stop()}catch(e){}});nodes.length=0;try{out.disconnect()}catch(e){}},600)}}}
+/* ============ the cinematic version: the film plays on the real map ============
+   Title card, camera flies in, chase cam behind your own car, the pink trail glows as it leaves the road,
+   the camera lifts to show the whole track, the roads it joins light up, the name types itself,
+   Add to map is tapped and the line turns into a real road with its name on it. */
+function tfFilm(force){if(!force&&(LS.get('tfFilm2',false)||!tfMe()))return;LS.set('tfFilm2',true);LS.set('tfIntro1',true);
+  if(!mapReady||!map.getSource('roads')){tfIntro(true);return}try{closeSheet()}catch(e){}
+  const ex=TF_EX,nm=tfName(ex),endA=tfEndRoad(ex[0]),endB=tfEndRoad(ex[ex.length-1]);
+  let A=null;try{const st=ex[0];const cand=nodes.map((n,k)=>[k,dist(n,st)]).filter(q=>q[1]>260&&q[1]<520&&compOf[q[0]]===MAINC).sort((a,b)=>a[1]-b[1]);for(const [k] of cand.slice(0,30)){const r=route(nodes[k],st);if(r&&r.pts&&r.pts.length>1&&r.len<800){A=r.pts.map(p=>[p[0],p[1]]);break}}}catch(e){}
+  if(!A)A=[[ex[0][0]+.0025,ex[0][1]+.0015],ex[0]];
+  const mk=C=>{const cum=[0];for(let i=1;i<C.length;i++)cum.push(cum[i-1]+dist(C[i-1],C[i]));const tot=cum[cum.length-1]||1;
+    return {C,cum,tot,at(d){d=Math.max(0,Math.min(tot,d));let i=1;while(i<C.length-1&&cum[i]<d)i++;const a=C[i-1],b=C[i],f=(d-cum[i-1])/((cum[i]-cum[i-1])||1);return [a[0]+(b[0]-a[0])*f,a[1]+(b[1]-a[1])*f]},
+      upto(d){const out=[];for(let i=0;i<C.length&&cum[i]<=d;i++)out.push(C[i]);out.push(this.at(d));return out}}};
+  const RA=mk(A),RX=mk(ex);
+  const saved={center:map.getCenter(),zoom:map.getZoom(),bearing:map.getBearing(),pitch:map.getPitch(),follow};try{setFollow(0)}catch(e){}
+  document.body.classList.add('tfFilm');
+  // the map pieces
+  const fc=f=>({type:'FeatureCollection',features:f}),ln=c=>({type:'Feature',properties:{name:nm},geometry:{type:'LineString',coordinates:c.length>1?c:[c[0],c[0]]}});
+  const L=[];const add=(id,src,ly)=>{if(!map.getSource(src))map.addSource(src,{type:'geojson',data:fc([])});map.addLayer(Object.assign({id,source:src},ly));L.push(id)};
+  add('tff-glow-ends','tff-ends',{type:'line',filter:['in',['get','name'],['literal',[endA,endB].filter(Boolean)]],paint:{'line-color':'#ffc23d','line-width':16,'line-blur':6,'line-opacity':0}});
+  map.getSource('tff-ends').setData(fc(ROADS.filter(f=>!f.properties.discovered&&(f.properties.name===endA||f.properties.name===endB)).map(f=>({type:'Feature',properties:{name:f.properties.name},geometry:f.geometry}))));
+  add('tff-app','tff-app',{type:'line',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#4f8cff','line-width':6,'line-opacity':.95}});
+  add('tff-glow','tff-trail',{type:'line',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#ff4fa3','line-width':18,'line-blur':8,'line-opacity':.55}});
+  add('tff-line','tff-trail',{type:'line',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#ff4fa3','line-width':6,'line-dasharray':[1.4,1]}});
+  add('tff-road-case','tff-road',{type:'line',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#c7b69d','line-width':12,'line-opacity':0,'line-opacity-transition':{duration:1200}}});
+  add('tff-road','tff-road',{type:'line',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#f3e3bd','line-width':8,'line-opacity':0,'line-opacity-transition':{duration:1200}}});
+  add('tff-lbl','tff-road',{type:'symbol',layout:{'symbol-placement':'line','symbol-spacing':400,'text-keep-upright':true,'text-field':['get','name'],'text-font':['Sans Bold'],'text-size':16,'text-letter-spacing':.05,'text-allow-overlap':true,'text-ignore-placement':true,'text-max-angle':120},paint:{'text-color':'#1d1406','text-halo-color':'#ffe29a','text-halo-width':2.5,'text-opacity':0,'text-opacity-transition':{duration:900}}});
+  // your own car
+  const ce=document.createElement('div');ce.className='tffcar';ce.innerHTML=carSvg(CARICON,MECOL);const car=new maplibregl.Marker({element:ce,rotationAlignment:'map',pitchAlignment:'map'}).setLngLat(A[0]).addTo(map);
+  const ping=ll=>{const e=document.createElement('div');e.className='tffping';const m=new maplibregl.Marker({element:e}).setLngLat(ll).addTo(map);setTimeout(()=>m.remove(),2600)};
+  // the overlay
+  const el=document.createElement('div');el.id='tfFilm';
+  el.innerHTML=`<div class="tft"><div class="tftitle"><span class="tfbadge">${LI('shield',13)} ${T('Admins only')}</span><h1>${T('New tracks')}</h1><p>${T('How the map grows itself')}</p></div></div>
+   <div class="tfhud"><span class="tfbadge">${LI('shield',12)} ${T('Admins only')}</span><button class="tfx">${T('Skip')}</button></div>
+   <div class="tfoff" id="tfOff"><i></i><b id="tfOffN">0 m</b><small>${T('off the map')}</small></div>
+   <div class="tffound" id="tfFound"><small>${T('New track found')}</small><b id="tfLen">0 m</b><span>${esc(T('Driven by Michael'))}</span></div>
+   <div class="tfname" id="tfName"><small>${T('Suggested name')}</small><b id="tfType"></b><span class="tfcur"></span><div class="tfwhy" id="tfWhy"></div></div>
+   <div class="tfcard" id="tfCard"><div class="tfch"><b>${T('Add to map')}</b></div><small>${T('Road name')}</small><div class="tfinp">${esc(nm)}</div><div class="tfrow"><span>${T('Length')} <b>${fmtD(990)}</b></span><span>${T('Driven by')} <b>Michael</b></span></div><button class="tfgo" id="tfGo">${T('Add to map')}<i class="tffinger"></i></button></div>
+   <canvas id="tfConf"></canvas>
+   <div class="tflb t"></div><div class="tflb b"></div>
+   <div class="tfcap" id="tfCap"><h3 id="tfH"></h3><p id="tfP"></p></div>
+   <div class="tfvid"><button class="tfsnd" id="tfSnd">${LI('mega',16)}<span id="tfSndT">${T('Tap for sound')}</span></button><span class="tftime" id="tfTime">0:00</span><div class="tfbar"><i id="tfBar"></i></div><span class="tftime">0:28</span></div>
+   <div class="tfend" id="tfEnd"><button class="btn" id="tfRe">${LI('play',17)} ${T('Replay')}</button><button class="btn pri" id="tfOk">${T('Got it')}</button></div>`;
+  document.body.appendChild(el);
+  const CAP=[[T('Drive like normal'),T('Admin and Database phones watch where they go. Just keep the map open on the dash.')],
+    [T('Off the map? It notices'),T('More than 30 m from every road, it starts drawing the track you are on.')],
+    [T('Back on a road: saved'),T('The stretch goes to admins and Database. No signal? It waits and sends it later.')],
+    [T('It names itself'),T('From the roads it leaves and joins. Same road both ends makes a Link, two roads make a Hyena-Leopard Link, a dead end is a Spur.')],
+    [T('One tap: it is a road'),T('Check it, keep or change the name, Add to map. Everyone gets it and directions use it.')]];
+  let stage=-1;const cap=k=>{if(k===stage)return;stage=k;const c=$('tfCap');c.classList.remove('in');void c.offsetWidth;$('tfH').textContent=CAP[k][0];$('tfP').textContent=CAP[k][1];c.classList.add('in')};
+  // camera plan
+  let bb=[180,90,-180,-90];ex.concat(A).forEach(c=>{bb=[Math.min(bb[0],c[0]),Math.min(bb[1],c[1]),Math.max(bb[2],c[0]),Math.max(bb[3],c[1])]});
+  const ov=map.cameraForBounds([[bb[0],bb[1]],[bb[2],bb[3]]],{padding:{top:150,bottom:260,left:40,right:40}})||{center:{lng:(bb[0]+bb[2])/2,lat:(bb[1]+bb[3])/2},zoom:16};
+  const ovC=[ov.center.lng!=null?ov.center.lng:ov.center[0],ov.center.lat!=null?ov.center.lat:ov.center[1]],ovZ=Math.min(17,ov.zoom||16);
+  const E=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2,mix=(a,b,f)=>a+(b-a)*f,mixLL=(a,b,f)=>[mix(a[0],b[0],f),mix(a[1],b[1],f)];
+  let raf=0,t0=0,hd=bearing(A[0],A[Math.min(1,A.length-1)]),camHd=hd,last=null,typed='',flags={};
+  const once=(k,f)=>{if(!flags[k]){flags[k]=1;f()}};
+  const chase=(ll,h,z,p)=>{camHd=angLerp(camHd,h,.1);map.jumpTo({center:ll,bearing:camHd,pitch:p,zoom:z,padding:{top:Math.round(innerHeight*.38),bottom:0,left:0,right:0}})};
+  const T1=2.6,T2=7.4,T3=15.6,T4=19,T5=23,TE=28.5;let tfT=0,mus=null,soundOn=false;
+  const music=o2=>{if(mus)mus.stop();mus=tfMusic({T1,T2,T3,T4,T5,TE});if(mus){mus.start(o2);soundOn=true;el.classList.add('snd');$('tfSndT').textContent=T('Sound on')}};
+  const tick=now=>{if(!el.isConnected)return;if(!t0)t0=now;const t=window.__tfAt!=null?window.__tfAt:(now-t0)/1000;el.classList.toggle('s-title',t<T1);tfT=t;$('tfBar').style.width=Math.min(100,t/TE*100)+'%';$('tfTime').textContent='0:'+String(Math.min(28,Math.floor(t))).padStart(2,'0');
+    if(t<T1){const f=t/T1;map.jumpTo({center:mixLL(ovC,A[0],E(f)*.25),zoom:mix(ovZ-2.6,ovZ-1.4,E(f)),bearing:mix(-25,0,E(f)),pitch:mix(20,40,E(f)),padding:{top:0,bottom:0,left:0,right:0}})}
+    else if(t<T2){cap(0);const f=(t-T1)/(T2-T1),d=RA.tot*Math.min(1,Math.max(0,(f-.18)/.82)),ll=RA.at(d),nx=RA.at(d+12);hd=dist(ll,nx)>1?bearing(ll,nx):hd;car.setLngLat(ll).setRotation(hd);
+      map.getSource('tff-app').setData(fc([ln(RA.upto(d))]));if(f<.3){const g=E(f/.3);map.jumpTo({center:mixLL(mixLL(ovC,A[0],.25),ll,g),zoom:mix(ovZ-1.4,17.7,g),bearing:angLerp(0,hd,g),pitch:mix(40,62,g),padding:{top:Math.round(innerHeight*.38*g),bottom:0,left:0,right:0}});camHd=map.getBearing()}else chase(ll,hd,17.7,62)}
+    else if(t<T3){cap(1);const f=(t-T2)/(T3-T2),d=RX.tot*f,ll=RX.at(d),nx=RX.at(d+10);hd=dist(ll,nx)>1?bearing(ll,nx):hd;car.setLngLat(ll).setRotation(hd);
+      once('p0',()=>{ping(ex[0]);el.classList.add('s-off')});map.getSource('tff-trail').setData(fc([ln(RX.upto(d))]));const ne=nearestEdge(ll,400);$('tfOffN').textContent=(ne?Math.round(ne.d||projSeg(ll,nodes[ne.e.a],nodes[ne.e.b]).d):400)+' m';chase(ll,hd,17.4,60)}
+    else if(t<T4){cap(2);once('p1',()=>{ping(ex[ex.length-1]);el.classList.remove('s-off');el.classList.add('s-found');map.getSource('tff-trail').setData(fc([ln(ex)]))});
+      const f=Math.min(1,(t-T3)/1.8),g=E(f),c0=RX.at(RX.tot);map.jumpTo({center:mixLL(c0,ovC,g),zoom:mix(17.4,ovZ,g),bearing:angLerp(camHd,0,g),pitch:mix(60,0,g),padding:{top:Math.round(innerHeight*.38*(1-g)),bottom:0,left:0,right:0}});
+      $('tfLen').textContent=Math.round(990*Math.min(1,(t-T3)/1.6))+' m'}
+    else if(t<T5){cap(3);el.classList.remove('s-found');el.classList.add('s-name');const f=(t-T4)/(T5-T4);
+      map.setPaintProperty('tff-glow-ends','line-opacity',.25+.55*Math.abs(Math.sin(t*3)));const n=Math.min(nm.length,Math.floor(Math.max(0,f-.35)/.45*nm.length));if(n!==typed.length){typed=nm.slice(0,n);$('tfType').textContent=typed}
+      once('why',()=>{$('tfWhy').innerHTML=`${LI('route',12)} ${esc(endA||'?')} ${endB&&endB!==endA?'› '+esc(endB):'› '+T('back onto')+' '+esc(endA||'?')}`})}
+    else if(t<TE){cap(4);map.setPaintProperty('tff-glow-ends','line-opacity',0);$('tfType').textContent=nm;const f=(t-T5);
+      once('card',()=>{el.classList.remove('s-name');el.classList.add('s-card')});if(f>2.1)once('tap',()=>el.classList.add('s-tap'));
+      if(f>2.7)once('road',()=>{el.classList.remove('s-card','s-tap');map.getSource('tff-road').setData(fc([ln(ex)]));['tff-road-case','tff-road'].forEach(i=>map.setPaintProperty(i,'line-opacity',1));map.setPaintProperty('tff-lbl','text-opacity',1);
+        map.setPaintProperty('tff-glow','line-opacity',0);map.setPaintProperty('tff-line','line-opacity',0);sparks($('tfConf'),130,3.4,true);el.classList.add('s-done')});
+      if(f>2.7){const g=Math.min(1,(f-2.7)/2.8);map.jumpTo({center:ovC,zoom:mix(ovZ,ovZ+.15,E(g)),bearing:mix(0,-12,E(g)),pitch:mix(0,35,E(g)),padding:{top:0,bottom:Math.round(innerHeight*.12),left:0,right:0}})}}
+    else{el.classList.add('s-end');return}
+    raf=requestAnimationFrame(tick)};
+  const reset=()=>{cancelAnimationFrame(raf);t0=0;tfT=0;stage=-1;typed='';flags={};hd=bearing(A[0],A[Math.min(1,A.length-1)]);camHd=hd;el.className='';$('tfType').textContent='';$('tfWhy').textContent='';
+    ['tff-app','tff-trail','tff-road'].forEach(sr=>map.getSource(sr).setData(fc([])));['tff-road-case','tff-road'].forEach(i=>map.setPaintProperty(i,'line-opacity',0));map.setPaintProperty('tff-lbl','text-opacity',0);map.setPaintProperty('tff-glow','line-opacity',.55);map.setPaintProperty('tff-line','line-opacity',1);map.setPaintProperty('tff-glow-ends','line-opacity',0);car.setLngLat(A[0])};
+  const close=()=>{cancelAnimationFrame(raf);if(mus)mus.stop();el.classList.add('out');car.remove();L.forEach(i=>{try{map.removeLayer(i)}catch(e){}});['tff-ends','tff-app','tff-trail','tff-road'].forEach(sr=>{try{map.removeSource(sr)}catch(e){}});
+    document.body.classList.remove('tfFilm');if(openSheet.later){const q=openSheet.later;openSheet.later=null;setTimeout(()=>openSheet(q[0],q[1]),1000)}map.easeTo({center:saved.center,zoom:saved.zoom,bearing:saved.bearing,pitch:saved.pitch,padding:{top:0,bottom:0,left:0,right:0},duration:900});setTimeout(()=>{el.remove();try{if(saved.follow)setFollow(saved.follow)}catch(e){}},950)};
+  el.querySelector('.tfx').onclick=close;$('tfOk').onclick=close;$('tfRe').onclick=()=>{reset();if(soundOn)music(0);raf=requestAnimationFrame(tick)};
+  $('tfSnd').onclick=()=>{if(soundOn){if(mus)mus.stop();mus=null;soundOn=false;el.classList.remove('snd');$('tfSndT').textContent=T('Sound off');return}music(tfT)};
+  reset();raf=requestAnimationFrame(tick);
+  // opened with a tap (How it works): the music starts straight away. Opened on its own: the phone needs a tap first
+  if(force)music(0)}
 /* suggested names: Hyena Link (same road out and back), Hyena-Leopard Link (one road to another), Hyena Spur (goes in and stops) */
 const rdShort=n=>String(n||'').replace(/\s+(Road|Rd|Track|Drive|Loop|Way|Lane|Avenue|Street)$/i,'').trim();
 function tfEndRoad(ll){const e=nearestEdge(ll,45);return e?ROADS[e.e.road].properties.name:null}
@@ -2943,7 +3113,7 @@ async function tfSheet(all){openSheet(`<h2>${T('New tracks found')}</h2><div cla
    ${L.length?`${L.length>1?`<button class="btn" id="tfAll" style="width:100%;margin-top:8px">${LI('map',17)} ${T('Show all on the map')}</button>`:''}${TF.shown?`<button class="btn" id="tfHide" style="width:100%;margin-top:8px">${T('Hide them from the map')}</button>`:''}
    <div class="list sgroup" style="margin-top:12px">${L.map(row).join('')}</div>${Cloud.member.locked?`<button class="uwl" id="tfShare" style="display:block;margin:10px auto 0">${T('Share them as a file')}</button>`:''}`:`<div class="sub" style="margin-top:16px">${T('Nothing new. Tracks show up here after admins drive somewhere that is not on the map.')}</div>`}
    <button class="uwl" id="tfOld" style="display:block;margin:12px auto 0">${all?T('Show only new ones'):T('Show added and ignored ones too')}</button>`,()=>{
-    $('tfHow').onclick=()=>tfIntro(true);$('tfRoads').onclick=()=>droadsSheet();
+    $('tfHow').onclick=()=>tfFilm(true);$('tfRoads').onclick=()=>droadsSheet();
     if($('tfAll'))$('tfAll').onclick=()=>tfShow(L);if($('tfHide'))$('tfHide').onclick=()=>{tfShow([]);tfSheet(all)};$('tfOld').onclick=()=>tfSheet(!all);
     document.querySelectorAll('[data-tfs]').forEach(b=>b.onclick=()=>tfShow(L.filter(x=>x.id===b.dataset.tfs)));
     document.querySelectorAll('[data-tfa]').forEach(b=>b.onclick=()=>{const x=L.find(q=>q.id===b.dataset.tfa);if(x)tfAddSheet(x,all)});
@@ -3198,7 +3368,7 @@ $('compass').onclick=()=>{if(follow===2)setFollow(1);map.easeTo({bearing:0,pitch
 $('layerBtn').onclick=()=>openSheet(layerSheet());
 
 /* ============ sheet ============ */
-function openSheet(html,onOpen){{const sp=document.getElementById('saPop');if(sp)sp.classList.remove('on')}$('sheet').style.transform='';$('sheet').classList.remove('full','obx');SHEET_REFRESH=null;$('sheetBody').innerHTML=html;try{$('sheetBody').scrollTop=0;$('sheet').scrollTop=0}catch(e){}$('sheet').classList.add('open');$('scrim').classList.add('on');if(onOpen)onOpen()}
+function openSheet(html,onOpen){if(document.body.classList.contains('tfFilm')){openSheet.later=[html,onOpen];return}{const sp=document.getElementById('saPop');if(sp)sp.classList.remove('on')}$('sheet').style.transform='';$('sheet').classList.remove('full','obx');SHEET_REFRESH=null;$('sheetBody').innerHTML=html;try{$('sheetBody').scrollTop=0;$('sheet').scrollTop=0}catch(e){}$('sheet').classList.add('open');$('scrim').classList.add('on');if(onOpen)onOpen()}
 function closeSheet(){$('sheet').classList.remove('obx');if(DSPREV){const m=DSPREV;DSPREV=null;mode=m;try{applyMode()}catch(e){}}$('sheet').classList.remove('open');$('scrim').classList.remove('on');clearPin()}
 $('scrim').onclick=closeSheet;
 /* swipe the sheet down to close it (from the grab line, or anywhere when the sheet is scrolled to the top) */
