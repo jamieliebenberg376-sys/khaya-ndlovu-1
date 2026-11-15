@@ -3363,10 +3363,50 @@ returns json language sql stable security definer set search_path = public as $$
     from ev group by ev.c, ev.k order by max(ev.t) desc limit 40) x), '[]'::json) $$;
 grant execute on function public.feed_activity(timestamptz) to authenticated;
 
+-- ============ v156: tracks that aren't on the map yet ============
+-- admins' and Database phones notice when they drive somewhere with no road on the map and send that stretch here.
+-- Only Database accounts can see them, to copy and add to the map.
+create table if not exists public.track_finds (
+  id text primary key, user_id uuid not null default auth.uid(), name text, pts jsonb not null, len int not null,
+  lat double precision, lng double precision, status text not null default 'new', created_at timestamptz not null default now());
+alter table public.track_finds enable row level security;
+revoke all on public.track_finds from anon, authenticated;
+create index if not exists track_finds_new on public.track_finds (status, created_at desc);
+create or replace function public.add_track_find(p_id text, p_pts jsonb, p_len int)
+returns void language plpgsql security definer set search_path = public as $$
+declare m public.members; n int := jsonb_array_length(coalesce(p_pts, '[]'::jsonb));
+begin
+  select * into m from public.members where user_id = auth.uid();
+  if not found or not (m.role = 'admin' or coalesce(m.locked, false)) then raise exception 'admins only'; end if;
+  if n < 5 or n > 2000 or p_len < 60 then return; end if;
+  if (select count(*) from public.track_finds where user_id = auth.uid() and created_at > now() - interval '1 day') >= 200 then return; end if;
+  insert into public.track_finds (id, user_id, name, pts, len, lat, lng)
+    values (left(p_id, 60), auth.uid(), m.name, p_pts, p_len, (p_pts->(n/2)->>1)::double precision, (p_pts->(n/2)->>0)::double precision)
+    on conflict (id) do nothing;
+end $$;
+grant execute on function public.add_track_find(text, jsonb, int) to authenticated;
+create or replace function public.list_track_finds(p_all boolean default false)
+returns json language plpgsql stable security definer set search_path = public as $$
+begin
+  if not exists (select 1 from public.members where user_id = auth.uid() and locked) then return '[]'::json; end if;
+  return coalesce((select json_agg(row_to_json(x) order by x.created_at desc) from (
+    select id, name, pts, len, lat, lng, status, created_at from public.track_finds
+    where p_all or status = 'new' order by created_at desc limit 300) x), '[]'::json);
+end $$;
+grant execute on function public.list_track_finds(boolean) to authenticated;
+create or replace function public.set_track_finds(p_ids text[], p_status text)
+returns void language plpgsql security definer set search_path = public as $$
+begin
+  if not exists (select 1 from public.members where user_id = auth.uid() and locked) then raise exception 'Only Database accounts can do this'; end if;
+  if p_status not in ('new', 'sent', 'ignored') then raise exception 'bad status'; end if;
+  update public.track_finds set status = p_status where id = any(p_ids);
+end $$;
+grant execute on function public.set_track_finds(text[], text) to authenticated;
+
 
 
 -- =====================================================================
--- PUSH THE UPDATE (version 154)
+-- PUSH THE UPDATE (version 156)
 -- =====================================================================
 
 alter table private.config add column if not exists min_build int not null default 0;
@@ -3436,9 +3476,9 @@ begin
 end $$;
 grant execute on function public.set_min_build(int) to authenticated;
 
--- push it now: require version 154 and post the news. It is sent by the database, not by any person.
-update private.config set min_build = 154;
-select public.kn_update_news(154);
+-- push it now: require version 156 and post the news. It is sent by the database, not by any person.
+update private.config set min_build = 156;
+select public.kn_update_news(156);
 
 notify pgrst, 'reload schema';
 
@@ -3452,7 +3492,7 @@ union all select 'Two Database accounts on the map', case when (select count(*) 
 union all select 'Database code 1 (keep it secret, it gives full control)', (select code from private.db_slots where slot = 1) || coalesce('  ·  ' || (select m.name from private.db_slots d join public.members m on m.user_id = d.user_id where d.slot = 1), '')
 union all select 'Database code 2 (keep it secret, it gives full control)', (select code from private.db_slots where slot = 2) || coalesce('  ·  ' || (select m.name from private.db_slots d join public.members m on m.user_id = d.user_id where d.slot = 2), '')
 union all select 'Backend self-test', case when (select count(*) from public.kn_backend_selftest() where result not like 'PASS%') = 0 then 'YES' else 'NO: ' || (select string_agg(test, ', ') from public.kn_backend_selftest() where result not like 'PASS%') end
-union all select 'Everyone must be on version 154', case when (select min_build from private.config limit 1) = 154 then 'YES' else 'NO' end
-union all select 'Update news posted (only old versions see it)', case when exists (select 1 from public.announcements where for_old_build = 154 and not removed) then 'YES' else 'NO' end
+union all select 'Everyone must be on version 156', case when (select min_build from private.config limit 1) = 156 then 'YES' else 'NO' end
+union all select 'Update news posted (only old versions see it)', case when exists (select 1 from public.announcements where for_old_build = 156 and not removed) then 'YES' else 'NO' end
 union all select 'Your owner code (unchanged)', (select upper(invite_code) from private.config limit 1)
-union all select 'People who still need to update', (select count(*)::text from public.members where coalesce(app_build, 0) < 154 and (role <> 'guest' or expires_at > now()));
+union all select 'People who still need to update', (select count(*)::text from public.members where coalesce(app_build, 0) < 156 and (role <> 'guest' or expires_at > now()));

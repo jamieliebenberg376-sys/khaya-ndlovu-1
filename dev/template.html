@@ -2798,8 +2798,56 @@ function onPos(p){
   if(sim)return;
   const c=p.coords;handlePos([c.longitude,c.latitude],c.accuracy,c.heading,c.speed,p.timestamp);
 }
+/* ============ new tracks: admins' and Database phones notice roads that aren't on the map ============
+   Driving more than 30 m from every mapped road (back on a road within 18 m) is a stretch of new track.
+   Stretches of 80 m or more are sent to the Database accounts, who copy them and have them added to the map. */
+const TF={seg:null,q:LS.get('tfQueue',[]),count:0,list:[],shown:false};
+const tfMe=()=>!!(Cloud.member&&(Cloud.member.role==='admin'||Cloud.member.locked)&&!Cloud.member.viewAs);
+function tfFix(ll,acc,speed,t){if(!tfMe()||DM.on||!(inReserve(ll)||nearestEdge(ll,400)))return;const s=TF.seg,sp=speed==null||isNaN(speed)?(speedS||0):speed;
+  if((acc||99)>30||sp<1.5){if(s&&t-s.lt>90000)tfEnd();return}
+  const near=nearestEdge(ll,30),back=nearestEdge(ll,18);
+  if(!near){if(!s)TF.seg={pts:TF.last?[TF.last]:[],len:0,t0:t,lt:t};const g=TF.seg;const L=g.pts[g.pts.length-1];if(!L||dist([L[0],L[1]],ll)>=8){if(L)g.len+=dist([L[0],L[1]],ll);g.pts.push([+ll[0].toFixed(6),+ll[1].toFixed(6),Math.round(t/1000)])}g.lt=t}
+  else if(s&&back){s.pts.push([+ll[0].toFixed(6),+ll[1].toFixed(6),Math.round(t/1000)]);s.len+=dist([s.pts[s.pts.length-2][0],s.pts[s.pts.length-2][1]],ll);tfEnd()}
+  TF.last=[+ll[0].toFixed(6),+ll[1].toFixed(6),Math.round(t/1000)]}
+function tfEnd(){const s=TF.seg;TF.seg=null;if(!s||s.len<80||s.pts.length<6)return;TF.q.push({id:'tf-'+((Cloud.sess&&Cloud.sess.uid)||'x').slice(0,8)+'-'+s.t0,pts:s.pts.slice(0,1500),len:Math.round(s.len)});TF.q=TF.q.slice(-60);LS.set('tfQueue',TF.q);tfSend()}
+async function tfSend(){if(!TF.q.length||!navigator.onLine||!Cloud.member||tfSend.busy)return;tfSend.busy=true;
+  try{while(TF.q.length){const x=TF.q[0];try{await rpc('add_track_find',{p_id:x.id,p_pts:x.pts,p_len:x.len})}catch(e){if(/404|PGRST202|Could not find/.test(String(e.message))||/^5/.test(String(e.message)))break;if(!/admins only/.test(String(e.message)))break}TF.q.shift();LS.set('tfQueue',TF.q)}}finally{tfSend.busy=false}}
+/* past recorded drives on this phone are checked once too */
+function tfPast(){if(!tfMe())return;const done=new Set(LS.get('tfPast',[]));let n=0;
+  for(const tr of (typeof tracks!=='undefined'?tracks:[])){const k=tr.cid||String(tr.t);if(done.has(k)||!tr.pts||tr.pts.length<6)continue;done.add(k);n++;
+    let seg=null,prev=null;const t0=tr.t||Date.now();
+    tr.pts.forEach((p,i)=>{const ll=[p[0],p[1]];const near=nearestEdge(ll,30),back=nearestEdge(ll,18),pt=[+ll[0].toFixed(6),+ll[1].toFixed(6),Math.round((t0+i*3000)/1000)];
+      if(!near){if(!seg)seg={pts:prev?[prev]:[],len:0};const L=seg.pts[seg.pts.length-1];if(L)seg.len+=dist([L[0],L[1]],ll);seg.pts.push(pt)}
+      else if(seg&&back){seg.pts.push(pt);if(seg.len>=80&&seg.pts.length>=6)TF.q.push({id:'tfp-'+k.slice(-14)+'-'+i,pts:seg.pts.slice(0,1500),len:Math.round(seg.len)});seg=null}
+      prev=pt});
+    if(seg&&seg.len>=80&&seg.pts.length>=6)TF.q.push({id:'tfp-'+k.slice(-14)+'-end',pts:seg.pts.slice(0,1500),len:Math.round(seg.len)})}
+  LS.set('tfPast',[...done].slice(-400));if(n){TF.q=TF.q.slice(-60);LS.set('tfQueue',TF.q);tfSend()}}
+setTimeout(()=>{try{tfPast()}catch(e){}tfSend()},20000);setInterval(tfSend,120000);
+/* Database accounts: the list, on the map, and as a file to send on */
+async function tfLoad(all){if(!Cloud.member||!Cloud.member.locked||!navigator.onLine)return TF.list;try{const L=await rpc('list_track_finds',{p_all:!!all});TF.list=Array.isArray(L)?L:[];TF.count=TF.list.filter(x=>x.status==='new').length}catch(e){}return TF.list}
+setTimeout(()=>{if(Cloud.member&&Cloud.member.locked)tfLoad()},15000);
+function tfShow(L){if(!mapReady)return;const F=(L||[]).map(x=>({type:'Feature',properties:{id:x.id},geometry:{type:'LineString',coordinates:x.pts.map(p=>[p[0],p[1]])}}));
+  if(!map.getSource('tfinds')){map.addSource('tfinds',{type:'geojson',data:{type:'FeatureCollection',features:[]}});map.addLayer({id:'tfinds-glow',type:'line',source:'tfinds',paint:{'line-color':'#ff4fa3','line-width':10,'line-opacity':.25}});map.addLayer({id:'tfinds',type:'line',source:'tfinds',layout:{'line-cap':'round'},paint:{'line-color':'#ff4fa3','line-width':4,'line-dasharray':[1.5,1.2]}})}
+  map.getSource('tfinds').setData({type:'FeatureCollection',features:F});TF.shown=F.length>0;
+  if(F.length){let a=[180,90,-180,-90];F.forEach(f=>f.geometry.coordinates.forEach(c=>{a=[Math.min(a[0],c[0]),Math.min(a[1],c[1]),Math.max(a[2],c[0]),Math.max(a[3],c[1])]}));closeSheet();setFollow(0);map.fitBounds([[a[0],a[1]],[a[2],a[3]]],{padding:70,maxZoom:16.5,duration:700});
+    toast(T('New tracks are the pink dashed lines. Open New tracks found again to hide them.'),4500)}}
+function tfFile(L){const fc={type:'FeatureCollection',features:L.map(x=>({type:'Feature',properties:{id:x.id,by:x.name,length_m:x.len,found:x.created_at},geometry:{type:'LineString',coordinates:x.pts.map(p=>[p[0],p[1]])}}))};
+  return new File([JSON.stringify(fc)],'khaya-new-tracks-'+new Date().toISOString().slice(0,10)+'.geojson',{type:'application/geo+json'})}
+async function tfSheet(all){openSheet(`<h2>${T('New tracks found')}</h2><div class="sub">${T('Loading...')}</div>`);await tfLoad(all);const L=TF.list;const nw=L.filter(x=>x.status==='new');
+  const row=x=>`<div class="it tfr"><div style="flex:1;min-width:0"><b>${fmtD(x.len)} ${T('of track')}</b><br><small>${esc(x.name||'Admin')} · ${esc(ago(Date.parse(x.created_at)))}${x.status!=='new'?' · '+T(x.status==='sent'?'sent':'ignored'):''}</small></div><button class="sm" data-tfs="${esc(x.id)}">${T('Show')}</button>${x.status==='new'?`<button class="sm" data-tfi="${esc(x.id)}">${T('Ignore')}</button>`:''}</div>`;
+  openSheet(`<h2>${T('New tracks found')}</h2><div class="sub" style="line-height:1.45">${T('When an admin or Database phone drives more than 30 m away from every road on the map, that stretch is saved here. Share them as a file and send it to be added to the map.')}</div>
+   ${L.length?`<div class="row" style="margin-top:12px"><button class="btn" id="tfAll">${LI('map',17)} ${T('Show all')}</button><button class="btn pri" id="tfShare">${LI('share',17)} ${T('Share as file')}</button></div>
+   ${TF.shown?`<button class="btn" id="tfHide" style="width:100%;margin-top:8px">${T('Hide them from the map')}</button>`:''}
+   <div class="list sgroup" style="margin-top:12px">${L.map(row).join('')}</div>${nw.length?`<button class="btn" id="tfSent" style="width:100%;margin-top:10px">${T('Mark all as sent')}</button>`:''}`:`<div class="sub" style="margin-top:16px">${T('Nothing yet. They show up here after admins drive tracks that are not on the map.')}</div>`}
+   <button class="uwl" id="tfOld" style="display:block;margin:12px auto 0">${all?T('Show only new ones'):T('Show sent and ignored ones too')}</button>`,()=>{
+    if($('tfAll'))$('tfAll').onclick=()=>tfShow(L);if($('tfHide'))$('tfHide').onclick=()=>{tfShow([]);tfSheet(all)};$('tfOld').onclick=()=>tfSheet(!all);
+    document.querySelectorAll('[data-tfs]').forEach(b=>b.onclick=()=>tfShow(L.filter(x=>x.id===b.dataset.tfs)));
+    document.querySelectorAll('[data-tfi]').forEach(b=>b.onclick=async()=>{try{await rpc('set_track_finds',{p_ids:[b.dataset.tfi],p_status:'ignored'})}catch(e){toast(errTxt(e));return}tfSheet(all)});
+    if($('tfSent'))$('tfSent').onclick=async()=>{try{await rpc('set_track_finds',{p_ids:nw.map(x=>x.id),p_status:'sent'});toast(T('Marked as sent'))}catch(e){toast(errTxt(e));return}tfSheet(all)};
+    if($('tfShare'))$('tfShare').onclick=async()=>{const f=tfFile(L);try{if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:'New tracks'});return}}catch(e){if(e&&e.name==='AbortError')return}
+      const a=document.createElement('a');a.href=URL.createObjectURL(f);a.download=f.name;a.click();toast(T('File saved'))}})}
 function handlePos(raw,acc,heading,speed,t){if((speed||0)>1.5)lastMoveT=Date.now();
-  const ll=[raw[0]+calib[0],raw[1]+calib[1]];
+  const ll=[raw[0]+calib[0],raw[1]+calib[1]];try{tfFix(ll,acc,speed,t)}catch(e){}
   if(lastPos){const dt=(t-lastPos.t)/1000,dd=dist(lastPos.ll,ll);if(dt>0){const v=dd/dt;if(speed==null||isNaN(speed))speed=v;if((heading==null||isNaN(heading))&&dd>3)heading=bearing(lastPos.ll,ll)}}
   if(speed!=null&&!isNaN(speed)){if(speed>42)speed=speedS;speedS=speedS*0.65+speed*0.35}
   if(heading==null||isNaN(heading)||(speed!=null&&speed<0.8))heading=me?me.heading:null;
@@ -4507,6 +4555,7 @@ $('menuBtn').onclick=()=>{
     ${m?LK('lLive','Share live location',shareLoc?'On · '+esc(liveWhy().short):'Off','','live','#1a73e8'):''}
 
     ${m&&isAdm2()&&!m.viewAs?LK('lUpd',T('Updates and reinstall'),T('Send the newest version to everyone'),'v'+VER(APP_BUILD),'down','#1a73e8'):''}
+    ${m&&m.locked&&!m.viewAs?LK('lTf',T('New tracks found'),T('Roads admins drove that are not on the map yet'),TF.count?'<span class="tag t-new">'+TF.count+' new</span>':'','route','#c2185b'):''}
     ${m&&isAdm2()&&!m.viewAs?LK('lAdm','Admin tools',MS.paused?'The map is paused':'Pause, rules, guest limits, reports','','shield','#b06000'):''}
     ${LK('lOff','Offline map',esc(offlineStatus()),'','down','#00796b')}
     ${LIVEMAP?LK('lSwap',LIVEMAP?'Swap to Khaya Ndlovu':'Swap to Stellenbosch',LIVEMAP?'You are on the Stellenbosch map':liveSaved()?'Every real road, saved on this phone':'Every real road · drive it with your GPS','','map','#c48a1a'):''}${DM.on?LK('lDemo','Demo mode',DM.on?'You are in demo mode · tap to see who is in it':(()=>{const L=Object.values(DEMO.outside).filter(p=>Date.now()-p.t<20000);return L.length?L.map(p=>p.name).slice(0,2).join(' and ')+(L.length>2?' and others':'')+(L.length>1?' are':' is')+' in demo mode now · tap to join':'Pretend to be anywhere and test everything'})(),'','play','#5f6368'):''}
@@ -4522,7 +4571,7 @@ $('menuBtn').onclick=()=>{
     if($('tHome'))$('tHome').onclick=()=>homeSheet();
     if($('lAnn'))$('lAnn').onclick=()=>{loadAnn();annSheet()};
     $('tDrives').onclick=()=>openSheet(tracksSheet(),bindTracks);
-    if($('lLive'))$('lLive').onclick=()=>liveSheet();if($('tChat'))$('tChat').onclick=()=>inboxSheet();if($('lBest'))$('lBest').onclick=()=>bestSheet();if($('lUpd'))$('lUpd').onclick=()=>updAdminSheet();
+    if($('lLive'))$('lLive').onclick=()=>liveSheet();if($('tChat'))$('tChat').onclick=()=>inboxSheet();if($('lBest'))$('lBest').onclick=()=>bestSheet();if($('lTf'))$('lTf').onclick=()=>tfSheet();if($('lUpd'))$('lUpd').onclick=()=>updAdminSheet();
     $('lOff').onclick=()=>offlineSheet(false);
     if($('lDemo'))$('lDemo').onclick=()=>{if(LIVEMAP){toast(T('Swap back to Khaya Ndlovu to use demo mode'));return}if(DM.on){demoPeopleSheet();return}closeSheet();startDemo()};if($('lSwap'))$('lSwap').onclick=swapSheet;
     if($('lAdm'))$('lAdm').onclick=()=>adminSheet();
