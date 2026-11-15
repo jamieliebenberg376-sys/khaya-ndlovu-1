@@ -2804,10 +2804,13 @@ function onPos(p){
 const TF={seg:null,q:LS.get('tfQueue',[]),count:0,list:[],shown:false};
 const tfMe=()=>!!(Cloud.member&&(Cloud.member.role==='admin'||Cloud.member.locked)&&!Cloud.member.viewAs);
 function tfFix(ll,acc,speed,t){if(!tfMe()||DM.on||!(inReserve(ll)||nearestEdge(ll,400)))return;const s=TF.seg,sp=speed==null||isNaN(speed)?(speedS||0):speed;
-  if((acc||99)>30||sp<1.5){if(s&&t-s.lt>90000)tfEnd();return}
+  // a gap (app closed, screen locked, phone off) or a jump: finish what we had, never join across it with a straight line
+  if(s){const L=s.pts[s.pts.length-1];if(t-s.lt>20000||(L&&dist([L[0],L[1]],ll)>150))tfEnd()}
+  if(TF.last&&(t/1000-TF.last[2]>20||dist([TF.last[0],TF.last[1]],ll)>150))TF.last=null;
+  if((acc||99)>30||sp<1.5){if(TF.seg&&t-TF.seg.lt>90000)tfEnd();return}
   const near=nearestEdge(ll,30),back=nearestEdge(ll,18);
-  if(!near){if(!s)TF.seg={pts:TF.last?[TF.last]:[],len:0,t0:t,lt:t};const g=TF.seg;const L=g.pts[g.pts.length-1];if(!L||dist([L[0],L[1]],ll)>=8){if(L)g.len+=dist([L[0],L[1]],ll);g.pts.push([+ll[0].toFixed(6),+ll[1].toFixed(6),Math.round(t/1000)])}g.lt=t}
-  else if(s&&back){s.pts.push([+ll[0].toFixed(6),+ll[1].toFixed(6),Math.round(t/1000)]);s.len+=dist([s.pts[s.pts.length-2][0],s.pts[s.pts.length-2][1]],ll);tfEnd()}
+  if(!near){if(!TF.seg)TF.seg={pts:TF.last?[TF.last]:[],len:0,t0:t,lt:t};const g=TF.seg;const L=g.pts[g.pts.length-1];if(!L||dist([L[0],L[1]],ll)>=8){if(L)g.len+=dist([L[0],L[1]],ll);g.pts.push([+ll[0].toFixed(6),+ll[1].toFixed(6),Math.round(t/1000)])}g.lt=t}
+  else if(TF.seg&&back){const s=TF.seg;s.pts.push([+ll[0].toFixed(6),+ll[1].toFixed(6),Math.round(t/1000)]);s.len+=dist([s.pts[s.pts.length-2][0],s.pts[s.pts.length-2][1]],ll);tfEnd()}
   TF.last=[+ll[0].toFixed(6),+ll[1].toFixed(6),Math.round(t/1000)]}
 function tfEnd(){const s=TF.seg;TF.seg=null;if(!s||s.len<80||s.pts.length<6)return;TF.q.push({id:'tf-'+((Cloud.sess&&Cloud.sess.uid)||'x').slice(0,8)+'-'+s.t0,pts:s.pts.slice(0,1500),len:Math.round(s.len)});TF.q=TF.q.slice(-60);LS.set('tfQueue',TF.q);tfSend()}
 async function tfSend(){if(!TF.q.length||!navigator.onLine||!Cloud.member||tfSend.busy)return;tfSend.busy=true;
@@ -2816,12 +2819,13 @@ async function tfSend(){if(!TF.q.length||!navigator.onLine||!Cloud.member||tfSen
 function tfPast(){if(!tfMe())return;const done=new Set(LS.get('tfPast',[]));let n=0;
   for(const tr of (typeof tracks!=='undefined'?tracks:[])){const k=tr.cid||String(tr.t);if(done.has(k)||!tr.pts||tr.pts.length<6)continue;done.add(k);n++;
     let seg=null,prev=null;const t0=tr.t||Date.now();
-    tr.pts.forEach((p,i)=>{const ll=[p[0],p[1]];const near=nearestEdge(ll,30),back=nearestEdge(ll,18),pt=[+ll[0].toFixed(6),+ll[1].toFixed(6),Math.round((t0+i*3000)/1000)];
+    tr.pts.forEach((p,i)=>{const ll=[p[0],p[1]];if(prev&&dist([prev[0],prev[1]],ll)>150){if(seg&&seg.len>=80&&seg.pts.length>=6)TF.q.push({id:'tfp-'+k.slice(-14)+'-g'+i,pts:seg.pts.slice(0,1500),len:Math.round(seg.len)});seg=null;prev=null}const near=nearestEdge(ll,30),back=nearestEdge(ll,18),pt=[+ll[0].toFixed(6),+ll[1].toFixed(6),Math.round((t0+i*3000)/1000)];
       if(!near){if(!seg)seg={pts:prev?[prev]:[],len:0};const L=seg.pts[seg.pts.length-1];if(L)seg.len+=dist([L[0],L[1]],ll);seg.pts.push(pt)}
       else if(seg&&back){seg.pts.push(pt);if(seg.len>=80&&seg.pts.length>=6)TF.q.push({id:'tfp-'+k.slice(-14)+'-'+i,pts:seg.pts.slice(0,1500),len:Math.round(seg.len)});seg=null}
       prev=pt});
     if(seg&&seg.len>=80&&seg.pts.length>=6)TF.q.push({id:'tfp-'+k.slice(-14)+'-end',pts:seg.pts.slice(0,1500),len:Math.round(seg.len)})}
   LS.set('tfPast',[...done].slice(-400));if(n){TF.q=TF.q.slice(-60);LS.set('tfQueue',TF.q);tfSend()}}
+document.addEventListener('visibilitychange',()=>{if(document.hidden){tfEnd();TF.last=null}});
 setTimeout(()=>{try{tfPast()}catch(e){}tfSend()},20000);setInterval(tfSend,120000);
 /* Database accounts: the list, on the map, and as a file to send on */
 async function tfLoad(all){if(!Cloud.member||!Cloud.member.locked||!navigator.onLine)return TF.list;try{const L=await rpc('list_track_finds',{p_all:!!all});TF.list=Array.isArray(L)?L:[];TF.count=TF.list.filter(x=>x.status==='new').length}catch(e){}return TF.list}
