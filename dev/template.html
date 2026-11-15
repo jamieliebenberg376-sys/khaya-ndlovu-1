@@ -916,6 +916,10 @@ body.tfFilm #top,body.tfFilm #fabs,body.tfFilm #layerBtn,body.tfFilm #navBottom,
 #tfFilm .tft{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:radial-gradient(80% 60% at 50% 45%,rgba(10,24,16,.55),rgba(5,12,8,.92));backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);opacity:0;transition:opacity .9s}
 #tfFilm.s-title .tft{opacity:1}#tfFilm .tftitle{text-align:center;transform:scale(.92);transition:transform 2.4s cubic-bezier(.2,.8,.2,1)}#tfFilm.s-title .tftitle{transform:scale(1)}
 #tfFilm .tftitle h1{margin:14px 0 4px;font:900 54px/1 system-ui,-apple-system,sans-serif;letter-spacing:-1.5px;background:linear-gradient(100deg,#fff 20%,#ffe29a 45%,#fff 60%,#f3d27a 80%);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:obSheen 2.4s linear infinite}
+#tfFilm .tftap{display:none;margin-top:30px;flex-direction:column;align-items:center;gap:8px}#tfFilm.s-wait .tftap{display:flex}#tfFilm.s-wait{pointer-events:auto}
+#tfFilm .tfply{position:relative;width:84px;height:84px;border-radius:50%;display:flex;align-items:center;justify-content:center;padding-left:5px;color:#1d1406;background:linear-gradient(150deg,#ffe29a,#e9a72a);box-shadow:0 0 0 8px rgba(233,196,106,.15),0 14px 36px rgba(233,167,42,.55)}#tfFilm .tfply i{position:absolute;inset:0;border-radius:50%;border:2px solid rgba(255,226,154,.8);animation:ilRing 2.2s ease-out infinite}
+#tfFilm .tftap b{font:900 18px system-ui,-apple-system,sans-serif;color:#fff;margin-top:6px}#tfFilm .tftap small{font:700 12.5px system-ui,-apple-system,sans-serif;color:rgba(244,239,227,.75)}
+#tfFilm .tfsoundhint{position:absolute;left:50%;top:calc(var(--safe-t) + 54px);transform:translateX(-50%);display:none;align-items:center;gap:6px;padding:7px 12px;border-radius:12px;background:rgba(255,194,61,.95);color:#1d1406;font:800 12.5px system-ui,-apple-system,sans-serif;white-space:nowrap;animation:hnPulse 1.6s infinite;z-index:3}#tfFilm .tfsoundhint svg{width:15px;height:15px}#tfFilm.s-mute .tfsoundhint{display:flex}#tfFilm.s-mute{pointer-events:auto}
 #tfFilm .tftitle p{margin:0;font-size:17px;color:rgba(244,239,227,.8);letter-spacing:.3px}
 #tfPost .tfbadge,#tfFilm .tfbadge{display:inline-flex;align-items:center;gap:6px;font:800 11px system-ui,-apple-system,sans-serif;letter-spacing:1.2px;text-transform:uppercase;color:#1d1406;background:linear-gradient(135deg,#ffe29a,#e9a72a);padding:5px 10px;border-radius:9px}
 #tfFilm .tfhud{position:absolute;top:calc(var(--safe-t) + 10px);left:14px;right:14px;display:flex;justify-content:space-between;align-items:center;transition:opacity .5s}#tfFilm.s-title .tfhud{opacity:0}
@@ -3043,16 +3047,12 @@ function tfMusic(T){const AC=window.AudioContext||window.webkitAudioContext;if(!
   return {start(o2){off=o2||0;try{ac.resume()}catch(e){}base=ac.currentTime+.04;score();out.gain.cancelScheduledValues(ac.currentTime);out.gain.setValueAtTime(0,ac.currentTime);out.gain.linearRampToValueAtTime(.95,ac.currentTime+.25)},
     stop(){try{out.gain.cancelScheduledValues(ac.currentTime);out.gain.setValueAtTime(out.gain.value,ac.currentTime);out.gain.linearRampToValueAtTime(0,ac.currentTime+.5)}catch(e){}try{tfMusic.unlock&&tfMusic.unlock.pause()}catch(e){}setTimeout(()=>{nodes.forEach(n=>{try{n.stop()}catch(e){}});nodes.length=0;try{out.disconnect()}catch(e){}},600)}}}
 /* the poster: the film never starts on its own, one tap on Play starts picture and sound together */
-function tfPoster(){if(LS.get('tfFilm3',false)||!tfMe()||document.getElementById('tfPost'))return;LS.set('tfFilm3',true);
-  const el=document.createElement('div');el.id='tfPost';el.innerHTML=`<div class="tpg"></div><div class="tpm"><span class="tfbadge">${LI('shield',13)} ${T('New for admins')}</span><h1>${T('New tracks')}</h1><p>${T('How the map grows itself')}</p>
-    <button class="tpplay" id="tpPlay" aria-label="Play"><i></i><i></i><svg viewBox="0 0 24 24" width="38" height="38"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg></button>
-    <div class="tpmeta">0:28 · ${LI('mega',13)} ${T('Sound on')}</div></div><button class="tpx" id="tpX">${T('Later')}</button>`;
-  document.body.appendChild(el);$('tpPlay').onclick=()=>{el.classList.add('go');tfFilm(true);setTimeout(()=>el.remove(),500)};$('tpX').onclick=()=>{el.classList.add('out');setTimeout(()=>el.remove(),400);toast(T('Watch it any time: menu › New tracks found › How it works'),4000)}}
+function tfPoster(){if(LS.get('tfFilm3',false)||!tfMe())return;LS.set('tfFilm3',true);tfFilm(true,true)}
 /* ============ the cinematic version: the film plays on the real map ============
    Title card, camera flies in, chase cam behind your own car, the pink trail glows as it leaves the road,
    the camera lifts to show the whole track, the roads it joins light up, the name types itself,
    Add to map is tapped and the line turns into a real road with its name on it. */
-function tfFilm(force){if(!force&&(LS.get('tfFilm2',false)||!tfMe()))return;LS.set('tfFilm2',true);LS.set('tfIntro1',true);
+function tfFilm(force,wait){if(!force&&(LS.get('tfFilm2',false)||!tfMe()))return;LS.set('tfFilm2',true);LS.set('tfIntro1',true);
   if(!mapReady||!map.getSource('roads')){tfIntro(true);return}try{closeSheet()}catch(e){}
   const ex=TF_EX,nm=tfName(ex),endA=tfEndRoad(ex[0]),endB=tfEndRoad(ex[ex.length-1]);
   let A=null;try{const st=ex[0];const cand=nodes.map((n,k)=>[k,dist(n,st)]).filter(q=>q[1]>260&&q[1]<520&&compOf[q[0]]===MAINC).sort((a,b)=>a[1]-b[1]);for(const [k] of cand.slice(0,30)){const r=route(nodes[k],st);if(r&&r.pts&&r.pts.length>1&&r.len<800){A=r.pts.map(p=>[p[0],p[1]]);break}}}catch(e){}
@@ -3079,7 +3079,7 @@ function tfFilm(force){if(!force&&(LS.get('tfFilm2',false)||!tfMe()))return;LS.s
   const ping=ll=>{const e=document.createElement('div');e.className='tffping';const m=new maplibregl.Marker({element:e}).setLngLat(ll).addTo(map);setTimeout(()=>m.remove(),2600)};
   // the overlay
   const el=document.createElement('div');el.id='tfFilm';
-  el.innerHTML=`<div class="tft"><div class="tftitle"><span class="tfbadge">${LI('shield',13)} ${T('Admins only')}</span><h1>${T('New tracks')}</h1><p>${T('How the map grows itself')}</p></div></div>
+  el.innerHTML=`<div class="tft"><div class="tftitle"><span class="tfbadge">${LI('shield',13)} ${T('Admins only')}</span><h1>${T('New tracks')}</h1><p>${T('How the map grows itself')}</p><div class="tftap" id="tfTap"><span class="tfply"><i></i><svg viewBox="0 0 24 24" width="30" height="30"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg></span><b>${T('Tap to play')}</b><small id="tfCount">${T('Starts by itself in')} 10</small></div></div></div>
    <div class="tfhud"><span class="tfbadge">${LI('shield',12)} ${T('Admins only')}</span><button class="tfx">${T('Skip')}</button></div>
    <div class="tfoff" id="tfOff"><i></i><b id="tfOffN">0 m</b><small>${T('off the map')}</small></div>
    <div class="tffound" id="tfFound"><small>${T('New track found')}</small><b id="tfLen">0 m</b><span>${esc(T('Driven by Michael'))}</span></div>
@@ -3087,7 +3087,7 @@ function tfFilm(force){if(!force&&(LS.get('tfFilm2',false)||!tfMe()))return;LS.s
    <div class="tfcard" id="tfCard"><div class="tfch"><b>${T('Add to map')}</b></div><small>${T('Road name')}</small><div class="tfinp">${esc(nm)}</div><div class="tfrow"><span>${T('Length')} <b>${fmtD(990)}</b></span><span>${T('Driven by')} <b>Michael</b></span></div><button class="tfgo" id="tfGo">${T('Add to map')}<i class="tffinger"></i></button></div>
    <canvas id="tfDust"></canvas><div class="tfvig"></div><div class="tfgrain"></div><canvas id="tfConf"></canvas>
    <div class="tffin" id="tfFin"><small>${T('Now on everyone\'s map')}</small><h2>${esc(nm)}</h2><div class="tfchips"><span>${fmtD(990)}</span><span>${T('found by')} Michael</span><span>${T('added in 1 tap')}</span></div></div>
-   <div class="tflb t"></div><div class="tflb b"></div>
+   <div class="tflb t"></div><div class="tflb b"></div><div class="tfsoundhint">${LI('mega',15)} ${T('Touch the screen for sound')}</div>
    <div class="tfcap" id="tfCap"><h3 id="tfH"></h3><p id="tfP"></p></div>
    <div class="tfvid"><span class="tftime" id="tfTime">0:00</span><div class="tfbar"><i id="tfBar"></i></div><span class="tftime">0:28</span></div>
    <div class="tfend" id="tfEnd"><button class="btn" id="tfRe">${LI('play',17)} ${T('Replay')}</button><button class="btn pri" id="tfOk">${T('Got it')}</button></div>`;
@@ -3137,9 +3137,13 @@ function tfFilm(force){if(!force&&(LS.get('tfFilm2',false)||!tfMe()))return;LS.s
   const close=()=>{cancelAnimationFrame(raf);if(mus)mus.stop();el.classList.add('out');car.remove();L.forEach(i=>{try{map.removeLayer(i)}catch(e){}});['tff-ends','tff-app','tff-trail','tff-road'].forEach(sr=>{try{map.removeSource(sr)}catch(e){}});
     document.body.classList.remove('tfFilm');if(openSheet.later){const q=openSheet.later;openSheet.later=null;setTimeout(()=>openSheet(q[0],q[1]),1000)}map.easeTo({center:saved.center,zoom:saved.zoom,bearing:saved.bearing,pitch:saved.pitch,padding:{top:0,bottom:0,left:0,right:0},duration:900});setTimeout(()=>{el.remove();try{if(saved.follow)setFollow(saved.follow)}catch(e){}},950)};
   el.querySelector('.tfx').onclick=close;$('tfOk').onclick=close;$('tfRe').onclick=()=>{reset();music(0);raf=requestAnimationFrame(tick)};
-  reset();raf=requestAnimationFrame(tick);
-  // opened with a tap (How it works): the music starts straight away. Opened on its own: the phone needs a tap first
-  music(0)}
+  if(wait){// sits on the first screen until it is tapped: that tap starts the picture and the music together
+    el.classList.add('s-title','s-wait');map.jumpTo({center:mixLL(ovC,A[0],0),zoom:ovZ-2.6,bearing:-25,pitch:20,padding:{top:0,bottom:0,left:0,right:0}});
+    let left=10,cd=0;const go=e=>{if(e&&e.target.closest('.tfx'))return;if(e)e.preventDefault();clearInterval(cd);el.classList.remove('s-wait');el.removeEventListener('click',go);reset();raf=requestAnimationFrame(tick);music(0);
+      // started by itself: the phone may hold the sound back until the screen is touched. The first touch brings it in, in time with the picture
+      if(!e)setTimeout(()=>{const ac=tfMusic.ac;if(ac&&ac.state==='running')return;el.classList.add('s-mute');const on=ev=>{if(ev.target.closest('.tfx,.tfend'))return;el.classList.remove('s-mute');el.removeEventListener('pointerdown',on);music(tfT)};el.addEventListener('pointerdown',on)},400)};
+    el.addEventListener('click',go);cd=setInterval(()=>{if(!el.isConnected){clearInterval(cd);return}left--;const c=$('tfCount');if(c)c.textContent=T('Starts by itself in')+' '+left;if(left<=0)go()},1000);return}
+  reset();raf=requestAnimationFrame(tick);music(0)}
 /* suggested names: Hyena Link (same road out and back), Hyena-Leopard Link (one road to another), Hyena Spur (goes in and stops) */
 const rdShort=n=>String(n||'').replace(/\s+(Road|Rd|Track|Drive|Loop|Way|Lane|Avenue|Street)$/i,'').trim();
 function tfEndRoad(ll){const e=nearestEdge(ll,45);return e?ROADS[e.e.road].properties.name:null}
