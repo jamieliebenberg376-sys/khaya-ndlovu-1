@@ -3463,10 +3463,48 @@ begin
 end $$;
 grant execute on function public.edit_discovered_road(text, text, boolean) to authenticated;
 
+-- ============ v167: an added road is a main road or a track (tracks draw thin and grey) ============
+alter table public.discovered_roads add column if not exists track boolean not null default false;
+drop function if exists public.add_discovered_road(text, text, text, jsonb, int);
+create or replace function public.add_discovered_road(p_id text, p_find text, p_name text, p_coords jsonb, p_len int, p_track boolean default false)
+returns json language plpgsql security definer set search_path = public as $$
+declare nm text := left(btrim(regexp_replace(coalesce(p_name, ''), '\s+', ' ', 'g')), 40); f public.track_finds;
+begin
+  if not public.kn_is_mapper() then raise exception 'Only admins can add roads'; end if;
+  if char_length(nm) < 2 then raise exception 'Give the road a name'; end if;
+  if jsonb_array_length(coalesce(p_coords, '[]'::jsonb)) < 2 or jsonb_array_length(p_coords) > 3000 then raise exception 'That track is too short'; end if;
+  if exists (select 1 from public.discovered_roads where lower(name) = lower(nm) and not removed) then raise exception 'There is already a road called %', nm; end if;
+  select * into f from public.track_finds where id = p_find;
+  insert into public.discovered_roads (id, name, coords, len, find_id, found_by, added_by, track)
+    values (left(p_id, 60), nm, p_coords, greatest(p_len, 0), p_find, f.name, public.kn_me_name(), coalesce(p_track, false));
+  if f.id is not null then update public.track_finds set status = 'added' where id = f.id; end if;
+  begin perform public.kn_log('map', 'added the ' || case when coalesce(p_track, false) then 'track ' else 'road ' end || nm || ' to the map'); exception when others then null; end;
+  return json_build_object('ok', true, 'name', nm);
+end $$;
+grant execute on function public.add_discovered_road(text, text, text, jsonb, int, boolean) to authenticated;
+create or replace function public.list_discovered_roads()
+returns json language sql stable security definer set search_path = public as $$
+  select case when not public.is_member() then '[]'::json else coalesce((select json_agg(row_to_json(x) order by x.created_at) from (
+    select id, name, track, coords, len, found_by, added_by, created_at from public.discovered_roads where not removed) x), '[]'::json) end $$;
+grant execute on function public.list_discovered_roads() to authenticated;
+drop function if exists public.edit_discovered_road(text, text, boolean);
+create or replace function public.edit_discovered_road(p_id text, p_name text default null, p_remove boolean default false, p_track boolean default null)
+returns void language plpgsql security definer set search_path = public as $$
+declare nm text := left(btrim(regexp_replace(coalesce(p_name, ''), '\s+', ' ', 'g')), 40);
+begin
+  if not public.kn_is_mapper() then raise exception 'Only admins can do this'; end if;
+  if p_remove then update public.discovered_roads set removed = true where id = p_id;
+    update public.track_finds set status = 'ignored' where id = (select find_id from public.discovered_roads where id = p_id); return; end if;
+  if char_length(nm) < 2 then raise exception 'Give the road a name'; end if;
+  if exists (select 1 from public.discovered_roads where lower(name) = lower(nm) and id <> p_id and not removed) then raise exception 'There is already a road called %', nm; end if;
+  update public.discovered_roads set name = nm, track = coalesce(p_track, track) where id = p_id;
+end $$;
+grant execute on function public.edit_discovered_road(text, text, boolean, boolean) to authenticated;
+
 
 
 -- =====================================================================
--- PUSH THE UPDATE (version 165)
+-- PUSH THE UPDATE (version 167)
 -- =====================================================================
 
 alter table private.config add column if not exists min_build int not null default 0;
@@ -3536,9 +3574,9 @@ begin
 end $$;
 grant execute on function public.set_min_build(int) to authenticated;
 
--- push it now: require version 1165 and post the news. It is sent by the database, not by any person.
-update private.config set min_build = 1165;
-select public.kn_update_news(1165);
+-- push it now: require version 167 and post the news. It is sent by the database, not by any person.
+update private.config set min_build = 167;
+select public.kn_update_news(167);
 
 notify pgrst, 'reload schema';
 
@@ -3552,7 +3590,7 @@ union all select 'Two Database accounts on the map', case when (select count(*) 
 union all select 'Database code 1 (keep it secret, it gives full control)', (select code from private.db_slots where slot = 1) || coalesce('  ·  ' || (select m.name from private.db_slots d join public.members m on m.user_id = d.user_id where d.slot = 1), '')
 union all select 'Database code 2 (keep it secret, it gives full control)', (select code from private.db_slots where slot = 2) || coalesce('  ·  ' || (select m.name from private.db_slots d join public.members m on m.user_id = d.user_id where d.slot = 2), '')
 union all select 'Backend self-test', case when (select count(*) from public.kn_backend_selftest() where result not like 'PASS%') = 0 then 'YES' else 'NO: ' || (select string_agg(test, ', ') from public.kn_backend_selftest() where result not like 'PASS%') end
-union all select 'Everyone must be on version 165', case when (select min_build from private.config limit 1) = 165 then 'YES' else 'NO' end
-union all select 'Update news posted (only old versions see it)', case when exists (select 1 from public.announcements where for_old_build = 165 and not removed) then 'YES' else 'NO' end
+union all select 'Everyone must be on version 167', case when (select min_build from private.config limit 1) = 167 then 'YES' else 'NO' end
+union all select 'Update news posted (only old versions see it)', case when exists (select 1 from public.announcements where for_old_build = 167 and not removed) then 'YES' else 'NO' end
 union all select 'Your owner code (unchanged)', (select upper(invite_code) from private.config limit 1)
-union all select 'People who still need to update', (select count(*)::text from public.members where coalesce(app_build, 0) < 165 and (role <> 'guest' or expires_at > now()));
+union all select 'People who still need to update', (select count(*)::text from public.members where coalesce(app_build, 0) < 167 and (role <> 'guest' or expires_at > now()));
