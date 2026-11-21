@@ -920,6 +920,10 @@ body.tfFilm #top,body.tfFilm #fabs,body.tfFilm #layerBtn,body.tfFilm #navBottom,
 #tfFilm .tfply{position:relative;width:84px;height:84px;border-radius:50%;display:flex;align-items:center;justify-content:center;padding-left:5px;color:#1d1406;background:linear-gradient(150deg,#ffe29a,#e9a72a);box-shadow:0 0 0 8px rgba(233,196,106,.15),0 14px 36px rgba(233,167,42,.55)}#tfFilm .tfply i{position:absolute;inset:0;border-radius:50%;border:2px solid rgba(255,226,154,.8);animation:ilRing 2.2s ease-out infinite}
 #tfFilm .tftap b{font:900 18px system-ui,-apple-system,sans-serif;color:#fff;margin-top:6px}#tfFilm .tftap small{font:700 12.5px system-ui,-apple-system,sans-serif;color:rgba(244,239,227,.75)}
 #tfFilm[data-q] .tfcap{bottom:calc(var(--safe-b,0px) + 96px)!important}
+#sheetBody a#ntApp{text-decoration:none;color:inherit}
+#sheetBody .ntn{width:26px;height:26px;border-radius:50%;background:rgba(233,196,106,.2);color:#b8860b;display:grid;place-items:center;font-weight:800;font-size:13px;flex:none;margin-right:10px}
+#sheetBody .ntt{margin-top:6px;font:600 13px ui-monospace,Menlo,monospace;padding:7px 9px;border-radius:9px;background:rgba(127,127,127,.12);word-break:break-all;user-select:all}
+.ntchips{display:flex;flex-wrap:wrap;gap:8px}.ntch{border:1.5px solid #317f43;background:rgba(49,127,67,.12);color:inherit;border-radius:20px;padding:8px 12px;font:600 14px system-ui,-apple-system,sans-serif;display:flex;align-items:center;gap:6px}.ntch.off{border-color:rgba(127,127,127,.4);background:transparent;opacity:.5;text-decoration:line-through}
 #tfFilm .tfnext{position:absolute;right:12px;bottom:calc(var(--safe-b,0px) + 40px);pointer-events:auto;border:0;border-radius:14px;padding:9px 14px;background:rgba(10,24,16,.85);border:1px solid rgba(233,196,106,.5);color:#fff;font:800 13px system-ui,-apple-system,sans-serif;z-index:3;backdrop-filter:blur(8px)}#tfFilm .tfnext b{color:#ffe29a;margin-left:4px}#tfFilm.s-title .tfnext{opacity:0}
 #tfFilm .tfsoundhint{position:absolute;left:50%;top:calc(var(--safe-t) + 54px);transform:translateX(-50%);display:none;align-items:center;gap:6px;padding:7px 12px;border-radius:12px;background:rgba(255,194,61,.95);color:#1d1406;font:800 12.5px system-ui,-apple-system,sans-serif;white-space:nowrap;animation:hnPulse 1.6s infinite;z-index:3}#tfFilm .tfsoundhint svg{width:15px;height:15px}#tfFilm.s-mute .tfsoundhint{display:flex}#tfFilm.s-mute{pointer-events:auto}
 #tfFilm .tftitle p{margin:0;font-size:17px;color:rgba(244,239,227,.8);letter-spacing:.3px}
@@ -4929,6 +4933,41 @@ function shareSheet(){const st=Cloud.stuck||[],w=Cloud.outbox.length;const nm=o=
    ${st.length?`<div class="msec" style="margin-top:14px">Not shared yet</div><div class="list sgroup">${st.slice(0,8).map(o=>`<div class="it"><div style="min-width:0"><b>${esc(nm(o))}</b><br><small>${esc(o.err||'')}</small></div></div>`).join('')}</div><div class="sub" style="font-size:12.5px;margin-top:6px">These are tried again every few minutes. If it says something about the database, the latest SQL update in Supabase may be missing.</div>`:''}
    <button class="btn pri" id="shGo" style="width:100%;margin-top:14px">Share now</button>`,()=>{$('shGo').onclick=async()=>{if(!navigator.onLine){toast('No signal right now');return}Cloud.stuckT=0;toast('Sharing...');await sync();shareSheet()}})}
 function openCust(step,back){custFlow.only=step;custFlow.back=back;custFlow(step)}
+/* ============ phone notifications through the free ntfy app ============
+   Each member gets a private random topic. The database sends to it the moment something happens, so it works with the app closed. */
+async function ntfySheet(){const m=Cloud.member;if(!m)return;let D=LS.get('ntfyD',null);
+  const render=()=>{const P=(D&&D.prefs)||{},on=k=>P[k]!==false,mute=P.mute||[],tp=D&&D.topic;LS.set('ntfyOn',!!tp);
+    openSheet(`<div class="cmh"><button class="sm" id="ntBack">‹ ${T('Settings')}</button><b>${T('Phone notifications')}</b><span style="width:60px"></span></div>
+    ${!tp?`<div class="sub" style="line-height:1.5;margin-top:6px">${T('Get a notification on your phone when someone marks a sighting, likes or comments on yours, or the admins send a message. It works even when this app is closed.')}</div>
+      <div class="sub" style="line-height:1.5;margin-top:8px">${T('It uses ntfy, a free app. You get your own private channel that nobody else can read.')}</div>
+      <button class="btn pri" id="ntSet" style="width:100%;margin-top:16px">${T('Set up notifications')}</button>`
+    :`<div class="msec" style="margin-top:6px">${T('Set up in 3 steps')}</div>
+      <div class="list sgroup"><div class="it"><span class="ntn">1</span><div style="flex:1;min-width:0"><b>${T('Get the ntfy app')}</b><br><small>${T('Free, from the App Store or Play Store')}</small></div><a class="sm" id="ntApp" href="${/android/i.test(navigator.userAgent)?'https://play.google.com/store/apps/details?id=io.heckel.ntfy':'https://apps.apple.com/app/id1625396347'}" target="_blank" rel="noopener">${T('Get it')}</a></div>
+       <div class="it"><span class="ntn">2</span><div style="flex:1;min-width:0"><b>${T('Copy your channel')}</b><br><small>${T('In ntfy tap +, paste it as the topic and tap Subscribe. Allow notifications when it asks.')}</small><div class="ntt">${esc(tp)}</div></div><button class="sm" id="ntCopy">${T('Copy')}</button></div>
+       <div class="it"><span class="ntn">3</span><div style="flex:1;min-width:0"><b>${T('Send a test')}</b><br><small>${T('A test notification should pop up in a few seconds')}</small></div><button class="sm" id="ntTest">${T('Test')}</button></div></div>
+      <div class="msec" style="margin-top:14px">${T('What to send me')}</div>
+      <div class="list sgroup">${TG('ntS',T('New sightings'),T('When someone else marks an animal'),on('s'))}${on('s')?LK('ntMute',T('Animals I don\'t want'),'',mute.length?mute.map(a=>T(a)).join(', '):T('None, send them all')):''}
+       ${TG('ntL',T('Likes and comments'),T('On your own sightings'),on('l'))}
+       ${tfMe()?TG('ntT',T('New tracks and roads'),T('A track found off the map, or a road added. Admins only'),on('t')):''}
+       ${TG('ntA',T('Messages from the admins'),T('Announcements for everyone'),on('a'))}</div>
+      <div class="sub" style="font-size:12.5px;margin-top:8px">${T('Notifications never say where anyone is right now or where they live.')}</div>
+      <div class="row" style="margin-top:14px"><button class="btn" id="ntNew">${T('New channel')}</button><button class="btn red" id="ntOff">${T('Turn off')}</button></div>`}`,()=>{
+      $('ntBack').onclick=()=>settingsSheet();
+      const need=()=>{if(!navigator.onLine){toast(T('You need signal to do this'));return false}return true};
+      if($('ntSet'))$('ntSet').onclick=async()=>{if(!need())return;try{D=await rpc('ntfy_setup',{p_new:false});LS.set('ntfyD',D);render()}catch(e){toast(/404|PGRST202|Could not find/.test(e.message)?T('Run the latest SQL in Supabase first'):errTxt(e),4000)}};
+      if(!tp)return;
+      $('ntCopy').onclick=async()=>{try{await navigator.clipboard.writeText(tp)}catch(e){fallbackCopy(tp)}toast(T('Copied. Paste it in ntfy as the topic.'))};
+      $('ntTest').onclick=async()=>{if(!need())return;try{await rpc('ntfy_test');toast(T('Sent. Check your notifications.'))}catch(e){toast(errTxt(e),4000)}};
+      const save=async(k,v)=>{D.prefs=Object.assign({},D.prefs,{[k]:v});LS.set('ntfyD',D);try{await rpc('ntfy_prefs',{p_prefs:{[k]:v}})}catch(e){toast(T('Not saved, check your signal'))}};
+      [['ntS','s'],['ntL','l'],['ntT','t'],['ntA','a']].forEach(([id,k])=>{const b=$(id);if(b)b.onclick=async()=>{const v=!on(k);await save(k,v);render()}});
+      if($('ntMute'))$('ntMute').onclick=()=>{const sel=new Set(mute);openSheet(`<div class="cmh"><button class="sm" id="nmBack">‹ ${T('Back')}</button><b>${T('Animals I don\'t want')}</b><span style="width:60px"></span></div>
+        <div class="sub" style="margin:6px 2px 12px">${T('Tap the animals you do not want notifications for. Everything else still comes through.')}</div>
+        <div class="ntchips">${ANIMALS.map(a=>`<button class="ntch ${sel.has(a)?'off':''}" data-a="${esc(a)}">${EMO[a]||''} ${T(a)}</button>`).join('')}</div>`,()=>{
+          $('nmBack').onclick=async()=>{await save('mute',[...sel]);render()};
+          document.querySelectorAll('.ntch').forEach(b=>b.onclick=()=>{const a=b.dataset.a;if(sel.has(a))sel.delete(a);else sel.add(a);b.classList.toggle('off',sel.has(a))})})};
+      $('ntNew').onclick=async()=>{if(!need())return;try{D=await rpc('ntfy_setup',{p_new:true});LS.set('ntfyD',D);render();toast(T('New channel made. Copy it into ntfy again.'),4000)}catch(e){toast(errTxt(e),4000)}};
+      $('ntOff').onclick=async()=>{if(!need())return;try{await rpc('ntfy_off');D={topic:null,prefs:(D&&D.prefs)||{}};LS.set('ntfyD',D);render();toast(T('Notifications off. You can delete the channel in ntfy.'),4000)}catch(e){toast(errTxt(e),4000)}}})};
+  render();if(navigator.onLine)try{const r=await rpc('ntfy_get');if(r&&typeof r==='object'){const was=JSON.stringify(D);D=r;LS.set('ntfyD',D);if(JSON.stringify(D)!==was&&$('ntBack'))render()}}catch(e){}}
 /* ============ settings: your profile on top, then one page per topic ============ */
 function settingsSheet(page){const m=Cloud.member;const notif='Notification' in window&&Notification.permission!=='granted';
   const th=(k,l)=>`<button data-th="${k}" class="${theme===k?'sel':''}">${l}</button>`;
@@ -4939,6 +4978,7 @@ function settingsSheet(page){const m=Cloud.member;const notif='Notification' in 
     ${m?`<button class="stprof" id="sProf">${avatarHtml(MYAV,nm,62)}<span class="stpm"><b>${NM(esc(nm),m.role,m.locked,MYAV)}</b>${badgeFor(m.role,m.locked)}<small>${T('Profile settings')}: ${T('picture, name, PIN and your code')}</small></span><span class="ar">›</span></button>`:''}
     <div class="list sgroup stg">${LK('sgApp',T('Appearance'),T('Light or dark, map look, your car and colours'),'','star','#b06000')}
      ${m?LK('sgAl',T('Alerts'),T('Sighting pop-ups, sounds, quiet hours'),alertOn?T('On'):T('Off'),'alert','#c5221f'):''}
+     ${m?LK('sgNt',T('Phone notifications'),T('Sightings, likes and admin messages, even with the app closed'),LS.get('ntfyOn',false)?T('On'):T('Off'),'msg','#317f43'):''}
      ${LK('sgLoc',T('Location'),T('Live location, home point, GPS'),'','pin','#1a73e8')}
      ${LK('sgDrv',T('Driving and voice'),T('Keep the screen on, voice directions'),'','route','#188038')}
      ${LK('sgMus',T('Music'),T('Spotify button on the map'),SPOTON?T('On'):T('Off'),'play','#1db954')}
@@ -4956,7 +4996,7 @@ function settingsSheet(page){const m=Cloud.member;const notif='Notification' in 
   else if(page==='data')html=head('Map data and updates')+`<div class="list sgroup">${LK('sOff','Offline map','',esc(offlineStatus()))}${m&&isAdm()?LK('sShare','Sharing status',shareStatus(),''):''}${m&&isAdm()?LK('sRe',T('Reinstall the app'),T('Fresh copy on your Home Screen, you stay signed in'),'','route','#5f6368'):''}${m&&m.role==='admin'?LK('sUpd',T('Updates and reinstall'),T('Send the newest version to everyone, or ask everyone to reinstall'),'v'+VER(APP_BUILD),'down','#1a73e8'):''}</div>`;
   openSheet(html,()=>{const on=(id,f)=>{const b=$(id);if(b)b.onclick=f};
     on('stBack',()=>settingsSheet());on('sProf',()=>profileSettings());
-    [['sgApp','app'],['sgAl','al'],['sgLoc','loc'],['sgDrv','drv'],['sgMus','mus'],['sgLang','lang'],['sgData','data']].forEach(([id,pg])=>on(id,()=>settingsSheet(pg)));
+    [['sgApp','app'],['sgAl','al'],['sgLoc','loc'],['sgDrv','drv'],['sgMus','mus'],['sgLang','lang'],['sgData','data']].forEach(([id,pg])=>on(id,()=>settingsSheet(pg)));on('sgNt',()=>ntfySheet());
     on('saLook',()=>openCust(0,back));on('saCar',()=>openCust(2,back));on('saCol',()=>openCust(3,back));
     on('sRe',()=>reinstallSheet());
     document.querySelectorAll('[data-lg]').forEach(b=>b.onclick=()=>{if(b.dataset.lg===LANG)return;LS.set('lang',b.dataset.lg);toast(b.dataset.lg==='af'?'Afrikaans...':'English...');setTimeout(()=>location.reload(),300)});

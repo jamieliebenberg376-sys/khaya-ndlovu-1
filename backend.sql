@@ -2585,5 +2585,156 @@ begin
 end $$;
 grant execute on function public.edit_discovered_road(text, text, boolean, boolean) to authenticated;
 
+-- ============ v169: phone notifications through the free ntfy app ============
+-- Each member gets their own long random topic (nobody can guess it). The database sends to ntfy.sh the moment something happens,
+-- so it works with the app closed. Messages never carry anyone's position or home.
+do $$ begin create extension if not exists pg_net; exception when others then raise notice 'pg_net not available here, notifications will not send'; end $$;
+alter table public.members add column if not exists ntfy_topic text;
+alter table public.members add column if not exists ntfy jsonb not null default '{}'::jsonb;
+create or replace function private.kn_ntfy(p_topic text, p_title text, p_msg text, p_tag text default null, p_prio int default 3)
+returns void language plpgsql security definer set search_path = public as $$
+begin
+  if p_topic is null or p_topic = '' then return; end if;
+  begin
+    execute 'select net.http_post(url := $1, body := $2, headers := $3)'
+      using 'https://ntfy.sh/',
+        jsonb_build_object('topic', p_topic, 'title', left(p_title, 120), 'message', left(coalesce(p_msg, ''), 600), 'priority', p_prio,
+          'tags', case when p_tag is null then '[]'::jsonb else jsonb_build_array(p_tag) end),
+        '{"Content-Type": "application/json"}'::jsonb;
+  exception when others then null;
+  end;
+end $$;
+revoke all on function private.kn_ntfy(text, text, text, text, int) from public;
+create or replace function private.kn_ntfy_tag(p_what text) returns text language sql immutable as $$
+  select case lower(coalesce(p_what, '')) when 'lion' then 'lion' when 'leopard' then 'leopard' when 'elephant' then 'elephant' when 'rhino' then 'rhinoceros'
+    when 'hippo' then 'hippopotamus' when 'giraffe' then 'giraffe' when 'zebra' then 'zebra' when 'buffalo' then 'water_buffalo' when 'cheetah' then 'leopard'
+    when 'wild dog' then 'dog2' when 'hyena' then 'dog2' when 'kudu' then 'deer' else 'paw_prints' end $$;
+-- the four kinds: s new sightings (with animals you muted in "mute"), l likes and comments, t new tracks and roads (admins), a messages from the admins
+create or replace function public.ntfy_get() returns json language sql stable security definer set search_path = public as $$
+  select json_build_object('topic', ntfy_topic, 'prefs', ntfy) from public.members where user_id = auth.uid() $$;
+grant execute on function public.ntfy_get() to authenticated;
+create or replace function public.ntfy_setup(p_new boolean default false) returns json language plpgsql security definer set search_path = public as $$
+declare t text;
+begin
+  if not public.is_member() then raise exception 'members only'; end if;
+  select ntfy_topic into t from public.members where user_id = auth.uid();
+  if t is null or p_new then
+    t := 'kn-' || substr(md5(random()::text || clock_timestamp()::text || auth.uid()::text), 1, 16) || substr(md5(random()::text || clock_timestamp()::text), 1, 12);
+    update public.members set ntfy_topic = t where user_id = auth.uid();
+  end if;
+  return public.ntfy_get();
+end $$;
+grant execute on function public.ntfy_setup(boolean) to authenticated;
+create or replace function public.ntfy_prefs(p_prefs jsonb) returns void language sql security definer set search_path = public as $$
+  update public.members set ntfy = coalesce(ntfy, '{}'::jsonb) || coalesce(p_prefs, '{}'::jsonb) where user_id = auth.uid() $$;
+grant execute on function public.ntfy_prefs(jsonb) to authenticated;
+create or replace function public.ntfy_off() returns void language sql security definer set search_path = public as $$
+  update public.members set ntfy_topic = null where user_id = auth.uid() $$;
+grant execute on function public.ntfy_off() to authenticated;
+create or replace function public.ntfy_test() returns void language plpgsql security definer set search_path = public as $$
+declare t text;
+begin
+  select ntfy_topic into t from public.members where user_id = auth.uid();
+  if t is null then raise exception 'Set up notifications first'; end if;
+  perform private.kn_ntfy(t, 'Khaya Ndlovu', 'Notifications work. You will hear from the reserve here.', 'white_check_mark', 3);
+end $$;
+grant execute on function public.ntfy_test() to authenticated;
+
+-- new sighting: everyone with notifications on, except who marked it and anyone who muted that animal
+create or replace function private.kn_ntfy_sighting() returns trigger language plpgsql security definer set search_path = public as $$
+declare m record; who text;
+begin
+  begin
+    who := coalesce(new.name, (select name from public.members where user_id = new.user_id), 'Someone');
+    for m in select ntfy_topic from public.members where ntfy_topic is not null and user_id <> new.user_id
+        and coalesce((ntfy->>'s')::boolean, true) and not (coalesce(ntfy->'mute', '[]'::jsonb) ? new.what) loop
+      perform private.kn_ntfy(m.ntfy_topic, new.what || ' spotted', who || ' just marked a ' || lower(new.what) || ' on the map.' || coalesce(' "' || left(nullif(btrim(new.note), ''), 140) || '"', ''), private.kn_ntfy_tag(new.what), 4);
+    end loop;
+  exception when others then null; end;
+  return new;
+end $$;
+drop trigger if exists kn_ntfy_sighting on public.sightings;
+create trigger kn_ntfy_sighting after insert on public.sightings for each row execute function private.kn_ntfy_sighting();
+
+-- like on your sighting
+create or replace function private.kn_ntfy_like() returns trigger language plpgsql security definer set search_path = public as $$
+declare own uuid; w text; t text; who text;
+begin
+  begin
+    select user_id, what into own, w from public.sightings_log where client_id = new.client_id;
+    if own is null then select user_id, coalesce(what, 'post') into own, w from public.feed_posts where id = new.client_id; end if;
+    if own is null or own = new.user_id then return new; end if;
+    select ntfy_topic into t from public.members where user_id = own and coalesce((ntfy->>'l')::boolean, true);
+    who := coalesce((select name from public.members where user_id = new.user_id), 'Someone');
+    perform private.kn_ntfy(t, who || ' liked your sighting', who || ' liked your ' || lower(coalesce(w, 'animal')) || ' sighting.', 'heart', 3);
+  exception when others then null; end;
+  return new;
+end $$;
+drop trigger if exists kn_ntfy_like on public.feed_likes;
+create trigger kn_ntfy_like after insert on public.feed_likes for each row execute function private.kn_ntfy_like();
+
+-- comment on your sighting
+create or replace function private.kn_ntfy_comment() returns trigger language plpgsql security definer set search_path = public as $$
+declare own uuid; w text; t text; who text;
+begin
+  begin
+    select user_id, what into own, w from public.sightings_log where client_id = new.post;
+    if own is null then select user_id, coalesce(what, 'post') into own, w from public.feed_posts where id = new.post; end if;
+    if own is null or own = new.user_id then return new; end if;
+    select ntfy_topic into t from public.members where user_id = own and coalesce((ntfy->>'l')::boolean, true);
+    who := coalesce(new.name, (select name from public.members where user_id = new.user_id), 'Someone');
+    perform private.kn_ntfy(t, who || ' commented on your ' || lower(coalesce(w, 'animal')) || ' sighting', left(new.body, 300), 'speech_balloon', 3);
+  exception when others then null; end;
+  return new;
+end $$;
+drop trigger if exists kn_ntfy_comment on public.feed_comments;
+create trigger kn_ntfy_comment after insert on public.feed_comments for each row execute function private.kn_ntfy_comment();
+
+-- new track found: admins and Database (one message per driver per half hour, so a long drive does not spam)
+create or replace function private.kn_ntfy_track() returns trigger language plpgsql security definer set search_path = public as $$
+declare m record;
+begin
+  begin
+    if exists (select 1 from public.track_finds where user_id = new.user_id and id <> new.id and created_at > now() - interval '30 minutes') then return new; end if;
+    for m in select ntfy_topic from public.members where ntfy_topic is not null and user_id <> new.user_id
+        and (role = 'admin' or coalesce(locked, false)) and coalesce((ntfy->>'t')::boolean, true) loop
+      perform private.kn_ntfy(m.ntfy_topic, 'New track found', coalesce(new.name, 'Someone') || ' drove ' || new.len || ' m of track that is not on the map yet. Open New tracks found to add it.', 'world_map', 3);
+    end loop;
+  exception when others then null; end;
+  return new;
+end $$;
+drop trigger if exists kn_ntfy_track on public.track_finds;
+create trigger kn_ntfy_track after insert on public.track_finds for each row execute function private.kn_ntfy_track();
+
+-- new road added: admins and Database
+create or replace function private.kn_ntfy_road() returns trigger language plpgsql security definer set search_path = public as $$
+declare m record;
+begin
+  begin
+    for m in select ntfy_topic from public.members where ntfy_topic is not null and coalesce(name, '') <> coalesce(new.added_by, '')
+        and (role = 'admin' or coalesce(locked, false)) and coalesce((ntfy->>'t')::boolean, true) loop
+      perform private.kn_ntfy(m.ntfy_topic, 'New road on the map', coalesce(new.added_by, 'An admin') || ' added ' || new.name || '. Open the map to see it.', 'construction', 3);
+    end loop;
+  exception when others then null; end;
+  return new;
+end $$;
+drop trigger if exists kn_ntfy_road on public.discovered_roads;
+create trigger kn_ntfy_road after insert on public.discovered_roads for each row execute function private.kn_ntfy_road();
+
+-- message from the admins: everyone
+create or replace function private.kn_ntfy_ann() returns trigger language plpgsql security definer set search_path = public as $$
+declare m record;
+begin
+  begin
+    if new.removed then return new; end if;
+    for m in select ntfy_topic from public.members where ntfy_topic is not null and user_id <> new.user_id and coalesce((ntfy->>'a')::boolean, true) loop
+      perform private.kn_ntfy(m.ntfy_topic, 'Message from the admins', left(new.body, 500), 'loudspeaker', 4);
+    end loop;
+  exception when others then null; end;
+  return new;
+end $$;
+drop trigger if exists kn_ntfy_ann on public.announcements;
+create trigger kn_ntfy_ann after insert on public.announcements for each row execute function private.kn_ntfy_ann();
+
 select * from public.kn_backend_selftest();
 
