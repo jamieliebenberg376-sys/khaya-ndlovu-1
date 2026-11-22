@@ -4955,7 +4955,7 @@ function ntfyAsk(){const done=()=>{NTW=false};if(LS.get('ntfyAsk','')){done();re
   rpc('ntfy_get').then(r=>{if(r&&r.topic){LS.set('ntfyAsk','yes');LS.set('ntfyD',r);LS.set('ntfyOn',true);done();return}if(!ready()){setTimeout(ntfyAsk,4000);return}
     const el=document.createElement('div');el.id='ntAsk';el.innerHTML=`<div class="nab"><div class="nai"><span class="nar"></span><span class="nar r2"></span><svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg></div>
       <h2>${T('Never miss a sighting')}</h2><p>${T('Get a notification on your phone the moment something happens on the reserve, even with this app closed.')}</p>
-      <div class="nal"><div>${EMO.Leopard||''}<span><b>${T('New sightings')}</b><small>${T('Pick which animals you want')}</small></span></div><div><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12 21s-7.5-4.6-9.6-9.4C.9 8.2 3 4.5 6.6 4.5c2.1 0 3.6 1.1 5.4 3 1.8-1.9 3.3-3 5.4-3 3.6 0 5.7 3.7 4.2 7.1C19.5 16.4 12 21 12 21z"/></svg><span><b>${T('Likes and comments')}</b><small>${T('On your own sightings')}</small></span></div><div>${LI('mega',20)}<span><b>${T('Messages from the admins')}</b><small>${T('Gate times, closed roads and more')}</small></span></div></div>
+      <div class="nal"><div>${EMO.Leopard||''}<span><b>${T('New sightings')}</b><small>${T('Pick which animals you want')}</small></span></div><div><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12 21s-7.5-4.6-9.6-9.4C.9 8.2 3 4.5 6.6 4.5c2.1 0 3.6 1.1 5.4 3 1.8-1.9 3.3-3 5.4-3 3.6 0 5.7 3.7 4.2 7.1C19.5 16.4 12 21 12 21z"/></svg><span><b>${T('Likes and comments')}</b><small>${T('On your own sightings')}</small></span></div></div>
       <button class="nay" id="naYes">${T('Set up notifications')}</button><button class="nan" id="naNo">${T('I don\'t want notifications')}</button>
       <small class="naf">${T('Takes a minute. Uses the free ntfy app. You can change this later in Settings.')}</small></div>`;
     document.body.appendChild(el);requestAnimationFrame(()=>el.classList.add('on'));
@@ -4975,7 +4975,7 @@ async function ntfySheet(auto){const m=Cloud.member;if(!m)return;let D=LS.get('n
       <div class="msec" style="margin-top:14px">${T('What to send me')}</div>
       <div class="list sgroup">${TG('ntS',T('New sightings'),T('When someone else marks an animal'),on('s'))}${on('s')?LK('ntMute',T('Animals I don\'t want'),'',mute.length?mute.map(a=>T(a)).join(', '):T('None, send them all')):''}
        ${TG('ntL',T('Likes and comments'),T('On your own sightings'),on('l'))}
-       ${tfMe()?TG('ntT',T('New tracks and roads'),T('A track found off the map, or a road added. Admins only'),on('t')):''}
+       ${tfMe()?TG('ntT',T('New tracks and roads'),T('A track found off the map, or a road added'),on('t')):''}
        ${TG('ntA',T('Messages from the admins'),T('Announcements for everyone'),on('a'))}</div>
       <div class="sub" style="font-size:12.5px;margin-top:8px">${T('Notifications never say where anyone is right now or where they live.')}</div>
       <div class="row" style="margin-top:14px"><button class="btn" id="ntNew">${T('New channel')}</button><button class="btn red" id="ntOff">${T('Turn off')}</button></div>`}
