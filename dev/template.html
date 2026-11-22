@@ -920,7 +920,7 @@ body.tfFilm #top,body.tfFilm #fabs,body.tfFilm #layerBtn,body.tfFilm #navBottom,
 #tfFilm .tfply{position:relative;width:84px;height:84px;border-radius:50%;display:flex;align-items:center;justify-content:center;padding-left:5px;color:#1d1406;background:linear-gradient(150deg,#ffe29a,#e9a72a);box-shadow:0 0 0 8px rgba(233,196,106,.15),0 14px 36px rgba(233,167,42,.55)}#tfFilm .tfply i{position:absolute;inset:0;border-radius:50%;border:2px solid rgba(255,226,154,.8);animation:ilRing 2.2s ease-out infinite}
 #tfFilm .tftap b{font:900 18px system-ui,-apple-system,sans-serif;color:#fff;margin-top:6px}#tfFilm .tftap small{font:700 12.5px system-ui,-apple-system,sans-serif;color:rgba(244,239,227,.75)}
 #tfFilm[data-q] .tfcap{bottom:calc(var(--safe-b,0px) + 96px)!important}
-#sheetBody a#ntApp{text-decoration:none;color:inherit}
+#sheetBody a#ntApp{text-decoration:none;display:inline-flex;align-items:center;gap:5px;white-space:nowrap;background:linear-gradient(145deg,#f3d27e,#c99a2e);color:#1a1205;font-weight:800;border:0}
 #sheetBody .ntn{width:26px;height:26px;border-radius:50%;background:rgba(233,196,106,.2);color:#b8860b;display:grid;place-items:center;font-weight:800;font-size:13px;flex:none;margin-right:10px}
 #sheetBody .ntt{margin-top:6px;font:600 13px ui-monospace,Menlo,monospace;padding:7px 9px;border-radius:9px;background:rgba(127,127,127,.12);word-break:break-all;user-select:all}
 .ntchips{display:flex;flex-wrap:wrap;gap:8px}.ntch{border:1.5px solid #317f43;background:rgba(49,127,67,.12);color:inherit;border-radius:20px;padding:8px 12px;font:600 14px system-ui,-apple-system,sans-serif;display:flex;align-items:center;gap:6px}.ntch.off{border-color:rgba(127,127,127,.4);background:transparent;opacity:.5;text-decoration:line-through}
@@ -4969,7 +4969,7 @@ async function ntfySheet(auto){const m=Cloud.member;if(!m)return;let D=LS.get('n
       <div class="sub" style="line-height:1.5;margin-top:8px">${T('It uses ntfy, a free app. You get your own private channel that nobody else can read.')}</div>
       <button class="btn pri" id="ntSet" style="width:100%;margin-top:16px">${T('Set up notifications')}</button>`
     :`<div class="msec" style="margin-top:6px">${T('Set up in 3 steps')}</div>
-      <div class="list sgroup"><div class="it"><span class="ntn">1</span><div style="flex:1;min-width:0"><b>${T('Get the ntfy app')}</b><br><small>${T('Free, from the App Store or Play Store')}</small></div><a class="sm" id="ntApp" href="${/android/i.test(navigator.userAgent)?'https://play.google.com/store/apps/details?id=io.heckel.ntfy':'https://apps.apple.com/app/id1625396347'}" target="_blank" rel="noopener">${T('Get it')}</a></div>
+      <div class="list sgroup"><div class="it"><span class="ntn">1</span><div style="flex:1;min-width:0"><b>${T('Get the ntfy app')}</b><br><small>${T('Free, from the App Store or Play Store')}</small></div><a class="sm" id="ntApp" href="${/android/i.test(navigator.userAgent)?'https://play.google.com/store/apps/details?id=io.heckel.ntfy':'https://apps.apple.com/app/id1625396347'}" target="_blank" rel="noopener">${LI('down',16)} ${T('Get ntfy')}</a></div>
        <div class="it"><span class="ntn">2</span><div style="flex:1;min-width:0"><b>${T('Copy your channel')}</b><br><small>${T('In ntfy tap +, paste it as the topic and tap Subscribe. Allow notifications when it asks.')}</small><div class="ntt">${esc(tp)}</div></div><button class="sm" id="ntCopy">${T('Copy')}</button></div>
        <div class="it"><span class="ntn">3</span><div style="flex:1;min-width:0"><b>${T('Send a test')}</b><br><small>${T('A test notification should pop up in a few seconds')}</small></div><button class="sm" id="ntTest">${T('Test')}</button></div></div>
       <div class="msec" style="margin-top:14px">${T('What to send me')}</div>
@@ -4978,10 +4978,12 @@ async function ntfySheet(auto){const m=Cloud.member;if(!m)return;let D=LS.get('n
        ${tfMe()?TG('ntT',T('New tracks and roads'),T('A track found off the map, or a road added. Admins only'),on('t')):''}
        ${TG('ntA',T('Messages from the admins'),T('Announcements for everyone'),on('a'))}</div>
       <div class="sub" style="font-size:12.5px;margin-top:8px">${T('Notifications never say where anyone is right now or where they live.')}</div>
-      <div class="row" style="margin-top:14px"><button class="btn" id="ntNew">${T('New channel')}</button><button class="btn red" id="ntOff">${T('Turn off')}</button></div>`}`,()=>{
+      <div class="row" style="margin-top:14px"><button class="btn" id="ntNew">${T('New channel')}</button><button class="btn red" id="ntOff">${T('Turn off')}</button></div>`}
+    ${isAdm()?`<button class="btn" id="ntRe" style="width:100%;margin-top:10px">${LI('shield',15)} ${T('Admin: test the notifications card again')}</button>`:''}`,()=>{
       $('ntBack').onclick=()=>settingsSheet();
       const need=()=>{if(!navigator.onLine){toast(T('You need signal to do this'));return false}return true};
       if($('ntSet'))$('ntSet').onclick=async()=>{if(!need())return;try{D=await rpc('ntfy_setup',{p_new:false});LS.set('ntfyD',D);render()}catch(e){toast(/404|PGRST202|Could not find/.test(e.message)?T('Run the latest SQL in Supabase first'):errTxt(e),4000)}};
+      if($('ntRe'))$('ntRe').onclick=async()=>{if(!need())return;try{if(tp)await rpc('ntfy_off')}catch(e){}D={topic:null,prefs:(D&&D.prefs)||{}};LS.set('ntfyD',D);LS.set('ntfyOn',false);LS.set('ntfyAsk','');closeSheet();toast(T('Starting over, like a new member'));NTW=true;ntfyAsk.n=0;setTimeout(ntfyAsk,600)};
       if(!tp)return;
       $('ntCopy').onclick=async()=>{try{await navigator.clipboard.writeText(tp)}catch(e){fallbackCopy(tp)}toast(T('Copied. Paste it in ntfy as the topic.'))};
       $('ntTest').onclick=async()=>{if(!need())return;try{await rpc('ntfy_test');toast(T('Sent. Check your notifications.'))}catch(e){toast(errTxt(e),4000)}};
