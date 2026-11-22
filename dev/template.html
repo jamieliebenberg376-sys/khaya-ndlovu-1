@@ -924,6 +924,17 @@ body.tfFilm #top,body.tfFilm #fabs,body.tfFilm #layerBtn,body.tfFilm #navBottom,
 #sheetBody .ntn{width:26px;height:26px;border-radius:50%;background:rgba(233,196,106,.2);color:#b8860b;display:grid;place-items:center;font-weight:800;font-size:13px;flex:none;margin-right:10px}
 #sheetBody .ntt{margin-top:6px;font:600 13px ui-monospace,Menlo,monospace;padding:7px 9px;border-radius:9px;background:rgba(127,127,127,.12);word-break:break-all;user-select:all}
 .ntchips{display:flex;flex-wrap:wrap;gap:8px}.ntch{border:1.5px solid #317f43;background:rgba(49,127,67,.12);color:inherit;border-radius:20px;padding:8px 12px;font:600 14px system-ui,-apple-system,sans-serif;display:flex;align-items:center;gap:6px}.ntch.off{border-color:rgba(127,127,127,.4);background:transparent;opacity:.5;text-decoration:line-through}
+#ntAsk{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;padding:calc(var(--safe-t,0px) + 16px) 18px calc(var(--safe-b,0px) + 16px);background:radial-gradient(120% 80% at 50% 0%,rgba(28,61,42,.96),rgba(6,17,11,.97));opacity:0;transition:opacity .35s;color:#f3efe4}
+#ntAsk.on{opacity:1}#ntAsk .nab{width:100%;max-width:400px;text-align:center;transform:translateY(20px);transition:transform .45s cubic-bezier(.2,.9,.3,1.2)}#ntAsk.on .nab{transform:none}
+#ntAsk .nai{position:relative;width:96px;height:96px;margin:0 auto 18px;border-radius:30px;background:linear-gradient(150deg,#ffe29a,#e9a72a);color:#1d1406;display:grid;place-items:center;box-shadow:0 12px 40px rgba(233,167,42,.35);animation:naw 2.4s ease-in-out infinite}
+#ntAsk .nar{position:absolute;inset:-8px;border-radius:38px;border:2px solid rgba(233,196,106,.6);animation:nap 2.4s ease-out infinite}#ntAsk .nar.r2{animation-delay:1.2s}
+@keyframes nap{0%{transform:scale(.9);opacity:.9}100%{transform:scale(1.45);opacity:0}}@keyframes naw{0%,100%{transform:rotate(0)}8%{transform:rotate(-9deg)}16%{transform:rotate(8deg)}24%{transform:rotate(-5deg)}32%{transform:rotate(0)}}
+#ntAsk h2{margin:0 0 8px;font-size:26px;letter-spacing:-.01em}#ntAsk p{margin:0 0 18px;color:#c9d3c6;font-size:15px;line-height:1.45}
+#ntAsk .nal{text-align:left;background:rgba(255,255,255,.06);border:1px solid rgba(233,196,106,.2);border-radius:18px;padding:6px 14px;margin-bottom:20px}
+#ntAsk .nal>div>:first-child{width:28px;flex:none;display:grid;place-items:center}#ntAsk .nal>div{display:flex;align-items:center;gap:12px;padding:10px 0;color:#ffe29a}#ntAsk .nal>div+div{border-top:1px solid rgba(255,255,255,.08)}#ntAsk .nal span{display:flex;flex-direction:column;color:#f3efe4}#ntAsk .nal small{color:#a9b5a6;font-size:12.5px}
+#ntAsk .nay{width:100%;border:0;border-radius:16px;padding:16px;font:800 17px system-ui,-apple-system,sans-serif;background:linear-gradient(145deg,#f3d27e,#c99a2e);color:#1a1205;box-shadow:0 8px 24px rgba(201,154,46,.35)}
+#ntAsk .nan{width:100%;margin-top:10px;border-radius:16px;padding:15px;font:700 16px system-ui,-apple-system,sans-serif;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.35);color:#fff}
+#ntAsk .naf{display:block;margin-top:14px;color:#8f9b8c;font-size:12px}
 #tfFilm .tfnext{position:absolute;right:12px;bottom:calc(var(--safe-b,0px) + 40px);pointer-events:auto;border:0;border-radius:14px;padding:9px 14px;background:rgba(10,24,16,.85);border:1px solid rgba(233,196,106,.5);color:#fff;font:800 13px system-ui,-apple-system,sans-serif;z-index:3;backdrop-filter:blur(8px)}#tfFilm .tfnext b{color:#ffe29a;margin-left:4px}#tfFilm.s-title .tfnext{opacity:0}
 #tfFilm .tfsoundhint{position:absolute;left:50%;top:calc(var(--safe-t) + 54px);transform:translateX(-50%);display:none;align-items:center;gap:6px;padding:7px 12px;border-radius:12px;background:rgba(255,194,61,.95);color:#1d1406;font:800 12.5px system-ui,-apple-system,sans-serif;white-space:nowrap;animation:hnPulse 1.6s infinite;z-index:3}#tfFilm .tfsoundhint svg{width:15px;height:15px}#tfFilm.s-mute .tfsoundhint{display:flex}#tfFilm.s-mute{pointer-events:auto}
 #tfFilm .tftitle p{margin:0;font-size:17px;color:rgba(244,239,227,.8);letter-spacing:.3px}
@@ -3757,7 +3768,7 @@ function storyAsk(){const now=Date.now();if(storyShown||now-STORY_T0>3*6e4)retur
 function homeNag(){const want=!!(Cloud.member&&!home&&LS.get('custDone',false)&&!nav&&!setupOn()&&$('gate').classList.contains('hide'));let el=$('homeNag');
   if(want&&!el){el=document.createElement('button');el.id='homeNag';el.innerHTML=`${LI('home',17)} <b>${T('Set your home point')}</b><span>›</span>`;el.onclick=()=>homeSheet();document.body.appendChild(el)}
   if(el)el.classList.toggle('on',want);
-  if(want&&!homeNag.asked&&Date.now()-STORY_T0>7000&&!$('sheet').classList.contains('open')&&!(speedS>2)){homeNag.asked=true;let q=$('storyQ');if(!q){q=document.createElement('div');q.id='storyQ';document.body.appendChild(q)}
+  if(want&&!homeNag.asked&&!NTW&&Date.now()-STORY_T0>7000&&!$('sheet').classList.contains('open')&&!(speedS>2)){homeNag.asked=true;let q=$('storyQ');if(!q){q=document.createElement('div');q.id='storyQ';document.body.appendChild(q)}
     q.innerHTML=`<div class="sqi" style="width:40px;height:40px;border-radius:12px;background:linear-gradient(150deg,#ffe29a,#e9a72a);color:#1d1406;align-items:center;justify-content:center">${LI('home',22)}</div><div class="sqt"><b>${T('Set your home point')}</b><small>${T('So Home takes you back, and your car stays hidden near your house.')}</small></div><button class="sqn" id="hqNo">${T('Later')}</button><button class="sqy" id="hqYes">${T('Set it')}</button>`;
     q.classList.add('on');const done=()=>q.classList.remove('on');setTimeout(done,15000);$('hqNo').onclick=done;$('hqYes').onclick=()=>{done();homeSheet()}}}
 setInterval(homeNag,4000);
@@ -4935,7 +4946,23 @@ function shareSheet(){const st=Cloud.stuck||[],w=Cloud.outbox.length;const nm=o=
 function openCust(step,back){custFlow.only=step;custFlow.back=back;custFlow(step)}
 /* ============ phone notifications through the free ntfy app ============
    Each member gets a private random topic. The database sends to it the moment something happens, so it works with the app closed. */
-async function ntfySheet(){const m=Cloud.member;if(!m)return;let D=LS.get('ntfyD',null);
+/* the notifications card: pops up when a member opens the app until they set it up or say they don't want it */
+let NTW=true;
+function ntfyAsk(){const done=()=>{NTW=false};if(LS.get('ntfyAsk','')){done();return}if(!Cloud.member){ntfyAsk.n=(ntfyAsk.n||0)+1;if(ntfyAsk.n<40)setTimeout(ntfyAsk,4000);else done();return}if(Cloud.member.viewAs){done();return}
+  const ready=()=>LS.get('custDone',false)&&!setupOn()&&$('gate').classList.contains('hide')&&!nav&&!(speedS>2)&&!document.body.classList.contains('tfFilm')&&!$('sheet').classList.contains('open');
+  if(!ready()){setTimeout(ntfyAsk,4000);return}
+  if(!navigator.onLine){setTimeout(ntfyAsk,30000);return}
+  rpc('ntfy_get').then(r=>{if(r&&r.topic){LS.set('ntfyAsk','yes');LS.set('ntfyD',r);LS.set('ntfyOn',true);done();return}if(!ready()){setTimeout(ntfyAsk,4000);return}
+    const el=document.createElement('div');el.id='ntAsk';el.innerHTML=`<div class="nab"><div class="nai"><span class="nar"></span><span class="nar r2"></span><svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg></div>
+      <h2>${T('Never miss a sighting')}</h2><p>${T('Get a notification on your phone the moment something happens on the reserve, even with this app closed.')}</p>
+      <div class="nal"><div>${EMO.Leopard||''}<span><b>${T('New sightings')}</b><small>${T('Pick which animals you want')}</small></span></div><div><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12 21s-7.5-4.6-9.6-9.4C.9 8.2 3 4.5 6.6 4.5c2.1 0 3.6 1.1 5.4 3 1.8-1.9 3.3-3 5.4-3 3.6 0 5.7 3.7 4.2 7.1C19.5 16.4 12 21 12 21z"/></svg><span><b>${T('Likes and comments')}</b><small>${T('On your own sightings')}</small></span></div><div>${LI('mega',20)}<span><b>${T('Messages from the admins')}</b><small>${T('Gate times, closed roads and more')}</small></span></div></div>
+      <button class="nay" id="naYes">${T('Set up notifications')}</button><button class="nan" id="naNo">${T('I don\'t want notifications')}</button>
+      <small class="naf">${T('Takes a minute. Uses the free ntfy app. You can change this later in Settings.')}</small></div>`;
+    document.body.appendChild(el);requestAnimationFrame(()=>el.classList.add('on'));
+    const close=v=>{LS.set('ntfyAsk',v);el.classList.remove('on');setTimeout(()=>el.remove(),350);done()};
+    $('naNo').onclick=()=>close('no');$('naYes').onclick=()=>{close('yes');ntfySheet(true)}}).catch(()=>done())}
+setTimeout(ntfyAsk,3500);
+async function ntfySheet(auto){const m=Cloud.member;if(!m)return;let D=LS.get('ntfyD',null);
   const render=()=>{const P=(D&&D.prefs)||{},on=k=>P[k]!==false,mute=P.mute||[],tp=D&&D.topic;LS.set('ntfyOn',!!tp);
     openSheet(`<div class="cmh"><button class="sm" id="ntBack">‹ ${T('Settings')}</button><b>${T('Phone notifications')}</b><span style="width:60px"></span></div>
     ${!tp?`<div class="sub" style="line-height:1.5;margin-top:6px">${T('Get a notification on your phone when someone marks a sighting, likes or comments on yours, or the admins send a message. It works even when this app is closed.')}</div>
@@ -4967,7 +4994,7 @@ async function ntfySheet(){const m=Cloud.member;if(!m)return;let D=LS.get('ntfyD
           document.querySelectorAll('.ntch').forEach(b=>b.onclick=()=>{const a=b.dataset.a;if(sel.has(a))sel.delete(a);else sel.add(a);b.classList.toggle('off',sel.has(a))})})};
       $('ntNew').onclick=async()=>{if(!need())return;try{D=await rpc('ntfy_setup',{p_new:true});LS.set('ntfyD',D);render();toast(T('New channel made. Copy it into ntfy again.'),4000)}catch(e){toast(errTxt(e),4000)}};
       $('ntOff').onclick=async()=>{if(!need())return;try{await rpc('ntfy_off');D={topic:null,prefs:(D&&D.prefs)||{}};LS.set('ntfyD',D);render();toast(T('Notifications off. You can delete the channel in ntfy.'),4000)}catch(e){toast(errTxt(e),4000)}}})};
-  render();if(navigator.onLine)try{const r=await rpc('ntfy_get');if(r&&typeof r==='object'){const was=JSON.stringify(D);D=r;LS.set('ntfyD',D);if(JSON.stringify(D)!==was&&$('ntBack'))render()}}catch(e){}}
+  render();if(auto&&!(D&&D.topic)&&$('ntSet')){$('ntSet').click();return}if(navigator.onLine)try{const r=await rpc('ntfy_get');if(r&&typeof r==='object'){const was=JSON.stringify(D);D=r;LS.set('ntfyD',D);if(JSON.stringify(D)!==was&&$('ntBack'))render()}}catch(e){}}
 /* ============ settings: your profile on top, then one page per topic ============ */
 function settingsSheet(page){const m=Cloud.member;const notif='Notification' in window&&Notification.permission!=='granted';
   const th=(k,l)=>`<button data-th="${k}" class="${theme===k?'sel':''}">${l}</button>`;
