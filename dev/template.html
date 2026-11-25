@@ -935,6 +935,10 @@ body.tfFilm #top,body.tfFilm #fabs,body.tfFilm #layerBtn,body.tfFilm #navBottom,
 #ntAsk .nay{width:100%;border:0;border-radius:16px;padding:16px;font:800 17px system-ui,-apple-system,sans-serif;background:linear-gradient(145deg,#f3d27e,#c99a2e);color:#1a1205;box-shadow:0 8px 24px rgba(201,154,46,.35)}
 #ntAsk .nan{width:100%;margin-top:10px;border-radius:16px;padding:15px;font:700 16px system-ui,-apple-system,sans-serif;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.35);color:#fff}
 #ntAsk .naf{display:block;margin-top:14px;color:#8f9b8c;font-size:12px}
+#top,#chips,#layerBtn,#fabs,#focusPill,#rec,#statRow,#scaleBar,#homeNag,#spot,#sosBtn,#liveBar,#recenter,#speed,#wxBtn,.wxm{transition:opacity .5s}
+body.clean #top,body.clean #chips,body.clean #layerBtn,body.clean #fabs,body.clean #focusPill,body.clean #rec,body.clean #statRow,body.clean #scaleBar,body.clean #homeNag,body.clean #spot,body.clean #sosBtn,body.clean #liveBar,body.clean #recenter,body.clean #speed,body.clean #wxBtn,body.clean .wxm,body.clean #storyQ,body.clean #offPill,body.clean #gpsWeak,body.clean .maplibregl-ctrl{opacity:0!important;pointer-events:none!important}
+body.clean #peek{padding-top:10px;padding-bottom:calc(var(--safe-b) + 8px)}body.clean #peek .grab{display:none}body.clean #peek .pk small{display:none}body.clean #peek .pk b{font-size:17px}
+#junc .jr span small{font-weight:600;opacity:.7}
 #coolCard{position:fixed;left:12px;right:12px;top:calc(var(--safe-t,0px) + 118px);z-index:40;display:flex;gap:12px;align-items:flex-start;padding:14px;border-radius:18px;background:rgba(18,30,22,.94);border:1px solid rgba(233,196,106,.35);color:#f3efe4;box-shadow:0 10px 30px rgba(0,0,0,.4);transform:translateY(-16px);opacity:0;pointer-events:none;transition:.3s;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
 #coolCard.on{transform:none;opacity:1;pointer-events:auto}#coolCard .cci{width:42px;height:42px;border-radius:13px;flex:none;display:grid;place-items:center;background:linear-gradient(150deg,#ffb38a,#e5533d);color:#fff}
 #coolCard .cct{flex:1;min-width:0}#coolCard .cct b{display:block;font-size:15.5px}#coolCard .cct small{display:block;color:#c9d3c6;font-size:13px;line-height:1.4;margin-top:2px}#coolCard ul{margin:6px 0 0;padding-left:18px;font-size:13px;line-height:1.5;color:#ffe29a}
@@ -2914,7 +2918,7 @@ function refreshOverlays(){
   map.getSource('reports').setData({type:'FeatureCollection',features:allReports().map(r=>({type:'Feature',properties:{cid:r.cid,label:T(r.kind+' · '+ago(r.t))},geometry:{type:'Point',coordinates:r.ll}}))});
   updateBlocked();
   const now=Date.now();const tf=tracks.filter(t=>t.pts&&t.pts.length>1&&(SHOWDRV.has(t.cid)||now-(t.end||t.t)<864e5)).map((t,i)=>({type:'Feature',properties:{cid:t.cid||'',col:DRV_COL[tracks.indexOf(t)%DRV_COL.length]},geometry:{type:'LineString',coordinates:t.pts}}));
-  if(recTrack&&recTrack.pts.length>1)tf.push({type:'Feature',properties:{cid:'',col:TRAILCOL},geometry:{type:'LineString',coordinates:recTrack.pts}});
+  if(recTrack&&recTrack.pts.length>1)tf.push({type:'Feature',properties:{cid:'',col:TRAILCOL},geometry:{type:'MultiLineString',coordinates:gapSplit(recTrack.pts,60)}});
   map.getSource('tracks').setData({type:'FeatureCollection',features:tf});
 }
 
@@ -3224,7 +3228,7 @@ function handlePos(raw,acc,heading,speed,t){if(lastPos&&t&&t<lastPos.t)return;if
   $('spd').textContent=Math.round((speedS||0)*3.6);$('speed').classList.toggle('mv',(speedS||0)*3.6>4);speedCheck(ll);
   { const L=trail[trail.length-1];if(L&&dist(L,ll)>400)trail=[];if(!L||dist(L,ll)>8){trail.push([+ll[0].toFixed(6),+ll[1].toFixed(6)]);if(trail.length>1500)trail.shift();
      if(trail.length%5===0)try{localStorage.setItem('kn_trail',JSON.stringify({t:Date.now(),p:trail}))}catch(e){}
-     if(mapReady&&trail.length>1)map.getSource('trail').setData({type:'Feature',geometry:{type:'LineString',coordinates:trail},properties:{}})}}
+     if(mapReady&&trail.length>1)map.getSource('trail').setData({type:'Feature',geometry:{type:'MultiLineString',coordinates:gapSplit(trail,60)},properties:{}})}}
   const dn=(speedS||0)*3.6>8;if(dn!==drivingNow){drivingNow=dn;if(mapReady)applyDrive()}
   updateRoad();
   if(recTrack){const k=(speedS||0)*3.6;if(k>(recTrack.top||0)&&k<120)recTrack.top=+k.toFixed(1);if(recTrack.lt&&k>SPEED_LIMIT+3&&inReserve(ll))recTrack.over=(recTrack.over||0)+Math.min(5,(t-recTrack.lt)/1000);recTrack.lt=t}
@@ -3292,6 +3296,17 @@ function camTick(){
     map.jumpTo({center:anim.pos,bearing:NORTHUP?0:anim.camHd,pitch:Math.abs(p-pt)<.05?p:pt+(p-pt)*(1-Math.exp(-dt/(flat?0.45:0.7))),zoom:camState.zoom,padding:{top:Math.round(LAND?innerHeight*(flat?0.2:0.3):camState.pad),bottom:0,left:LAND&&nav?Math.round(innerWidth*0.42):0,right:0}});
   }else anim.camHd=driving?anim.camHd:map.getBearing();
 }
+/* ============ clean map: a minute without touching the screen and only the map, your car and the road you're on are left ============
+   Directions and the junction card stay when they matter. The first touch only brings everything back, it never presses anything. */
+let CLEANON=LS.get('cleanOn',true);const CLEAN={t:Date.now(),on:false,block:0};
+function gapSplit(P,max){const out=[];let cur=[];for(const q of P){if(cur.length&&dist(cur[cur.length-1],q)>max){if(cur.length>1)out.push(cur);cur=[]}cur.push(q)}if(cur.length>1)out.push(cur);return out.length?out:[P]}
+function cleanOk(){try{const ae=document.activeElement;return !$('sheet').classList.contains('open')&&$('gate').classList.contains('hide')&&!setupOn()&&!document.body.classList.contains('tfFilm')&&!document.getElementById('ntAsk')&&!(ae&&ae.matches&&ae.matches('input,textarea'))&&!(($('coolCard')||{classList:{contains:()=>false}}).classList.contains('on'))}catch(e){return false}}
+function cleanSet(v){if(v===CLEAN.on)return;CLEAN.on=v;document.body.classList.toggle('clean',v)}
+['pointerdown','touchstart','mousedown'].forEach(ev=>window.addEventListener(ev,e=>{CLEAN.t=Date.now();if(CLEAN.on){cleanSet(false);CLEAN.block=Date.now();try{HEAT.lastTouch=Date.now();if(HEAT.satOff&&!HEAT.hot)coolSat(false)}catch(err){}}if(Date.now()-CLEAN.block<450){e.stopImmediatePropagation();e.stopPropagation();if(e.cancelable)e.preventDefault()}},{capture:true,passive:false}));
+['click','touchend','pointerup','mouseup'].forEach(ev=>window.addEventListener(ev,e=>{if(Date.now()-CLEAN.block<450){e.stopImmediatePropagation();e.stopPropagation();if(e.cancelable)e.preventDefault()}},{capture:true,passive:false}));
+document.addEventListener('keydown',()=>{CLEAN.t=Date.now()},true);
+setInterval(()=>{if(!CLEANON||document.hidden){cleanSet(false);return}if(CLEAN.on&&!cleanOk()){cleanSet(false);CLEAN.t=Date.now();return}
+  if(!CLEAN.on&&gotFirst&&Date.now()-CLEAN.t>60000&&cleanOk())cleanSet(true)},2000);
 /* ============ keep the phone cool ============
    1. Driving without touching the screen for 90 s: satellite switches to the drawn map (far less work). Touch the map and satellite comes back.
    2. iPhones don't tell web apps their temperature, but a hot phone slows itself down and the screen gets fewer frames.
@@ -3350,7 +3365,7 @@ function updateRoad(){
   // next junction ahead
   const fm=farmAt(me.ll);
   let sub=[fm,me.heading!=null?'Heading '+compassName(me.heading):''].filter(Boolean).join(' · ');
-  let jx=null;if(me.heading!=null){jx=nextJunction(ne,me.heading);if(jx)sub+=(sub?' · ':'')+'next: '+jx.roads[0].name+' in '+fmtD(jx.d)}
+  let jx=null;if(me.heading!=null){jx=nextJunction(ne,me.heading);const tk=jx&&(jx.roads.find(r=>!r.straight&&r.name&&r.name!==curRoad));if(tk&&jx.d>=10)sub+=(sub?' · ':'')+'next: '+tk.name+' in '+fmtD(jx.d)}
   $('rs').textContent=sub;showJunction(jx);updatePill();
 }
 const FARMS=(DATA.farms&&DATA.farms.features||[]).filter(f=>f.properties.kind==='farm').map(f=>({n:f.properties.name,r:f.geometry.coordinates[0]}));
@@ -3423,7 +3438,7 @@ function placeSpot(){const sp=$('spot');if(!sp)return;const playing=sp.classList
   if(navOn&&!$('junc').classList.contains('hide'))$('junc').style.top=($('nav').getBoundingClientRect().bottom+10)+'px'}
 setInterval(placeSpot,400);
 function showJunction(j){const el=$('junc');el.style.top='';if(nav)return;if(!j||j.d>150||j.d<8||!drivingNow&&driveMode!=='on'&&j.d>120){el.classList.add('hide');lastJ='';return}
-  const k=j.roads.map(r=>r.name).join('|');const h=`<b>JUNCTION IN ${fmtD(j.d).toUpperCase()}</b>`+j.roads.map(r=>`<div class="jr">${TURN_SVG(r.turn)}${esc(r.name)}${r.straight?' <small>(straight on)</small>':''}</div>`).join('');
+  const k=j.roads.map(r=>r.name).join('|');const h=`<b>JUNCTION IN ${fmtD(j.d).toUpperCase()}</b>`+j.roads.map(r=>`<div class="jr">${TURN_SVG(r.turn)}<span>${esc(r.name)}${r.straight?' <small>(straight on)</small>':''}</span></div>`).join('');
   el.innerHTML=h;el.classList.remove('hide');lastJ=k}
 function nextJunction(ne,hd){
   // walk along current road in direction of heading until a node with another road
@@ -5062,7 +5077,7 @@ function settingsSheet(page){const m=Cloud.member;const notif='Notification' in 
     <div class="msec">${T('On the map')}</div><div class="list sgroup">${LK('saLook',T('Map look'),T('Satellite photos or the drawn map'),mode==='sat'?T('Satellite'):T('Map'),'map','#188038')}${LK('saCar',T('Your car'),T('How you show on the map while you drive'),'','car','#1a73e8')}${LK('saCol',T('Route and trail colours'),T('The line you follow and the line your drives leave'),'','route','#7b1fa2')}</div>`;
   else if(page==='al')html=head('Alerts')+`<div class="list sgroup">${TG('sAlert','New sighting alerts','Pop-up when someone else marks a sighting',alertOn)}${LK('sAW','Which animals alert me','',esc(alertWhatTxt()))}${TG('sSound','Alert sound','A bing with each alert',alertSound)}${TG('sQuiet','Quiet hours','No alert sounds or pop-ups from '+QUIET.from+' to '+QUIET.to+' unless you are out driving.',quietOn)}${notif?LK('sNotif','Phone notifications','Also alert you while the app is in the background','Turn on'):''}</div>`;
   else if(page==='loc')html=head('Location')+`${MS.admin_sees_all?'<div class="sub" style="margin:-4px 2px 8px;font-size:12.5px">'+LI('eye',12)+' Admins can see your car while you drive on the reserve, even with sharing off. Drives off the mapped roads are sent to the admins to find new tracks. Your home stays hidden.</div>':''}<div class="list sgroup">${m?TG('sSee',T('See other drivers'),T('Other members show as coloured cars on your map while they drive on the reserve'),SEEOTH):''}${m?LK('sLive','Share live location','',shareLoc?'On':'Off'):''}${LK('sHome','Home point','',home?'Set':'Not set')}${isAdm()&&isIOS?LK('sLoc','Stop the location question','If the map asks for your location every time',''):''}</div>`;
-  else if(page==='drv')html=head('Driving and voice')+`<div class="list sgroup">${TG('sAwake','Keep the screen on','The screen stays on the whole time the map is open',KEEPAWAKE)}${TG('sCool',T('Keep my phone cool'),T('While you drive without touching the screen, satellite switches to the drawn map. If your phone starts slowing down from heat, Cool mode turns on with tips.'),COOLON)}</div><div class="msec">Voice directions</div>${vmSeg('sVm')}<div class="sub" style="margin:6px 2px 4px;font-size:12.5px">Alerts only speaks at the turn itself and for gates, stops and rerouting</div>`;
+  else if(page==='drv')html=head('Driving and voice')+`<div class="list sgroup">${TG('sAwake','Keep the screen on','The screen stays on the whole time the map is open',KEEPAWAKE)}${TG('sClean',T('Clean map after a minute'),T('A minute without touching the screen and everything but the map, your car and the road you are on fades away. Touch the screen to bring it back.'),CLEANON)}${TG('sCool',T('Keep my phone cool'),T('While you drive without touching the screen, satellite switches to the drawn map. If your phone starts slowing down from heat, Cool mode turns on with tips.'),COOLON)}</div><div class="msec">Voice directions</div>${vmSeg('sVm')}<div class="sub" style="margin:6px 2px 4px;font-size:12.5px">Alerts only speaks at the turn itself and for gates, stops and rerouting</div>`;
   else if(page==='mus')html=head('Music')+`<div class="list sgroup">${TG('sSpot','Spotify button','Music controls on the map. Off unless you want them',SPOTON)}</div><div class="sub" style="margin:8px 2px;font-size:12.5px">${T('Tap the Spotify button on the map to connect your account the first time.')}</div>`;
   else if(page==='lang')html=head('Language')+`<div class="seg" style="margin:4px 0 12px" data-notr><button data-lg="en" class="${LANG!=='af'?'sel':''}">English</button><button data-lg="af" class="${LANG==='af'?'sel':''}">Afrikaans</button></div>`;
   else if(page==='data')html=head('Map data and updates')+`<div class="list sgroup">${LK('sOff','Offline map','',esc(offlineStatus()))}${m&&isAdm()?LK('sShare','Sharing status',shareStatus(),''):''}${m&&isAdm()?LK('sRe',T('Reinstall the app'),T('Fresh copy on your Home Screen, you stay signed in'),'','route','#5f6368'):''}${m&&m.role==='admin'?LK('sUpd',T('Updates and reinstall'),T('Send the newest version to everyone, or ask everyone to reinstall'),'v'+VER(APP_BUILD),'down','#1a73e8'):''}</div>`;
@@ -5078,7 +5093,7 @@ function settingsSheet(page){const m=Cloud.member;const notif='Notification' in 
     const locked=MS.rules&&MS.rules.lock;if(locked)['sQuiet','sSun','sSpd'].forEach(id=>{const b=$(id);if(b){b.style.opacity=.45;b.onclick=()=>toast('An admin set this for everyone')}});
     if(!locked){tg('sQuiet',()=>{quietOn=!quietOn;LS.set('quiet',quietOn)});tg('sSun',()=>{sunRemind=!sunRemind;LS.set('sunRemind',sunRemind)});
     tg('sSpd',()=>{speedWarn=!speedWarn;LS.set('speedWarn',speedWarn);if(me)speedCheck(me.ll)})}
-    on('sFocus',focusSheet);if($('sVm'))bindVm();tg('sAutoRec',()=>{AUTOREC=!AUTOREC;LS.set('autoRec',AUTOREC)});tg('sSpot',()=>{SPOTON=!SPOTON;LS.set('spotOn',SPOTON);document.body.classList.toggle('spon',SPOTON)});tg('sTop',()=>{TOPTURN=!TOPTURN;LS.set('topTurn',TOPTURN)});tg('sNorth',()=>{NORTHUP=!NORTHUP;LS.set('northUp',NORTHUP)});tg('sSpdo',()=>{SHOWSPD=!SHOWSPD;LS.set('showSpd',SHOWSPD);document.body.classList.toggle('nospd',!SHOWSPD)});tg('sCool',()=>{COOLON=!COOLON;LS.set('coolOn',COOLON);if(!COOLON){if(HEAT.hot)coolHot(false);coolSat(false)}});tg('sAwake',()=>{KEEPAWAKE=!KEEPAWAKE;LS.set('keepAwake',KEEPAWAKE);wantWake(KEEPAWAKE)});tg('sAvoid',()=>{AVOIDTRK=!AVOIDTRK;LS.set('avoidTracks',AVOIDTRK)});
+    on('sFocus',focusSheet);if($('sVm'))bindVm();tg('sAutoRec',()=>{AUTOREC=!AUTOREC;LS.set('autoRec',AUTOREC)});tg('sSpot',()=>{SPOTON=!SPOTON;LS.set('spotOn',SPOTON);document.body.classList.toggle('spon',SPOTON)});tg('sTop',()=>{TOPTURN=!TOPTURN;LS.set('topTurn',TOPTURN)});tg('sNorth',()=>{NORTHUP=!NORTHUP;LS.set('northUp',NORTHUP)});tg('sSpdo',()=>{SHOWSPD=!SHOWSPD;LS.set('showSpd',SHOWSPD);document.body.classList.toggle('nospd',!SHOWSPD)});tg('sClean',()=>{CLEANON=!CLEANON;LS.set('cleanOn',CLEANON);if(!CLEANON)cleanSet(false)});tg('sCool',()=>{COOLON=!COOLON;LS.set('coolOn',COOLON);if(!COOLON){if(HEAT.hot)coolHot(false);coolSat(false)}});tg('sAwake',()=>{KEEPAWAKE=!KEEPAWAKE;LS.set('keepAwake',KEEPAWAKE);wantWake(KEEPAWAKE)});tg('sAvoid',()=>{AVOIDTRK=!AVOIDTRK;LS.set('avoidTracks',AVOIDTRK)});
     tg('sRed',()=>setRed(!redOn));
     tg('sRedAuto',()=>{redAuto=!redAuto;LS.set('redAuto',redAuto);redCheck()});
     on('sAW',()=>alertWhatSheet());
