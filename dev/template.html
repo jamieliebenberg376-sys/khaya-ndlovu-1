@@ -1884,7 +1884,7 @@ const CALLOUT={id:'road-callout',type:'symbol',source:'roads',minzoom:12,layout:
 function lbl(id,minz,filter){return{id,type:'symbol',source:'roads',minzoom:minz,filter,layout:{'symbol-placement':'line','text-field':['get','name'],'text-font':['Sans Bold'],'text-size':['interpolate',['linear'],['zoom'],13,10.5,17,14.5],'text-letter-spacing':.02,'symbol-spacing':260,'text-max-angle':55,'text-padding':6,'text-pitch-alignment':'viewport','text-keep-upright':true,'symbol-sort-key':['-',0,['get','len']]},paint:{'text-color':'#4a4036','text-halo-color':'#ffffff','text-halo-width':1.8}}}
 
 const CAM0=(()=>{const c=LS.get('cam',null);return c&&Date.now()-c.t<14*864e5&&Array.isArray(c.c)?c:null})();
-const map=new maplibregl.Map({container:'map',style:style(),...(CAM0?{center:CAM0.c,zoom:CAM0.z}:{bounds:RES_BOUNDS,fitBoundsOptions:{padding:40}}),maxBounds:[[minX-.12,minY-.1],[maxX+.12,maxY+.1]],minZoom:11,maxZoom:19,attributionControl:false,pitchWithRotate:false,dragRotate:true,touchPitch:true,fadeDuration:120});
+const map=new maplibregl.Map({container:'map',style:style(),...(CAM0?{center:CAM0.c,zoom:CAM0.z}:{bounds:RES_BOUNDS,fitBoundsOptions:{padding:40}}),maxBounds:[[minX-.12,minY-.1],[maxX+.12,maxY+.1]],minZoom:11,maxZoom:19,attributionControl:false,pitchWithRotate:false,dragRotate:true,touchPitch:true,fadeDuration:120,pixelRatio:Math.min(window.devicePixelRatio||1,2)});
 
 function drawIcon(kind){
   const s=64,c=document.createElement('canvas');c.width=c.height=s;const x=c.getContext('2d');const col=COLORS[kind]||'#555';
@@ -2005,7 +2005,7 @@ const PRED=['Lion','Leopard','Cheetah','Wild dog','Hyena'];const ttlOf=s=>s&&s.k
 const REPORT_KINDS=['Washed out','Closed','Blocked by animal','Fallen tree','Muddy','Deep water','Other'];
 const BLOCKING=['Washed out','Closed','Blocked by animal','Fallen tree','Deep water'];
 let tracks=LS.get('tracks',[]);
-let calib=LS.get('calib',[0,0]);
+let calib=[0,0];try{LS.set('calib',[0,0])}catch(e){}
 let curRoad=null, nav=null, recTrack=null, sim=null, offCount=0, lastPos=null, speedS=0;
 const DM={on:false,ll:null,hd:0,spd:0,segs:null,along:0,v:7,sights:[],reports:[],iv:null,bt:0,peers:{},host:false,lastCars:{}};
 const DEMO_END=HOUSE2||((DATA.pois.features[0]||{}).geometry||{coordinates:DATA.boundary.geometry.coordinates[0][0]}).coordinates;
@@ -2927,6 +2927,11 @@ function startGPS(){
   if(!('geolocation' in navigator)){gpsErr='This phone has no GPS access in the browser';return}
   watchId=navigator.geolocation.watchPosition(onPos,e=>{gpsErr=e.code===1?'Location permission denied':'Waiting for GPS signal...';if(e.code===1)toast('Location is off. Allow location for this site in Settings to see yourself on the map.',5000)},{enableHighAccuracy:true,maximumAge:1000,timeout:20000});
 }
+let gpsKick=0;
+function restartGPS(){if(!('geolocation' in navigator)||Date.now()-gpsKick<8000)return;gpsKick=Date.now();try{if(watchId!=null)navigator.geolocation.clearWatch(watchId)}catch(e){}watchId=null;startGPS();
+  try{navigator.geolocation.getCurrentPosition(onPos,()=>{},{enableHighAccuracy:true,maximumAge:0,timeout:15000})}catch(e){}}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&gotFirst)restartGPS()});
+setInterval(()=>{if(!document.hidden&&gotFirst&&me&&Date.now()-me.t>9000)restartGPS()},3000);
 function onPos(p){
   if(sim)return;
   const c=p.coords;handlePos([c.longitude,c.latitude],c.accuracy,c.heading,c.speed,p.timestamp);
@@ -3202,7 +3207,7 @@ function droadsSheet(){const L=DROADS.slice().reverse();const adm=tfMe();
         $('deBack').onclick=()=>droadsSheet();let deTrack=!!r.track;document.querySelectorAll('#deKind button').forEach(b=>b.onclick=()=>{deTrack=b.dataset.k==='1';document.querySelectorAll('#deKind button').forEach(q=>q.classList.toggle('sel',q===b))});
         $('deSave').onclick=async()=>{try{await rpc('edit_discovered_road',{p_id:r.id,p_name:$('deName').value,p_remove:false,p_track:deTrack});await droadsSync(true);toast(T('Saved. The map refreshes to show it.'));droadsReload(1500)}catch(e){toast(errTxt(e).replace(/^Database said: /,''),4000)}};
         $('deDel').onclick=async()=>{try{await rpc('edit_discovered_road',{p_id:r.id,p_name:null,p_remove:true});await droadsSync(true);toast(T('Removed. The map refreshes.'));droadsReload(1500)}catch(e){toast(errTxt(e),4000)}}})})})}
-function handlePos(raw,acc,heading,speed,t){if((speed||0)>1.5)lastMoveT=Date.now();
+function handlePos(raw,acc,heading,speed,t){if(lastPos&&t&&t<lastPos.t)return;if((speed||0)>1.5)lastMoveT=Date.now();
   const ll=[raw[0]+calib[0],raw[1]+calib[1]];try{tfFix(ll,acc,speed,t)}catch(e){}
   if(lastPos){const dt=(t-lastPos.t)/1000,dd=dist(lastPos.ll,ll);if(dt>0){const v=dd/dt;if(speed==null||isNaN(speed))speed=v;if((heading==null||isNaN(heading))&&dd>3)heading=bearing(lastPos.ll,ll)}}
   if(speed!=null&&!isNaN(speed)){if(speed>42)speed=speedS;speedS=speedS*0.65+speed*0.35}
@@ -3226,13 +3231,16 @@ function handlePos(raw,acc,heading,speed,t){if((speed||0)>1.5)lastMoveT=Date.now
 }
 let fastN=0;
 /* ---- Google-Maps-style smooth puck + camera ---- */
+/* true when a fork or crossroads is within r metres: the arrow is never pulled onto a road there, it shows the GPS as it is */
+function nearRes(ll){try{if(inReserve(ll))return true;const b=RES_BOUNDS,c=[(b[0][0]+b[1][0])/2,(b[0][1]+b[1][1])/2];return dist(ll,c)<40000}catch(e){return false}}
+function nearJunction(p,r){try{for(const e of edgesNear(p,r+20)){for(const k of [e.a,e.b]){if(adj[k]&&adj[k].length>=3&&dist(nodes[k],p)<=r)return true}}}catch(err){}return false}
 const anim={pos:null,hd:0,from:null,fromHd:0,to:null,toHd:0,t0:0,dur:1000,lastFix:0};
 function angLerp(a,b,t){const d=((b-a+540)%360)-180;return (a+d*t+360)%360}
 function setTarget(ll,heading,t){
   // snap to the road you're on (like Google) when close and moving
   let tgt=ll,hd=heading;
-  const ne=nearestEdge(ll,25,curRoad);
-  if(ne&&ne.d<20&&(speedS||0)>1.2){tgt=ne.q;const rb=bearing(nodes[ne.e.a],nodes[ne.e.b]);const h0=heading!=null?heading:anim.toHd;hd=Math.abs(((rb-h0+540)%360)-180)<90?rb:(rb+180)%360;
+  const ne=nearestEdge(ll,14),gacc=me&&me.acc||15;
+  if(ne&&ne.d<Math.min(10,gacc+3)&&(speedS||0)>1.2&&!nearJunction(ll,35)){tgt=ne.q;const rb=bearing(nodes[ne.e.a],nodes[ne.e.b]);const h0=heading!=null?heading:anim.toHd;hd=Math.abs(((rb-h0+540)%360)-180)<90?rb:(rb+180)%360;
     if(heading!=null&&Math.abs(((hd-heading+540)%360)-180)>60)hd=heading}
   const now=performance.now();anim.lastFix=now;anim.fixT=now;anim.v=Math.min(35,speedS||0);
   anim.to=tgt;anim.toHd=hd!=null?hd:(anim.toHd||0);
@@ -3244,28 +3252,31 @@ const camState={zoom:null};
 function camTick(){
   requestAnimationFrame(camTick);
   if(!anim.to||!anim.pos)return;
-  const now=performance.now(),dt=Math.min(.1,Math.max(0,(now-(anim.lastT||now))/1000));anim.lastT=now;
+  {/* keeps the phone cool: the map is redrawn 30 times a second while you drive, 10 when parked, less when you are just looking around */
+   const nowF=performance.now(),drv=follow===2&&!userMoving,mv=(speedS||0)>=1.4,gap=drv?(mv?33:100):(mv?50:150);
+   if(nowF-(camTick.f||0)<gap-4)return;camTick.f=nowF}
+  const now=performance.now(),dt=Math.min(.2,Math.max(0,(now-(anim.lastT||now))/1000));anim.lastT=now;
   const stopped=(speedS||0)<1.4;
   if(stopped&&compassHd!=null)anim.toHd=compassHd;
   {const c=meEl.querySelector('.cone');if(c){const v=(compassHd!=null||(me&&me.heading!=null))?'1':'0';if(c.style.opacity!==v)c.style.opacity=v}}
   // where the car is now: last fix, carried forward along its heading until the next fix arrives
-  let pred=anim.to;const ex=Math.min(1.1,(now-anim.fixT)/1000);
-  if(!stopped&&anim.v>1.2&&ex>0){const a=anim.toHd*Math.PI/180,d=anim.v*.92*ex;pred=[anim.to[0]+Math.sin(a)*d/(111320*Math.cos(anim.to[1]*Math.PI/180)),anim.to[1]+Math.cos(a)*d/110540]}
+  let pred=anim.to;const ex=Math.min(.5,(now-anim.fixT)/1000);
+  if(!stopped&&anim.v>1.2&&ex>0){const a=anim.toHd*Math.PI/180,d=anim.v*.8*ex;pred=[anim.to[0]+Math.sin(a)*d/(111320*Math.cos(anim.to[1]*Math.PI/180)),anim.to[1]+Math.cos(a)*d/110540]}
   // on a route: keep the car exactly on the route line, so GPS wobble never pushes it sideways
-  if(nav&&nav.segs&&!stopped){try{const pr=projectOnRoute(nav.segs,pred);if(pr.d<25)pred=pointAt(nav.segs,pr.along)}catch(e){}}
-  if(dist(anim.pos,pred)>120)anim.pos=pred.slice();
+  if(nav&&nav.segs&&!stopped&&!nearJunction(pred,35)){try{const pr=projectOnRoute(nav.segs,pred);if(pr.d<6)pred=pointAt(nav.segs,pr.along)}catch(e){}}
+  const lagMax=Math.max(12,Math.min(25,(me&&me.acc)||12));if(dist(anim.pos,pred)>lagMax)anim.pos=pred.slice();
   else{// glide towards where the car is. When a GPS fix lands a little behind the arrow, the arrow waits instead of jumping back
    // (that back-and-forth every second is what made the map shake). Sideways wobble is damped harder than forward movement.
    const kx=111320*Math.cos(anim.pos[1]*Math.PI/180),ky=110540;let dx=(pred[0]-anim.pos[0])*kx,dy=(pred[1]-anim.pos[1])*ky;
-   if(!stopped){const a=(anim.camHd!=null?anim.camHd:anim.hd)*Math.PI/180,fx=Math.sin(a),fy=Math.cos(a);let f=dx*fx+dy*fy,s=dx*fy-dy*fx;
-     if(f<0&&f>-18)f=0;s*=Math.abs(s)<3?.35:1;dx=f*fx+s*fy;dy=f*fy-s*fx}
-   const kp=1-Math.exp(-dt/(stopped?0.45:0.3));anim.pos=[anim.pos[0]+dx*kp/kx,anim.pos[1]+dy*kp/ky]}
-  {const dh=Math.abs(((anim.toHd-anim.hd+540)%360)-180);if(!(dh<3&&!stopped))anim.hd=angLerp(anim.hd,anim.toHd,1-Math.exp(-dt/(stopped?0.3:0.5)))}
+   if(!stopped&&follow===2&&!userMoving){const a=anim.hd*Math.PI/180,fx=Math.sin(a),fy=Math.cos(a);let f=dx*fx+dy*fy,s=dx*fy-dy*fx;
+     if(f<0&&f>-2.5)f=0;s*=Math.abs(s)<1.5?.5:1;dx=f*fx+s*fy;dy=f*fy-s*fx}
+   const kp=1-Math.exp(-dt/(stopped?0.35:0.18));anim.pos=[anim.pos[0]+dx*kp/kx,anim.pos[1]+dy*kp/ky]}
+  {const dh=Math.abs(((anim.toHd-anim.hd+540)%360)-180);if(!(dh<3&&!stopped))anim.hd=angLerp(anim.hd,anim.toHd,1-Math.exp(-dt/(stopped?0.25:0.25)))}
   if(anim.camHd==null)anim.camHd=anim.hd;
   {// the map turns slowly and only for real bends: small wiggles are ignored and it never turns faster than 30 degrees a second
    const want=anim.routeHd!=null&&!stopped?anim.routeHd:anim.toHd;let diff=((want-anim.camHd+540)%360)-180;
    if(Math.abs(diff)<4&&!nav)diff=0;else if(Math.abs(diff)<2.5)diff=0;
-   let step=diff*(1-Math.exp(-dt/1.6));const mx=30*dt;step=Math.max(-mx,Math.min(mx,step));anim.camHd=(anim.camHd+step+360)%360}
+   let step=diff*(1-Math.exp(-dt/0.7));const mx=80*dt;step=Math.max(-mx,Math.min(mx,step));anim.camHd=(anim.camHd+step+360)%360}
   meMk.setLngLat(anim.pos);meMk.setRotation(anim.hd);
   const driving=follow===2;meEl.classList.toggle('nav',driving||!!nav);
   if(driving&&!userMoving){
@@ -3295,7 +3306,7 @@ function inReserve(ll){let ins=false;for(let i=0,j=B.length-1;i<B.length;j=i++){
 
 function updateRoad(){
   if(!me)return;
-  const ne=nearestEdge(me.ll,250,curRoad);
+  const ne=nearestEdge(me.ll,250,nearJunction(me.ll,30)?null:curRoad);
   const card=$('roadCard');card.classList.toggle('hide',!!nav);
   if(!ne){curRoad=null;map.getSource('cur').setData(empty);
     $('rn').textContent=inReserve(me.ll)?'Off road':'Outside the reserve';
@@ -3876,8 +3887,8 @@ function navTick(){
   const pr=projectOnRoute(nav.segs,me.ll);
   // off the route: reroute quickly. Driving away from the line (a missed turn) counts after 25 m, otherwise after 35 m
   {const mv=(me.speed||speedS||0)>1.5&&me.heading!=null;let away=false;
-    if(mv&&pr.d>25){try{const a=pr.along,p1=pointAt(nav.segs,Math.max(0,a-10)),p2=pointAt(nav.segs,Math.min(nav.total,a+10)),rb=bearing(p1,p2);away=Math.abs(((me.heading-rb+540)%360)-180)>55}catch(e){}}
-    if(pr.d>35||away){offCount++;if(offCount>=(away?1:2)&&Date.now()-(nav.rrAt||0)>4000){offCount=0;nav.rrAt=Date.now();const r=navRoute();if(r){const b=buildSteps(r);Object.assign(nav,{r,...b});
+    if(mv&&pr.d>16){try{const a=pr.along,p1=pointAt(nav.segs,Math.max(0,a-10)),p2=pointAt(nav.segs,Math.min(nav.total,a+10)),rb=bearing(p1,p2);away=Math.abs(((me.heading-rb+540)%360)-180)>55}catch(e){}}
+    if(pr.d>26||away){offCount++;if(offCount>=(away?1:2)&&Date.now()-(nav.rrAt||0)>4000){offCount=0;nav.rrAt=Date.now();const r=navRoute();if(r){const b=buildSteps(r);Object.assign(nav,{r,...b});
       // the fastest way back is behind you: say so
       let ut=false;try{if(mv&&b.segs.length){const rb=bearing(b.segs[0].a,pointAt(b.segs,Math.min(b.total,30)));ut=Math.abs(((me.heading-rb+540)%360)-180)>120}}catch(e){}
       nav.uturn=ut;if(ut){toast(T('Missed the turn. Make a U-turn when it is safe'),3500);say(T('Make a U-turn when it is safe'),'rr'+Date.now(),true)}else{toast(T('Rerouting...'),1500);say(T('Rerouting'),'rr'+Date.now())}return navTick()}}}else offCount=0}
@@ -5018,7 +5029,7 @@ function settingsSheet(page){const m=Cloud.member;const notif='Notification' in 
     <div class="msec">${T('Light or dark')}</div><div class="seg" style="margin:0 0 8px">${th('auto','Auto')}${th('day','Light')}${th('night','Dark')}</div><div class="sub" style="margin:-2px 2px 10px;font-size:12.5px">Auto goes dark at sunset and light again at sunrise</div>
     <div class="msec">${T('On the map')}</div><div class="list sgroup">${LK('saLook',T('Map look'),T('Satellite photos or the drawn map'),mode==='sat'?T('Satellite'):T('Map'),'map','#188038')}${LK('saCar',T('Your car'),T('How you show on the map while you drive'),'','car','#1a73e8')}${LK('saCol',T('Route and trail colours'),T('The line you follow and the line your drives leave'),'','route','#7b1fa2')}</div>`;
   else if(page==='al')html=head('Alerts')+`<div class="list sgroup">${TG('sAlert','New sighting alerts','Pop-up when someone else marks a sighting',alertOn)}${LK('sAW','Which animals alert me','',esc(alertWhatTxt()))}${TG('sSound','Alert sound','A bing with each alert',alertSound)}${TG('sQuiet','Quiet hours','No alert sounds or pop-ups from '+QUIET.from+' to '+QUIET.to+' unless you are out driving.',quietOn)}${notif?LK('sNotif','Phone notifications','Also alert you while the app is in the background','Turn on'):''}</div>`;
-  else if(page==='loc')html=head('Location')+`${MS.admin_sees_all?'<div class="sub" style="margin:-4px 2px 8px;font-size:12.5px">'+LI('eye',12)+' Admins can see your car while you drive on the reserve, even with sharing off. Drives off the mapped roads are sent to the admins to find new tracks. Your home stays hidden.</div>':''}<div class="list sgroup">${m?TG('sSee',T('See other drivers'),T('Other members show as coloured cars on your map while they drive on the reserve'),SEEOTH):''}${m?LK('sLive','Share live location','',shareLoc?'On':'Off'):''}${LK('sHome','Home point','',home?'Set':'Not set')}${isAdm()?LK('sCal','Calibrate GPS','If your dot sits next to the road',calib[0]||calib[1]?'Active':''):''}${isAdm()&&isIOS?LK('sLoc','Stop the location question','If the map asks for your location every time',''):''}</div>`;
+  else if(page==='loc')html=head('Location')+`${MS.admin_sees_all?'<div class="sub" style="margin:-4px 2px 8px;font-size:12.5px">'+LI('eye',12)+' Admins can see your car while you drive on the reserve, even with sharing off. Drives off the mapped roads are sent to the admins to find new tracks. Your home stays hidden.</div>':''}<div class="list sgroup">${m?TG('sSee',T('See other drivers'),T('Other members show as coloured cars on your map while they drive on the reserve'),SEEOTH):''}${m?LK('sLive','Share live location','',shareLoc?'On':'Off'):''}${LK('sHome','Home point','',home?'Set':'Not set')}${isAdm()&&isIOS?LK('sLoc','Stop the location question','If the map asks for your location every time',''):''}</div>`;
   else if(page==='drv')html=head('Driving and voice')+`<div class="list sgroup">${TG('sAwake','Keep the screen on','The screen stays on the whole time the map is open',KEEPAWAKE)}</div><div class="msec">Voice directions</div>${vmSeg('sVm')}<div class="sub" style="margin:6px 2px 4px;font-size:12.5px">Alerts only speaks at the turn itself and for gates, stops and rerouting</div>`;
   else if(page==='mus')html=head('Music')+`<div class="list sgroup">${TG('sSpot','Spotify button','Music controls on the map. Off unless you want them',SPOTON)}</div><div class="sub" style="margin:8px 2px;font-size:12.5px">${T('Tap the Spotify button on the map to connect your account the first time.')}</div>`;
   else if(page==='lang')html=head('Language')+`<div class="seg" style="margin:4px 0 12px" data-notr><button data-lg="en" class="${LANG!=='af'?'sel':''}">English</button><button data-lg="af" class="${LANG==='af'?'sel':''}">Afrikaans</button></div>`;
@@ -6291,13 +6302,13 @@ function finishBoot(fix){
   $('splash').classList.add('out');
   if(!needGate())setTimeout(()=>custPop(),2900);
   if(Cloud.member)sync();setTimeout(()=>{const sp=$('splash');if(sp)sp.remove()},1400);
-  if(fix&&inReserve(me.ll)){map.flyTo({center:me.ll,zoom:16,bearing:0,duration:2600,curve:1.6,essential:true});setTimeout(()=>setFollow(1),2700)}
+  if(fix&&nearRes(me.ll)){map.flyTo({center:me.ll,zoom:16,bearing:0,duration:2600,curve:1.6,essential:true});setTimeout(()=>setFollow(1),2700)}
   else{setFollow(0);if(CAM0)map.flyTo({center:CAM0.c,zoom:CAM0.z,bearing:0,duration:2200,essential:true});else map.fitBounds(RES_BOUNDS,{padding:40,bearing:0,duration:2200});if(fix)toast(CAM0?"You're outside "+AREA_NAME+", back where you were looking":"You're outside the reserve, showing the whole map",3500)}
   // when first fix comes later, jump to it if inside
-  if(!fix){const iv=setInterval(()=>{if(gotFirst){clearInterval(iv);if(inReserve(me.ll)){setFollow(1);map.easeTo({center:me.ll,zoom:16,duration:900})}}},500)}
+  if(!fix){const iv=setInterval(()=>{if(gotFirst){clearInterval(iv);if(nearRes(me.ll)){setFollow(1);map.easeTo({center:me.ll,zoom:16,duration:900})}}},500)}
 }
 $('locSvg').innerHTML=LOC_ICONS[0];
-setInterval(()=>{if(me&&Date.now()-me.t>30000)meEl.classList.add('stale');else meEl.classList.remove('stale')},5000);
+setInterval(()=>{if(me&&Date.now()-me.t>12000)meEl.classList.add('stale');else meEl.classList.remove('stale')},2000);
 setInterval(()=>{if(mapReady&&sights.length)refreshOverlays()},60000);
 if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
