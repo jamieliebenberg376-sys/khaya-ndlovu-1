@@ -939,6 +939,7 @@ body.tfFilm #top,body.tfFilm #fabs,body.tfFilm #layerBtn,body.tfFilm #navBottom,
 body.clean #top,body.clean #chips,body.clean #layerBtn,body.clean #fabs,body.clean #focusPill,body.clean #rec,body.clean #statRow,body.clean #scaleBar,body.clean #homeNag,body.clean #spot,body.clean #sosBtn,body.clean #liveBar,body.clean #recenter,body.clean #speed,body.clean #wxBtn,body.clean .wxm,body.clean #storyQ,body.clean #offPill,body.clean #gpsWeak,body.clean .maplibregl-ctrl{opacity:0!important;pointer-events:none!important}
 body.clean #peek{padding-top:10px;padding-bottom:calc(var(--safe-b) + 8px)}body.clean #peek .grab{display:none}body.clean #peek .pk small{display:none}body.clean #peek .pk b{font-size:17px}
 #junc .jr span small{font-weight:600;opacity:.7}
+body:not(.navon) #roadPill{display:none!important}
 #coolCard{position:fixed;left:12px;right:12px;top:calc(var(--safe-t,0px) + 118px);z-index:40;display:flex;gap:12px;align-items:flex-start;padding:14px;border-radius:18px;background:rgba(18,30,22,.94);border:1px solid rgba(233,196,106,.35);color:#f3efe4;box-shadow:0 10px 30px rgba(0,0,0,.4);transform:translateY(-16px);opacity:0;pointer-events:none;transition:.3s;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
 #coolCard.on{transform:none;opacity:1;pointer-events:auto}#coolCard .cci{width:42px;height:42px;border-radius:13px;flex:none;display:grid;place-items:center;background:linear-gradient(150deg,#ffb38a,#e5533d);color:#fff}
 #coolCard .cct{flex:1;min-width:0}#coolCard .cct b{display:block;font-size:15.5px}#coolCard .cct small{display:block;color:#c9d3c6;font-size:13px;line-height:1.4;margin-top:2px}#coolCard ul{margin:6px 0 0;padding-left:18px;font-size:13px;line-height:1.5;color:#ffe29a}
@@ -3357,9 +3358,9 @@ function updateRoad(){
   const card=$('roadCard');card.classList.toggle('hide',!!nav);
   if(!ne){curRoad=null;map.getSource('cur').setData(empty);
     $('rn').textContent=inReserve(me.ll)?'Off road':'Outside the reserve';
-    const any=nearestEdge(me.ll);$('rs').textContent=!any?'':any.d>3000?fmtD(fromBoundary(me.ll))+' from Khaya Ndlovu':fmtD(any.d)+' from '+ROADS[any.e.road].properties.name;return}
+    const any=nearestEdge(me.ll);$('rs').textContent=!any?'':any.d>3000?fmtD(fromBoundary(me.ll))+' from Khaya Ndlovu':fmtD(any.d)+' from '+ROADS[any.e.road].properties.name;showJunction(null);return}
   const name=ROADS[ne.e.road].properties.name;
-  if(ne.d>40){curRoad=null;map.getSource('cur').setData(empty);$('rn').textContent=inReserve(me.ll)?'Off road':'Outside the reserve';$('rs').textContent=fmtD(ne.d)+' from '+name;return}
+  if(ne.d>40){curRoad=null;map.getSource('cur').setData(empty);$('rn').textContent=inReserve(me.ll)?'Off road':'Outside the reserve';$('rs').textContent=fmtD(ne.d)+' from '+name;showJunction(null);return}
   if(name!==curRoad){curRoad=name;map.getSource('cur').setData({type:'FeatureCollection',features:ROADS.filter(f=>f.properties.name===name)})}
   $('rn').textContent=name;
   // next junction ahead
@@ -3437,7 +3438,11 @@ function placeSpot(){const sp=$('spot');if(!sp)return;const playing=sp.classList
   sp.style.top='';
   if(navOn&&!$('junc').classList.contains('hide'))$('junc').style.top=($('nav').getBoundingClientRect().bottom+10)+'px'}
 setInterval(placeSpot,400);
-function showJunction(j){const el=$('junc');el.style.top='';if(nav)return;if(!j||j.d>150||j.d<8||!drivingNow&&driveMode!=='on'&&j.d>120){el.classList.add('hide');lastJ='';return}
+function layoutTop(){const j=$('junc');if(!j||nav)return;let y=0;
+  for(const id of ['top','statRow','focusPill','rec','scaleBar','liveBar']){const e=$(id);if(!e)continue;const cs=getComputedStyle(e);if(cs.display==='none'||cs.visibility==='hidden'||+cs.opacity<.2)continue;const r=e.getBoundingClientRect();if(r.height<4||r.top>innerHeight*.45)continue;y=Math.max(y,r.bottom)}
+  const t=Math.round(y+8)+'px';if(j.style.top!==t)j.style.setProperty('top',t,'important')}
+setInterval(layoutTop,300);
+function showJunction(j){const el=$('junc');if(nav)return;if(!j||(me&&!inReserve(me.ll))||j.d>150||j.d<8||!drivingNow&&driveMode!=='on'&&j.d>120){el.classList.add('hide');lastJ='';return}
   const k=j.roads.map(r=>r.name).join('|');const h=`<b>JUNCTION IN ${fmtD(j.d).toUpperCase()}</b>`+j.roads.map(r=>`<div class="jr">${TURN_SVG(r.turn)}<span>${esc(r.name)}${r.straight?' <small>(straight on)</small>':''}</span></div>`).join('');
   el.innerHTML=h;el.classList.remove('hide');lastJ=k}
 function nextJunction(ne,hd){
