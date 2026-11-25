@@ -2736,5 +2736,15 @@ end $$;
 drop trigger if exists kn_ntfy_ann on public.announcements;
 create trigger kn_ntfy_ann after insert on public.announcements for each row execute function private.kn_ntfy_ann();
 
+-- ============ v181: add a photo to your own sighting later ============
+create or replace function public.set_sight_photo(p_cid text)
+returns void language plpgsql security definer set search_path = public as $$
+begin
+  if not public.is_member() then raise exception 'members only'; end if;
+  update public.sightings set photo = true where client_id = p_cid and (user_id = auth.uid() or public.is_admin());
+  update public.sightings_log set photo = true where client_id = p_cid and (user_id = auth.uid() or public.is_admin());
+end $$;
+grant execute on function public.set_sight_photo(text) to authenticated;
+
 select * from public.kn_backend_selftest();
 

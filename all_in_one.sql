@@ -3652,10 +3652,20 @@ end $$;
 drop trigger if exists kn_ntfy_ann on public.announcements;
 create trigger kn_ntfy_ann after insert on public.announcements for each row execute function private.kn_ntfy_ann();
 
+-- ============ v181: add a photo to your own sighting later ============
+create or replace function public.set_sight_photo(p_cid text)
+returns void language plpgsql security definer set search_path = public as $$
+begin
+  if not public.is_member() then raise exception 'members only'; end if;
+  update public.sightings set photo = true where client_id = p_cid and (user_id = auth.uid() or public.is_admin());
+  update public.sightings_log set photo = true where client_id = p_cid and (user_id = auth.uid() or public.is_admin());
+end $$;
+grant execute on function public.set_sight_photo(text) to authenticated;
+
 
 
 -- =====================================================================
--- PUSH THE UPDATE (version 169)
+-- PUSH THE UPDATE (version 181)
 -- =====================================================================
 
 alter table private.config add column if not exists min_build int not null default 0;
@@ -3725,9 +3735,9 @@ begin
 end $$;
 grant execute on function public.set_min_build(int) to authenticated;
 
--- push it now: require version 169 and post the news. It is sent by the database, not by any person.
-update private.config set min_build = 169;
-select public.kn_update_news(169);
+-- push it now: require version 181 and post the news. It is sent by the database, not by any person.
+update private.config set min_build = 181;
+select public.kn_update_news(181);
 
 notify pgrst, 'reload schema';
 
@@ -3741,7 +3751,7 @@ union all select 'Two Database accounts on the map', case when (select count(*) 
 union all select 'Database code 1 (keep it secret, it gives full control)', (select code from private.db_slots where slot = 1) || coalesce('  ·  ' || (select m.name from private.db_slots d join public.members m on m.user_id = d.user_id where d.slot = 1), '')
 union all select 'Database code 2 (keep it secret, it gives full control)', (select code from private.db_slots where slot = 2) || coalesce('  ·  ' || (select m.name from private.db_slots d join public.members m on m.user_id = d.user_id where d.slot = 2), '')
 union all select 'Backend self-test', case when (select count(*) from public.kn_backend_selftest() where result not like 'PASS%') = 0 then 'YES' else 'NO: ' || (select string_agg(test, ', ') from public.kn_backend_selftest() where result not like 'PASS%') end
-union all select 'Everyone must be on version 169', case when (select min_build from private.config limit 1) = 169 then 'YES' else 'NO' end
-union all select 'Update news posted (only old versions see it)', case when exists (select 1 from public.announcements where for_old_build = 169 and not removed) then 'YES' else 'NO' end
+union all select 'Everyone must be on version 181', case when (select min_build from private.config limit 1) = 181 then 'YES' else 'NO' end
+union all select 'Update news posted (only old versions see it)', case when exists (select 1 from public.announcements where for_old_build = 181 and not removed) then 'YES' else 'NO' end
 union all select 'Your owner code (unchanged)', (select upper(invite_code) from private.config limit 1)
-union all select 'People who still need to update', (select count(*)::text from public.members where coalesce(app_build, 0) < 169 and (role <> 'guest' or expires_at > now()));
+union all select 'People who still need to update', (select count(*)::text from public.members where coalesce(app_build, 0) < 181 and (role <> 'guest' or expires_at > now()));
