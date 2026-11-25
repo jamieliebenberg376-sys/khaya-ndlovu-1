@@ -2702,17 +2702,32 @@ function sightExtrasHtml(x){const near=me&&dist(me.ll,x.ll)<400;
 /* sighting header: small photo, then what it is, who spotted it, when and where */
 /* sightings with a photo: the photo itself is the pin, with the animal badge in the corner */
 const PPIN={};
-function photoPins(AS){const keep=new Set();
-  AS.forEach(s=>{const ph=(s.chain||[s]).filter(c=>c.photo).pop();if(!ph)return;keep.add(s.cid);let m=PPIN[s.cid];
-    if(!m||m.ph!==ph.cid){if(m)m.mk.remove();const el=document.createElement('div');el.className='phpin';
-      el.innerHTML=`<div class="ppc"><span class="ppf">${AN(s.what,30)}</span><img alt=""></div><span class="ppb">${AN(s.what,18)}</span><i></i>`;
-      const im=el.querySelector('img');photoURL(ph.cid).then(u=>{if(u){im.src=u;im.onload=()=>el.classList.add('ok')}});
-      el.onclick=e=>{e.stopPropagation();const h=allSights().find(q=>q.cid===s.cid)||s;showPlace(sightPlace(h))};
-      m=PPIN[s.cid]={ph:ph.cid,el,mk:new maplibregl.Marker({element:el,anchor:'bottom'}).setLngLat(s.ll).addTo(map)}}
-    else m.mk.setLngLat(s.ll);m.el.style.opacity=Math.max(.35,sightOp(s))});
-  Object.keys(PPIN).forEach(k=>{if(!keep.has(k)){PPIN[k].mk.remove();delete PPIN[k]}});ppZoom()}
-function ppZoom(){const z=map.getZoom(),k=z<=11?.42:z>=16?1:.42+(z-11)/5*.58;document.documentElement.style.setProperty('--ppk',k.toFixed(3))}
-map.on('zoom',ppZoom);
+/* photo pins are drawn inside the map (not floating on top of it), so they stay exactly on the spot at every zoom */
+const PPIMG={};
+function ppBase(img){const W=104,H=124,c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');
+  x.shadowColor='rgba(0,0,0,.35)';x.shadowBlur=8;x.shadowOffsetY=3;x.fillStyle='#fff';
+  x.beginPath();x.arc(52,50,48,0,Math.PI*2);x.fill();x.beginPath();x.moveTo(40,92);x.lineTo(52,110);x.lineTo(64,92);x.closePath();x.fill();
+  x.shadowColor='transparent';x.lineWidth=3;x.strokeStyle='rgba(31,77,54,.55)';x.beginPath();x.arc(52,50,47,0,Math.PI*2);x.stroke();
+  x.save();x.beginPath();x.arc(52,50,42,0,Math.PI*2);x.clip();
+  if(img){const r=Math.max(84/img.width,84/img.height),w=img.width*r,h=img.height*r;try{x.drawImage(img,52-w/2,50-h/2,w,h)}catch(e){}}
+  else{const g=x.createLinearGradient(0,8,0,92);g.addColorStop(0,'#efe6d2');g.addColorStop(1,'#d9c9a6');x.fillStyle=g;x.fillRect(0,0,W,H)}
+  x.restore();return x.getImageData(0,0,W,H)}
+function ppImg(cid){const id='pp-'+cid;if(PPIMG[cid])return id;PPIMG[cid]='wait';
+  try{if(!map.hasImage(id))map.addImage(id,ppBase(null),{pixelRatio:2})}catch(e){}
+  photoURL(cid).then(u=>{if(!u)return;const im=new Image();im.crossOrigin='anonymous';im.onload=()=>{try{const d=ppBase(im);if(map.hasImage(id))map.updateImage(id,d);else map.addImage(id,d,{pixelRatio:2});PPIMG[cid]='ok'}catch(e){}};im.src=u}).catch(()=>{});return id}
+function photoPins(AS){if(!mapReady)return;
+  if(!map.getSource('ppins')){map.addSource('ppins',{type:'geojson',data:{type:'FeatureCollection',features:[]}});
+    const sz=['interpolate',['linear'],['zoom'],11,.42,16,1];
+    map.addLayer({id:'pp-photo',type:'symbol',source:'ppins',layout:{'icon-image':['get','img'],'icon-anchor':'bottom','icon-size':sz,'icon-allow-overlap':true,'icon-ignore-placement':true},paint:{'icon-opacity':['get','op']}});
+    map.addLayer({id:'pp-badge',type:'symbol',source:'ppins',layout:{'icon-image':['concat','an-',['get','what']],'icon-anchor':'center','icon-size':['interpolate',['linear'],['zoom'],11,.16,16,.38],'icon-offset':['interpolate',['linear'],['zoom'],11,['literal',[110,-90]],16,['literal',[62,-50]]],'icon-allow-overlap':true,'icon-ignore-placement':true},paint:{'icon-opacity':['get','op']}});
+    const open=e=>{const f=e.features&&e.features[0];if(!f)return;const cid=f.properties.cid,h=allSights().find(q=>q.cid===cid);if(h)showPlace(sightPlace(h))};
+    map.on('click','pp-photo',open);map.on('click','pp-badge',open);
+    map.on('mouseenter','pp-photo',()=>map.getCanvas().style.cursor='pointer');map.on('mouseleave','pp-photo',()=>map.getCanvas().style.cursor='')}
+  const F=[];AS.forEach(s=>{const ph=(s.chain||[s]).filter(c=>c.photo).pop();if(!ph)return;
+    F.push({type:'Feature',geometry:{type:'Point',coordinates:s.ll},properties:{cid:s.cid,img:ppImg(ph.cid),what:ANI[s.what]?s.what:'Other',op:Math.max(.35,sightOp(s))}})});
+  map.getSource('ppins').setData({type:'FeatureCollection',features:F});
+}
+function ppZoom(){}
 function sightHead(x,dm,rm){const n=(x.photos||[]).length,age=Date.now()-x.t;
   const hhmm=t=>{const d=new Date(t),td=new Date();const tm=d.toTimeString().slice(0,5);return d.toDateString()===td.toDateString()?tm:(new Date(Date.now()-864e5).toDateString()===d.toDateString()?'Yesterday '+tm:d.toLocaleDateString([],{weekday:'short'})+' '+tm)};
   const e=nearestEdge(x.ll,150),road=e?ROADS[e.e.road].properties.name:(farmAt(x.ll)||'');
@@ -3513,7 +3528,7 @@ function placeSpot(){const sp=$('spot');if(!sp)return;const playing=sp.classList
   sp.style.top='';
   if(navOn&&!$('junc').classList.contains('hide'))$('junc').style.top=($('nav').getBoundingClientRect().bottom+10)+'px'}
 setInterval(placeSpot,400);
-function layoutTop(){const sr=$('statRow'),tp=$('top');{const fp=$('focusPill');if(fp)fp.classList.toggle('on',FOCUS_ON&&!nav)}
+function layoutTop(){const sr=$('statRow'),tp=$('top');try{if(mapReady&&map.getLayer('pp-photo')){const v=document.body.classList.contains('focus')?'none':'visible';if(map.getLayoutProperty('pp-photo','visibility')!==v){map.setLayoutProperty('pp-photo','visibility',v);map.setLayoutProperty('pp-badge','visibility',v)}}}catch(e){}{const fp=$('focusPill');if(fp)fp.classList.toggle('on',FOCUS_ON&&!nav)}
   if(sr&&nav){const n=$('nav');if(n&&!n.classList.contains('hide')){const t=Math.round(n.getBoundingClientRect().bottom+8)+'px';if(sr.style.top!==t){sr.style.setProperty('top',t,'important');sr.style.bottom='auto'}}}
   if(sr&&tp&&!nav&&!CLEAN.on){const r=tp.getBoundingClientRect(),cs=getComputedStyle(tp),vis=cs.display!=='none'&&+cs.opacity>.2&&r.height>4;const t=Math.round(vis?r.bottom+8:(parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--safe-t'))||0)+12)+'px';if(sr.style.top!==t)sr.style.setProperty('top',t,'important')}
   const j=$('junc');if(!j||nav)return;let y=0;
