@@ -3438,13 +3438,22 @@ function placeSpot(){const sp=$('spot');if(!sp)return;const playing=sp.classList
   sp.style.top='';
   if(navOn&&!$('junc').classList.contains('hide'))$('junc').style.top=($('nav').getBoundingClientRect().bottom+10)+'px'}
 setInterval(placeSpot,400);
-function layoutTop(){const j=$('junc');if(!j||nav)return;let y=0;
+function layoutTop(){const sr=$('statRow'),tp=$('top');
+  if(sr&&tp&&!nav&&!CLEAN.on){const r=tp.getBoundingClientRect(),cs=getComputedStyle(tp),vis=cs.display!=='none'&&+cs.opacity>.2&&r.height>4;const t=Math.round(vis?r.bottom+8:(parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--safe-t'))||0)+12)+'px';if(sr.style.top!==t)sr.style.setProperty('top',t,'important')}
+  const j=$('junc');if(!j||nav)return;let y=0;
   for(const id of ['top','statRow','focusPill','rec','scaleBar','liveBar']){const e=$(id);if(!e)continue;const cs=getComputedStyle(e);if(cs.display==='none'||cs.visibility==='hidden'||+cs.opacity<.2)continue;const r=e.getBoundingClientRect();if(r.height<4||r.top>innerHeight*.45)continue;y=Math.max(y,r.bottom)}
   const t=Math.round(y+8)+'px';if(j.style.top!==t)j.style.setProperty('top',t,'important')}
 setInterval(layoutTop,300);
-function showJunction(j){const el=$('junc');if(nav)return;if(!j||(me&&!inReserve(me.ll))||j.d>150||j.d<8||!drivingNow&&driveMode!=='on'&&j.d>120){el.classList.add('hide');lastJ='';return}
-  const k=j.roads.map(r=>r.name).join('|');const h=`<b>JUNCTION IN ${fmtD(j.d).toUpperCase()}</b>`+j.roads.map(r=>`<div class="jr">${TURN_SVG(r.turn)}<span>${esc(r.name)}${r.straight?' <small>(straight on)</small>':''}</span></div>`).join('');
-  el.innerHTML=h;el.classList.remove('hide');lastJ=k}
+/* the junction card: appears from 150 m and stays put until you are through the junction,
+   even if the GPS heading or speed wobbles for a moment on the way */
+let JST=null;
+function showJunction(j){const el=$('junc');if(nav)return;const off=!me||!inReserve(me.ll);let d=null;
+  if(!off&&j&&j.at!=null&&j.d<=150&&j.d>=8&&(drivingNow||driveMode==='on'||j.d<=120)){if(!JST||JST.at!==j.at)JST={at:j.at,ll:nodes[j.at],roads:j.roads,min:j.d};else{JST.roads=j.roads;JST.min=Math.min(JST.min,j.d)}d=j.d}
+  else if(!off&&JST&&me){d=dist(me.ll,JST.ll);JST.min=Math.min(JST.min,d);if(d>JST.min+15||d<6||d>170){JST=null;d=null}}
+  else JST=null;
+  if(!JST||d==null){el.classList.add('hide');lastJ='';return}
+  const k=JST.roads.map(r=>r.name).join('|')+'|'+Math.round(d/10);if(k===lastJ&&!el.classList.contains('hide'))return;
+  el.innerHTML=`<b>JUNCTION IN ${fmtD(d).toUpperCase()}</b>`+JST.roads.map(r=>`<div class="jr">${TURN_SVG(r.turn)}<span>${esc(r.name)}${r.straight?' <small>(straight on)</small>':''}</span></div>`).join('');el.classList.remove('hide');lastJ=k}
 function nextJunction(ne,hd){
   // walk along current road in direction of heading until a node with another road
   const e=ne.e;let fwd=Math.abs(((bearing(nodes[e.a],nodes[e.b])-hd+540)%360)-180)<90;
@@ -3453,7 +3462,7 @@ function nextJunction(ne,hd){
     if(others.length){const bin=bearing(nodes[prev],nodes[cur]);const seen=new Set();const roads=[];
       for(const o of others){const nm=ROADS[o.road].properties.name;const ob=bearing(nodes[cur],nodes[o.to]);const t=((ob-bin+540)%360)-180;const k=nm+'|'+(t<0?'L':'R');if(seen.has(k))continue;seen.add(k);roads.push({name:nm,turn:t})}
       const st=adj[cur].find(x=>x.to!==prev&&ROADS[x.road].properties.name===curRoad);if(st)roads.push({name:curRoad,turn:((bearing(nodes[cur],nodes[st.to])-bin+540)%360)-180,straight:true});
-      roads.sort((a,b)=>a.turn-b.turn);return{name:roads[0].name,roads:roads.filter(r=>!r.straight).length?roads:[{name:curRoad,turn:0}],d}}
+      roads.sort((a,b)=>a.turn-b.turn);return{name:roads[0].name,roads:roads.filter(r=>!r.straight).length?roads:[{name:curRoad,turn:0}],d,at:cur}}
     const nxt=adj[cur].find(x=>x.to!==prev);if(!nxt)return null;d+=nxt.w;prev=cur;cur=nxt.to}
   return null;
 }
