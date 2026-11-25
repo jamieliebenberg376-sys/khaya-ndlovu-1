@@ -1828,7 +1828,7 @@ let CONTOUR=null;try{if(window.mlcontour){const ds=new mlcontour.DemSource({url:
 let SHOWCONT=LS.get('contours',true);
 document.body.classList.toggle('spon',SPOTON);
 function statRow(){let r=$('statRow');if(!r){r=document.createElement('div');r.id='statRow';document.body.appendChild(r)}for(const id of['offPill','focusPill','liveBar','rec'])if($(id)&&$(id).parentNode!==r)r.appendChild($(id))}
-setInterval(()=>{try{statRow();const r=$('statRow'),n=$('nav');if(r){if(document.body.classList.contains('navon')&&n&&!n.classList.contains('hide')){r.style.top=Math.round(n.getBoundingClientRect().bottom+8)+'px';r.style.bottom='auto'}else{r.style.top='';r.style.bottom=''}}}catch(e){}},700);
+setInterval(()=>{try{statRow()}catch(e){}},700);
 let DRY0=(()=>{try{const s=JSON.parse(localStorage.getItem('kn_mapState')||'{}');return Array.isArray(s.dry)?s.dry:[]}catch(e){return []}})();
 function style(){return{version:8,glyphs:'local://{fontstack}/{range}',
  sources:{
@@ -3003,8 +3003,8 @@ function refreshOverlays(){
   map.getSource('sprev').setData({type:'FeatureCollection',features:AS.filter(s=>isAdm()&&s.chain&&s.chain.length>1).flatMap(s=>s.chain.slice(0,-1).map(c=>({type:'Feature',properties:{op:sightOp(s)*.7},geometry:{type:'Point',coordinates:c.ll}})))});
   map.getSource('reports').setData({type:'FeatureCollection',features:allReports().map(r=>({type:'Feature',properties:{cid:r.cid,label:T(r.kind+' · '+ago(r.t))},geometry:{type:'Point',coordinates:r.ll}}))});
   updateBlocked();
-  const now=Date.now();const tf=tracks.filter(t=>t.pts&&t.pts.length>1&&(SHOWDRV.has(t.cid)||now-(t.end||t.t)<864e5)).map((t,i)=>({type:'Feature',properties:{cid:t.cid||'',col:TRAILCOL,op:SHOWDRV.has(t.cid)?1:Math.max(.35,1-(now-(t.end||t.t))/864e5)},geometry:{type:'LineString',coordinates:t.pts}}));
-  if(recTrack&&recTrack.pts.length>1)tf.push({type:'Feature',properties:{cid:'',col:TRAILCOL},geometry:{type:'MultiLineString',coordinates:gapSplit(recTrack.pts,60)}});
+  const now=Date.now();const tf=tracks.filter(t=>t.pts&&t.pts.length>1&&(SHOWDRV.has(t.cid)||(!drivingNow&&now-(t.end||t.t)<864e5))).map((t,i)=>({type:'Feature',properties:{cid:t.cid||'',col:TRAILCOL,op:SHOWDRV.has(t.cid)?1:Math.max(.35,1-(now-(t.end||t.t))/864e5)},geometry:{type:'MultiLineString',coordinates:roadLine(t.pts,'t'+t.cid)}}));
+  if(recTrack&&recTrack.pts.length>1)tf.push({type:'Feature',properties:{cid:'',col:TRAILCOL},geometry:{type:'MultiLineString',coordinates:roadLine(recTrack.pts)}});
   map.getSource('tracks').setData({type:'FeatureCollection',features:tf});
 }
 
@@ -3314,8 +3314,8 @@ function handlePos(raw,acc,heading,speed,t){if(lastPos&&t&&t<lastPos.t)return;if
   $('spd').textContent=Math.round((speedS||0)*3.6);$('speed').classList.toggle('mv',(speedS||0)*3.6>4);speedCheck(ll);
   { const L=trail[trail.length-1];if(L&&dist(L,ll)>400)trail=[];if(!L||dist(L,ll)>8){trail.push([+ll[0].toFixed(6),+ll[1].toFixed(6)]);if(trail.length>1500)trail.shift();
      if(trail.length%5===0)try{localStorage.setItem('kn_trail',JSON.stringify({t:Date.now(),p:trail}))}catch(e){}
-     if(mapReady&&trail.length>1)map.getSource('trail').setData({type:'Feature',geometry:{type:'MultiLineString',coordinates:gapSplit(trail,60)},properties:{}})}}
-  const dn=(speedS||0)*3.6>8;if(dn!==drivingNow){drivingNow=dn;if(mapReady)applyDrive()}
+     if(mapReady&&trail.length>1)map.getSource('trail').setData({type:'Feature',geometry:{type:'MultiLineString',coordinates:roadLine(trail)},properties:{}})}}
+  const dn=(speedS||0)*3.6>8;if(dn!==drivingNow){drivingNow=dn;if(mapReady){applyDrive();try{refreshOverlays()}catch(e){}}}
   updateRoad();
   if(recTrack){const k=(speedS||0)*3.6;if(k>(recTrack.top||0)&&k<120)recTrack.top=+k.toFixed(1);if(recTrack.lt&&k>SPEED_LIMIT+3&&inReserve(ll))recTrack.over=(recTrack.over||0)+Math.min(5,(t-recTrack.lt)/1000);recTrack.lt=t}
   if(recTrack){const L=recTrack.pts[recTrack.pts.length-1];if(!L||dist(L,ll)>6){recTrack.pts.push([+ll[0].toFixed(6),+ll[1].toFixed(6)]);if(recTrack.pts.length>1)recTrack.len+=L?dist(L,ll):0;$('recInfo').textContent=fmtD(recTrack.len);if(recTrack.pts.length%5===0){LS.set('rec',recTrack);refreshOverlays()}}}
@@ -3401,6 +3401,10 @@ function camTick(){
 /* ============ clean map: 30 seconds without touching the screen and only the map, your car and the road you're on are left ============
    Directions and the junction card stay when they matter. The first touch only brings everything back, it never presses anything. */
 const CLEANON=true;try{localStorage.removeItem('kn_cleanOn')}catch(e){}const CLEAN={t:Date.now(),on:false,block:0};
+const RDLINE=new Map();
+function roadLine(P,key){if(key&&RDLINE.has(key)&&RDLINE.get(key).n===P.length)return RDLINE.get(key).v;const out=[];let cur=[];
+  for(const q of P){const on=!!nearestEdge(q,25);let gap=false;if(cur.length){const L=cur[cur.length-1],d=dist(L,q);if(d>40){const m1=[L[0]+(q[0]-L[0])/3,L[1]+(q[1]-L[1])/3],m2=[L[0]+(q[0]-L[0])*2/3,L[1]+(q[1]-L[1])*2/3];gap=!(d<200&&nearestEdge(m1,15)&&nearestEdge(m2,15))}}if(!on||gap){if(cur.length>1)out.push(cur);cur=[]}if(on)cur.push(q)}
+  if(cur.length>1)out.push(cur);if(key){RDLINE.set(key,{n:P.length,v:out});if(RDLINE.size>80)RDLINE.delete(RDLINE.keys().next().value)}return out}
 function gapSplit(P,max){const out=[];let cur=[];for(const q of P){if(cur.length&&dist(cur[cur.length-1],q)>max){if(cur.length>1)out.push(cur);cur=[]}cur.push(q)}if(cur.length>1)out.push(cur);return out.length?out:[P]}
 function cleanOk(){try{const ae=document.activeElement;return !$('sheet').classList.contains('open')&&$('gate').classList.contains('hide')&&!setupOn()&&!document.body.classList.contains('tfFilm')&&!document.getElementById('ntAsk')&&!(ae&&ae.matches&&ae.matches('input,textarea'))&&!(($('coolCard')||{classList:{contains:()=>false}}).classList.contains('on'))}catch(e){return false}}
 let CLEANSAT=LS.get('cleanSat',true);
@@ -3549,7 +3553,7 @@ function placeSpot(){const sp=$('spot');if(!sp)return;const playing=sp.classList
 setInterval(placeSpot,400);
 function layoutTop(){const sr=$('statRow'),tp=$('top');try{if(mapReady&&map.getLayer('pp-photo')){const v=document.body.classList.contains('focus')?'none':'visible';if(map.getLayoutProperty('pp-photo','visibility')!==v){map.setLayoutProperty('pp-photo','visibility',v);map.setLayoutProperty('pp-badge','visibility',v)}}}catch(e){}{const fp=$('focusPill');if(fp)fp.classList.toggle('on',FOCUS_ON&&!nav)}
   if(sr&&nav){const n=$('nav');if(n&&!n.classList.contains('hide')){const t=Math.round(n.getBoundingClientRect().bottom+8)+'px';if(sr.style.top!==t){sr.style.setProperty('top',t,'important');sr.style.bottom='auto'}}}
-  if(sr&&tp&&!nav&&!CLEAN.on){const r=tp.getBoundingClientRect(),cs=getComputedStyle(tp),vis=cs.display!=='none'&&+cs.opacity>.2&&r.height>4;const t=Math.round(vis?r.bottom+8:(parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--safe-t'))||0)+12)+'px';if(sr.style.top!==t)sr.style.setProperty('top',t,'important')}
+  if(sr&&!nav){const t='calc(var(--safe-t,0px) + 70px)';if(sr.style.top!==t){sr.style.setProperty('top',t,'important');sr.style.bottom='auto'}}
   const j=$('junc');if(!j||nav)return;let y=0;
   for(const id of ['top','statRow','focusPill','rec','scaleBar','liveBar']){const e=$(id);if(!e)continue;const cs=getComputedStyle(e);if(cs.display==='none'||cs.visibility==='hidden'||+cs.opacity<.2)continue;const r=e.getBoundingClientRect();if(r.height<4||r.top>innerHeight*.45)continue;y=Math.max(y,r.bottom)}
   const t=Math.round(y+8)+'px';if(j.style.top!==t)j.style.setProperty('top',t,'important')}
