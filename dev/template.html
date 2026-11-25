@@ -935,6 +935,10 @@ body.tfFilm #top,body.tfFilm #fabs,body.tfFilm #layerBtn,body.tfFilm #navBottom,
 #ntAsk .nay{width:100%;border:0;border-radius:16px;padding:16px;font:800 17px system-ui,-apple-system,sans-serif;background:linear-gradient(145deg,#f3d27e,#c99a2e);color:#1a1205;box-shadow:0 8px 24px rgba(201,154,46,.35)}
 #ntAsk .nan{width:100%;margin-top:10px;border-radius:16px;padding:15px;font:700 16px system-ui,-apple-system,sans-serif;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.35);color:#fff}
 #ntAsk .naf{display:block;margin-top:14px;color:#8f9b8c;font-size:12px}
+#coolCard{position:fixed;left:12px;right:12px;top:calc(var(--safe-t,0px) + 118px);z-index:40;display:flex;gap:12px;align-items:flex-start;padding:14px;border-radius:18px;background:rgba(18,30,22,.94);border:1px solid rgba(233,196,106,.35);color:#f3efe4;box-shadow:0 10px 30px rgba(0,0,0,.4);transform:translateY(-16px);opacity:0;pointer-events:none;transition:.3s;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+#coolCard.on{transform:none;opacity:1;pointer-events:auto}#coolCard .cci{width:42px;height:42px;border-radius:13px;flex:none;display:grid;place-items:center;background:linear-gradient(150deg,#ffb38a,#e5533d);color:#fff}
+#coolCard .cct{flex:1;min-width:0}#coolCard .cct b{display:block;font-size:15.5px}#coolCard .cct small{display:block;color:#c9d3c6;font-size:13px;line-height:1.4;margin-top:2px}#coolCard ul{margin:6px 0 0;padding-left:18px;font-size:13px;line-height:1.5;color:#ffe29a}
+#coolCard button{border:0;border-radius:12px;padding:9px 14px;font:800 14px system-ui,-apple-system,sans-serif;background:linear-gradient(145deg,#f3d27e,#c99a2e);color:#1a1205;flex:none}
 #tfFilm .tfnext{position:absolute;right:12px;bottom:calc(var(--safe-b,0px) + 40px);pointer-events:auto;border:0;border-radius:14px;padding:9px 14px;background:rgba(10,24,16,.85);border:1px solid rgba(233,196,106,.5);color:#fff;font:800 13px system-ui,-apple-system,sans-serif;z-index:3;backdrop-filter:blur(8px)}#tfFilm .tfnext b{color:#ffe29a;margin-left:4px}#tfFilm.s-title .tfnext{opacity:0}
 #tfFilm .tfsoundhint{position:absolute;left:50%;top:calc(var(--safe-t) + 54px);transform:translateX(-50%);display:none;align-items:center;gap:6px;padding:7px 12px;border-radius:12px;background:rgba(255,194,61,.95);color:#1d1406;font:800 12.5px system-ui,-apple-system,sans-serif;white-space:nowrap;animation:hnPulse 1.6s infinite;z-index:3}#tfFilm .tfsoundhint svg{width:15px;height:15px}#tfFilm.s-mute .tfsoundhint{display:flex}#tfFilm.s-mute{pointer-events:auto}
 #tfFilm .tftitle p{margin:0;font-size:17px;color:rgba(244,239,227,.8);letter-spacing:.3px}
@@ -3253,7 +3257,7 @@ function camTick(){
   requestAnimationFrame(camTick);
   if(!anim.to||!anim.pos)return;
   {/* keeps the phone cool: the map is redrawn 30 times a second while you drive, 10 when parked, less when you are just looking around */
-   const nowF=performance.now(),drv=follow===2&&!userMoving,mv=(speedS||0)>=1.4,gap=drv?(mv?33:100):(mv?50:150);
+   const nowF=performance.now(),drv=follow===2&&!userMoving,mv=(speedS||0)>=1.4,gap=(drv?(mv?33:100):(mv?50:150))*(window.COOLHOT?2:1);
    if(nowF-(camTick.f||0)<gap-4)return;camTick.f=nowF}
   const now=performance.now(),dt=Math.min(.2,Math.max(0,(now-(anim.lastT||now))/1000));anim.lastT=now;
   const stopped=(speedS||0)<1.4;
@@ -3288,6 +3292,34 @@ function camTick(){
     map.jumpTo({center:anim.pos,bearing:NORTHUP?0:anim.camHd,pitch:Math.abs(p-pt)<.05?p:pt+(p-pt)*(1-Math.exp(-dt/(flat?0.45:0.7))),zoom:camState.zoom,padding:{top:Math.round(LAND?innerHeight*(flat?0.2:0.3):camState.pad),bottom:0,left:LAND&&nav?Math.round(innerWidth*0.42):0,right:0}});
   }else anim.camHd=driving?anim.camHd:map.getBearing();
 }
+/* ============ keep the phone cool ============
+   1. Driving without touching the screen for 90 s: satellite switches to the drawn map (far less work). Touch the map and satellite comes back.
+   2. iPhones don't tell web apps their temperature, but a hot phone slows itself down and the screen gets fewer frames.
+      When that lasts 30 s, Cool mode turns on: drawn map, flat view, sharper-but-lighter drawing and half the redraws, with tips to cool it.
+   3. Every 40 minutes of driving, a short cooling tip. */
+let COOLON=LS.get('coolOn',true);const HEAT={lastTouch:Date.now(),satOff:false,hot:false,hotT:0,frames:0,slow:0,driveT:0,tipI:0,popT:0};window.COOLHOT=false;
+['pointerdown','touchstart','wheel'].forEach(ev=>document.addEventListener(ev,e=>{HEAT.lastTouch=Date.now();if(HEAT.satOff&&!HEAT.hot&&!(e.target.closest&&e.target.closest('#coolCard')))coolSat(false)},{passive:true,capture:true}));
+(function fc(){HEAT.frames++;requestAnimationFrame(fc)})();
+function coolSat(off){try{if(off){if(mode!=='sat'||HEAT.satOff)return;HEAT.satOff=true;mode='map';applyMode();toast(T('Drawn map while you drive, to keep your phone cool. Touch the map for satellite.'),4500)}
+  else{if(!HEAT.satOff)return;HEAT.satOff=false;mode='sat';applyMode()}}catch(e){}}
+function coolCard(icon,title,body,list,ms){let c=$('coolCard');if(!c){c=document.createElement('div');c.id='coolCard';document.body.appendChild(c)}
+  c.innerHTML=`<div class="cci">${icon}</div><div class="cct"><b>${title}</b><small>${body}</small>${list?`<ul>${list.map(x=>`<li>${x}</li>`).join('')}</ul>`:''}</div><button id="ccOk">${T('OK')}</button>`;
+  c.classList.add('on');const done=()=>c.classList.remove('on');$('ccOk').onclick=done;if(ms)setTimeout(done,ms)}
+const THERMO='<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M14 14.8V5a2 2 0 0 0-4 0v9.8a4 4 0 1 0 4 0z"/><path d="M12 9v7"/></svg>';
+const COOL_TIPS=[['Keep your phone cool','Point an aircon vent at it. Phones cool fastest with air moving over them.'],['Out of the sun','Direct sun on the dash heats a phone very fast. Keep it in the shade.'],['Screen a bit dimmer','The screen is the biggest heat source. Turn the brightness down a notch.'],['Easy on the charging','Fast charging while the map runs makes the most heat. Use a slow charger, or charge after the drive.'],['Close other apps','Apps running in the background add heat. Close the ones you are not using.']];
+function coolTip(){const [t,b]=COOL_TIPS[HEAT.tipI++%COOL_TIPS.length];coolCard(THERMO,T(t),T(b),null,12000)}
+function coolHot(on){if(on===HEAT.hot)return;HEAT.hot=on;window.COOLHOT=on;HEAT.hotT=Date.now();
+  if(on){if(mode==='sat'){HEAT.satOff=false;coolSat(true)}HEAT.tiltWas=tilt;tilt=false;try{map.setPixelRatio(1.5)}catch(e){}
+    if(Date.now()-HEAT.popT>20*6e4){HEAT.popT=Date.now();coolCard(THERMO,T('Your phone is running hot'),T('Cool mode is on: the drawn map, a flat view and fewer screen updates. Help it cool down:'),[T('Point an aircon vent at it'),T('Keep it out of direct sun'),T('Turn the brightness down'),T('Don\'t fast charge while driving'),T('Close other apps')],0)}}
+  else{tilt=HEAT.tiltWas!=null?HEAT.tiltWas:tilt;try{map.setPixelRatio(Math.min(window.devicePixelRatio||1,2))}catch(e){}toast(T('Your phone has cooled down. Back to normal.'),3500)}}
+setInterval(()=>{const fps=HEAT.frames/10;HEAT.frames=0;if(document.hidden||navigator.webdriver)return;
+  const kmh=(speedS||0)*3.6,driving=gotFirst&&kmh>8;if(driving)HEAT.driveT+=10;
+  if(fps<20&&!userMoving&&!document.body.classList.contains('tfFilm'))HEAT.slow++;else HEAT.slow=Math.max(0,HEAT.slow-1);
+  if(!COOLON){if(HEAT.hot)coolHot(false);if(HEAT.satOff)coolSat(false);return}
+  if(!HEAT.hot&&HEAT.slow>=3)coolHot(true);
+  if(HEAT.hot&&HEAT.slow===0&&fps>=40&&Date.now()-HEAT.hotT>10*6e4)coolHot(false);
+  if(driving&&mode==='sat'&&Date.now()-HEAT.lastTouch>90e3)coolSat(true);
+  if(HEAT.driveT>=40*60&&!HEAT.hot){HEAT.driveT=0;coolTip()}},10000);
 let userMoving=false,TOUCHING=false;
 function lookAround(){if(follow!==2)return;setFollow(0);if(me)$('recenter').classList.remove('hide')}
 map.on('movestart',e=>{if(e.originalEvent)userMoving=true});map.on('moveend',()=>{if(!TOUCHING)userMoving=false});
@@ -5030,7 +5062,7 @@ function settingsSheet(page){const m=Cloud.member;const notif='Notification' in 
     <div class="msec">${T('On the map')}</div><div class="list sgroup">${LK('saLook',T('Map look'),T('Satellite photos or the drawn map'),mode==='sat'?T('Satellite'):T('Map'),'map','#188038')}${LK('saCar',T('Your car'),T('How you show on the map while you drive'),'','car','#1a73e8')}${LK('saCol',T('Route and trail colours'),T('The line you follow and the line your drives leave'),'','route','#7b1fa2')}</div>`;
   else if(page==='al')html=head('Alerts')+`<div class="list sgroup">${TG('sAlert','New sighting alerts','Pop-up when someone else marks a sighting',alertOn)}${LK('sAW','Which animals alert me','',esc(alertWhatTxt()))}${TG('sSound','Alert sound','A bing with each alert',alertSound)}${TG('sQuiet','Quiet hours','No alert sounds or pop-ups from '+QUIET.from+' to '+QUIET.to+' unless you are out driving.',quietOn)}${notif?LK('sNotif','Phone notifications','Also alert you while the app is in the background','Turn on'):''}</div>`;
   else if(page==='loc')html=head('Location')+`${MS.admin_sees_all?'<div class="sub" style="margin:-4px 2px 8px;font-size:12.5px">'+LI('eye',12)+' Admins can see your car while you drive on the reserve, even with sharing off. Drives off the mapped roads are sent to the admins to find new tracks. Your home stays hidden.</div>':''}<div class="list sgroup">${m?TG('sSee',T('See other drivers'),T('Other members show as coloured cars on your map while they drive on the reserve'),SEEOTH):''}${m?LK('sLive','Share live location','',shareLoc?'On':'Off'):''}${LK('sHome','Home point','',home?'Set':'Not set')}${isAdm()&&isIOS?LK('sLoc','Stop the location question','If the map asks for your location every time',''):''}</div>`;
-  else if(page==='drv')html=head('Driving and voice')+`<div class="list sgroup">${TG('sAwake','Keep the screen on','The screen stays on the whole time the map is open',KEEPAWAKE)}</div><div class="msec">Voice directions</div>${vmSeg('sVm')}<div class="sub" style="margin:6px 2px 4px;font-size:12.5px">Alerts only speaks at the turn itself and for gates, stops and rerouting</div>`;
+  else if(page==='drv')html=head('Driving and voice')+`<div class="list sgroup">${TG('sAwake','Keep the screen on','The screen stays on the whole time the map is open',KEEPAWAKE)}${TG('sCool',T('Keep my phone cool'),T('While you drive without touching the screen, satellite switches to the drawn map. If your phone starts slowing down from heat, Cool mode turns on with tips.'),COOLON)}</div><div class="msec">Voice directions</div>${vmSeg('sVm')}<div class="sub" style="margin:6px 2px 4px;font-size:12.5px">Alerts only speaks at the turn itself and for gates, stops and rerouting</div>`;
   else if(page==='mus')html=head('Music')+`<div class="list sgroup">${TG('sSpot','Spotify button','Music controls on the map. Off unless you want them',SPOTON)}</div><div class="sub" style="margin:8px 2px;font-size:12.5px">${T('Tap the Spotify button on the map to connect your account the first time.')}</div>`;
   else if(page==='lang')html=head('Language')+`<div class="seg" style="margin:4px 0 12px" data-notr><button data-lg="en" class="${LANG!=='af'?'sel':''}">English</button><button data-lg="af" class="${LANG==='af'?'sel':''}">Afrikaans</button></div>`;
   else if(page==='data')html=head('Map data and updates')+`<div class="list sgroup">${LK('sOff','Offline map','',esc(offlineStatus()))}${m&&isAdm()?LK('sShare','Sharing status',shareStatus(),''):''}${m&&isAdm()?LK('sRe',T('Reinstall the app'),T('Fresh copy on your Home Screen, you stay signed in'),'','route','#5f6368'):''}${m&&m.role==='admin'?LK('sUpd',T('Updates and reinstall'),T('Send the newest version to everyone, or ask everyone to reinstall'),'v'+VER(APP_BUILD),'down','#1a73e8'):''}</div>`;
@@ -5046,7 +5078,7 @@ function settingsSheet(page){const m=Cloud.member;const notif='Notification' in 
     const locked=MS.rules&&MS.rules.lock;if(locked)['sQuiet','sSun','sSpd'].forEach(id=>{const b=$(id);if(b){b.style.opacity=.45;b.onclick=()=>toast('An admin set this for everyone')}});
     if(!locked){tg('sQuiet',()=>{quietOn=!quietOn;LS.set('quiet',quietOn)});tg('sSun',()=>{sunRemind=!sunRemind;LS.set('sunRemind',sunRemind)});
     tg('sSpd',()=>{speedWarn=!speedWarn;LS.set('speedWarn',speedWarn);if(me)speedCheck(me.ll)})}
-    on('sFocus',focusSheet);if($('sVm'))bindVm();tg('sAutoRec',()=>{AUTOREC=!AUTOREC;LS.set('autoRec',AUTOREC)});tg('sSpot',()=>{SPOTON=!SPOTON;LS.set('spotOn',SPOTON);document.body.classList.toggle('spon',SPOTON)});tg('sTop',()=>{TOPTURN=!TOPTURN;LS.set('topTurn',TOPTURN)});tg('sNorth',()=>{NORTHUP=!NORTHUP;LS.set('northUp',NORTHUP)});tg('sSpdo',()=>{SHOWSPD=!SHOWSPD;LS.set('showSpd',SHOWSPD);document.body.classList.toggle('nospd',!SHOWSPD)});tg('sAwake',()=>{KEEPAWAKE=!KEEPAWAKE;LS.set('keepAwake',KEEPAWAKE);wantWake(KEEPAWAKE)});tg('sAvoid',()=>{AVOIDTRK=!AVOIDTRK;LS.set('avoidTracks',AVOIDTRK)});
+    on('sFocus',focusSheet);if($('sVm'))bindVm();tg('sAutoRec',()=>{AUTOREC=!AUTOREC;LS.set('autoRec',AUTOREC)});tg('sSpot',()=>{SPOTON=!SPOTON;LS.set('spotOn',SPOTON);document.body.classList.toggle('spon',SPOTON)});tg('sTop',()=>{TOPTURN=!TOPTURN;LS.set('topTurn',TOPTURN)});tg('sNorth',()=>{NORTHUP=!NORTHUP;LS.set('northUp',NORTHUP)});tg('sSpdo',()=>{SHOWSPD=!SHOWSPD;LS.set('showSpd',SHOWSPD);document.body.classList.toggle('nospd',!SHOWSPD)});tg('sCool',()=>{COOLON=!COOLON;LS.set('coolOn',COOLON);if(!COOLON){if(HEAT.hot)coolHot(false);coolSat(false)}});tg('sAwake',()=>{KEEPAWAKE=!KEEPAWAKE;LS.set('keepAwake',KEEPAWAKE);wantWake(KEEPAWAKE)});tg('sAvoid',()=>{AVOIDTRK=!AVOIDTRK;LS.set('avoidTracks',AVOIDTRK)});
     tg('sRed',()=>setRed(!redOn));
     tg('sRedAuto',()=>{redAuto=!redAuto;LS.set('redAuto',redAuto);redCheck()});
     on('sAW',()=>alertWhatSheet());
