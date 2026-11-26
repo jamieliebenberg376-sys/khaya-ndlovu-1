@@ -994,6 +994,9 @@ body.searching #statRow,body.searching #scaleBar,body.searching #junc,body.searc
 #peek .grab{display:none!important}#peek .pk b{font-size:18px!important}#peek .pk small{font-size:13px!important}
 #search{height:46px!important;border-radius:23px!important}
 #chips{margin-top:8px!important;gap:6px!important}#chips .chip2{padding-top:6px!important;padding-bottom:6px!important;font-size:14.5px!important}
+#tfBack{position:fixed;left:50%;top:calc(var(--safe-t,0px) + 132px);transform:translate(-50%,-14px);z-index:14;max-width:86vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;border:0;border-radius:999px;padding:12px 20px;font:800 15px system-ui,-apple-system,sans-serif;background:#174c33;color:#fff;border:1.5px solid rgba(255,226,154,.6);box-shadow:0 10px 26px rgba(0,0,0,.35);opacity:0;pointer-events:none;transition:.3s}
+body.tfback #storyQ,body.tfback #homeNag{opacity:0!important;pointer-events:none!important}
+#tfBack.on{opacity:1;pointer-events:auto;transform:translate(-50%,0)}
 #tfDone{position:fixed;left:50%;bottom:calc(var(--safe-b,0px) + 104px);transform:translate(-50%,20px);z-index:13;display:flex;align-items:center;gap:6px;white-space:nowrap;border:0;border-radius:999px;padding:12px 18px;font:800 14.5px system-ui,-apple-system,sans-serif;background:linear-gradient(145deg,#f3d27e,#c99a2e);color:#1a1205;box-shadow:0 10px 26px rgba(0,0,0,.35);opacity:0;pointer-events:none;transition:.35s}
 #tfDone.on{opacity:1;pointer-events:auto;transform:translate(-50%,0)}body.navon #tfDone,#tfDone.sh{opacity:0!important;pointer-events:none!important}
 #coolCard{position:fixed;left:12px;right:12px;top:calc(var(--safe-t,0px) + 118px);z-index:40;display:flex;gap:12px;align-items:flex-start;padding:14px;border-radius:18px;background:rgba(18,30,22,.94);border:1px solid rgba(233,196,106,.35);color:#f3efe4;box-shadow:0 10px 30px rgba(0,0,0,.4);transform:translateY(-16px);opacity:0;pointer-events:none;transition:.3s;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
@@ -3071,11 +3074,15 @@ setTimeout(()=>{try{tfPast()}catch(e){}tfSend()},20000);setInterval(tfSend,12000
 /* Database accounts: the list, on the map, and as a file to send on */
 async function tfLoad(all){if(!tfMe()||!navigator.onLine)return TF.list;try{const L=await rpc('list_track_finds',{p_all:!!all});TF.list=Array.isArray(L)?L:[];TF.count=TF.list.filter(x=>x.status==='new').length}catch(e){}return TF.list}
 setTimeout(()=>{if(tfMe())tfLoad()},15000);
+let TF_BACK=null;
+function tfBackPill(label,fn){TF_BACK={fn,t:Date.now()};let b=$('tfBack');if(!b){b=document.createElement('button');b.id='tfBack';b.onclick=()=>{const f=TF_BACK&&TF_BACK.fn;TF_BACK=null;b.classList.remove('on');if(f)f()};document.body.appendChild(b)}
+  b.innerHTML='‹ '+esc(label);b.classList.add('on')}
+setInterval(()=>{const b=$('tfBack');if(!b)return;const open=$('sheet').classList.contains('open');if(TF_BACK&&Date.now()-TF_BACK.t>10*6e4)TF_BACK=null;b.classList.toggle('on',!!TF_BACK&&!open);document.body.classList.toggle('tfback',!!TF_BACK&&!open)},300);
 function tfShow(L){if(!mapReady)return;const F=(L||[]).map(x=>({type:'Feature',properties:{id:x.id},geometry:{type:'LineString',coordinates:x.pts.map(p=>[p[0],p[1]])}}));
   if(!map.getSource('tfinds')){map.addSource('tfinds',{type:'geojson',data:{type:'FeatureCollection',features:[]}});map.addLayer({id:'tfinds-glow',type:'line',source:'tfinds',paint:{'line-color':'#ff4fa3','line-width':10,'line-opacity':.25}});map.addLayer({id:'tfinds',type:'line',source:'tfinds',layout:{'line-cap':'round'},paint:{'line-color':'#ff4fa3','line-width':4,'line-dasharray':[1.5,1.2]}})}
   map.getSource('tfinds').setData({type:'FeatureCollection',features:F});TF.shown=F.length>0;
   if(F.length){let a=[180,90,-180,-90];F.forEach(f=>f.geometry.coordinates.forEach(c=>{a=[Math.min(a[0],c[0]),Math.min(a[1],c[1]),Math.max(a[2],c[0]),Math.max(a[3],c[1])]}));closeSheet();setFollow(0);map.fitBounds([[a[0],a[1]],[a[2],a[3]]],{padding:70,maxZoom:16.5,duration:700});
-    toast(T('New tracks are the pink dashed lines. Open New tracks found again to hide them.'),4500)}}
+    toast(T('The new track is the pink dashed line. Tap the green button at the top to carry on.'),4000)}}
 function tfFile(L){const fc={type:'FeatureCollection',features:L.map(x=>({type:'Feature',properties:{id:x.id,by:x.name,length_m:x.len,found:x.created_at},geometry:{type:'LineString',coordinates:x.pts.map(p=>[p[0],p[1]])}}))};
   return new File([JSON.stringify(fc)],'khaya-new-tracks-'+new Date().toISOString().slice(0,10)+'.geojson',{type:'application/geo+json'})}
 /* ============ "how new tracks work": a short animated film for admins and Database, shown once with this update ============
@@ -3271,12 +3278,12 @@ async function tfSheet(all){openSheet(`<h2>${T('New tracks found')}</h2><div cla
    <button class="uwl" id="tfOld" style="display:block;margin:12px auto 0">${all?T('Show only new ones'):T('Show added and ignored ones too')}</button>`,()=>{
     $('tfRoads').onclick=()=>droadsSheet();if($('tfDoneB'))$('tfDoneB').onclick=tfDoneGo;
     if($('tfAll'))$('tfAll').onclick=()=>tfShow(L);if($('tfHide'))$('tfHide').onclick=()=>{tfShow([]);tfSheet(all)};$('tfOld').onclick=()=>tfSheet(!all);
-    document.querySelectorAll('[data-tfs]').forEach(b=>b.onclick=()=>tfShow(L.filter(x=>x.id===b.dataset.tfs)));
+    document.querySelectorAll('[data-tfs]').forEach(b=>b.onclick=()=>{const x=L.find(q=>q.id===b.dataset.tfs);tfShow(L.filter(q=>q.id===b.dataset.tfs));if(x&&x.status==='new')tfBackPill(T('Add this track'),()=>tfAddSheet(x,all));else tfBackPill(T('Back to new tracks'),()=>tfSheet(all))});
     document.querySelectorAll('[data-tfa]').forEach(b=>b.onclick=()=>{const x=L.find(q=>q.id===b.dataset.tfa);if(x)tfAddSheet(x,all)});
     document.querySelectorAll('[data-tfi]').forEach(b=>b.onclick=async()=>{try{await rpc('set_track_finds',{p_ids:[b.dataset.tfi],p_status:'ignored'})}catch(e){toast(errTxt(e));return}tfSheet(all)});
     if($('tfShare'))$('tfShare').onclick=async()=>{const f=tfFile(L);try{if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:'New tracks'});return}}catch(e){if(e&&e.name==='AbortError')return}
       const a=document.createElement('a');a.href=URL.createObjectURL(f);a.download=f.name;a.click();toast(T('File saved'))}})}
-function tfAddSheet(x,all){const nm=tfName(x.pts),c=tfSmooth(x.pts);
+function tfAddSheet(x,all,pref){const nm=pref&&pref.name||tfName(x.pts),c=tfSmooth(x.pts);
   openSheet(`<div class="cmh"><button class="sm" id="taBack">‹ ${T('Back')}</button><b>${T('Add to map')}</b><span style="width:60px"></span></div>
    <div class="sub" style="line-height:1.45">${T('This puts the track on everyone\'s map as a road. Directions can use it once their map has refreshed.')}</div>
    <div class="msec" style="margin-top:14px">${T('Road name')}</div><input class="inp" id="taName" maxlength="40" value="${esc(nm)}" autocapitalize="words">
@@ -3286,7 +3293,8 @@ function tfAddSheet(x,all){const nm=tfName(x.pts),c=tfSmooth(x.pts);
    <div class="list sgroup" style="margin-top:12px"><div class="it"><div style="flex:1"><small>${T('Length')}</small><br><b>${fmtD(tfLen(c))}</b></div><div style="flex:1"><small>${T('Driven by')}</small><br><b>${esc(x.name||'Admin')}</b></div></div></div>
    <div class="row" style="margin-top:14px"><button class="btn" id="taShow">${LI('map',17)} ${T('Show')}</button><button class="btn pri" id="taGo">${T('Add to map')}</button></div>`,()=>{
     $('taBack').onclick=()=>tfSheet(all);let isTrack=false;
-    document.querySelectorAll('#taKind button').forEach(b=>b.onclick=()=>{isTrack=b.dataset.k==='1';document.querySelectorAll('#taKind button').forEach(q=>q.classList.toggle('sel',q===b));$('taKindTx').textContent=isTrack?T('A small bush track. Drawn thin and grey like the other tracks.'):T('A proper road. Drawn wide and white like the other main roads.')});$('taShow').onclick=()=>tfShow([{id:x.id,pts:c}]);
+    document.querySelectorAll('#taKind button').forEach(b=>b.onclick=()=>{isTrack=b.dataset.k==='1';document.querySelectorAll('#taKind button').forEach(q=>q.classList.toggle('sel',q===b));$('taKindTx').textContent=isTrack?T('A small bush track. Drawn thin and grey like the other tracks.'):T('A proper road. Drawn wide and white like the other main roads.')});$('taShow').onclick=()=>{const keep={name:$('taName').value,track:isTrack};tfShow([{id:x.id,pts:c}]);tfBackPill(T('Back to')+' '+(keep.name||T('the new track')),()=>tfAddSheet(x,all,keep))};
+    if(pref&&pref.track){const b=document.querySelector('#taKind [data-k="1"]');if(b)b.click()}
     $('taGo').onclick=async()=>{const n=nameClean($('taName').value);if(n.length<2){toast(T('Give the road a name'));return}if(!navigator.onLine){toast(T('You need signal to do this'));return}$('taGo').disabled=true;
       try{const r=await rpc('add_discovered_road',{p_id:'dr-'+x.id.slice(-20)+'-'+Date.now().toString(36),p_find:x.id,p_name:n,p_coords:c,p_len:tfLen(c),p_track:isTrack});
         const rd={id:null,name:(r&&r.name)||n,track:isTrack,coords:c,len:tfLen(c),found_by:x.name,added_by:Cloud.member&&Cloud.member.name};
