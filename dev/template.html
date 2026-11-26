@@ -994,6 +994,8 @@ body.searching #statRow,body.searching #scaleBar,body.searching #junc,body.searc
 #peek .grab{display:none!important}#peek .pk b{font-size:18px!important}#peek .pk small{font-size:13px!important}
 #search{height:46px!important;border-radius:23px!important}
 #chips{margin-top:8px!important;gap:6px!important}#chips .chip2{padding-top:6px!important;padding-bottom:6px!important;font-size:14.5px!important}
+#tfDone{position:fixed;left:50%;bottom:calc(var(--safe-b,0px) + 104px);transform:translate(-50%,20px);z-index:13;display:flex;align-items:center;gap:6px;white-space:nowrap;border:0;border-radius:999px;padding:12px 18px;font:800 14.5px system-ui,-apple-system,sans-serif;background:linear-gradient(145deg,#f3d27e,#c99a2e);color:#1a1205;box-shadow:0 10px 26px rgba(0,0,0,.35);opacity:0;pointer-events:none;transition:.35s}
+#tfDone.on{opacity:1;pointer-events:auto;transform:translate(-50%,0)}body.navon #tfDone,#tfDone.sh{opacity:0!important;pointer-events:none!important}
 #coolCard{position:fixed;left:12px;right:12px;top:calc(var(--safe-t,0px) + 118px);z-index:40;display:flex;gap:12px;align-items:flex-start;padding:14px;border-radius:18px;background:rgba(18,30,22,.94);border:1px solid rgba(233,196,106,.35);color:#f3efe4;box-shadow:0 10px 30px rgba(0,0,0,.4);transform:translateY(-16px);opacity:0;pointer-events:none;transition:.3s;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
 #coolCard.on{transform:none;opacity:1;pointer-events:auto}#coolCard .cci{width:42px;height:42px;border-radius:13px;flex:none;display:grid;place-items:center;background:linear-gradient(150deg,#ffb38a,#e5533d);color:#fff}
 #coolCard .cct{flex:1;min-width:0}#coolCard .cct b{display:block;font-size:15.5px}#coolCard .cct small{display:block;color:#c9d3c6;font-size:13px;line-height:1.4;margin-top:2px}#coolCard ul{margin:6px 0 0;padding-left:18px;font-size:13px;line-height:1.5;color:#ffe29a}
@@ -3248,20 +3250,26 @@ const nameClean=n=>String(n||'').replace(/\s+/g,' ').trim().replace(/\b(\w+)(\s+
 function tfEndRoad(ll){const e=nearestEdge(ll,45);return e?ROADS[e.e.road].properties.name:null}
 function tfName(pts){const a=tfEndRoad([pts[0][0],pts[0][1]]),b=tfEndRoad([pts[pts.length-1][0],pts[pts.length-1][1]]);
   let base=nameClean(a&&b?(rdShort(a)===rdShort(b)?rdShort(a)+' Link':rdShort(a)+'-'+rdShort(b)+' Link'):a||b?rdShort(a||b)+' Spur':T('New Track'));
-  const taken=new Set(ROADS.map(f=>String(f.properties.name).toLowerCase()));if(!taken.has(base.toLowerCase()))return base;let n=2;while(taken.has((base+' '+n).toLowerCase()))n++;return base+' '+n}
+  const taken=new Set(ROADS.map(f=>String(f.properties.name).toLowerCase()).concat(TF_PEND.map(n=>n.toLowerCase())));if(!taken.has(base.toLowerCase()))return base;let n=2;while(taken.has((base+' '+n).toLowerCase()))n++;return base+' '+n}
 /* the GPS line is tidied before it goes on the map: wobble smoothed out, then thinned */
 function tfSmooth(pts){let P=pts.map(p=>[p[0],p[1]]);if(P.length>4)P=P.map((p,i)=>i===0||i===P.length-1?p:[(P[i-1][0]+p[0]+P[i+1][0])/3,(P[i-1][1]+p[1]+P[i+1][1])/3]);
   const dp=(A,tol)=>{if(A.length<3)return A;let mi=0,md=0;for(let i=1;i<A.length-1;i++){const d=projSeg(A[i],A[0],A[A.length-1]).d;if(d>md){md=d;mi=i}}return md>tol?dp(A.slice(0,mi+1),tol).slice(0,-1).concat(dp(A.slice(mi),tol)):[A[0],A[A.length-1]]};
   return dp(P,2.5).map(p=>[+p[0].toFixed(6),+p[1].toFixed(6)])}
 const tfLen=c=>{let L=0;for(let i=1;i<c.length;i++)L+=dist(c[i-1],c[i]);return Math.round(L)};
+let TF_PEND=[];const TF_ADDED={};
+setInterval(()=>{const b=$('tfDone');if(b)b.classList.toggle('sh',$('sheet').classList.contains('open'))},400);
+function tfDoneGo(){if(!TF_PEND.length)return;const n=TF_PEND.length;TF_PEND=[];tfDonePill();closeSheet();toast(n===1?T('Refreshing the map with the new road'):T('Refreshing the map with')+' '+n+' '+T('new roads'),2500);droadsSync(true).then(()=>droadsReload(400)).catch(()=>droadsReload(400))}
+function tfDonePill(){let b=$('tfDone');if(!b){b=document.createElement('button');b.id='tfDone';b.onclick=tfDoneGo;document.body.appendChild(b)}
+  b.innerHTML=LI('check',18)+' '+T('Done')+' · '+TF_PEND.length+' '+(TF_PEND.length===1?T('road added'):T('roads added'))+' · '+T('refresh map');b.classList.toggle('on',TF_PEND.length>0)}
 async function tfSheet(all){openSheet(`<h2>${T('New tracks found')}</h2><div class="sub">${T('Loading...')}</div>`);await tfLoad(all);const L=TF.list;const nw=L.filter(x=>x.status==='new');
-  const row=x=>`<div class="it tfr"><div style="flex:1;min-width:0"><b>${esc(tfName(x.pts))}</b><br><small>${fmtD(x.len)} · ${esc(x.name||'Admin')} · ${esc(ago(Date.parse(x.created_at)))}${x.status!=='new'?' · '+T(x.status==='added'?'added':x.status==='sent'?'sent':'ignored'):''}</small></div><button class="sm" data-tfs="${esc(x.id)}">${T('Show')}</button>${x.status==='new'?`<button class="sm tfadd" data-tfa="${esc(x.id)}">${T('Add')}</button><button class="sm" data-tfi="${esc(x.id)}" aria-label="${T('Ignore')}">✕</button>`:''}</div>`;
+  const row=x=>`<div class="it tfr"><div style="flex:1;min-width:0"><b>${esc(TF_ADDED[x.id]||tfName(x.pts))}</b><br><small>${fmtD(x.len)} · ${esc(x.name||'Admin')} · ${esc(ago(Date.parse(x.created_at)))}${x.status!=='new'?' · '+T(x.status==='added'?'added':x.status==='sent'?'sent':'ignored'):''}</small></div><button class="sm" data-tfs="${esc(x.id)}">${T('Show')}</button>${x.status==='new'?`<button class="sm tfadd" data-tfa="${esc(x.id)}">${T('Add')}</button><button class="sm" data-tfi="${esc(x.id)}" aria-label="${T('Ignore')}">✕</button>`:''}</div>`;
   openSheet(`<h2>${T('New tracks found')}</h2><div class="sub" style="line-height:1.45">${T('Stretches admins drove where there is no road on the map. Check one with Show, then Add puts it on everyone\'s map.')}</div>
+   ${TF_PEND.length?`<button class="btn pri" id="tfDoneB" style="width:100%;margin-top:12px">${LI('check',18)} ${T('Done')}: ${TF_PEND.length} ${TF_PEND.length===1?T('road added'):T('roads added')} · ${T('refresh the map')}</button>`:''}
    <div class="row" style="margin-top:12px"><button class="btn" id="tfRoads">${LI('route',17)} ${T('Discovered roads')}${DROADS.length?' ('+DROADS.length+')':''}</button></div>
    ${L.length?`${L.length>1?`<button class="btn" id="tfAll" style="width:100%;margin-top:8px">${LI('map',17)} ${T('Show all on the map')}</button>`:''}${TF.shown?`<button class="btn" id="tfHide" style="width:100%;margin-top:8px">${T('Hide them from the map')}</button>`:''}
    <div class="list sgroup" style="margin-top:12px">${L.map(row).join('')}</div>${Cloud.member.locked?`<button class="uwl" id="tfShare" style="display:block;margin:10px auto 0">${T('Share them as a file')}</button>`:''}`:`<div class="sub" style="margin-top:16px">${T('Nothing new. Tracks show up here after admins drive somewhere that is not on the map.')}</div>`}
    <button class="uwl" id="tfOld" style="display:block;margin:12px auto 0">${all?T('Show only new ones'):T('Show added and ignored ones too')}</button>`,()=>{
-    $('tfRoads').onclick=()=>droadsSheet();
+    $('tfRoads').onclick=()=>droadsSheet();if($('tfDoneB'))$('tfDoneB').onclick=tfDoneGo;
     if($('tfAll'))$('tfAll').onclick=()=>tfShow(L);if($('tfHide'))$('tfHide').onclick=()=>{tfShow([]);tfSheet(all)};$('tfOld').onclick=()=>tfSheet(!all);
     document.querySelectorAll('[data-tfs]').forEach(b=>b.onclick=()=>tfShow(L.filter(x=>x.id===b.dataset.tfs)));
     document.querySelectorAll('[data-tfa]').forEach(b=>b.onclick=()=>{const x=L.find(q=>q.id===b.dataset.tfa);if(x)tfAddSheet(x,all)});
@@ -3282,7 +3290,7 @@ function tfAddSheet(x,all){const nm=tfName(x.pts),c=tfSmooth(x.pts);
     $('taGo').onclick=async()=>{const n=nameClean($('taName').value);if(n.length<2){toast(T('Give the road a name'));return}if(!navigator.onLine){toast(T('You need signal to do this'));return}$('taGo').disabled=true;
       try{const r=await rpc('add_discovered_road',{p_id:'dr-'+x.id.slice(-20)+'-'+Date.now().toString(36),p_find:x.id,p_name:n,p_coords:c,p_len:tfLen(c),p_track:isTrack});
         const rd={id:null,name:(r&&r.name)||n,track:isTrack,coords:c,len:tfLen(c),found_by:x.name,added_by:Cloud.member&&Cloud.member.name};
-        try{closeSheet();tfFilm(true,false,rd,()=>droadsReload(300))}catch(e){droadsReload(1800)}droadsSync(true).then(()=>{const L=DROADS_NEW||[];const mine=L.find(q=>q.name===rd.name);if(mine)seenRoadFilms([mine.id])})}
+        TF_PEND.push(rd.name);TF_ADDED[x.id]=rd.name;tfDonePill();toast(T('Added')+': '+rd.name+'. '+T('Add the rest, then tap Done'),3500);tfSheet(all);droadsSync(true).then(()=>{const L=DROADS_NEW||[];const mine=L.find(q=>q.name===rd.name);if(mine)seenRoadFilms([mine.id])})}
       catch(e){$('taGo').disabled=false;toast(/404|PGRST202|Could not find/.test(e.message)?T('Run the latest SQL in Supabase first'):errTxt(e).replace(/^Database said: /,''),4500)}}})}
 /* everyone keeps the discovered roads on their phone; changes are picked up in the background and applied the next time the map opens */
 let DROADS_NEW=null;
