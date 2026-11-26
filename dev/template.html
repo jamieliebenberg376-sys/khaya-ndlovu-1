@@ -3453,6 +3453,13 @@ setInterval(()=>{if(CLEAN.on)cleanBar()},700);
 document.addEventListener('keydown',()=>{CLEAN.t=Date.now()},true);
 setInterval(()=>{if(!CLEANON||document.hidden){cleanSet(false);return}if(CLEAN.on&&!cleanOk()){cleanSet(false);CLEAN.t=Date.now();return}
   if(!CLEAN.on&&gotFirst&&Date.now()-CLEAN.t>30000&&cleanOk())cleanSet(true)},2000);
+/* no 'Undo Typing' pop-up when the phone shakes on rough roads: iPhones only ask when a text box still has typing it could undo.
+   Setting a box's text from code wipes its undo history, so as soon as you leave a box its history is cleared (the text stays). */
+function noUndo(el){try{if(!el||!/^(INPUT|TEXTAREA)$/.test(el.tagName)||/^(checkbox|radio|file|range|button|submit|color)$/i.test(el.type||''))return;const v=el.value,a=el.selectionStart,b=el.selectionEnd;el.value='';el.value=v;try{if(document.activeElement===el)el.setSelectionRange(a,b)}catch(e){}}catch(e){}}
+document.addEventListener('focusout',e=>noUndo(e.target),true);
+document.addEventListener('visibilitychange',()=>{if(document.hidden)document.querySelectorAll('input,textarea').forEach(noUndo)});
+setInterval(()=>{const ae=document.activeElement;if(drivingNow&&ae&&/^(INPUT|TEXTAREA)$/.test(ae.tagName)&&Date.now()-(window.__lastKey||0)>15000){ae.blur()}document.querySelectorAll('input,textarea').forEach(el=>{if(el!==document.activeElement)noUndo(el)})},5000);
+document.addEventListener('keydown',()=>{window.__lastKey=Date.now()},true);
 /* ============ keep the phone cool ============
    1. Driving without touching the screen for 90 s: satellite switches to the drawn map (far less work). Touch the map and satellite comes back.
    2. iPhones don't tell web apps their temperature, but a hot phone slows itself down and the screen gets fewer frames.
