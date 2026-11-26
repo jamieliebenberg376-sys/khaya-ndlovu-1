@@ -999,6 +999,14 @@ body.tfback #storyQ,body.tfback #homeNag{opacity:0!important;pointer-events:none
 #tfBack.on{opacity:1;pointer-events:auto;transform:translate(-50%,0)}
 #tfDone{position:fixed;left:50%;bottom:calc(var(--safe-b,0px) + 104px);transform:translate(-50%,20px);z-index:13;display:flex;align-items:center;gap:6px;white-space:nowrap;border:0;border-radius:999px;padding:12px 18px;font:800 14.5px system-ui,-apple-system,sans-serif;background:linear-gradient(145deg,#f3d27e,#c99a2e);color:#1a1205;box-shadow:0 10px 26px rgba(0,0,0,.35);opacity:0;pointer-events:none;transition:.35s}
 #tfDone.on{opacity:1;pointer-events:auto;transform:translate(-50%,0)}body.navon #tfDone,#tfDone.sh{opacity:0!important;pointer-events:none!important}
+.anhd{display:flex;align-items:center;gap:14px;margin-top:6px}
+.anph{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.anph button{position:relative;aspect-ratio:1;border:0;padding:0;border-radius:14px;overflow:hidden;background:linear-gradient(160deg,var(--sandA,#e9dfc7),var(--sandB,#cdbb92))}
+.anph img{width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .3s}.anph img.ok{opacity:1}
+.anph span{position:absolute;left:6px;bottom:5px;font:700 11px system-ui,-apple-system,sans-serif;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.8)}
+.anph em{position:absolute;right:6px;top:6px;font:800 10px system-ui;font-style:normal;color:#fff;background:#c5221f;border-radius:6px;padding:2px 5px}
+.anlk{display:flex;align-items:center;gap:12px;width:100%;margin-top:14px;padding:12px 14px;border-radius:16px;border:0;background:#174c33;color:#fff;text-align:left}
+.anlk span{flex:1}.anlk b{display:block;font-size:16px}.anlk small{color:#cfe3d4;font-size:12.5px}.anlk i{font-style:normal;color:#ffe29a;font-size:20px}
 #coolCard{position:fixed;left:12px;right:12px;top:calc(var(--safe-t,0px) + 118px);z-index:40;display:flex;gap:12px;align-items:flex-start;padding:14px;border-radius:18px;background:rgba(18,30,22,.94);border:1px solid rgba(233,196,106,.35);color:#f3efe4;box-shadow:0 10px 30px rgba(0,0,0,.4);transform:translateY(-16px);opacity:0;pointer-events:none;transition:.3s;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
 #coolCard.on{transform:none;opacity:1;pointer-events:auto}#coolCard .cci{width:42px;height:42px;border-radius:13px;flex:none;display:grid;place-items:center;background:linear-gradient(150deg,#ffb38a,#e5533d);color:#fff}
 #coolCard .cct{flex:1;min-width:0}#coolCard .cct b{display:block;font-size:15.5px}#coolCard .cct small{display:block;color:#c9d3c6;font-size:13px;line-height:1.4;margin-top:2px}#coolCard ul{margin:6px 0 0;padding-left:18px;font-size:13px;line-height:1.5;color:#ffe29a}
@@ -2897,8 +2905,8 @@ function bestSheet(){const s=sunToday(),now=new Date(),hm=d=>new Date(d).toLocal
   <div class="prof"><div class="pr"><span>${LI('moon',20)}</span><div>Night drives<small>${mo.ill>.7?'Bright moon: good visibility, nocturnal animals may stay hidden':mo.ill<.25?'Dark sky: great for spotlighting and stars, use the red screen':'Some moonlight tonight'}${mo.toFull>1&&mo.toFull<15?' · full moon in '+Math.round(mo.toFull)+' days':''}</small></div></div>
   ${wx?`<div class="pr"><span>${wxIcon(wx.c.weather_code,wx.c.is_day,22)}</span><div>Weather now ${Math.round(wx.c.temperature_2m)}°<small>${esc(WMO(wx.c.weather_code)[1])} · rain today ${wx.d.precipitation_probability_max[0]??0}%${wx.c.temperature_2m>30?' · hot: animals rest in shade around midday':''}</small></div></div>`:''}</div>
   <div class="sub" style="margin-top:14px"><b>When to look for each animal</b> · learned from sightings</div>
-  <div class="list">${sp.length?sp.map(({w,p})=>{const e=ES.filter(x=>x.what===w)[0];const near=e?nearestEdge(e.ll,400):null;return `<div class="it" data-best="${esc(w)}"><div style="width:40px">${AN(w,34)}</div><div style="flex:1"><b>${esc(w)}</b><br><small>${p.period?'Mostly '+esc(p.period):'Any time'}${p.area?' · usually '+esc(p.area):''}${e?'<br>Likely now: '+e.pct+'%'+(near?' near '+esc(ROADS[near.e.road].properties.name):''):''}</small></div><small>›</small></div>`}).join(''):'<div class="it"><small>Not enough sightings yet. The more people mark, the smarter this gets.</small></div>'}</div>`,()=>{
-    document.querySelectorAll('[data-best]').forEach(b=>b.onclick=()=>{const w=b.dataset.best,e=estimates().find(x=>x.what===w);if(e)estSheet(e);else openSheet('<button class="sm" id="pBack">‹ Back</button>'+profileHtml(w),()=>{$('pBack').onclick=bestSheet})})})}
+  <div class="list">${sp.length?sp.map(({w,p})=>{const e=ES.filter(x=>x.what===w)[0];const near=e?nearestEdge(e.ll,400):null;return `<div class="it" data-best="${esc(w)}"><div style="width:44px;flex:none">${AN(w,38)}</div><div style="flex:1;min-width:0"><b>${esc(w)}</b><br><small>${p.period?'Mostly '+esc(p.period):'Any time'}${p.area?' · usually '+esc(p.area):''}${e?'<br>Likely now: '+e.pct+'%'+(near?' near '+esc(ROADS[near.e.road].properties.name):''):''}</small></div><small>›</small></div>`}).join(''):'<div class="it"><small>Not enough sightings yet. The more people mark, the smarter this gets.</small></div>'}</div>`,()=>{
+    document.querySelectorAll('[data-best]').forEach(b=>b.onclick=()=>animalSheet(b.dataset.best,bestSheet))})}
 const onKill=s=>(s.chain||[s]).some(c=>c.kill&&Date.now()-c.t<KILL_TTL);
 function sightOp(s){const age=(Date.now()-s.t)/36e5,k=onKill(s),stay=k?12:animalProfile(s.what).stayH,hz=k?48:24;return age<=stay?1:Math.max(.22,1-(age-stay)/(hz-stay)*.78)}
 function allSights(){return linkChains(rawSights(),24).sort((a,b)=>b.t-a.t)}
@@ -5472,6 +5480,24 @@ async function albumLoad(){if(Cloud.member&&navigator.onLine&&Date.now()-ALB.t>6
   if(!ALB.list){ALB.list=rawSights().filter(x=>x.photo).map(x=>({c:x.cid,w:x.what,by:x.by,t:new Date(x.t).toISOString(),lat:x.ll[1],lng:x.ll[0],k:x.kill}))}
   // add my own photos that are still uploading
   const have=new Set(ALB.list.map(x=>x.c));rawSights().filter(x=>x.photo&&!have.has(x.cid)).forEach(x=>ALB.list.unshift({c:x.cid,w:x.what,by:x.by,t:new Date(x.t).toISOString(),lat:x.ll[1],lng:x.ll[0],k:x.kill}))}
+/* one animal: its photos (newest first, last 30 days), where it is likely now, and what has been learned about it */
+async function animalSheet(w,back){const head=`<div class="cmh"><button class="sm" id="anBack">‹ ${T('Back')}</button><b></b><span style="width:60px"></span></div>
+  <div class="anhd">${AN(w,64)}<div><h2 style="margin:0">${esc(T(w))}</h2><div class="sub" id="anSub"></div></div></div>`;
+  openSheet(head+`<div class="sub" style="margin-top:14px">${T('Loading photos...')}</div>`,()=>{$('anBack').onclick=()=>back?back():closeSheet()});
+  await albumLoad();const L=(ALB.list||[]).filter(x=>x.w===w).sort((a,b)=>Date.parse(b.t)-Date.parse(a.t));
+  const e=estimates().find(x=>x.what===w),seen=rawSights().filter(x=>x.what===w).sort((a,b)=>b.t-a.t)[0];
+  const cap=x=>(x.k?T('On a kill')+' · ':'')+x.by+' · '+new Date(x.t).toLocaleDateString([],{day:'numeric',month:'short'})+' '+new Date(x.t).toTimeString().slice(0,5);
+  openSheet(head+`
+    ${e?`<button class="anlk" id="anEst">${LI('pin',18)}<span><b>${T('Likely now')}: ${e.pct}%</b><small>${T('Tap to see where on the map')}</small></span><i>›</i></button>`:''}
+    <div class="wxsec" style="margin:16px 2px 8px;font-size:12.5px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;opacity:.6">${T('Photos')} · ${L.length}</div>
+    ${L.length?`<div class="anph">${L.map((x,i)=>`<button data-anp="${i}"><img alt="" data-anc="${esc(x.c)}"><span>${esc(new Date(x.t).toLocaleDateString([],{day:'numeric',month:'short'}))}</span>${x.k?'<em>'+T('Kill')+'</em>':''}</button>`).join('')}</div>`
+      :`<div class="sub" style="text-align:center;padding:18px 0">${T('No photos of')} ${esc(T(w).toLowerCase())} ${T('in the last 30 days yet.')}</div>`}
+    <div style="margin-top:14px">${profileHtml(w)}</div>`,()=>{
+      $('anBack').onclick=()=>back?back():closeSheet();
+      $('anSub').textContent=seen?T('Last seen')+' '+lastSeen(seen.t):'';
+      if($('anEst'))$('anEst').onclick=()=>estSheet(e);
+      document.querySelectorAll('[data-anc]').forEach(im=>photoURL(im.dataset.anc).then(u=>{if(u){im.src=u;im.onload=()=>im.classList.add('ok')}}));
+      document.querySelectorAll('[data-anp]').forEach(b=>b.onclick=()=>lightbox(L.map(x=>x.c),+b.dataset.anp,'',L.map(x=>({cap:cap(x),ll:x.lat!=null?[x.lng,x.lat]:null}))))})}
 async function albumSheet(){openSheet(hubSeg('photos')+'<h2>Photos</h2><div class="sub">Loading photos...</div>',bindHub);await albumLoad();albumDraw()}
 function albumDraw(){const now=Date.now(),t0=new Date();t0.setHours(0,0,0,0);
   const inF=x=>{const t=Date.parse(x.t);return (ALB.filt==='today'?t>=+t0:ALB.filt==='week'?now-t<7*864e5:true)&&(!ALB.what||x.w===ALB.what)};
