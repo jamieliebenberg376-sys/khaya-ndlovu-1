@@ -989,6 +989,11 @@ body.navon #nav .jx svg:not(.ja){max-height:64px}
 body.night .post .poadd{background:rgba(255,226,154,.1)!important;border-color:rgba(255,226,154,.35);color:#ffe29a}
 .stprof .stpm{gap:4px!important}.stprof .stpm b{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 body.searching #statRow,body.searching #scaleBar,body.searching #junc,body.searching #focusPill{opacity:0!important;pointer-events:none!important}
+/* round 1: floating bottom card, compact top bar */
+#peek{left:10px!important;right:10px!important;bottom:calc(var(--safe-b,0px) + 10px)!important;border-radius:22px!important;padding:10px 16px!important;border:var(--gb);box-shadow:0 10px 30px rgba(0,0,0,.28)!important}
+#peek .grab{display:none!important}#peek .pk b{font-size:18px!important}#peek .pk small{font-size:13px!important}
+#search{height:46px!important;border-radius:23px!important}
+#chips{margin-top:8px!important;gap:6px!important}#chips .chip2{padding-top:6px!important;padding-bottom:6px!important;font-size:14.5px!important}
 #coolCard{position:fixed;left:12px;right:12px;top:calc(var(--safe-t,0px) + 118px);z-index:40;display:flex;gap:12px;align-items:flex-start;padding:14px;border-radius:18px;background:rgba(18,30,22,.94);border:1px solid rgba(233,196,106,.35);color:#f3efe4;box-shadow:0 10px 30px rgba(0,0,0,.4);transform:translateY(-16px);opacity:0;pointer-events:none;transition:.3s;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
 #coolCard.on{transform:none;opacity:1;pointer-events:auto}#coolCard .cci{width:42px;height:42px;border-radius:13px;flex:none;display:grid;place-items:center;background:linear-gradient(150deg,#ffb38a,#e5533d);color:#fff}
 #coolCard .cct{flex:1;min-width:0}#coolCard .cct b{display:block;font-size:15.5px}#coolCard .cct small{display:block;color:#c9d3c6;font-size:13px;line-height:1.4;margin-top:2px}#coolCard ul{margin:6px 0 0;padding-left:18px;font-size:13px;line-height:1.5;color:#ffe29a}
@@ -2730,7 +2735,7 @@ function ppImg(cid){const id='pp-'+cid;if(PPIMG[cid]==='ok'||PPIMG[cid]==='wait'
 function photoPins(AS){if(!mapReady)return;
   if(!map.getSource('ppins')){map.addSource('ppins',{type:'geojson',data:{type:'FeatureCollection',features:[]}});
     const sz=['interpolate',['linear'],['zoom'],11,.42,16,1];
-    map.addLayer({id:'pp-photo',type:'symbol',source:'ppins',layout:{'icon-image':['get','img'],'icon-anchor':'bottom','icon-size':sz,'icon-allow-overlap':true,'icon-ignore-placement':true},paint:{'icon-opacity':['get','op']}});
+    map.addLayer({id:'pp-photo',type:'symbol',source:'ppins',layout:{'icon-image':['get','img'],'icon-anchor':'bottom','icon-size':sz,'icon-allow-overlap':true,'icon-ignore-placement':false},paint:{'icon-opacity':['get','op']}});
     map.addLayer({id:'pp-badge',type:'symbol',source:'ppins',layout:{'icon-image':['concat','an-',['get','what']],'icon-anchor':'center','icon-size':['interpolate',['linear'],['zoom'],11,.16,16,.38],'icon-offset':['interpolate',['linear'],['zoom'],11,['literal',[110,-90]],16,['literal',[62,-50]]],'icon-allow-overlap':true,'icon-ignore-placement':true},paint:{'icon-opacity':['get','op']}});
     const open=e=>{const f=e.features&&e.features[0];if(!f)return;const cid=f.properties.cid,h=allSights().find(q=>q.cid===cid);if(h)showPlace(sightPlace(h))};
     map.on('click','pp-photo',open);map.on('click','pp-badge',open);
@@ -3074,7 +3079,7 @@ function tfFile(L){const fc={type:'FeatureCollection',features:L.map(x=>({type:'
 /* ============ "how new tracks work": a short animated film for admins and Database, shown once with this update ============
    It uses Michael's real track from 15 Nov as the example. */
 const TF_EX=[[30.967382, -24.378552], [30.96738, -24.378468], [30.967373, -24.378373], [30.96737, -24.378318], [30.967364, -24.378263], [30.967356, -24.378206], [30.967348, -24.378148], [30.967337, -24.378092], [30.967325, -24.378038], [30.967301, -24.377941], [30.967282, -24.377844], [30.967285, -24.377746], [30.967318, -24.377655], [30.967368, -24.377571], [30.967423, -24.377492], [30.967497, -24.37743], [30.96757, -24.377371], [30.967644, -24.377313], [30.967696, -24.377245], [30.96773, -24.377171], [30.96773, -24.377091], [30.967674, -24.377025], [30.96761, -24.376955], [30.967548, -24.376877], [30.967498, -24.376791], [30.967458, -24.376702], [30.967379, -24.37664], [30.967294, -24.376593], [30.967221, -24.376529], [30.967177, -24.376454], [30.96716, -24.376394], [30.967098, -24.376339], [30.967007, -24.37633], [30.966904, -24.376348], [30.966792, -24.376358], [30.966681, -24.376357], [30.966583, -24.376393], [30.966495, -24.37645], [30.966413, -24.376506], [30.966336, -24.376568], [30.966269, -24.376646], [30.966212, -24.376733], [30.966165, -24.376817], [30.966151, -24.376899], [30.96617, -24.376993], [30.966166, -24.37709], [30.966147, -24.377142], [30.966082, -24.377225], [30.965996, -24.377268], [30.965914, -24.377304], [30.96583, -24.377339], [30.965741, -24.377372], [30.965651, -24.377416], [30.965562, -24.377465], [30.965471, -24.377509], [30.965378, -24.377546], [30.965291, -24.377576], [30.965213, -24.377594], [30.965163, -24.377627], [30.965139, -24.377696], [30.965123, -24.377784], [30.965092, -24.377872], [30.965027, -24.377953], [30.964952, -24.378028], [30.964876, -24.378106], [30.964837, -24.378147], [30.964798, -24.378191], [30.96476, -24.378233], [30.964679, -24.378313], [30.96459, -24.378378], [30.964503, -24.378428], [30.964413, -24.378472], [30.964325, -24.378498], [30.964238, -24.378509], [30.964159, -24.378493], [30.964082, -24.378493], [30.963994, -24.378525], [30.9639, -24.378578], [30.963818, -24.378646], [30.963741, -24.37871], [30.963651, -24.378751], [30.963552, -24.378787], [30.963453, -24.378836], [30.963356, -24.37889], [30.963268, -24.378953], [30.963196, -24.379032], [30.963146, -24.379124], [30.963089, -24.379212], [30.963006, -24.379262], [30.962926, -24.379253], [30.962843, -24.379198], [30.962752, -24.37914], [30.962656, -24.37909], [30.962561, -24.379088], [30.962483, -24.379126], [30.962408, -24.379188], [30.962328, -24.379237], [30.96226, -24.37927], [30.962224, -24.379329], [30.962205, -24.3794], [30.962188, -24.379464], [30.962165, -24.379534], [30.962158, -24.379613], [30.962163, -24.379681], [30.962153, -24.379836]];
-function tfIntro(force){if(!force&&(LS.get('tfIntro1',false)||!tfMe()))return;LS.set('tfIntro1',true);try{closeSheet()}catch(e){}
+function tfIntro(force){return;if(!force&&(LS.get('tfIntro1',false)||!tfMe()))return;LS.set('tfIntro1',true);try{closeSheet()}catch(e){}
   const ex=TF_EX,nm=tfName(ex);let A=null;try{const st=ex[0];const cand=nodes.map((n,k)=>[k,dist(n,st)]).filter(q=>q[1]>220&&q[1]<420&&compOf[q[0]]===MAINC).sort((a,b)=>a[1]-b[1]);for(const [k] of cand.slice(0,25)){const r=route(nodes[k],st);if(r&&r.pts&&r.pts.length>1&&r.len<700){A=r.pts.map(p=>[p[0],p[1]]);break}}}catch(e){}
   if(!A)A=[[ex[0][0]+.0018,ex[0][1]+.0012],ex[0]];
   const all=A.concat(ex);let b=[180,90,-180,-90];all.forEach(c=>{b=[Math.min(b[0],c[0]),Math.min(b[1],c[1]),Math.max(b[2],c[0]),Math.max(b[3],c[1])]});
@@ -3135,12 +3140,12 @@ function tfMusic(i){const a=tfMusic.el||(tfMusic.el=new Audio());a.setAttribute(
 /* admins get the next two tracks ready in the background, so the film has music even with no signal */
 setTimeout(()=>{if(!tfMe()||!navigator.onLine)return;const n=LS.get('tfTrack',-1);[1,2].forEach((d,k)=>setTimeout(()=>tfMp3((n+d)%TF_TRACKS).catch(()=>{}),k*4000))},30000);
 /* the poster: the film never starts on its own, one tap on Play starts picture and sound together */
-function tfPoster(){if(LS.get('tfFilm3',false)||!tfMe())return;LS.set('tfFilm3',true);tfFilm(true,true)}
+function tfPoster(){return;if(LS.get('tfFilm3',false)||!tfMe())return;LS.set('tfFilm3',true);tfFilm(true,true)}
 /* ============ the cinematic version: the film plays on the real map ============
    Title card, camera flies in, chase cam behind your own car, the pink trail glows as it leaves the road,
    the camera lifts to show the whole track, the roads it joins light up, the name types itself,
    Add to map is tapped and the line turns into a real road with its name on it. */
-function tfFilm(force,wait,road,after,Q){if(!road&&!force&&(LS.get('tfFilm2',false)||!tfMe()))return;if(!road)LS.set('tfFilm2',true);LS.set('tfIntro1',true);
+function tfFilm(force,wait,road,after,Q){if(after)setTimeout(after,0);return;if(!road&&!force&&(LS.get('tfFilm2',false)||!tfMe()))return;if(!road)LS.set('tfFilm2',true);LS.set('tfIntro1',true);
   if(!mapReady||!map.getSource('roads')){tfIntro(true);return}try{closeSheet()}catch(e){}
   const ex=road?road.coords.map(c=>[c[0],c[1]]):TF_EX,nm=road?road.name:tfName(ex),LEN=road?(road.len||tfLen(ex)):990,WHO=road?String(road.found_by||'an admin').split(' ')[0]:'Michael',BY=road?String(road.added_by||'an admin').split(' ')[0]:'',endA=tfEndRoad(ex[0]),endB=tfEndRoad(ex[ex.length-1]);
   let A=null;try{const st=ex[0];const cand=nodes.map((n,k)=>[k,dist(n,st)]).filter(q=>q[1]>260&&q[1]<520&&compOf[q[0]]===MAINC).sort((a,b)=>a[1]-b[1]);for(const [k] of cand.slice(0,30)){const r=route(nodes[k],st);if(r&&r.pts&&r.pts.length>1&&r.len<800){A=r.pts.map(p=>[p[0],p[1]]);break}}}catch(e){}
@@ -3237,10 +3242,12 @@ function tfFilm(force,wait,road,after,Q){if(!road&&!force&&(LS.get('tfFilm2',fal
     el.addEventListener('click',go);cd=setInterval(()=>{if(!el.isConnected){clearInterval(cd);return}left--;const c=$('tfCount');if(c)c.textContent=T('Starts by itself in')+' '+left;if(left<=0)go()},1000);return}
   reset();raf=requestAnimationFrame(tick);music(0)}
 /* suggested names: Hyena Link (same road out and back), Hyena-Leopard Link (one road to another), Hyena Spur (goes in and stops) */
-const rdShort=n=>String(n||'').replace(/\s+(Road|Rd|Track|Drive|Loop|Way|Lane|Avenue|Street)$/i,'').trim();
+const rdShort=n=>{let x=String(n||'').trim().replace(/\s+\d+$/,'');for(let i=0;i<3;i++)x=x.replace(/\s+(Road|Rd|Track|Drive|Loop|Way|Lane|Avenue|Street|Link|Spur)$/i,'').trim();return x};
+/* a road name never has the same word twice in a row (no 'Waterbuck Link Link') */
+const nameClean=n=>String(n||'').replace(/\s+/g,' ').trim().replace(/\b(\w+)(\s+\1\b)+/gi,'$1');
 function tfEndRoad(ll){const e=nearestEdge(ll,45);return e?ROADS[e.e.road].properties.name:null}
 function tfName(pts){const a=tfEndRoad([pts[0][0],pts[0][1]]),b=tfEndRoad([pts[pts.length-1][0],pts[pts.length-1][1]]);
-  let base=a&&b?(a===b?rdShort(a)+' Link':rdShort(a)+'-'+rdShort(b)+' Link'):a||b?rdShort(a||b)+' Spur':T('New Track');
+  let base=nameClean(a&&b?(rdShort(a)===rdShort(b)?rdShort(a)+' Link':rdShort(a)+'-'+rdShort(b)+' Link'):a||b?rdShort(a||b)+' Spur':T('New Track'));
   const taken=new Set(ROADS.map(f=>String(f.properties.name).toLowerCase()));if(!taken.has(base.toLowerCase()))return base;let n=2;while(taken.has((base+' '+n).toLowerCase()))n++;return base+' '+n}
 /* the GPS line is tidied before it goes on the map: wobble smoothed out, then thinned */
 function tfSmooth(pts){let P=pts.map(p=>[p[0],p[1]]);if(P.length>4)P=P.map((p,i)=>i===0||i===P.length-1?p:[(P[i-1][0]+p[0]+P[i+1][0])/3,(P[i-1][1]+p[1]+P[i+1][1])/3]);
@@ -3250,11 +3257,11 @@ const tfLen=c=>{let L=0;for(let i=1;i<c.length;i++)L+=dist(c[i-1],c[i]);return M
 async function tfSheet(all){openSheet(`<h2>${T('New tracks found')}</h2><div class="sub">${T('Loading...')}</div>`);await tfLoad(all);const L=TF.list;const nw=L.filter(x=>x.status==='new');
   const row=x=>`<div class="it tfr"><div style="flex:1;min-width:0"><b>${esc(tfName(x.pts))}</b><br><small>${fmtD(x.len)} · ${esc(x.name||'Admin')} · ${esc(ago(Date.parse(x.created_at)))}${x.status!=='new'?' · '+T(x.status==='added'?'added':x.status==='sent'?'sent':'ignored'):''}</small></div><button class="sm" data-tfs="${esc(x.id)}">${T('Show')}</button>${x.status==='new'?`<button class="sm tfadd" data-tfa="${esc(x.id)}">${T('Add')}</button><button class="sm" data-tfi="${esc(x.id)}" aria-label="${T('Ignore')}">✕</button>`:''}</div>`;
   openSheet(`<h2>${T('New tracks found')}</h2><div class="sub" style="line-height:1.45">${T('Stretches admins drove where there is no road on the map. Check one with Show, then Add puts it on everyone\'s map.')}</div>
-   <div class="row" style="margin-top:12px"><button class="btn" id="tfHow">${LI('play',17)} ${T('How it works')}</button><button class="btn" id="tfRoads">${LI('route',17)} ${T('Discovered roads')}${DROADS.length?' ('+DROADS.length+')':''}</button></div>
+   <div class="row" style="margin-top:12px"><button class="btn" id="tfRoads">${LI('route',17)} ${T('Discovered roads')}${DROADS.length?' ('+DROADS.length+')':''}</button></div>
    ${L.length?`${L.length>1?`<button class="btn" id="tfAll" style="width:100%;margin-top:8px">${LI('map',17)} ${T('Show all on the map')}</button>`:''}${TF.shown?`<button class="btn" id="tfHide" style="width:100%;margin-top:8px">${T('Hide them from the map')}</button>`:''}
    <div class="list sgroup" style="margin-top:12px">${L.map(row).join('')}</div>${Cloud.member.locked?`<button class="uwl" id="tfShare" style="display:block;margin:10px auto 0">${T('Share them as a file')}</button>`:''}`:`<div class="sub" style="margin-top:16px">${T('Nothing new. Tracks show up here after admins drive somewhere that is not on the map.')}</div>`}
    <button class="uwl" id="tfOld" style="display:block;margin:12px auto 0">${all?T('Show only new ones'):T('Show added and ignored ones too')}</button>`,()=>{
-    $('tfHow').onclick=()=>tfFilm(true);$('tfRoads').onclick=()=>droadsSheet();
+    $('tfRoads').onclick=()=>droadsSheet();
     if($('tfAll'))$('tfAll').onclick=()=>tfShow(L);if($('tfHide'))$('tfHide').onclick=()=>{tfShow([]);tfSheet(all)};$('tfOld').onclick=()=>tfSheet(!all);
     document.querySelectorAll('[data-tfs]').forEach(b=>b.onclick=()=>tfShow(L.filter(x=>x.id===b.dataset.tfs)));
     document.querySelectorAll('[data-tfa]').forEach(b=>b.onclick=()=>{const x=L.find(q=>q.id===b.dataset.tfa);if(x)tfAddSheet(x,all)});
@@ -3272,7 +3279,7 @@ function tfAddSheet(x,all){const nm=tfName(x.pts),c=tfSmooth(x.pts);
    <div class="row" style="margin-top:14px"><button class="btn" id="taShow">${LI('map',17)} ${T('Show')}</button><button class="btn pri" id="taGo">${T('Add to map')}</button></div>`,()=>{
     $('taBack').onclick=()=>tfSheet(all);let isTrack=false;
     document.querySelectorAll('#taKind button').forEach(b=>b.onclick=()=>{isTrack=b.dataset.k==='1';document.querySelectorAll('#taKind button').forEach(q=>q.classList.toggle('sel',q===b));$('taKindTx').textContent=isTrack?T('A small bush track. Drawn thin and grey like the other tracks.'):T('A proper road. Drawn wide and white like the other main roads.')});$('taShow').onclick=()=>tfShow([{id:x.id,pts:c}]);
-    $('taGo').onclick=async()=>{const n=$('taName').value.trim();if(n.length<2){toast(T('Give the road a name'));return}if(!navigator.onLine){toast(T('You need signal to do this'));return}$('taGo').disabled=true;
+    $('taGo').onclick=async()=>{const n=nameClean($('taName').value);if(n.length<2){toast(T('Give the road a name'));return}if(!navigator.onLine){toast(T('You need signal to do this'));return}$('taGo').disabled=true;
       try{const r=await rpc('add_discovered_road',{p_id:'dr-'+x.id.slice(-20)+'-'+Date.now().toString(36),p_find:x.id,p_name:n,p_coords:c,p_len:tfLen(c),p_track:isTrack});
         const rd={id:null,name:(r&&r.name)||n,track:isTrack,coords:c,len:tfLen(c),found_by:x.name,added_by:Cloud.member&&Cloud.member.name};
         try{closeSheet();tfFilm(true,false,rd,()=>droadsReload(300))}catch(e){droadsReload(1800)}droadsSync(true).then(()=>{const L=DROADS_NEW||[];const mine=L.find(q=>q.name===rd.name);if(mine)seenRoadFilms([mine.id])})}
@@ -3285,7 +3292,7 @@ function roadFilmCheck(L){if(!tfMe()||!Array.isArray(L))return;if(!LS.get('roadF
   const seen=new Set(LS.get('roadFilms',[])),me_=Cloud.member&&Cloud.member.name;const fresh=L.filter(r=>!seen.has(r.id)&&r.added_by!==me_);if(!fresh.length)return;seenRoadFilms(fresh.map(r=>r.id));
   const list=fresh.slice().sort((a,b)=>Date.parse(a.created_at)-Date.parse(b.created_at));let i=0;
   const playNext=first=>{if(i>=list.length)return;const r=list[i++];const Q={i,n:list.length,next:null};Q.next=()=>playNext(false);tfFilm(true,first,r,null,Q)};
-  const play=()=>{if(nav||(speedS||0)>2||setupOn()||$('sheet').classList.contains('open')||document.getElementById('tfFilm')){setTimeout(play,20000);return}playNext(true)};play()}
+  const names=list.map(r=>r.name);toast((names.length===1?T('New road on the map')+': ':T('New roads on the map')+': ')+names.slice(0,3).join(', ')+(names.length>3?' +'+(names.length-3):''),5000)}
 async function droadsSync(force){if(!Cloud.member||!navigator.onLine)return false;try{const L=await rpc('list_discovered_roads');if(!Array.isArray(L))return false;DROADS_NEW=L;try{roadFilmCheck(L)}catch(e){}
   const sig=L.map(r=>r.id+':'+r.name+':'+(r.track?1:0)).join('|'),old=LS.get('droadsSig','');try{localStorage.setItem('kn_droads',JSON.stringify(L.map(r=>({id:r.id,name:r.name,track:!!r.track,coords:r.coords,len:r.len,found_by:r.found_by,added_by:r.added_by,created_at:r.created_at}))))}catch(e){}
   if(sig!==old){LS.set('droadsSig',sig);droadsSync.changed=true}return sig!==old}catch(e){return false}}
@@ -3300,7 +3307,7 @@ function droadsSheet(){const L=DROADS.slice().reverse();const adm=tfMe();
     document.querySelectorAll('[data-dre]').forEach(b=>b.onclick=()=>{const r=DROADS.find(q=>q.id===b.dataset.dre);if(!r)return;
       openSheet(`<div class="cmh"><button class="sm" id="deBack">‹ ${T('Back')}</button><b>${esc(r.name)}</b><span style="width:60px"></span></div><div class="msec" style="margin-top:12px">${T('Road name')}</div><input class="inp" id="deName" maxlength="40" value="${esc(r.name)}"><div class="msec" style="margin-top:14px">${T('What is it?')}</div><div class="seg" id="deKind"><button data-k="0" class="${r.track?'':'sel'}">${T('Main road')}</button><button data-k="1" class="${r.track?'sel':''}">${T('Track')}</button></div><button class="btn pri" id="deSave" style="width:100%;margin-top:12px">${T('Save')}</button><button class="btn red" id="deDel" style="width:100%;margin-top:8px">${T('Remove from the map')}</button>`,()=>{
         $('deBack').onclick=()=>droadsSheet();let deTrack=!!r.track;document.querySelectorAll('#deKind button').forEach(b=>b.onclick=()=>{deTrack=b.dataset.k==='1';document.querySelectorAll('#deKind button').forEach(q=>q.classList.toggle('sel',q===b))});
-        $('deSave').onclick=async()=>{try{await rpc('edit_discovered_road',{p_id:r.id,p_name:$('deName').value,p_remove:false,p_track:deTrack});await droadsSync(true);toast(T('Saved. The map refreshes to show it.'));droadsReload(1500)}catch(e){toast(errTxt(e).replace(/^Database said: /,''),4000)}};
+        $('deSave').onclick=async()=>{try{await rpc('edit_discovered_road',{p_id:r.id,p_name:nameClean($('deName').value),p_remove:false,p_track:deTrack});await droadsSync(true);toast(T('Saved. The map refreshes to show it.'));droadsReload(1500)}catch(e){toast(errTxt(e).replace(/^Database said: /,''),4000)}};
         $('deDel').onclick=async()=>{try{await rpc('edit_discovered_road',{p_id:r.id,p_name:null,p_remove:true});await droadsSync(true);toast(T('Removed. The map refreshes.'));droadsReload(1500)}catch(e){toast(errTxt(e),4000)}}})})})}
 function handlePos(raw,acc,heading,speed,t){if(lastPos&&t&&t<lastPos.t)return;if((speed||0)>1.5)lastMoveT=Date.now();
   const ll=[raw[0]+calib[0],raw[1]+calib[1]];try{tfFix(ll,acc,speed,t)}catch(e){}
