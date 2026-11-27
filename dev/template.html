@@ -1025,9 +1025,9 @@ body.tfback #storyQ,body.tfback #homeNag{opacity:0!important;pointer-events:none
 .rchs{display:flex;flex-direction:column;gap:8px}
 .rch{display:flex;align-items:center;gap:12px;width:100%;padding:12px 14px;border:0;border-radius:16px;background:rgba(127,127,127,.07);box-shadow:inset 0 0 0 1px var(--hair);text-align:left;font:inherit;color:inherit}
 .rch b{display:block;font-size:17px;letter-spacing:-.2px}.rch b em{font-style:normal;font-size:11.5px;font-weight:800;color:#2f7a4f;background:rgba(47,122,79,.12);padding:2px 8px;border-radius:999px;margin-left:6px;vertical-align:2px}
-.rch small{color:var(--sub)}.rch .rcl{flex:none;width:6px;align-self:stretch;border-radius:3px;background:#aebdd2}
+.rch small{color:var(--sub)}.rch .rcl{flex:none;width:6px;align-self:stretch;border-radius:3px;background:#8ab4ff}
 .rch.sel{background:rgba(66,133,244,.10);box-shadow:inset 0 0 0 2px #4285f4}.rch.sel .rcl{background:#4285f4}.rch>svg{color:#4285f4;flex:none}
-.rtag{border:0;padding:5px 10px;border-radius:10px;background:#fff;color:#333;font:800 13px system-ui,-apple-system,sans-serif;box-shadow:0 2px 8px rgba(0,0,0,.3);position:relative;margin-bottom:6px}
+.rtag{border:0;padding:5px 10px;border-radius:10px;background:#fff;color:#333;font:800 13px system-ui,-apple-system,sans-serif;box-shadow:0 2px 8px rgba(0,0,0,.3);margin-bottom:6px}
 .rtag::after{content:"";position:absolute;left:50%;bottom:-5px;margin-left:-5px;border:5px solid transparent;border-bottom:0;border-top-color:#fff}
 .rtag.nalt{opacity:.92;font-size:12.5px}.rtag.nalt.fast{background:#2f7a4f;color:#fff}.rtag.nalt.fast::after{border-top-color:#2f7a4f}
 .rtag.sel{background:#4285f4;color:#fff;z-index:3}.rtag.sel::after{border-top-color:#4285f4}
@@ -1950,8 +1950,8 @@ function style(){return{version:8,glyphs:'local://{fontstack}/{range}',
   {id:'farm-lbl',type:'symbol',source:'farms',filter:['all',['==',['get','kind'],'farm'],['!=',['get','name'],'Leadwood (restricted)']],layout:{visibility:'none','symbol-placement':'line','text-field':['upcase',['get','name']],'text-font':['Sans Bold'],'text-size':11,'text-letter-spacing':.25,'symbol-spacing':400,'text-offset':[0,-1],'text-max-angle':50},paint:{'text-color':'#6a1b9a','text-halo-color':'#fff','text-halo-width':2}},
   {id:'zone-lbl',type:'symbol',source:'farms',filter:['==',['get','kind'],'zone'],maxzoom:14.5,layout:{visibility:'none','text-field':['get','name'],'text-font':['Sans Regular'],'text-size':10.5,'text-allow-overlap':false,'text-optional':true},paint:{'text-color':'#7b1fa2','text-halo-color':'rgba(255,255,255,.85)','text-halo-width':1.4,'text-opacity':.6}},
   {id:'tracks',type:'line',source:'tracks',layout:{'line-cap':'round','line-join':'round'},paint:{'line-opacity':['coalesce',['get','op'],1],'line-color':['coalesce',['get','col'],'#8e24aa'],'line-width':['interpolate',['linear'],['zoom'],12,1.5,17,5],'line-dasharray':[1.5,1]}},
-  {id:'route-alt-case',type:'line',source:'route-alt',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#5b6b80','line-opacity':.85,'line-width':['interpolate',['linear'],['zoom'],12,6,17,15,19,22]}},
-  {id:'route-alt',type:'line',source:'route-alt',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#aebdd2','line-opacity':.95,'line-width':['interpolate',['linear'],['zoom'],12,3,17,9,19,14]}},
+  {id:'route-alt-case',type:'line',source:'route-alt',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#173a75','line-opacity':.9,'line-width':['interpolate',['linear'],['zoom'],12,8,17,18,19,26]}},
+  {id:'route-alt',type:'line',source:'route-alt',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#8ab4ff','line-opacity':1,'line-width':['interpolate',['linear'],['zoom'],12,5,17,12,19,18]}},
   {id:'route-glow',type:'line',source:'route',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#1a73e8','line-opacity':.22,'line-blur':['interpolate',['linear'],['zoom'],12,4,17,12],'line-width':['interpolate',['linear'],['zoom'],12,16,17,40,19,56]}},
   {id:'route-halo',type:'line',source:'route',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'rgba(8,22,48,.55)','line-width':['interpolate',['linear'],['zoom'],12,8,17,21,19,30]}},
   {id:'route-case',type:'line',source:'route',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#1557b0','line-width':['interpolate',['linear'],['zoom'],12,6,17,19,19,28]}},
@@ -4969,11 +4969,11 @@ function navAlts(force){if(!nav||!me||(nav.stops&&nav.stops.length)||nav.uturn){
   let L=[];try{const best=route(me.ll,nav.ll);if(best)L=[best,...altRoutes(me.ll,nav.ll,best)]}catch(e){}
   const curT=rTime(nav.r)*(nav.left!=null?nav.left:nav.r.len)/Math.max(1,nav.r.len);
   const cur={pts:nav.segs.map(g=>g.a).concat([nav.segs[nav.segs.length-1].b])};L=L.filter(q=>{q._tag=routeTag(q,[cur]);return projectOnRoute(nav.segs,q._tag).d>30}).slice(0,2);
-  NALT.list=L;try{map.getSource('route-alt').setData({type:'FeatureCollection',features:L.map((q,i)=>({type:'Feature',properties:{i},geometry:{type:'LineString',coordinates:q.pts}}))});map.setPaintProperty('route-alt','line-opacity',.5);map.setPaintProperty('route-alt-case','line-opacity',.35)}catch(e){}
+  NALT.list=L;try{map.getSource('route-alt').setData({type:'FeatureCollection',features:L.map((q,i)=>({type:'Feature',properties:{i},geometry:{type:'LineString',coordinates:q.pts}}))});map.setPaintProperty('route-alt','line-opacity',.6);map.setPaintProperty('route-alt-case','line-opacity',.45)}catch(e){}
   NAM.forEach(m=>m.remove());NAM=[];L.forEach((q,i)=>{const dm=Math.round((rTime(q)-curT)/60);const el=document.createElement('button');el.className='rtag nalt'+(dm<0?' fast':'');
     el.innerHTML='<b>'+(dm>0?dm+' '+T('min longer'):dm<0?(-dm)+' '+T('min faster'):T('Same time'))+'</b>';el.onclick=ev=>{ev.stopPropagation();navAltUse(q)};
     NAM.push(new maplibregl.Marker({element:el,anchor:'bottom'}).setLngLat(q._tag).addTo(map))})}
-setInterval(()=>{if(nav)navAlts(false);else if(NAM.length||NALT.list.length){navAltClear();try{map.setPaintProperty('route-alt','line-opacity',.95);map.setPaintProperty('route-alt-case','line-opacity',.85)}catch(e){}}},1000);
+setInterval(()=>{if(nav)navAlts(false);else if(NAM.length||NALT.list.length){navAltClear();try{map.setPaintProperty('route-alt','line-opacity',1);map.setPaintProperty('route-alt-case','line-opacity',.9)}catch(e){}}},1000);
 map.on('click',e=>{if(!nav||!NALT.list.length||!map.getLayer('route-alt'))return;const p=e.point,f=map.queryRenderedFeatures([[p.x-14,p.y-14],[p.x+14,p.y+14]],{layers:['route-alt']})[0];if(f&&NALT.list[+f.properties.i])navAltUse(NALT.list[+f.properties.i])});
 /* places get a bigger tap target: anything within ~30 px of the icon opens it, nearest first */
 function poiNear(pt,r){r=r||30;const L=map.getLayer('poi')?map.queryRenderedFeatures([[pt.x-r,pt.y-r],[pt.x+r,pt.y+r]],{layers:['poi']}):[];let best=null,bd=1e9;
