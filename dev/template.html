@@ -1029,6 +1029,7 @@ body.tfback #storyQ,body.tfback #homeNag{opacity:0!important;pointer-events:none
 .rch.sel{background:rgba(66,133,244,.10);box-shadow:inset 0 0 0 2px #4285f4}.rch.sel .rcl{background:#4285f4}.rch>svg{color:#4285f4;flex:none}
 .rtag{border:0;padding:5px 10px;border-radius:10px;background:#fff;color:#333;font:800 13px system-ui,-apple-system,sans-serif;box-shadow:0 2px 8px rgba(0,0,0,.3);position:relative;margin-bottom:6px}
 .rtag::after{content:"";position:absolute;left:50%;bottom:-5px;margin-left:-5px;border:5px solid transparent;border-bottom:0;border-top-color:#fff}
+.rtag.nalt{opacity:.92;font-size:12.5px}.rtag.nalt.fast{background:#2f7a4f;color:#fff}.rtag.nalt.fast::after{border-top-color:#2f7a4f}
 .rtag.sel{background:#4285f4;color:#fff;z-index:3}.rtag.sel::after{border-top-color:#4285f4}
 #coolCard{position:fixed;left:12px;right:12px;top:calc(var(--safe-t,0px) + 118px);z-index:40;display:flex;gap:12px;align-items:flex-start;padding:14px;border-radius:18px;background:rgba(18,30,22,.94);border:1px solid rgba(233,196,106,.35);color:#f3efe4;box-shadow:0 10px 30px rgba(0,0,0,.4);transform:translateY(-16px);opacity:0;pointer-events:none;transition:.3s;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
 #coolCard.on{transform:none;opacity:1;pointer-events:auto}#coolCard .cci{width:42px;height:42px;border-radius:13px;flex:none;display:grid;place-items:center;background:linear-gradient(150deg,#ffb38a,#e5533d);color:#fff}
@@ -1806,7 +1807,7 @@ function route(from,to){if(!CHECKR.size)ROADS.forEach((f,i)=>{if(f.properties.ch
   const pop=()=>{const top=heap[0],last=heap.pop();if(heap.length){heap[0]=last;let i=0;for(;;){const l=2*i+1,r=l+1;let m=i;if(l<heap.length&&heap[l][0]<heap[m][0])m=l;if(r<heap.length&&heap[r][0]<heap[m][0])m=r;if(m===i)break;[heap[m],heap[i]]=[heap[i],heap[m]];i=m}}return top};
   while(heap.length){const [d,u]=pop();if(done[u])continue;done[u]=1;if(u===T)break;
     const lst=(u<N?adj[u]:[]).concat(ex[u]||[]);
-    for(const {to,w,road} of lst){const nd=d+((blockedNodes.has(u)||blockedNodes.has(to)||CLOSEDR.has(road)||(AVOIDCHK&&CHECKR.has(road)))?w+50000:w)+rpPen(u,to,road,w);if(nd<D[to]){D[to]=nd;P[to]=u;PR[to]=road;push([nd,to])}}}
+    for(const {to,w,road} of lst){const wt=TRACKR.has(road)?w*trkF():w;const nd=d+((blockedNodes.has(u)||blockedNodes.has(to)||CLOSEDR.has(road)||(AVOIDCHK&&CHECKR.has(road)))?wt+50000:wt)+rpPen(u,to,road,w);if(nd<D[to]){D[to]=nd;P[to]=u;PR[to]=road;push([nd,to])}}}
   if(D[T]===Infinity)return null;
   const pts=[],rds=[];let u=T;while(u!==-1){pts.push(pos(u));rds.push(PR[u]);u=P[u]}
   pts.reverse();rds.reverse();// rds[i] = road used to arrive at pts[i]
@@ -4049,7 +4050,7 @@ function showPlace(x){
   if(isPoi){const ic={water:'drop',hide:'binoc',picnic:'picnic',view:'eye',gate:'gate',lodge:'home'}[x.kind]||'pin';const sl=me?dist(me.ll,ll):null;const note=(POIS_BY_NAME[x.name]||{}).note||'';const sub=String(x.sub||'').replace(PKIND[x.kind],'').replace(/^[\s·]+|[\s·]+$/g,'');
     openSheet(`<div id="plHero" class="plh k-${esc(x.kind)}"><div class="plart">${LI(ic,64)}</div><img alt=""><span class="plk">${LI(ic,15)}${esc(T(PKIND[x.kind]||'Place'))}</span><span class="plc"></span></div>
      <h2 class="plt">${esc(x.name)}</h2>${note||sub?`<div class="pln">${esc(note||sub)}</div>`:''}
-     ${me?`<div class="rpm plm">${r?`<div><b class="g">${fmtT(r.len/(ETAK/3.6))}</b><small>${T('Drive')}</small></div><div><b>${fmtD(r.len)}</b><small>${T('By road')}</small></div>`:''}<div><b>${fmtD(sl)}</b><small>${T('Straight line')}</small></div></div>`:`<div class="pln">${T('Distances show once GPS finds you.')}</div>`}
+     ${me?`<div class="rpm plm">${r?`<div><b class="g">${fmtT(rTime(r))}</b><small>${T('Drive')}</small></div><div><b>${fmtD(r.len)}</b><small>${T('By road')}</small></div>`:''}<div><b>${fmtD(sl)}</b><small>${T('Straight line')}</small></div></div>`:`<div class="pln">${T('Distances show once GPS finds you.')}</div>`}
      <div class="pla"><button class="btn pri" id="goBtn"><svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M12 2l8 20-8-5-8 5z"/></svg>${T('Go')}</button><button class="plb${isFav(x)?' on':''}" id="plSave">${LI('star',20)}<small>${isFav(x)?T('Saved'):T('Save')}</small></button>${isAdm()?`<button class="plb" id="plEdit">${LI('gear',20)}<small>${T('Edit')}</small></button>`:''}</div>
      <div class="plcard" id="ppBox"><div class="msec">Photos</div><div class="sub">Loading...</div></div><div id="plIns"></div>`,()=>{
       $('goBtn').onclick=()=>{closeSheet();startNav(x)};placePhotos(x);placeInsights(x);
@@ -4080,13 +4081,13 @@ function routePreview(x){
   const b=buildSteps(r);rpOn=x;
   map.getSource('route').setData({type:'Feature',geometry:{type:'LineString',coordinates:r.pts},properties:{}});
   setFollow(0);try{map.setPadding({top:0,bottom:0,left:0,right:0})}catch(e){}
-  const v=ETAK/3.6,eta=new Date(Date.now()+r.len/v*1000),turns=b.steps.filter(s=>s.type!=='depart'&&s.icon&&s.icon!=='straight').length;
+  const v=ETAK/3.6,eta=new Date(Date.now()+rTime(r)*1000),turns=b.steps.filter(s=>s.type!=='depart'&&s.icon&&s.icon!=='straight').length;
   const roads=[];b.steps.forEach(s=>{if(s.road&&roads[roads.length-1]!==s.road)roads.push(s.road)});
   const warn=allReports().filter(rp=>projectOnRoute(b.segs,rp.ll).d<45);
   const along=allSights().filter(s=>projectOnRoute(b.segs,s.ll).d<160&&dist(s.ll,target)>60).slice(0,4);
   const icon=x.kind==='sight'?AN(x.name,46):`<span class="rpi">${LI(x.kind==='home'?'home':x.kind==='report'?'alert':x.kind==='gate'?'gate':'pin',24)}</span>`;
   openSheet(`<div class="rph">${icon}<div style="min-width:0"><small>Route to</small><b>${esc(x.name)}</b></div></div>${rpDirs(x)}
-   <div class="rpm"><div><b class="g">${fmtT(r.len/v)}</b><small>Drive</small></div><div><b>${fmtD(r.len)}</b><small>Distance</small></div><div><b>${eta.toTimeString().slice(0,5)}</b><small>Arrive</small></div><div><b>${turns}</b><small>${turns===1?'Turn':'Turns'}</small></div></div>
+   <div class="rpm"><div><b class="g">${fmtT(rTime(r))}</b><small>Drive</small></div><div><b>${fmtD(r.len)}</b><small>Distance</small></div><div><b>${eta.toTimeString().slice(0,5)}</b><small>Arrive</small></div><div><b>${turns}</b><small>${turns===1?'Turn':'Turns'}</small></div></div>
    <div class="rpv">${LI('route',17)}<span>${roads.slice(0,4).map(esc).join(' <i>›</i> ')}${roads.length>4?' <i>›</i> …':''}</span></div>
    ${warn.length?`<div class="rpw">${LI('alert',18)}<div><b>${warn.length===1?'Road report on this route':warn.length+' road reports on this route'}</b><small>${warn.map(w=>esc(w.kind)+(w.road?' on '+esc(w.road):'')+' · '+ago(w.t)).join('<br>')}</small></div></div>`:''}
    ${along.length?`<div class="msec" style="margin-top:14px">Seen along the way</div><div class="tsum">${along.map(s=>`<span class="tsc">${AN(s.what,22)}<b>${esc(s.what)}</b> ${ago(s.t)}</span>`).join('')}</div>`:''}
@@ -4168,9 +4169,9 @@ function navTick(){
   }
   if(i>=0)speakStep(i,dd,txt);
   if(!PV.on&&!nav.uturn){const J=nav.juncs||[];const ji=J.findIndex(q=>q.at>along+3);if(ji>=0)showJx(J[ji],J[ji].at-along,ji);else showJx(null)}
-  const v=etaV();
-  const eta=new Date(Date.now()+left/v*1000);
-  $('navEta').textContent=fmtT(left/v);
+  const v=etaV(),lt=rTime(nav.r)*left/Math.max(1,nav.r.len);nav.left=left;
+  const eta=new Date(Date.now()+lt*1000);
+  $('navEta').textContent=fmtT(lt);
   $('navMeta').textContent=fmtD(left)+' · arrive '+eta.toTimeString().slice(0,5);try{$('navProg').style.width=Math.max(2,Math.min(100,100-left/Math.max(1,nav.r.len)*100))+'%'}catch(e){}
   navExtras(along,i,dd);
 }
@@ -4267,6 +4268,10 @@ setInterval(()=>{if(!me)return;const t=Date.now(),k=(me.speed||0)*3.6;SPDH.push(
   if(SPDH.length<20||t-SPDH[0][0]<38000)return;const avg=SPDH.reduce((a,q)=>a+q[1],0)/SPDH.length;
   if(SPDH.every(q=>q[1]>23))ETAK=Math.min(60,avg);else if(avg<ETAK)ETAK=Math.max(23,avg)},1000);
 const etaV=()=>ETAK/3.6;
+/* tracks are slow (low branches, sharp turns, rough surface): they count as 10 km/h, main roads as 23 km/h or your held speed */
+const TRK_KMH=10,trkF=()=>Math.max(23,ETAK)/TRK_KMH;
+function trkLen(r){if(r.tlen==null){let t=0;for(let i=1;i<r.pts.length;i++)if(TRACKR.has(r.rds[i-1]))t+=dist(r.pts[i-1],r.pts[i]);r.tlen=Math.min(t,r.len)}return r.tlen}
+function rTime(r){if(!r)return 0;const t=trkLen(r);return (r.len-t)/etaV()+t/(TRK_KMH/3.6)}
 /* up to two other ways that are really different from the fastest one */
 function altRoutes(from,to,main){if(!NODEK){NODEK=new Map();nodes.forEach((n,k)=>NODEK.set(n[0].toFixed(6)+','+n[1].toFixed(6),k))}const out=[],S=new Set();
   const addKeys=r=>{for(let k=1;k<r.pts.length;k++){const a=nk(r.pts[k-1]),c=nk(r.pts[k]);if(a!=null&&c!=null){S.add(a+'_'+c);S.add(c+'_'+a)}}};addKeys(main);
@@ -4283,7 +4288,8 @@ function viaName(r,others){const L={};for(let i=1;i<r.pts.length;i++){const n=RO
 /* a spot on the part of a route that no other route shares, for its time bubble */
 function routeTag(r,others){const K=new Set();others.forEach(q=>q.pts.forEach(p=>K.add(p[0].toFixed(5)+','+p[1].toFixed(5))));
   const U=r.pts.filter(p=>!K.has(p[0].toFixed(5)+','+p[1].toFixed(5)));const P=U.length>1?U:r.pts;return P[Math.floor(P.length/2)]}
-let RPM=[];function rpMarks(list){RPM.forEach(m=>m.remove());RPM=[];(list||[]).forEach(o=>{const el=document.createElement('button');el.className='rtag'+(o.sel?' sel':'');el.innerHTML='<b>'+fmtT(o.r.len/etaV())+'</b>'+(o.best&&!o.sel?'':'');el.onclick=ev=>{ev.stopPropagation();o.pick()};RPM.push(new maplibregl.Marker({element:el,anchor:'bottom'}).setLngLat(o.at).addTo(map))})}
+const RPBEST=()=>RP&&RP.list&&RP.list.length?RP.list.reduce((a,q)=>rTime(q)<rTime(a)?q:a):null;
+let RPM=[];function rpMarks(list){RPM.forEach(m=>m.remove());RPM=[];(list||[]).forEach(o=>{const el=document.createElement('button');el.className='rtag'+(o.sel?' sel':'');el.innerHTML='<b>'+(o.txt||fmtT(rTime(o.r)))+'</b>';if(o.cls)el.classList.add(o.cls);el.onclick=ev=>{ev.stopPropagation();o.pick()};RPM.push(new maplibregl.Marker({element:el,anchor:'bottom'}).setLngLat(o.at).addTo(map))})}
 function altRoute(from,to,main){if(!NODEK)return null;const S=new Set();
   for(let k=1;k<main.pts.length;k++){const a=nk(main.pts[k-1]),c=nk(main.pts[k]);if(a!=null&&c!=null){S.add(a+'_'+c);S.add(c+'_'+a)}}
   ALTPEN=S;let r=null;try{r=route(from,to)}finally{ALTPEN=null}if(!r)return null;
@@ -4404,7 +4410,7 @@ function rpExtras(x,r,b){RP={x,r,b,alt:null};
   const v=ETAK/3.6,turns=b.steps.filter((s,k)=>k>0);
   return `
    <div class="rpo"><button class="chip${AVOIDTRK?' sel':''}" id="rpAvoid">${LI('tyre',15)} ${T('Avoid rough tracks')}</button></div>
-   ${RP.list.length?`<div class="msec" style="margin-top:14px">${RP.list.length} ${T('ways there')}</div><div class="rchs">${RP.list.map((q,i)=>`<button class="rch${i===RP.sel?' sel':''}" data-rch="${i}"><span class="rcl"></span><div style="flex:1;min-width:0"><b>${fmtT(q.len/v)}${i===0?` <em>${T('Fastest')}</em>`:''}</b><small>${fmtD(q.len)} · ${T('via')} ${esc(viaName(q,RP.list.filter((_,j)=>j!==i)))}${i?(()=>{const dm=Math.round(q.len/v/60)-Math.round(RP.list[0].len/v/60);return dm>0?' · +'+dm+' min':' · '+T('same time')})():''}</small></div>${i===RP.sel?LI('check',20):''}</button>`).join('')}</div>`:''}
+   ${RP.list.length?`<div class="msec" style="margin-top:14px">${RP.list.length} ${T('ways there')}</div><div class="rchs">${RP.list.map((q,i)=>`<button class="rch${i===RP.sel?' sel':''}" data-rch="${i}"><span class="rcl"></span><div style="flex:1;min-width:0"><b>${fmtT(rTime(q))}${q===RPBEST()?` <em>${T('Fastest')}</em>`:''}</b><small>${fmtD(q.len)} · ${T('via')} ${esc(viaName(q,RP.list.filter((_,j)=>j!==i)))}${trkLen(q)>50?' · '+fmtD(trkLen(q))+' '+T('of track'):''}${q!==RPBEST()?(()=>{const dm=Math.round(rTime(q)/60)-Math.round(rTime(RPBEST())/60);return dm>0?' · +'+dm+' min':' · '+T('same time')})():''}</small></div>${i===RP.sel?LI('check',20):''}</button>`).join('')}</div>`:''}
    ${turns.length?`<div class="msec" style="margin-top:14px">${T('Flick through the turns')}</div><div class="rpturns" id="rpTurns">${turns.map((s,k)=>`<div class="rpt" data-at="${s.startAt}"><svg viewBox="0 0 24 24"><path d="${ARROWS[s.icon||'straight']}"/></svg><b>${esc(s.road)}</b><small>${k+1}/${turns.length} · ${fmtD(s.startAt)}</small></div>`).join('')}</div>`:''}`}
 function rpBind(x){
   $('rpStop2').onclick=()=>stopPicker(it=>{NAVSTOPS.push(it);RPFORCE=null;routePreview(x)},()=>routePreview(x));
@@ -4900,6 +4906,20 @@ for(const l of ['mate-dot','mate-lbl','mate-arrow'])map.on('click',l,e=>{const i
 map.on('click','trail-line',e=>{const u=e.features[0].properties.uid;const r=LIVE[u]||{user_id:u,name:(TRAILS[u]||{}).n};e.originalEvent&&(e.originalEvent._est=1);mateSheet(r)});
 map.on('click','reports',e=>{const r=allReports().find(x=>x.cid===e.features[0].properties.cid);if(r)showPlace({kind:'report',name:r.kind,sub:'Road report · '+ago(r.t)+' · '+r.by+(r.road?' · '+r.road:'')+confTxt(r)+(r.note?' · '+r.note:''),ll:r.ll,cid:r.cid,mine:r.mine})});
 map.on('click',e=>{if(!rpOn||nav||!RP||!RP.pick||!map.getLayer('route-alt'))return;const p=e.point,f=map.queryRenderedFeatures([[p.x-14,p.y-14],[p.x+14,p.y+14]],{layers:['route-alt']})[0];if(f)RP.pick(+f.properties.i)});
+let NALT={t:0,list:[],key:''},NAM=[];
+function navAltClear(){NAM.forEach(m=>m.remove());NAM=[];NALT.list=[];NALT.key='';if(!rpOn)try{map.getSource('route-alt').setData(empty)}catch(e){}}
+function navAltUse(r){if(!nav)return;const b=buildSteps(r);Object.assign(nav,{r,...b});nav.gatesR=null;try{stripKey=''}catch(e){}toast(T('New route'));NALT.t=0;navTick();navAlts(true)}
+function navAlts(force){if(!nav||!me||(nav.stops&&nav.stops.length)||nav.uturn){if(NALT.list.length||NAM.length)navAltClear();return}
+  const now=Date.now();if(!force&&now-NALT.t<20000)return;NALT.t=now;
+  let L=[];try{const best=route(me.ll,nav.ll);if(best)L=[best,...altRoutes(me.ll,nav.ll,best)]}catch(e){}
+  const curT=rTime(nav.r)*(nav.left!=null?nav.left:nav.r.len)/Math.max(1,nav.r.len);
+  const cur={pts:nav.segs.map(g=>g.a).concat([nav.segs[nav.segs.length-1].b])};L=L.filter(q=>{q._tag=routeTag(q,[cur]);return projectOnRoute(nav.segs,q._tag).d>30}).slice(0,2);
+  NALT.list=L;try{map.getSource('route-alt').setData({type:'FeatureCollection',features:L.map((q,i)=>({type:'Feature',properties:{i},geometry:{type:'LineString',coordinates:q.pts}}))});map.setPaintProperty('route-alt','line-opacity',.5);map.setPaintProperty('route-alt-case','line-opacity',.35)}catch(e){}
+  NAM.forEach(m=>m.remove());NAM=[];L.forEach((q,i)=>{const dm=Math.round((rTime(q)-curT)/60);const el=document.createElement('button');el.className='rtag nalt'+(dm<0?' fast':'');
+    el.innerHTML='<b>'+(dm>0?dm+' '+T('min longer'):dm<0?(-dm)+' '+T('min faster'):T('Same time'))+'</b>';el.onclick=ev=>{ev.stopPropagation();navAltUse(q)};
+    NAM.push(new maplibregl.Marker({element:el,anchor:'bottom'}).setLngLat(q._tag).addTo(map))})}
+setInterval(()=>{if(nav)navAlts(false);else if(NAM.length||NALT.list.length){navAltClear();try{map.setPaintProperty('route-alt','line-opacity',.95);map.setPaintProperty('route-alt-case','line-opacity',.85)}catch(e){}}},1000);
+map.on('click',e=>{if(!nav||!NALT.list.length||!map.getLayer('route-alt'))return;const p=e.point,f=map.queryRenderedFeatures([[p.x-14,p.y-14],[p.x+14,p.y+14]],{layers:['route-alt']})[0];if(f&&NALT.list[+f.properties.i])navAltUse(NALT.list[+f.properties.i])});
 /* places get a bigger tap target: anything within ~30 px of the icon opens it, nearest first */
 function poiNear(pt,r){r=r||30;const L=map.getLayer('poi')?map.queryRenderedFeatures([[pt.x-r,pt.y-r],[pt.x+r,pt.y+r]],{layers:['poi']}):[];let best=null,bd=1e9;
   L.forEach(f=>{if(!f.geometry||f.geometry.type!=='Point')return;const q=map.project(f.geometry.coordinates),d=Math.hypot(q.x-pt.x,q.y-pt.y);if(d<bd){bd=d;best=f}});return best}
