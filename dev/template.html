@@ -1021,6 +1021,15 @@ body.tfback #storyQ,body.tfback #homeNag{opacity:0!important;pointer-events:none
 .plb{flex:none;width:64px;min-height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border:0;border-radius:16px;background:linear-gradient(160deg,#faf6ee,#f2eadc);box-shadow:inset 0 0 0 1px var(--hair);color:#2a5a3f;font:inherit}
 .plb small{font-size:11px;font-weight:700}.plb.on{background:linear-gradient(160deg,#e9c46a,#c99a2e);color:#3a2a08;box-shadow:none}.plb.on svg{fill:currentColor}
 .plcard{margin-top:14px;padding:4px 14px 14px;border-radius:20px;background:rgba(127,127,127,.06);box-shadow:inset 0 0 0 1px var(--hair)}.plcard .msec{margin-top:12px}.plcard .phbtn{margin-top:10px}
+/* route choices */
+.rchs{display:flex;flex-direction:column;gap:8px}
+.rch{display:flex;align-items:center;gap:12px;width:100%;padding:12px 14px;border:0;border-radius:16px;background:rgba(127,127,127,.07);box-shadow:inset 0 0 0 1px var(--hair);text-align:left;font:inherit;color:inherit}
+.rch b{display:block;font-size:17px;letter-spacing:-.2px}.rch b em{font-style:normal;font-size:11.5px;font-weight:800;color:#2f7a4f;background:rgba(47,122,79,.12);padding:2px 8px;border-radius:999px;margin-left:6px;vertical-align:2px}
+.rch small{color:var(--sub)}.rch .rcl{flex:none;width:6px;align-self:stretch;border-radius:3px;background:#aebdd2}
+.rch.sel{background:rgba(66,133,244,.10);box-shadow:inset 0 0 0 2px #4285f4}.rch.sel .rcl{background:#4285f4}.rch>svg{color:#4285f4;flex:none}
+.rtag{border:0;padding:5px 10px;border-radius:10px;background:#fff;color:#333;font:800 13px system-ui,-apple-system,sans-serif;box-shadow:0 2px 8px rgba(0,0,0,.3);position:relative;margin-bottom:6px}
+.rtag::after{content:"";position:absolute;left:50%;bottom:-5px;margin-left:-5px;border:5px solid transparent;border-bottom:0;border-top-color:#fff}
+.rtag.sel{background:#4285f4;color:#fff;z-index:3}.rtag.sel::after{border-top-color:#4285f4}
 #coolCard{position:fixed;left:12px;right:12px;top:calc(var(--safe-t,0px) + 118px);z-index:40;display:flex;gap:12px;align-items:flex-start;padding:14px;border-radius:18px;background:rgba(18,30,22,.94);border:1px solid rgba(233,196,106,.35);color:#f3efe4;box-shadow:0 10px 30px rgba(0,0,0,.4);transform:translateY(-16px);opacity:0;pointer-events:none;transition:.3s;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
 #coolCard.on{transform:none;opacity:1;pointer-events:auto}#coolCard .cci{width:42px;height:42px;border-radius:13px;flex:none;display:grid;place-items:center;background:linear-gradient(150deg,#ffb38a,#e5533d);color:#fff}
 #coolCard .cct{flex:1;min-width:0}#coolCard .cct b{display:block;font-size:15.5px}#coolCard .cct small{display:block;color:#c9d3c6;font-size:13px;line-height:1.4;margin-top:2px}#coolCard ul{margin:6px 0 0;padding-left:18px;font-size:13px;line-height:1.5;color:#ffe29a}
@@ -1921,8 +1930,8 @@ function style(){return{version:8,glyphs:'local://{fontstack}/{range}',
   {id:'farm-lbl',type:'symbol',source:'farms',filter:['all',['==',['get','kind'],'farm'],['!=',['get','name'],'Leadwood (restricted)']],layout:{visibility:'none','symbol-placement':'line','text-field':['upcase',['get','name']],'text-font':['Sans Bold'],'text-size':11,'text-letter-spacing':.25,'symbol-spacing':400,'text-offset':[0,-1],'text-max-angle':50},paint:{'text-color':'#6a1b9a','text-halo-color':'#fff','text-halo-width':2}},
   {id:'zone-lbl',type:'symbol',source:'farms',filter:['==',['get','kind'],'zone'],maxzoom:14.5,layout:{visibility:'none','text-field':['get','name'],'text-font':['Sans Regular'],'text-size':10.5,'text-allow-overlap':false,'text-optional':true},paint:{'text-color':'#7b1fa2','text-halo-color':'rgba(255,255,255,.85)','text-halo-width':1.4,'text-opacity':.6}},
   {id:'tracks',type:'line',source:'tracks',layout:{'line-cap':'round','line-join':'round'},paint:{'line-opacity':['coalesce',['get','op'],1],'line-color':['coalesce',['get','col'],'#8e24aa'],'line-width':['interpolate',['linear'],['zoom'],12,1.5,17,5],'line-dasharray':[1.5,1]}},
-  {id:'route-alt-case',type:'line',source:'route-alt',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'rgba(20,45,90,.55)','line-opacity':.7,'line-width':['interpolate',['linear'],['zoom'],12,6,17,15,19,22]}},
-  {id:'route-alt',type:'line',source:'route-alt',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#b7cdf2','line-opacity':.9,'line-width':['interpolate',['linear'],['zoom'],12,3,17,9,19,14],'line-dasharray':[1.4,1]}},
+  {id:'route-alt-case',type:'line',source:'route-alt',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#5b6b80','line-opacity':.85,'line-width':['interpolate',['linear'],['zoom'],12,6,17,15,19,22]}},
+  {id:'route-alt',type:'line',source:'route-alt',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#aebdd2','line-opacity':.95,'line-width':['interpolate',['linear'],['zoom'],12,3,17,9,19,14]}},
   {id:'route-glow',type:'line',source:'route',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#1a73e8','line-opacity':.22,'line-blur':['interpolate',['linear'],['zoom'],12,4,17,12],'line-width':['interpolate',['linear'],['zoom'],12,16,17,40,19,56]}},
   {id:'route-halo',type:'line',source:'route',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'rgba(8,22,48,.55)','line-width':['interpolate',['linear'],['zoom'],12,8,17,21,19,30]}},
   {id:'route-case',type:'line',source:'route',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#1557b0','line-width':['interpolate',['linear'],['zoom'],12,6,17,19,19,28]}},
@@ -2813,7 +2822,7 @@ function sunCheck(){if(!sunRemind||!me||!home||sim||!inReserve(me.ll))return;if(
   if(Date.now()-lastMoveT>10*6e4)return;const far=dist(me.ll,home.ll);if(far<1000)return;
   const s=sunToday(),now=Date.now(),tm=(+s.set-now)/6e4,day=new Date().toDateString();let stage=0;
   if(tm<=SUNMIN&&tm>0&&LS.get('sunW1','')!==day)stage=1;else if(tm<=0&&tm>-30&&LS.get('sunW2','')!==day)stage=2;if(!stage)return;
-  LS.set(stage===1?'sunW1':'sunW2',day);const r=route(me.ll,home.ll),len=r?r.len:far,mins=Math.max(1,Math.round(len/(18/3.6)/60));
+  LS.set(stage===1?'sunW1':'sunW2',day);const r=route(me.ll,home.ll),len=r?r.len:far,mins=Math.max(1,Math.round(len/(ETAK/3.6)/60));
   let el=$('sunQ');if(!el){el=document.createElement('div');el.id='sunQ';document.body.appendChild(el)}
   el.innerHTML=`<div class="sqi sun">${LI(stage===1?'sun':'moon',26)}</div><div class="sqt"><b>${stage===1?'Sunset in '+Math.round(tm)+' min':'The sun has set'}</b><small>You're ${fmtD(len)} from home · about ${mins} min drive</small></div><button class="sqn" id="sunX" aria-label="Close">${LI('x',18)}</button><button class="sqy" id="sunGo">${LI('home',17)} Home</button>`;
   const top=nav&&!$('nav').classList.contains('hide')?$('nav').getBoundingClientRect().bottom+10:null;el.style.top=top?top+'px':'';el.classList.add('on');
@@ -4040,7 +4049,7 @@ function showPlace(x){
   if(isPoi){const ic={water:'drop',hide:'binoc',picnic:'picnic',view:'eye',gate:'gate',lodge:'home'}[x.kind]||'pin';const sl=me?dist(me.ll,ll):null;const note=(POIS_BY_NAME[x.name]||{}).note||'';const sub=String(x.sub||'').replace(PKIND[x.kind],'').replace(/^[\s·]+|[\s·]+$/g,'');
     openSheet(`<div id="plHero" class="plh k-${esc(x.kind)}"><div class="plart">${LI(ic,64)}</div><img alt=""><span class="plk">${LI(ic,15)}${esc(T(PKIND[x.kind]||'Place'))}</span><span class="plc"></span></div>
      <h2 class="plt">${esc(x.name)}</h2>${note||sub?`<div class="pln">${esc(note||sub)}</div>`:''}
-     ${me?`<div class="rpm plm">${r?`<div><b class="g">${fmtT(r.len/(18/3.6))}</b><small>${T('Drive')}</small></div><div><b>${fmtD(r.len)}</b><small>${T('By road')}</small></div>`:''}<div><b>${fmtD(sl)}</b><small>${T('Straight line')}</small></div></div>`:`<div class="pln">${T('Distances show once GPS finds you.')}</div>`}
+     ${me?`<div class="rpm plm">${r?`<div><b class="g">${fmtT(r.len/(ETAK/3.6))}</b><small>${T('Drive')}</small></div><div><b>${fmtD(r.len)}</b><small>${T('By road')}</small></div>`:''}<div><b>${fmtD(sl)}</b><small>${T('Straight line')}</small></div></div>`:`<div class="pln">${T('Distances show once GPS finds you.')}</div>`}
      <div class="pla"><button class="btn pri" id="goBtn"><svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M12 2l8 20-8-5-8 5z"/></svg>${T('Go')}</button><button class="plb${isFav(x)?' on':''}" id="plSave">${LI('star',20)}<small>${isFav(x)?T('Saved'):T('Save')}</small></button>${isAdm()?`<button class="plb" id="plEdit">${LI('gear',20)}<small>${T('Edit')}</small></button>`:''}</div>
      <div class="plcard" id="ppBox"><div class="msec">Photos</div><div class="sub">Loading...</div></div><div id="plIns"></div>`,()=>{
       $('goBtn').onclick=()=>{closeSheet();startNav(x)};placePhotos(x);placeInsights(x);
@@ -4071,7 +4080,7 @@ function routePreview(x){
   const b=buildSteps(r);rpOn=x;
   map.getSource('route').setData({type:'Feature',geometry:{type:'LineString',coordinates:r.pts},properties:{}});
   setFollow(0);try{map.setPadding({top:0,bottom:0,left:0,right:0})}catch(e){}
-  const v=18/3.6,eta=new Date(Date.now()+r.len/v*1000),turns=b.steps.filter(s=>s.type!=='depart'&&s.icon&&s.icon!=='straight').length;
+  const v=ETAK/3.6,eta=new Date(Date.now()+r.len/v*1000),turns=b.steps.filter(s=>s.type!=='depart'&&s.icon&&s.icon!=='straight').length;
   const roads=[];b.steps.forEach(s=>{if(s.road&&roads[roads.length-1]!==s.road)roads.push(s.road)});
   const warn=allReports().filter(rp=>projectOnRoute(b.segs,rp.ll).d<45);
   const along=allSights().filter(s=>projectOnRoute(b.segs,s.ll).d<160&&dist(s.ll,target)>60).slice(0,4);
@@ -4095,7 +4104,7 @@ function beginNav(x){
   const stops=NAVSTOPS.slice();const r=RPFORCE||(stops.length?routeVia(me.ll,stops,target):route(me.ll,target));if(!r){toast('No route found');return}
   if(r.len<20){toast("You're already there");return}
   const b=buildSteps(r);
-  nav={target:x,ll:target,r,...b,stepI:0,startT:Date.now(),stops};NAVSTOPS=[];RPFORCE=null;RP=null;try{map.getSource('route-alt').setData(empty)}catch(e){}drawStops(stops);
+  nav={target:x,ll:target,r,...b,stepI:0,startT:Date.now(),stops};NAVSTOPS=[];RPFORCE=null;RP=null;try{map.getSource('route-alt').setData(empty);rpMarks([])}catch(e){}drawStops(stops);
   const warn=allReports().filter(rp=>projectOnRoute(b.segs,rp.ll).d<45);if(warn.length)setTimeout(()=>toast('Heads up: '+warn.map(w=>w.kind+(w.road?' on '+w.road:'')).join(', ')+' on your route',5000),900);
   closeSheet();curRoad=null;map.getSource('cur').setData(empty);
   document.body.classList.add('navon');$('nav').classList.remove('hide');$('navBottom').classList.remove('hide');$('top').classList.add('hide');$('roadCard').classList.add('hide');
@@ -4159,7 +4168,7 @@ function navTick(){
   }
   if(i>=0)speakStep(i,dd,txt);
   if(!PV.on&&!nav.uturn){const J=nav.juncs||[];const ji=J.findIndex(q=>q.at>along+3);if(ji>=0)showJx(J[ji],J[ji].at-along,ji);else showJx(null)}
-  const kmh=me.speed*3.6;const v=(kmh>5?Math.max(10,Math.min(40,kmh)):18)/3.6;
+  const v=etaV();
   const eta=new Date(Date.now()+left/v*1000);
   $('navEta').textContent=fmtT(left/v);
   $('navMeta').textContent=fmtD(left)+' · arrive '+eta.toTimeString().slice(0,5);try{$('navProg').style.width=Math.max(2,Math.min(100,100-left/Math.max(1,nav.r.len)*100))+'%'}catch(e){}
@@ -4252,6 +4261,29 @@ function navRoute(){return nav.stops&&nav.stops.length?routeVia(me.ll,nav.stops,
 function drawStops(list){try{map.getSource('navstops').setData({type:'FeatureCollection',features:(list||[]).map((s,k)=>({type:'Feature',properties:{n:String(k+1)},geometry:{type:'Point',coordinates:itemLL(s)}}))})}catch(e){}}
 /* the other way: same trip, but stay off most of the main route */
 function nk(p){return NODEK&&NODEK.get(p[0].toFixed(6)+','+p[1].toFixed(6))}
+/* time estimates: 23 km/h, or your real speed once you've held above 23 for 40 s; slowing down brings it back down, never below 23 */
+let ETAK=23;const SPDH=[];
+setInterval(()=>{if(!me)return;const t=Date.now(),k=(me.speed||0)*3.6;SPDH.push([t,k]);while(SPDH.length&&t-SPDH[0][0]>40000)SPDH.shift();
+  if(SPDH.length<20||t-SPDH[0][0]<38000)return;const avg=SPDH.reduce((a,q)=>a+q[1],0)/SPDH.length;
+  if(SPDH.every(q=>q[1]>23))ETAK=Math.min(60,avg);else if(avg<ETAK)ETAK=Math.max(23,avg)},1000);
+const etaV=()=>ETAK/3.6;
+/* up to two other ways that are really different from the fastest one */
+function altRoutes(from,to,main){if(!NODEK){NODEK=new Map();nodes.forEach((n,k)=>NODEK.set(n[0].toFixed(6)+','+n[1].toFixed(6),k))}const out=[],S=new Set();
+  const addKeys=r=>{for(let k=1;k<r.pts.length;k++){const a=nk(r.pts[k-1]),c=nk(r.pts[k]);if(a!=null&&c!=null){S.add(a+'_'+c);S.add(c+'_'+a)}}};addKeys(main);
+  for(let n=0;n<4&&out.length<2;n++){ALTPEN=new Set(S);let r=null;try{r=route(from,to)}finally{ALTPEN=null}if(!r)break;
+    const prev=[main,...out];let ok=r.len<=main.len*1.6;
+    for(const q of prev){const K=new Set();for(let k=1;k<q.pts.length;k++){const a=nk(q.pts[k-1]),c=nk(q.pts[k]);if(a!=null&&c!=null){K.add(a+'_'+c);K.add(c+'_'+a)}}
+      let sh=0;for(let k=1;k<r.pts.length;k++){const a=nk(r.pts[k-1]),c=nk(r.pts[k]);if(a!=null&&c!=null&&K.has(a+'_'+c))sh+=dist(r.pts[k-1],r.pts[k])}if(sh>r.len*.75||Math.abs(r.len-q.len)<15)ok=false}
+    addKeys(r);if(ok)out.push(r)}
+  return out}
+/* the road a route mostly uses that the others don't */
+function viaName(r,others){const L={};for(let i=1;i<r.pts.length;i++){const n=ROADS[r.rds[i-1]]&&ROADS[r.rds[i-1]].properties.name;if(n)L[n]=(L[n]||0)+dist(r.pts[i-1],r.pts[i])}
+  const O=new Set();others.forEach(q=>q.rds.forEach(i=>{const n=ROADS[i]&&ROADS[i].properties.name;if(n)O.add(n)}));
+  const A=Object.entries(L).sort((a,b)=>b[1]-a[1]);return ((A.find(e=>!O.has(e[0]))||A[0]||[''])[0])}
+/* a spot on the part of a route that no other route shares, for its time bubble */
+function routeTag(r,others){const K=new Set();others.forEach(q=>q.pts.forEach(p=>K.add(p[0].toFixed(5)+','+p[1].toFixed(5))));
+  const U=r.pts.filter(p=>!K.has(p[0].toFixed(5)+','+p[1].toFixed(5)));const P=U.length>1?U:r.pts;return P[Math.floor(P.length/2)]}
+let RPM=[];function rpMarks(list){RPM.forEach(m=>m.remove());RPM=[];(list||[]).forEach(o=>{const el=document.createElement('button');el.className='rtag'+(o.sel?' sel':'');el.innerHTML='<b>'+fmtT(o.r.len/etaV())+'</b>'+(o.best&&!o.sel?'':'');el.onclick=ev=>{ev.stopPropagation();o.pick()};RPM.push(new maplibregl.Marker({element:el,anchor:'bottom'}).setLngLat(o.at).addTo(map))})}
 function altRoute(from,to,main){if(!NODEK)return null;const S=new Set();
   for(let k=1;k<main.pts.length;k++){const a=nk(main.pts[k-1]),c=nk(main.pts[k]);if(a!=null&&c!=null){S.add(a+'_'+c);S.add(c+'_'+a)}}
   ALTPEN=S;let r=null;try{r=route(from,to)}finally{ALTPEN=null}if(!r)return null;
@@ -4362,18 +4394,22 @@ function stopPicker(done,back){const base=searchItems().filter(x=>x.kind!=='repo
 
 /* ---- route preview extras: stops (drag to reorder), avoid tracks, the other way, flick through the turns ---- */
 function rpExtras(x,r,b){RP={x,r,b,alt:null};
-  if(!NAVSTOPS.length&&me){try{RP.alt=altRoute(me.ll,itemLL(x),r)}catch(e){}}
-  try{map.getSource('route-alt').setData(RP.alt?{type:'Feature',geometry:{type:'LineString',coordinates:RP.alt.pts},properties:{}}:empty)}catch(e){}
+  /* every way there: the fastest plus up to two others, drawn on the map; tap a grey one or its time bubble to use it */
+  RP.list=[];if(!NAVSTOPS.length&&me){try{const best=route(me.ll,itemLL(x));if(best){RP.list=[best,...altRoutes(me.ll,itemLL(x),best)]}}catch(e){}}
+  if(RP.list.length<2)RP.list=[];RP.sel=Math.max(0,RP.list.findIndex(q=>Math.abs(q.len-r.len)<1));
+  const pickR=i=>{RPFORCE=i===0?null:RP.list[i];routePreview(x)};RP.pick=pickR;
+  try{map.getSource('route-alt').setData({type:'FeatureCollection',features:RP.list.map((q,i)=>i===RP.sel?null:{type:'Feature',properties:{i},geometry:{type:'LineString',coordinates:q.pts}}).filter(Boolean)})}catch(e){}
+  try{rpMarks(RP.list.map((q,i)=>({r:q,sel:i===RP.sel,best:i===0,at:routeTag(q,RP.list.filter((_,j)=>j!==i)),pick:()=>pickR(i)})))}catch(e){}
   drawStops(NAVSTOPS);
-  const v=18/3.6,turns=b.steps.filter((s,k)=>k>0);
+  const v=ETAK/3.6,turns=b.steps.filter((s,k)=>k>0);
   return `
    <div class="rpo"><button class="chip${AVOIDTRK?' sel':''}" id="rpAvoid">${LI('tyre',15)} ${T('Avoid rough tracks')}</button></div>
-   ${RP.alt?`<button class="rpalt" id="rpAlt"><span class="altl"></span><div style="flex:1;min-width:0"><b>${T('Other way')} · ${fmtT(RP.alt.len/v)}</b><small>${fmtD(RP.alt.len)} · ${RP.alt.len>r.len?'+'+fmtT((RP.alt.len-r.len)/v):T('shorter')} · ${T('dotted on the map')}</small></div><span class="sm">${T('Use')}</span></button>`:''}
+   ${RP.list.length?`<div class="msec" style="margin-top:14px">${RP.list.length} ${T('ways there')}</div><div class="rchs">${RP.list.map((q,i)=>`<button class="rch${i===RP.sel?' sel':''}" data-rch="${i}"><span class="rcl"></span><div style="flex:1;min-width:0"><b>${fmtT(q.len/v)}${i===0?` <em>${T('Fastest')}</em>`:''}</b><small>${fmtD(q.len)} · ${T('via')} ${esc(viaName(q,RP.list.filter((_,j)=>j!==i)))}${i?(()=>{const dm=Math.round(q.len/v/60)-Math.round(RP.list[0].len/v/60);return dm>0?' · +'+dm+' min':' · '+T('same time')})():''}</small></div>${i===RP.sel?LI('check',20):''}</button>`).join('')}</div>`:''}
    ${turns.length?`<div class="msec" style="margin-top:14px">${T('Flick through the turns')}</div><div class="rpturns" id="rpTurns">${turns.map((s,k)=>`<div class="rpt" data-at="${s.startAt}"><svg viewBox="0 0 24 24"><path d="${ARROWS[s.icon||'straight']}"/></svg><b>${esc(s.road)}</b><small>${k+1}/${turns.length} · ${fmtD(s.startAt)}</small></div>`).join('')}</div>`:''}`}
 function rpBind(x){
   $('rpStop2').onclick=()=>stopPicker(it=>{NAVSTOPS.push(it);RPFORCE=null;routePreview(x)},()=>routePreview(x));
   $('rpAvoid').onclick=()=>{AVOIDTRK=!AVOIDTRK;LS.set('avoidTracks',AVOIDTRK);RPFORCE=null;routePreview(x)};
-  if($('rpAlt'))$('rpAlt').onclick=()=>{RPFORCE=RP.alt;routePreview(x)};
+  document.querySelectorAll('[data-rch]').forEach(b=>b.onclick=()=>{if(RP&&RP.pick)RP.pick(+b.dataset.rch)});
   document.querySelectorAll('[data-rm]').forEach(b=>b.onclick=()=>{NAVSTOPS.splice(+b.dataset.rm,1);RPFORCE=null;routePreview(x)});
   // drag a stop by its handle
   const box=$('rpDirs');if(box)box.querySelectorAll('.hdl').forEach(h=>{let row,y0,from;
@@ -4388,7 +4424,7 @@ function rpBind(x){
       manSet(segs,at,RP.b.total);const p=pointAt(segs,at),pb=pointAt(segs,Math.max(0,at-45));const sh=$('sheet').getBoundingClientRect();
       map.easeTo({center:p,zoom:17.4,bearing:bearing(pb,p),pitch:0,padding:{top:60,bottom:Math.min(innerHeight*.66,innerHeight-sh.top+20),left:20,right:20},duration:700})},140)},{passive:true});
     tr.querySelectorAll('.rpt').forEach(c=>c.onclick=()=>c.scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'}))}}
-function rpClear(){RPFORCE=null;RP=null;try{map.getSource('route-alt').setData(empty);map.getSource('maneuver').setData(empty)}catch(e){}if(!nav){NAVSTOPS=[];drawStops([])}}
+function rpClear(){RPFORCE=null;RP=null;try{rpMarks([])}catch(e){}try{map.getSource('route-alt').setData(empty);map.getSource('maneuver').setData(empty)}catch(e){}if(!nav){NAVSTOPS=[];drawStops([])}}
 
 /* ---- long press: drop a pin ---- */
 function pinSheet(ll){dropPin(ll);const ne=nearestEdge(ll,300),road=ne&&ne.d<80?ROADS[ne.e.road].properties.name:null,fm=farmAt(ll);
@@ -4567,7 +4603,7 @@ function offerCheck(){if(!nav||!me||PV.on||OFFER||DM.on&&false)return;const alon
     if(alt){const b=buildSteps(alt);if(projectOnRoute(b.segs,h.r.ll).d<45)alt=null;else if(alt.len-cur>4000)alt=null}
     if(alt){key=h.r.cid;why=T(h.r.kind)+(h.r.road?' '+T('on')+' '+h.r.road:'')+' '+T('ahead')}}
   if(!alt){const r=navRoute();if(r&&r.len<cur*0.85&&cur-r.len>300){const k='f'+Math.round(r.len/100);if(!OFFER_SEEN.has(k)){alt=r;key=k;why=T('Faster way found')}}}
-  if(!alt)return;const v=18/3.6,dt=(alt.len-cur)/v,b=buildSteps(alt),first=(b.steps.find(s=>s.road&&s.road!==(nav.steps[(nav.curI>0?nav.curI-1:0)]||{}).road)||b.steps[0]||{}).road;
+  if(!alt)return;const v=ETAK/3.6,dt=(alt.len-cur)/v,b=buildSteps(alt),first=(b.steps.find(s=>s.road&&s.road!==(nav.steps[(nav.curI>0?nav.curI-1:0)]||{}).road)||b.steps[0]||{}).road;
   OFFER={key,r:alt,t:Date.now()};const el=$('navOffer');if(!LAND)el.style.top=Math.round($('nav').getBoundingClientRect().bottom+10)+'px';
   el.innerHTML=`<div class="noh">${LI(key.startsWith('f')?'route':'alert',18)}<b>${esc(why)}</b></div><div class="nos">${first?T('Take')+' '+esc(first)+' '+T('instead')+'? ':''}<b class="${dt>0?'slow':'fast'}">${dt>0?'+'+fmtT(dt):T('saves')+' '+fmtT(-dt)}</b></div>
    <div class="nob"><button id="noKeep">${T('Keep my route')}</button><button id="noGo" class="go">${T('Take it')}</button><i class="notm"></i></div>`;el.classList.add('on');
@@ -4608,7 +4644,7 @@ function alongSheet(cat){if(!nav)return;cat=cat||'picnic';const along=nav.along|
     .map(o=>{let det=o.p.d*2;try{const r=route(o.p.q,o.x.ll);if(r)det=r.len*2}catch(e){}return {...o,det}});
   openSheet(`<div class="cmh"><button class="sm" id="alBack">‹ ${T('Back')}</button><b>${T('Along your route')}</b><span style="width:60px"></span></div>
    <div class="osug fdf">${ALONG.map(([k,l])=>`<button class="osg${k===cat?' sel':''}" data-al="${k}">${T(l)}</button>`).join('')}</div>
-   <div class="list sgroup" style="margin-top:10px">${items.map((o,i)=>`<div class="it alr"><span class="lki" style="background:${COLORS[o.x.kind]||'#6d5a45'}">${o.x.kind==='sight'?AN(o.x.name,22):LI(o.x.kind==='picnic'?'picnic':o.x.kind==='gate'?'gate':o.x.kind==='water'?'drop':'eye',18)}</span><div style="flex:1;min-width:0"><b>${esc(o.x.name)}</b><br><small>${T('in')} ${fmtD(Math.max(10,o.p.along-along))} · ${o.det<60?T('on your route'):'+'+fmtT(o.det/(18/3.6))+' '+T('detour')}</small></div><button class="sm" data-as="${i}">${T('Add stop')}</button></div>`).join('')||`<div class="it"><small>${T('Nothing like that near your route')}</small></div>`}</div>`,()=>{
+   <div class="list sgroup" style="margin-top:10px">${items.map((o,i)=>`<div class="it alr"><span class="lki" style="background:${COLORS[o.x.kind]||'#6d5a45'}">${o.x.kind==='sight'?AN(o.x.name,22):LI(o.x.kind==='picnic'?'picnic':o.x.kind==='gate'?'gate':o.x.kind==='water'?'drop':'eye',18)}</span><div style="flex:1;min-width:0"><b>${esc(o.x.name)}</b><br><small>${T('in')} ${fmtD(Math.max(10,o.p.along-along))} · ${o.det<60?T('on your route'):'+'+fmtT(o.det/(ETAK/3.6))+' '+T('detour')}</small></div><button class="sm" data-as="${i}">${T('Add stop')}</button></div>`).join('')||`<div class="it"><small>${T('Nothing like that near your route')}</small></div>`}</div>`,()=>{
     $('alBack').onclick=navMore;document.querySelectorAll('[data-al]').forEach(b=>b.onclick=()=>alongSheet(b.dataset.al));
     document.querySelectorAll('[data-as]').forEach(b=>b.onclick=()=>{const o=items[+b.dataset.as];nav.stops=nav.stops||[];
       // put the stop in the right order: before the first stop that is further along
@@ -4863,6 +4899,7 @@ map.on('click','closed-roads',e=>{const r=e.features[0].properties.name;if(r){e.
 for(const l of ['mate-dot','mate-lbl','mate-arrow'])map.on('click',l,e=>{const id=e.features[0].properties.id;e.originalEvent&&(e.originalEvent._est=1);const r=LIVE[id];if(r)mateSheet(r)});
 map.on('click','trail-line',e=>{const u=e.features[0].properties.uid;const r=LIVE[u]||{user_id:u,name:(TRAILS[u]||{}).n};e.originalEvent&&(e.originalEvent._est=1);mateSheet(r)});
 map.on('click','reports',e=>{const r=allReports().find(x=>x.cid===e.features[0].properties.cid);if(r)showPlace({kind:'report',name:r.kind,sub:'Road report · '+ago(r.t)+' · '+r.by+(r.road?' · '+r.road:'')+confTxt(r)+(r.note?' · '+r.note:''),ll:r.ll,cid:r.cid,mine:r.mine})});
+map.on('click',e=>{if(!rpOn||nav||!RP||!RP.pick||!map.getLayer('route-alt'))return;const p=e.point,f=map.queryRenderedFeatures([[p.x-14,p.y-14],[p.x+14,p.y+14]],{layers:['route-alt']})[0];if(f)RP.pick(+f.properties.i)});
 /* places get a bigger tap target: anything within ~30 px of the icon opens it, nearest first */
 function poiNear(pt,r){r=r||30;const L=map.getLayer('poi')?map.queryRenderedFeatures([[pt.x-r,pt.y-r],[pt.x+r,pt.y+r]],{layers:['poi']}):[];let best=null,bd=1e9;
   L.forEach(f=>{if(!f.geometry||f.geometry.type!=='Point')return;const q=map.project(f.geometry.coordinates),d=Math.hypot(q.x-pt.x,q.y-pt.y);if(d<bd){bd=d;best=f}});return best}
