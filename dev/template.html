@@ -1033,6 +1033,23 @@ body.tfback #storyQ,body.tfback #homeNag{opacity:0!important;pointer-events:none
 .rtag.sel{background:#4285f4;color:#fff;z-index:3}.rtag.sel::after{border-top-color:#4285f4}
 .tsh{display:flex;align-items:center;gap:12px;margin:2px 0 14px}.tsh b{display:block;font-size:19px;letter-spacing:-.2px}.tsh small{color:var(--sub);font-size:13.5px}
 .tsb{display:grid;grid-template-columns:1fr 1fr;gap:10px}.tsb .btn{min-height:56px;font-size:16px;margin:0}
+/* Google-style route preview */
+body.rpmode #top,body.rpmode #roadCard,body.rpmode #rec,body.rpmode #peek,body.rpmode #junc,body.rpmode #fabs,body.rpmode #speed,body.rpmode #recenter,body.rpmode #roadPill,body.rpmode #offPill,body.rpmode #gpsWeak,body.rpmode #cleanBar,body.rpmode #updWall,body.rpmode #sosBtn{display:none!important}
+#sheet.open~#rpTop,#sheet.open~#rpBot{display:none}
+#rpTop{position:fixed;z-index:30;left:12px;right:12px;top:calc(var(--safe-t) + 10px);display:flex;align-items:center;gap:6px;padding:8px 8px;border-radius:22px;background:linear-gradient(180deg,rgba(30,36,28,.95),rgba(14,17,13,.97));-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);box-shadow:0 8px 24px rgba(0,0,0,.35);border:1px solid rgba(255,194,61,.18);color:#fff}
+#rpTop .rptl{flex:1;min-width:0}.rptr{display:flex;align-items:center;gap:12px;padding:9px 4px;font-size:16.5px;font-weight:600}.rptr+.rptr{border-top:1px solid rgba(255,255,255,.1)}
+.rptr span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.rptr .mut{color:#8fb4ff}
+.rdot{flex:none;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font:800 11px system-ui;font-style:normal}.rdot.me{background:#4285f4;box-shadow:0 0 0 3px #fff inset,0 0 0 1px #4285f4}.rdot.to{background:#ea4335;color:#fff}.rdot.st{background:#f2b632;color:#2a1d00}
+.rpbk{flex:none;width:42px;height:42px;border:0;border-radius:50%;background:rgba(255,255,255,.08);color:#fff;display:flex;align-items:center;justify-content:center}.rpx{border:0;background:none;color:#aaa;padding:4px}
+#rpBot{position:fixed;z-index:30;left:0;right:0;bottom:0;padding:8px 18px calc(var(--safe-b) + 16px);border-radius:26px 26px 0 0;background:linear-gradient(180deg,rgba(28,34,26,.96),rgba(12,15,11,.98));-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);border-top:1px solid rgba(255,194,61,.22);color:#fff;box-shadow:0 -8px 30px rgba(0,0,0,.3)}
+.rpgrab{width:40px;height:5px;border-radius:3px;background:rgba(255,255,255,.25);margin:0 auto 10px}
+.rpbh{display:flex;align-items:baseline;gap:8px}.rpbh b{font-size:30px;font-weight:800;letter-spacing:-.6px}.rpbh b.g{color:#5fd38a}.rpbh b.o{color:#f2b632}.rpbh span{font-size:18px;color:#c9c9c9;font-weight:600}
+.rpbs{margin-top:2px;font-size:15px;color:#d6d6d6}.rpbv{margin-top:3px;font-size:13.5px;color:#9a9a9a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rpbw{margin-top:8px;display:flex;align-items:center;gap:6px;color:#f2b632;font-size:13.5px;font-weight:700}
+.rpbb{display:flex;gap:8px;margin-top:14px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}.rpbb::-webkit-scrollbar{display:none}
+.rpbb button{flex:none;display:inline-flex;align-items:center;gap:7px;height:48px;padding:0 18px;border:0;border-radius:999px;font:700 16px system-ui,-apple-system,sans-serif;white-space:nowrap}
+.rpstart{background:linear-gradient(160deg,#3f9a63,#256b41);color:#fff;box-shadow:0 6px 16px rgba(37,107,65,.45);padding:0 24px!important}.rpsec{background:rgba(255,255,255,.08);color:#f2d38a;box-shadow:inset 0 0 0 1px rgba(255,194,61,.25)}.rpsec.on{background:#f2b632;color:#2a1d00}
+.rtag{background:#2b3240;color:#fff;font-size:14px;padding:6px 11px}.rtag::after{border-top-color:#2b3240}.rtag.sel{background:#1a56db}.rtag.sel::after{border-top-color:#1a56db}
 #coolCard{position:fixed;left:12px;right:12px;top:calc(var(--safe-t,0px) + 118px);z-index:40;display:flex;gap:12px;align-items:flex-start;padding:14px;border-radius:18px;background:rgba(18,30,22,.94);border:1px solid rgba(233,196,106,.35);color:#f3efe4;box-shadow:0 10px 30px rgba(0,0,0,.4);transform:translateY(-16px);opacity:0;pointer-events:none;transition:.3s;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
 #coolCard.on{transform:none;opacity:1;pointer-events:auto}#coolCard .cci{width:42px;height:42px;border-radius:13px;flex:none;display:grid;place-items:center;background:linear-gradient(150deg,#ffb38a,#e5533d);color:#fff}
 #coolCard .cct{flex:1;min-width:0}#coolCard .cct b{display:block;font-size:15.5px}#coolCard .cct small{display:block;color:#c9d3c6;font-size:13px;line-height:1.4;margin-top:2px}#coolCard ul{margin:6px 0 0;padding-left:18px;font-size:13px;line-height:1.5;color:#ffe29a}
@@ -4075,7 +4092,7 @@ function showPlace(x){
 /* Go -> route preview (whole route on the map, time, roads, warnings) -> Start. SOS and the demo start straight away. */
 let rpOn=null;
 function startNav(x){routePreview(x)}
-function routePreview(x){
+function rpDetails(x){
   const target=itemLL(x);
   if(!me){toast(gpsErr||'Waiting for GPS. Navigation starts once your location is found.');return}
   const r=RPFORCE||(NAVSTOPS.length?routeVia(me.ll,NAVSTOPS,target):route(me.ll,target));if(!r){toast('No route found');return}
@@ -4094,13 +4111,49 @@ function routePreview(x){
    ${warn.length?`<div class="rpw">${LI('alert',18)}<div><b>${warn.length===1?'Road report on this route':warn.length+' road reports on this route'}</b><small>${warn.map(w=>esc(w.kind)+(w.road?' on '+esc(w.road):'')+' · '+ago(w.t)).join('<br>')}</small></div></div>`:''}
    ${along.length?`<div class="msec" style="margin-top:14px">Seen along the way</div><div class="tsum">${along.map(s=>`<span class="tsc">${AN(s.what,22)}<b>${esc(s.what)}</b> ${ago(s.t)}</span>`).join('')}</div>`:''}
    ${rpExtras(x,r,b)}
-   <div class="row" style="margin-top:16px"><button class="btn" id="rpX">Cancel</button><button class="btn pri" id="rpGo">${LI('arrow',18)} Start</button></div>`,()=>{rpBind(x);
-    $('rpGo').onclick=()=>{rpOn=null;closeSheet();beginNav(x)};
-    $('rpX').onclick=()=>{closeSheet();rpEnd()}});
+   <div class="row" style="margin-top:16px"><button class="btn" id="rpX">${T('Back')}</button><button class="btn pri" id="rpGo">${LI('arrow',18)} Start</button></div>`,()=>{rpBind(x);
+    $('rpGo').onclick=()=>{rpOn=null;closeSheet();rpPanelOff();beginNav(x)};
+    $('rpX').onclick=()=>{closeSheet()}});
+  return;
   requestAnimationFrame(()=>{const bb=new maplibregl.LngLatBounds(r.pts[0],r.pts[0]);r.pts.forEach(p=>bb.extend(p));const sh=$('sheet').getBoundingClientRect();
     map.fitBounds(bb,{padding:{top:Math.max(90,innerHeight*.12),bottom:Math.min(innerHeight*.62,innerHeight-sh.top+30),left:50,right:60},bearing:0,pitch:0,duration:800,maxZoom:16.3})})}
-function rpEnd(){if(!rpOn||nav)return;rpOn=null;try{map.getSource('route').setData(empty)}catch(e){}rpClear()}
-setInterval(()=>{if(rpOn&&!nav&&!$('sheet').classList.contains('open'))rpEnd()},600);
+/* Google-style route preview: the map with every way there and its time bubble, a small card on top, a short panel at the bottom */
+function rpPanelOff(){document.body.classList.remove('rpmode');['rpTop','rpBot'].forEach(id=>{const e=$(id);if(e)e.remove()})}
+function routePreview(x){
+  const target=itemLL(x);
+  if(!me){toast(gpsErr||'Waiting for GPS. Navigation starts once your location is found.');return}
+  const r=RPFORCE||(NAVSTOPS.length?routeVia(me.ll,NAVSTOPS,target):route(me.ll,target));if(!r){toast('No route found');return}
+  if(r.len<20){toast("You're already there");return}
+  const b=buildSteps(r);rpOn=x;if($('sheet').classList.contains('open')){$('sheet').classList.remove('open');$('scrim').classList.remove('on')}
+  map.getSource('route').setData({type:'Feature',geometry:{type:'LineString',coordinates:r.pts},properties:{}});
+  setFollow(0);try{map.setPadding({top:0,bottom:0,left:0,right:0})}catch(e){}
+  rpExtras(x,r,b);
+  const t=rTime(r),eta=new Date(Date.now()+t*1000),best=RPBEST(),isBest=!best||best===r||Math.abs(best.len-r.len)<1;
+  const roads=[];b.steps.forEach(s=>{if(s.road&&roads[roads.length-1]!==s.road)roads.push(s.road)});
+  const warn=allReports().filter(rp=>projectOnRoute(b.segs,rp.ll).d<45),tk=trkLen(r);
+  document.body.classList.add('rpmode');
+  let top=$('rpTop');if(!top){top=document.createElement('div');top.id='rpTop';document.body.appendChild(top)}
+  let bot=$('rpBot');if(!bot){bot=document.createElement('div');bot.id='rpBot';document.body.appendChild(bot)}
+  top.innerHTML=`<button class="rpbk" id="rpBk" aria-label="Back"><svg viewBox="0 0 24 24" width="22" height="22"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+   <div class="rptl"><div class="rptr"><i class="rdot me"></i><span class="mut">${T('Your location')}</span></div>${NAVSTOPS.map((q,k)=>`<div class="rptr"><i class="rdot st">${k+1}</i><span>${esc(q.name)}</span><button class="rpx" data-rmx="${k}" aria-label="Remove">${LI('x',14)}</button></div>`).join('')}<div class="rptr"><i class="rdot to">${LI('pin',12)}</i><span>${esc(x.name)}</span></div></div>
+   <button class="rpbk" id="rpAddS" aria-label="Add stop">${LI('plus',20)}</button>`;
+  bot.innerHTML=`<div class="rpgrab"></div>
+   <div class="rpbh"><b class="${isBest?'g':'o'}">${fmtT(t)}</b><span>(${fmtD(r.len)})</span></div>
+   <div class="rpbs">${isBest?T('Fastest route'):(()=>{const dm=Math.round(t/60)-Math.round(rTime(best)/60);return dm>0?'+'+dm+' min '+T('slower than the fastest'):T('About the same time as the fastest')})()} · ${T('arrive')} ${eta.toTimeString().slice(0,5)}</div>
+   <div class="rpbv">${T('via')} ${roads.slice(0,3).map(esc).join(' › ')}${roads.length>3?' › …':''}${tk>50?' · '+fmtD(tk)+' '+T('of track'):''}</div>
+   ${warn.length?`<div class="rpbw">${LI('alert',16)} ${warn.length===1?T('Road report on this route'):warn.length+' '+T('road reports on this route')}</div>`:''}
+   <div class="rpbb"><button class="rpstart" id="rpStart">${LI('arrow',20)} ${T('Start')}</button><button class="rpsec" id="rpStops">${LI('plus',18)} ${T('Add stops')}</button><button class="rpsec" id="rpSteps">${LI('route',18)} ${T('Steps')}</button><button class="rpsec${AVOIDTRK?' on':''}" id="rpAv">${LI('tyre',18)} ${T('Avoid tracks')}</button></div>`;
+  const addStop=()=>stopPicker(it=>{NAVSTOPS.push(it);RPFORCE=null;routePreview(x)},()=>routePreview(x));
+  $('rpBk').onclick=()=>{rpPanelOff();rpEnd()};$('rpAddS').onclick=addStop;$('rpStops').onclick=addStop;
+  $('rpStart').onclick=()=>{rpOn=null;rpPanelOff();beginNav(x)};
+  $('rpSteps').onclick=()=>rpDetails(x);
+  $('rpAv').onclick=()=>{AVOIDTRK=!AVOIDTRK;LS.set('avoidTracks',AVOIDTRK);RPFORCE=null;routePreview(x)};
+  top.querySelectorAll('[data-rmx]').forEach(q=>q.onclick=()=>{NAVSTOPS.splice(+q.dataset.rmx,1);RPFORCE=null;routePreview(x)});
+  requestAnimationFrame(()=>{const all=(RP&&RP.list&&RP.list.length?RP.list:[r]);const bb=new maplibregl.LngLatBounds(r.pts[0],r.pts[0]);all.forEach(q=>q.pts.forEach(p=>bb.extend(p)));
+    const th=top.getBoundingClientRect().bottom,bh=innerHeight-bot.getBoundingClientRect().top;
+    map.fitBounds(bb,{padding:{top:th+50,bottom:bh+30,left:40,right:40},bearing:0,pitch:0,duration:800,maxZoom:16.3})})}
+function rpEnd(){if(!rpOn||nav)return;rpOn=null;rpPanelOff();try{map.getSource('route').setData(empty)}catch(e){}rpClear()}
+setInterval(()=>{if(rpOn&&!nav&&!document.body.classList.contains('rpmode')&&!$('sheet').classList.contains('open'))rpEnd()},600);
 function beginNav(x){
   const target=itemLL(x);
   if(!me){toast(gpsErr||'Waiting for GPS. Navigation starts once your location is found.');return}
@@ -4928,7 +4981,7 @@ function poiNear(pt,r){r=r||30;const L=map.getLayer('poi')?map.queryRenderedFeat
 map.on('click',e=>{if(MEAS||Date.now()-lpAt<900||Date.now()-dotTap<700)return;
   if(map.queryRenderedFeatures(e.point,{layers:['sights','reports','home','note-dot','closed-roads','mate-dot','mate-lbl','mate-arrow'].filter(l=>map.getLayer(l))}).length)return;
   const f=poiNear(e.point);if(!f)return;showPlace({kind:f.properties.kind,name:f.properties.name,sub:(PKIND[f.properties.kind]||'')+(f.properties.note?' · '+f.properties.note:''),ll:f.geometry.coordinates,pid:f.properties.pid||'',base:f.properties.base||''})});
-map.on('click',e=>{if(tapGuard(e))return;const f=map.queryRenderedFeatures(e.point,{layers:['sights','reports','poi','home','trail-line','tracks','note-dot','closed-roads','mate-dot','mate-lbl','mate-arrow']});if(f.length||poiNear(e.point))return;if(isAdm()){const pt=e.point;if(!map.queryRenderedFeatures([[pt.x-8,pt.y-8],[pt.x+8,pt.y+8]],{layers:['road']}).length&&(map.queryRenderedFeatures([[pt.x-8,pt.y-8],[pt.x+8,pt.y+8]],{layers:['river-water','river','river-dry']}).length||map.queryRenderedFeatures(pt,{layers:['water','pan']}).length))return}tapLater(()=>{
+map.on('click',e=>{if(rpOn&&!nav&&document.body.classList.contains('rpmode'))return;if(tapGuard(e))return;const f=map.queryRenderedFeatures(e.point,{layers:['sights','reports','poi','home','trail-line','tracks','note-dot','closed-roads','mate-dot','mate-lbl','mate-arrow']});if(f.length||poiNear(e.point))return;if(isAdm()){const pt=e.point;if(!map.queryRenderedFeatures([[pt.x-8,pt.y-8],[pt.x+8,pt.y+8]],{layers:['road']}).length&&(map.queryRenderedFeatures([[pt.x-8,pt.y-8],[pt.x+8,pt.y+8]],{layers:['river-water','river','river-dry']}).length||map.queryRenderedFeatures(pt,{layers:['water','pan']}).length))return}tapLater(()=>{
   const ll=e.lngLat.toArray();
   // on a route: tapping the map adds a sighting there without moving the map or stopping the route
   if(nav){if(DM.on){demoTapSheet(ll);return}tapSheet(ll);return}
