@@ -1050,6 +1050,13 @@ body.rpmode #top,body.rpmode #roadCard,body.rpmode #rec,body.rpmode #peek,body.r
 .rpbb button{flex:none;display:inline-flex;align-items:center;gap:7px;height:48px;padding:0 18px;border:0;border-radius:999px;font:700 16px system-ui,-apple-system,sans-serif;white-space:nowrap}
 .rpstart{background:linear-gradient(160deg,#3f9a63,#256b41);color:#fff;box-shadow:0 6px 16px rgba(37,107,65,.45);padding:0 24px!important}.rpsec{background:rgba(255,255,255,.08);color:#f2d38a;box-shadow:inset 0 0 0 1px rgba(255,194,61,.25)}.rpsec.on{background:#f2b632;color:#2a1d00}
 .rtag{background:#2b3240;color:#fff;font-size:14px;padding:6px 11px}.rtag::after{border-top-color:#2b3240}.rtag.sel{background:#1a56db}.rtag.sel::after{border-top-color:#1a56db}
+body.mappick #rpTop,body.mappick #rpBot,body.mappick #top,body.mappick #fabs,body.mappick #navBottom,body.mappick #speed,body.mappick #roadCard{display:none!important}
+#mpPin{position:fixed;left:50%;top:50%;z-index:40;pointer-events:none;transform:translate(-50%,-100%);filter:drop-shadow(0 4px 8px rgba(0,0,0,.4))}#mpPin svg{display:block}
+#mpPin i{position:absolute;left:50%;bottom:-4px;width:8px;height:8px;margin-left:-4px;border-radius:50%;background:rgba(0,0,0,.45)}
+#mpBar{position:fixed;z-index:40;left:0;right:0;bottom:0;padding:16px 18px calc(var(--safe-b) + 16px);border-radius:26px 26px 0 0;background:linear-gradient(180deg,rgba(28,34,26,.96),rgba(12,15,11,.98));border-top:1px solid rgba(255,194,61,.22);color:#fff}
+#mpBar small{display:block;color:#bdbdbd;font-size:13.5px}#mpBar b{display:block;font-size:21px;margin:3px 0 12px}
+.mpb{display:flex;gap:10px}.mpb button{flex:1;height:52px;border:0;border-radius:999px;font:700 16px system-ui,-apple-system,sans-serif;display:inline-flex;align-items:center;justify-content:center;gap:7px}
+.spmap{display:flex!important;align-items:center;gap:14px;text-align:left;padding:12px 14px!important;color:inherit;font:inherit;border:0;width:100%;margin-top:10px;border-radius:16px;box-shadow:inset 0 0 0 1px rgba(66,133,244,.45);background:rgba(66,133,244,.10)}
 #coolCard{position:fixed;left:12px;right:12px;top:calc(var(--safe-t,0px) + 118px);z-index:40;display:flex;gap:12px;align-items:flex-start;padding:14px;border-radius:18px;background:rgba(18,30,22,.94);border:1px solid rgba(233,196,106,.35);color:#f3efe4;box-shadow:0 10px 30px rgba(0,0,0,.4);transform:translateY(-16px);opacity:0;pointer-events:none;transition:.3s;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
 #coolCard.on{transform:none;opacity:1;pointer-events:auto}#coolCard .cci{width:42px;height:42px;border-radius:13px;flex:none;display:grid;place-items:center;background:linear-gradient(150deg,#ffb38a,#e5533d);color:#fff}
 #coolCard .cct{flex:1;min-width:0}#coolCard .cct b{display:block;font-size:15.5px}#coolCard .cct small{display:block;color:#c9d3c6;font-size:13px;line-height:1.4;margin-top:2px}#coolCard ul{margin:6px 0 0;padding-left:18px;font-size:13px;line-height:1.5;color:#ffe29a}
@@ -4448,13 +4455,22 @@ function navMore(){if(!nav)return;const along=nav.along||0;
  nb.addEventListener('touchend',e=>{if(y0==null)return;const dy=e.changedTouches[0].clientY-y0;y0=null;if(dy<-35)navMore()},{passive:true})}
 
 /* ---- pick a stop ---- */
+/* pick a spot by moving the map under a fixed pin */
+function mapPick(done,back){closeSheet();if(follow)setFollow(0);document.body.classList.add('mappick');
+  const pin=document.createElement('div');pin.id='mpPin';pin.innerHTML='<svg viewBox="0 0 30 40" width="38" height="50"><path d="M15 39C15 39 2 23 2 14a13 13 0 0 1 26 0c0 9-13 25-13 25z" fill="#f2b632" stroke="#fff" stroke-width="2"/><circle cx="15" cy="14" r="5" fill="#fff"/></svg><i></i>';document.body.appendChild(pin);
+  const bar=document.createElement('div');bar.id='mpBar';bar.innerHTML=`<small>${T('Move the map to put the pin on your stop')}</small><b id="mpRd">…</b><div class="mpb"><button class="rpsec" id="mpNo">${T('Cancel')}</button><button class="rpstart" id="mpOk">${LI('check',18)} ${T('Add this stop')}</button></div>`;document.body.appendChild(bar);
+  const where=()=>{const ll=map.getCenter().toArray(),ne=nearestEdge(ll,300),rd=ne&&ne.d<80?ROADS[ne.e.road].properties.name:null;return {ll,rd}};
+  const upd=()=>{const w=where();const e=$('mpRd');if(e)e.textContent=w.rd||(inReserve(w.ll)?T('Off road'):T('Outside the reserve'))};upd();map.on('move',upd);
+  const end=()=>{map.off('move',upd);document.body.classList.remove('mappick');pin.remove();bar.remove()};
+  $('mpNo').onclick=()=>{end();back?back():null};
+  $('mpOk').onclick=()=>{const w=where();end();done({kind:'pin',name:w.rd?T('Pin on')+' '+w.rd:T('Dropped pin'),ll:w.ll})}}
 function stopPicker(done,back){const base=searchItems().filter(x=>x.kind!=='report');const here=me?me.ll:map.getCenter().toArray();
   const rank=x=>{const ll=x.ll||null;return ll?dist(here,ll):5e5};
   const draw=q=>{q=(q||'').toLowerCase().trim();const L=base.filter(x=>!q||(x.name+' '+(x.sub||'')).toLowerCase().includes(q)).sort((a,b)=>(a.kind==='road')-(b.kind==='road')||rank(a)-rank(b)).slice(0,40);
     $('spL').innerHTML=L.map((x,k)=>`<button class="it lk" data-k="${base.indexOf(x)}"><span class="lki" style="background:${COLORS[x.kind]||'#6d5a45'}">${x.kind==='sight'?AN(x.what||x.name,22):LI(x.kind==='road'?'route':x.kind==='gate'?'gate':x.kind==='picnic'?'picnic':x.kind==='home'?'home':'pin',18)}</span><div style="flex:1;min-width:0"><b>${esc(x.name)}</b><br><small>${esc(x.sub||'')}${x.ll?' · '+fmtD(dist(here,x.ll)):''}</small></div></button>`).join('')||`<div class="sub">${T('Nothing found')}</div>`;
     $('spL').querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>done(base[+b.dataset.k]))};
-  openSheet(`<h2>${T('Add a stop')}</h2><input class="inp" id="spQ" placeholder="${T('Search places, roads, sightings')}" autocomplete="off"><div class="list" id="spL" style="margin-top:8px;max-height:52vh;overflow:auto"></div><button class="btn" id="spBack" style="width:100%;margin-top:10px">${T('Back')}</button>`,()=>{
-    draw('');$('spQ').oninput=e=>draw(e.target.value);$('spBack').onclick=()=>back?back():closeSheet()})}
+  openSheet(`<h2>${T('Add a stop')}</h2><input class="inp" id="spQ" placeholder="${T('Search places, roads, sightings')}" autocomplete="off"><button class="it lk spmap" id="spMap"><span class="lki" style="background:#1a56db;color:#fff">${LI('pin',18)}</span><div style="flex:1;min-width:0"><b>${T('Set location on map')}</b><br><small>${T('Move the map to the spot you want')}</small></div></button><div class="list" id="spL" style="margin-top:8px;max-height:46vh;overflow:auto"></div><button class="btn" id="spBack" style="width:100%;margin-top:10px">${T('Back')}</button>`,()=>{
+    draw('');$('spQ').oninput=e=>draw(e.target.value);$('spMap').onclick=()=>mapPick(done,back);$('spBack').onclick=()=>back?back():closeSheet()})}
 
 /* ---- route preview extras: stops (drag to reorder), avoid tracks, the other way, flick through the turns ---- */
 function rpExtras(x,r,b){RP={x,r,b,alt:null};
@@ -4984,7 +5000,7 @@ function poiNear(pt,r){r=r||30;const L=map.getLayer('poi')?map.queryRenderedFeat
 map.on('click',e=>{if(MEAS||Date.now()-lpAt<900||Date.now()-dotTap<700)return;
   if(map.queryRenderedFeatures(e.point,{layers:['sights','reports','home','note-dot','closed-roads','mate-dot','mate-lbl','mate-arrow'].filter(l=>map.getLayer(l))}).length)return;
   const f=poiNear(e.point);if(!f)return;showPlace({kind:f.properties.kind,name:f.properties.name,sub:(PKIND[f.properties.kind]||'')+(f.properties.note?' · '+f.properties.note:''),ll:f.geometry.coordinates,pid:f.properties.pid||'',base:f.properties.base||''})});
-map.on('click',e=>{if(rpOn&&!nav&&document.body.classList.contains('rpmode'))return;if(tapGuard(e))return;const f=map.queryRenderedFeatures(e.point,{layers:['sights','reports','poi','home','trail-line','tracks','note-dot','closed-roads','mate-dot','mate-lbl','mate-arrow']});if(f.length||poiNear(e.point))return;if(isAdm()){const pt=e.point;if(!map.queryRenderedFeatures([[pt.x-8,pt.y-8],[pt.x+8,pt.y+8]],{layers:['road']}).length&&(map.queryRenderedFeatures([[pt.x-8,pt.y-8],[pt.x+8,pt.y+8]],{layers:['river-water','river','river-dry']}).length||map.queryRenderedFeatures(pt,{layers:['water','pan']}).length))return}tapLater(()=>{
+map.on('click',e=>{if(document.body.classList.contains('mappick'))return;if(rpOn&&!nav&&document.body.classList.contains('rpmode'))return;if(tapGuard(e))return;const f=map.queryRenderedFeatures(e.point,{layers:['sights','reports','poi','home','trail-line','tracks','note-dot','closed-roads','mate-dot','mate-lbl','mate-arrow']});if(f.length||poiNear(e.point))return;if(isAdm()){const pt=e.point;if(!map.queryRenderedFeatures([[pt.x-8,pt.y-8],[pt.x+8,pt.y+8]],{layers:['road']}).length&&(map.queryRenderedFeatures([[pt.x-8,pt.y-8],[pt.x+8,pt.y+8]],{layers:['river-water','river','river-dry']}).length||map.queryRenderedFeatures(pt,{layers:['water','pan']}).length))return}tapLater(()=>{
   const ll=e.lngLat.toArray();
   // on a route: tapping the map adds a sighting there without moving the map or stopping the route
   if(nav){if(DM.on){demoTapSheet(ll);return}tapSheet(ll);return}
