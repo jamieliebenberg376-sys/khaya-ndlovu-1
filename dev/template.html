@@ -25,7 +25,7 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;paddin
 
 /* splash */
 #splash{position:fixed;top:0;left:0;right:0;height:var(--app-h);z-index:100;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .45s}
-#splash.out{opacity:0;pointer-events:none;transition:opacity .9s ease .35s}
+#splash.out{opacity:0;pointer-events:none;transition:opacity .5s ease .1s}
 #splash .stag,#splash .bar,#gpsTxt{transition:opacity .25s,transform .25s}
 #splash.out .tag,#splash.out .bar,#splash.out #gpsTxt{opacity:0;transform:translateY(10px)}
 #splash.out .logo{animation:logoOut 1.15s cubic-bezier(.55,0,.2,1) forwards}
@@ -4863,8 +4863,13 @@ map.on('click','closed-roads',e=>{const r=e.features[0].properties.name;if(r){e.
 for(const l of ['mate-dot','mate-lbl','mate-arrow'])map.on('click',l,e=>{const id=e.features[0].properties.id;e.originalEvent&&(e.originalEvent._est=1);const r=LIVE[id];if(r)mateSheet(r)});
 map.on('click','trail-line',e=>{const u=e.features[0].properties.uid;const r=LIVE[u]||{user_id:u,name:(TRAILS[u]||{}).n};e.originalEvent&&(e.originalEvent._est=1);mateSheet(r)});
 map.on('click','reports',e=>{const r=allReports().find(x=>x.cid===e.features[0].properties.cid);if(r)showPlace({kind:'report',name:r.kind,sub:'Road report · '+ago(r.t)+' · '+r.by+(r.road?' · '+r.road:'')+confTxt(r)+(r.note?' · '+r.note:''),ll:r.ll,cid:r.cid,mine:r.mine})});
-map.on('click','poi',e=>{const f=e.features[0];showPlace({kind:f.properties.kind,name:f.properties.name,sub:(PKIND[f.properties.kind]||'')+(f.properties.note?' · '+f.properties.note:''),ll:f.geometry.coordinates,pid:f.properties.pid||'',base:f.properties.base||''})});
-map.on('click',e=>{if(tapGuard(e))return;const f=map.queryRenderedFeatures(e.point,{layers:['sights','reports','poi','home','trail-line','tracks','note-dot','closed-roads','mate-dot','mate-lbl','mate-arrow']});if(f.length)return;if(isAdm()){const pt=e.point;if(!map.queryRenderedFeatures([[pt.x-8,pt.y-8],[pt.x+8,pt.y+8]],{layers:['road']}).length&&(map.queryRenderedFeatures([[pt.x-8,pt.y-8],[pt.x+8,pt.y+8]],{layers:['river-water','river','river-dry']}).length||map.queryRenderedFeatures(pt,{layers:['water','pan']}).length))return}tapLater(()=>{
+/* places get a bigger tap target: anything within ~30 px of the icon opens it, nearest first */
+function poiNear(pt,r){r=r||30;const L=map.getLayer('poi')?map.queryRenderedFeatures([[pt.x-r,pt.y-r],[pt.x+r,pt.y+r]],{layers:['poi']}):[];let best=null,bd=1e9;
+  L.forEach(f=>{if(!f.geometry||f.geometry.type!=='Point')return;const q=map.project(f.geometry.coordinates),d=Math.hypot(q.x-pt.x,q.y-pt.y);if(d<bd){bd=d;best=f}});return best}
+map.on('click',e=>{if(MEAS||Date.now()-lpAt<900||Date.now()-dotTap<700)return;
+  if(map.queryRenderedFeatures(e.point,{layers:['sights','reports','home','note-dot','closed-roads','mate-dot','mate-lbl','mate-arrow'].filter(l=>map.getLayer(l))}).length)return;
+  const f=poiNear(e.point);if(!f)return;showPlace({kind:f.properties.kind,name:f.properties.name,sub:(PKIND[f.properties.kind]||'')+(f.properties.note?' · '+f.properties.note:''),ll:f.geometry.coordinates,pid:f.properties.pid||'',base:f.properties.base||''})});
+map.on('click',e=>{if(tapGuard(e))return;const f=map.queryRenderedFeatures(e.point,{layers:['sights','reports','poi','home','trail-line','tracks','note-dot','closed-roads','mate-dot','mate-lbl','mate-arrow']});if(f.length||poiNear(e.point))return;if(isAdm()){const pt=e.point;if(!map.queryRenderedFeatures([[pt.x-8,pt.y-8],[pt.x+8,pt.y+8]],{layers:['road']}).length&&(map.queryRenderedFeatures([[pt.x-8,pt.y-8],[pt.x+8,pt.y+8]],{layers:['river-water','river','river-dry']}).length||map.queryRenderedFeatures(pt,{layers:['water','pan']}).length))return}tapLater(()=>{
   const ll=e.lngLat.toArray();
   // on a route: tapping the map adds a sighting there without moving the map or stopping the route
   if(nav){if(DM.on){demoTapSheet(ll);return}addSheet('sight',ll);return}
@@ -6559,13 +6564,13 @@ function onMapLoad(){if(mapReady)return;mapReady=true;if(LIVEMAP)try{for(const i
   const r=LS.get('rec',null);if(r){recTrack=r;$('rec').classList.remove('hide');$('recInfo').textContent=fmtD(r.len)}
   startGPS();bootWait();netEval();try{$('sunTxt').textContent=sunLine()}catch(e){}}
 /* if the map finished loading before we got here, start straight away */
-if(map.loaded()&&map.isStyleLoaded())setTimeout(onMapLoad,0);else map.on('load',onMapLoad);{let n=0;const iv=setInterval(()=>{if(mapReady||++n>60){clearInterval(iv);return}if(map.isStyleLoaded()&&map.loaded())onMapLoad()},500)}
+if(map.loaded()&&map.isStyleLoaded())setTimeout(onMapLoad,0);else map.on('load',onMapLoad);const styleUp=()=>!!(map.style&&map.style._loaded);map.on('style.load',()=>setTimeout(()=>{if(!mapReady)onMapLoad()},30));{let n=0;const iv=setInterval(()=>{if(mapReady||++n>300){clearInterval(iv);return}if(styleUp())onMapLoad()},100)}/* no waiting for satellite tiles over weak signal */
 function bootWait(){
-  const t0=Date.now();const maxWait=LS.get('booted',false)?3500:6000;
+  const t0=Date.now();const maxWait=LS.get('booted',false)?600:1200;/* never wait long for GPS: the map shows and jumps to you when the fix comes */
   const iv=setInterval(()=>{const el=Date.now()-t0;
-    if(gotFirst){clearInterval(iv);setProg(100,'GPS locked (±'+Math.round(me.acc)+' m)');setTimeout(()=>finishBoot(true),450);return}
+    if(gotFirst){clearInterval(iv);setProg(100,'GPS locked (±'+Math.round(me.acc)+' m)');setTimeout(()=>finishBoot(true),150);return}
     setProg(55+Math.min(40,el/maxWait*40),gpsErr&&gpsErr.includes('denied')?'Location permission denied':'Finding satellites...');
-    if(el>maxWait){clearInterval(iv);setProg(100,gpsErr&&gpsErr.includes('denied')?'Location off, showing the reserve':'Still searching for GPS...');setTimeout(()=>finishBoot(false),500)}},120);
+    if(el>maxWait||(gpsErr&&gpsErr.includes('denied'))){clearInterval(iv);setProg(100,gpsErr&&gpsErr.includes('denied')?'Location off, showing the reserve':'Still searching for GPS...');setTimeout(()=>finishBoot(false),120)}},120);
 }
 function finishBoot(fix){
   LS.set('booted',true);
