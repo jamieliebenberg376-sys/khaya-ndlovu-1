@@ -4118,6 +4118,9 @@ function rpDetails(x){
   requestAnimationFrame(()=>{const bb=new maplibregl.LngLatBounds(r.pts[0],r.pts[0]);r.pts.forEach(p=>bb.extend(p));const sh=$('sheet').getBoundingClientRect();
     map.fitBounds(bb,{padding:{top:Math.max(90,innerHeight*.12),bottom:Math.min(innerHeight*.62,innerHeight-sh.top+30),left:50,right:60},bearing:0,pitch:0,duration:800,maxZoom:16.3})})}
 /* Google-style route preview: the map with every way there and its time bubble, a small card on top, a short panel at the bottom */
+/* the red pin at the end of the route: on the route screen and all the way while driving */
+let destMk=null;function destPin(ll){if(!ll){if(destMk)destMk.remove();return}if(!destMk){const el=document.createElement('div');el.style.pointerEvents='none';el.innerHTML='<svg class="tapmk" viewBox="0 0 30 40" style="width:34px;height:45px"><path d="M15 39C15 39 2 23 2 14a13 13 0 0 1 26 0c0 9-13 25-13 25z" fill="#ea4335" stroke="#fff" stroke-width="2"/><circle cx="15" cy="14" r="5" fill="#fff"/></svg>';destMk=new maplibregl.Marker({element:el,anchor:'bottom'})}destMk.setLngLat(ll).addTo(map)}
+setInterval(()=>{if(destMk&&!rpOn&&!nav)destPin(null)},800);
 function rpPanelOff(){document.body.classList.remove('rpmode');['rpTop','rpBot'].forEach(id=>{const e=$(id);if(e)e.remove()})}
 function routePreview(x){
   const target=itemLL(x);
@@ -4127,7 +4130,7 @@ function routePreview(x){
   const b=buildSteps(r);rpOn=x;if($('sheet').classList.contains('open')){$('sheet').classList.remove('open');$('scrim').classList.remove('on')}
   map.getSource('route').setData({type:'Feature',geometry:{type:'LineString',coordinates:r.pts},properties:{}});
   setFollow(0);try{map.setPadding({top:0,bottom:0,left:0,right:0})}catch(e){}
-  rpExtras(x,r,b);
+  rpExtras(x,r,b);destPin(target);
   const t=rTime(r),eta=new Date(Date.now()+t*1000),best=RPBEST(),isBest=!best||best===r||Math.abs(best.len-r.len)<1;
   const roads=[];b.steps.forEach(s=>{if(s.road&&roads[roads.length-1]!==s.road)roads.push(s.road)});
   const warn=allReports().filter(rp=>projectOnRoute(b.segs,rp.ll).d<45),tk=trkLen(r);
@@ -4160,7 +4163,7 @@ function beginNav(x){
   const stops=NAVSTOPS.slice();const r=RPFORCE||(stops.length?routeVia(me.ll,stops,target):route(me.ll,target));if(!r){toast('No route found');return}
   if(r.len<20){toast("You're already there");return}
   const b=buildSteps(r);
-  nav={target:x,ll:target,r,...b,stepI:0,startT:Date.now(),stops};NAVSTOPS=[];RPFORCE=null;RP=null;try{map.getSource('route-alt').setData(empty);rpMarks([])}catch(e){}drawStops(stops);
+  nav={target:x,ll:target,r,...b,stepI:0,startT:Date.now(),stops};destPin(target);NAVSTOPS=[];RPFORCE=null;RP=null;try{map.getSource('route-alt').setData(empty);rpMarks([])}catch(e){}drawStops(stops);
   const warn=allReports().filter(rp=>projectOnRoute(b.segs,rp.ll).d<45);if(warn.length)setTimeout(()=>toast('Heads up: '+warn.map(w=>w.kind+(w.road?' on '+w.road:'')).join(', ')+' on your route',5000),900);
   closeSheet();curRoad=null;map.getSource('cur').setData(empty);
   document.body.classList.add('navon');$('nav').classList.remove('hide');$('navBottom').classList.remove('hide');$('top').classList.add('hide');$('roadCard').classList.add('hide');
