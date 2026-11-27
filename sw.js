@@ -1,4 +1,4 @@
-const V='kn-v202';
+const V='kn-v203';
 const CORE=['./','./index.html'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(V).then(c=>c.addAll(CORE)).then(()=>self.skipWaiting()))});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==V&&k!=='kn-tiles'&&k!=='kn-app-manual'&&k!=='kn-music').map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
@@ -17,13 +17,14 @@ self.addEventListener('fetch',e=>{
   if(u.origin===location.origin){
     // network first for the app page so updates arrive, cache fallback offline
     const isPage=e.request.mode==='navigate'||/\/(index\.html)?$/.test(u.pathname);
-    const cached=async()=>{const c=await caches.open(V);let h=await c.match(e.request,{ignoreSearch:true})||(isPage&&(await c.match('./index.html')||await c.match('./')));
-      if(h)return h;const m=await caches.open('kn-app-manual');h=await m.match(e.request,{ignoreSearch:true})||(isPage&&(await m.match('./index.html')||await m.match('./')));
+    const cached=async()=>{const c=await caches.open(V);let h=isPage?(await c.match('./index.html')||await c.match('./')):await c.match(e.request,{ignoreSearch:true});
+      if(h)return h;const m=await caches.open('kn-app-manual');h=isPage?(await m.match('./index.html')||await m.match('./')):await m.match(e.request,{ignoreSearch:true});
       return h||caches.match(e.request,{ignoreSearch:true})};
     // the saved copy opens instantly (signal or not); a fresh copy is saved quietly in the background for next time.
     // an update (?fresh=) always goes to the network for the new page.
     const fresh=u.searchParams.has('fresh');
-    const save=r=>{if(r&&r.ok){const cl=r.clone();caches.open(V).then(c=>c.put(e.request,cl));if(isPage){const c2=r.clone();caches.open('kn-app-manual').then(c=>c.put('./index.html',c2))}}return r};
+    // the app page is always saved under one name, so the newest download is the one that opens next time
+    const save=r=>{if(r&&r.ok){if(isPage){const a=r.clone(),b2=r.clone(),c2=r.clone();caches.open(V).then(c=>{c.put('./index.html',a);c.put('./',b2)});caches.open('kn-app-manual').then(c=>c.put('./index.html',c2))}else{const cl=r.clone();caches.open(V).then(c=>c.put(e.request,cl))}}return r};
     if(fresh){e.respondWith(fetch(e.request).then(save).catch(()=>cached().then(h=>h||new Response('Offline',{status:503}))));return}
     e.respondWith(cached().then(h=>{const net=fetch(e.request).then(save);if(h){e.waitUntil(net.catch(()=>{}));return h}return net.catch(()=>new Response('Offline',{status:503}))}));
   }

@@ -4990,9 +4990,9 @@ map.on('click',e=>{if(rpOn&&!nav&&document.body.classList.contains('rpmode'))ret
 /* a tap on the map: just two choices */
 function tapSheet(ll){dropPin(ll);const ne=nearestEdge(ll,300),road=ne&&ne.d<80?ROADS[ne.e.road].properties.name:null;let away=null;try{away=me?route(me.ll,ll):null}catch(e){}
   openSheet(`<div class="tsh"><span class="rpi pinr">${LI('pin',22)}</span><div style="min-width:0"><b>${road?esc(road):inReserve(ll)?T('Off road'):T('Outside the reserve')}</b><small>${away?fmtT(rTime(away))+' · '+fmtD(away.len)+' '+T('by road'):me?fmtD(dist(me.ll,ll))+' '+T('away'):''}</small></div></div>
-   <div class="tsb"><button class="btn" id="tGo"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l8 20-8-5-8 5z"/></svg>${T('Go now')}</button><button class="btn pri" id="tSi">${LI('binoc',18)} ${T('Add sighting')}</button></div>`,()=>{
+   <div class="tsb"><button class="btn pri" id="tGo"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l8 20-8-5-8 5z"/></svg>${T('Go now')}</button><button class="btn pri" id="tSi">${LI('binoc',18)} ${T('Add sighting')}</button></div>`,()=>{
     $('tGo').onclick=()=>{closeSheet();clearPin();setTimeout(()=>routePreview({kind:'pin',name:road||T('Dropped pin'),ll}),200)};
-    $('tSi').onclick=()=>addSheet('sight',ll)})}
+    $('tSi').onclick=()=>{addSheet('sight',ll);$('sheet').classList.add('full')}})}
 for(const l of['sights','reports','poi','road','road-check'])map.on('mouseenter',l,()=>map.getCanvas().style.cursor='pointer'),map.on('mouseleave',l,()=>map.getCanvas().style.cursor='');
 
 
@@ -5481,6 +5481,12 @@ async function checkUpdate(){if(!SUPA.url||!navigator.onLine)return;
       const idle=!nav&&!sim&&!(me&&(me.speed||0)>2)&&!$('sheet').classList.contains('open');
       if(idle&&a.c<4&&Date.now()-a.t>90000){a.c++;a.t=Date.now();LS.set('autoUpd2',a);if(await doUpdate(true,n))return}
       updateWall()}else{LS.set('updTries',0);LS.set('autoUpd2',{n:0,c:0,t:0});const w=$('updWall');if(w)w.remove()}}catch(e){}}
+/* the app opens from the saved copy; if a newer one is online, fetch it and switch to it straight away when the map is idle */
+async function quietUpdate(){if(!navigator.onLine||!navigator.serviceWorker||!navigator.serviceWorker.controller)return;
+  try{const r=await fetch('./index.html?v='+Date.now(),{cache:'no-store'});if(!r.ok)return;const h=await r.text();const m=h.match(/APP_BUILD\s*=\s*(\d+)/);const nb=m?+m[1]:0;if(!(nb>APP_BUILD)||!/maplibre/i.test(h))return;
+    const go=()=>{const idle=!nav&&!rpOn&&!sim&&!(me&&(me.speed||0)>2)&&!$('sheet').classList.contains('open');if(idle){toast(T('Updating the map...'),2000);setTimeout(()=>location.reload(),600);return true}return false};
+    if(!go()){const iv=setInterval(()=>{if(go())clearInterval(iv)},3000)}}catch(e){}}
+setTimeout(quietUpdate,2500);document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout(quietUpdate,1500)});
 setTimeout(checkUpdate,4000);setInterval(checkUpdate,10*6e4);document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkUpdate()});
 /* a clear message from a database error */
 function errTxt(e){const m=String(e&&e.message||e);let msg=m;try{const j=JSON.parse(m.replace(/^\d+:\s*/,''));msg=(j.message||'')+(j.hint?' · '+j.hint:'')}catch(x){}
