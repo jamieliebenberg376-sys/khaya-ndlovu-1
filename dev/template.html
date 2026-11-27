@@ -1031,6 +1031,8 @@ body.tfback #storyQ,body.tfback #homeNag{opacity:0!important;pointer-events:none
 .rtag::after{content:"";position:absolute;left:50%;bottom:-5px;margin-left:-5px;border:5px solid transparent;border-bottom:0;border-top-color:#fff}
 .rtag.nalt{opacity:.92;font-size:12.5px}.rtag.nalt.fast{background:#2f7a4f;color:#fff}.rtag.nalt.fast::after{border-top-color:#2f7a4f}
 .rtag.sel{background:#4285f4;color:#fff;z-index:3}.rtag.sel::after{border-top-color:#4285f4}
+.tsh{display:flex;align-items:center;gap:12px;margin:2px 0 14px}.tsh b{display:block;font-size:19px;letter-spacing:-.2px}.tsh small{color:var(--sub);font-size:13.5px}
+.tsb{display:grid;grid-template-columns:1fr 1fr;gap:10px}.tsb .btn{min-height:56px;font-size:16px;margin:0}
 #coolCard{position:fixed;left:12px;right:12px;top:calc(var(--safe-t,0px) + 118px);z-index:40;display:flex;gap:12px;align-items:flex-start;padding:14px;border-radius:18px;background:rgba(18,30,22,.94);border:1px solid rgba(233,196,106,.35);color:#f3efe4;box-shadow:0 10px 30px rgba(0,0,0,.4);transform:translateY(-16px);opacity:0;pointer-events:none;transition:.3s;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
 #coolCard.on{transform:none;opacity:1;pointer-events:auto}#coolCard .cci{width:42px;height:42px;border-radius:13px;flex:none;display:grid;place-items:center;background:linear-gradient(150deg,#ffb38a,#e5533d);color:#fff}
 #coolCard .cct{flex:1;min-width:0}#coolCard .cct b{display:block;font-size:15.5px}#coolCard .cct small{display:block;color:#c9d3c6;font-size:13px;line-height:1.4;margin-top:2px}#coolCard ul{margin:6px 0 0;padding-left:18px;font-size:13px;line-height:1.5;color:#ffe29a}
@@ -4929,9 +4931,15 @@ map.on('click',e=>{if(MEAS||Date.now()-lpAt<900||Date.now()-dotTap<700)return;
 map.on('click',e=>{if(tapGuard(e))return;const f=map.queryRenderedFeatures(e.point,{layers:['sights','reports','poi','home','trail-line','tracks','note-dot','closed-roads','mate-dot','mate-lbl','mate-arrow']});if(f.length||poiNear(e.point))return;if(isAdm()){const pt=e.point;if(!map.queryRenderedFeatures([[pt.x-8,pt.y-8],[pt.x+8,pt.y+8]],{layers:['road']}).length&&(map.queryRenderedFeatures([[pt.x-8,pt.y-8],[pt.x+8,pt.y+8]],{layers:['river-water','river','river-dry']}).length||map.queryRenderedFeatures(pt,{layers:['water','pan']}).length))return}tapLater(()=>{
   const ll=e.lngLat.toArray();
   // on a route: tapping the map adds a sighting there without moving the map or stopping the route
-  if(nav){if(DM.on){demoTapSheet(ll);return}addSheet('sight',ll);return}
+  if(nav){if(DM.on){demoTapSheet(ll);return}tapSheet(ll);return}
   if(follow)setFollow(0);
-  if(DM.on){demoTapSheet(ll);return}addSheet('sight',ll);map.easeTo({center:ll,offset:[0,-innerHeight*0.22],duration:500})})});
+  if(DM.on){demoTapSheet(ll);return}tapSheet(ll);map.easeTo({center:ll,offset:[0,-innerHeight*0.12],duration:500})})});
+/* a tap on the map: just two choices */
+function tapSheet(ll){dropPin(ll);const ne=nearestEdge(ll,300),road=ne&&ne.d<80?ROADS[ne.e.road].properties.name:null;let away=null;try{away=me?route(me.ll,ll):null}catch(e){}
+  openSheet(`<div class="tsh"><span class="rpi pinr">${LI('pin',22)}</span><div style="min-width:0"><b>${road?esc(road):inReserve(ll)?T('Off road'):T('Outside the reserve')}</b><small>${away?fmtT(rTime(away))+' · '+fmtD(away.len)+' '+T('by road'):me?fmtD(dist(me.ll,ll))+' '+T('away'):''}</small></div></div>
+   <div class="tsb"><button class="btn" id="tGo"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l8 20-8-5-8 5z"/></svg>${T('Go now')}</button><button class="btn pri" id="tSi">${LI('binoc',18)} ${T('Add sighting')}</button></div>`,()=>{
+    $('tGo').onclick=()=>{closeSheet();clearPin();setTimeout(()=>routePreview({kind:'pin',name:road||T('Dropped pin'),ll}),200)};
+    $('tSi').onclick=()=>addSheet('sight',ll)})}
 for(const l of['sights','reports','poi','road','road-check'])map.on('mouseenter',l,()=>map.getCanvas().style.cursor='pointer'),map.on('mouseleave',l,()=>map.getCanvas().style.cursor='');
 
 
