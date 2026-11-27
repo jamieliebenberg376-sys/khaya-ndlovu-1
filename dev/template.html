@@ -1007,9 +1007,20 @@ body.tfback #storyQ,body.tfback #homeNag{opacity:0!important;pointer-events:none
 .anph em{position:absolute;right:6px;top:6px;font:800 10px system-ui;font-style:normal;color:#fff;background:#c5221f;border-radius:6px;padding:2px 5px}
 .anlk{display:flex;align-items:center;gap:12px;width:100%;margin-top:14px;padding:12px 14px;border-radius:16px;border:0;background:#174c33;color:#fff;text-align:left}
 .anlk span{flex:1}.anlk b{display:block;font-size:16px}.anlk small{color:#cfe3d4;font-size:12.5px}.anlk i{font-style:normal;color:#ffe29a;font-size:20px}
-#ppHero{display:block;position:relative;width:100%;height:220px;margin:0 0 14px;padding:0;border:0;border-radius:20px;overflow:hidden;background:linear-gradient(160deg,var(--sandA,#e9dfc7),var(--sandB,#cdbb92));box-shadow:0 8px 24px rgba(0,0,0,.25)}
-#ppHero img{width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .35s}#ppHero.ok img{opacity:1}
-#ppHero span{position:absolute;left:10px;bottom:10px;font:700 12.5px system-ui,-apple-system,sans-serif;color:#fff;background:rgba(0,0,0,.45);padding:4px 10px;border-radius:999px;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+#plHero{position:relative;height:210px;margin:2px 0 14px;border-radius:22px;overflow:hidden;box-shadow:0 10px 26px rgba(0,0,0,.22);background:linear-gradient(150deg,#2f6b4a,#173a28)}
+#plHero.k-water{background:linear-gradient(150deg,#3b7fa6,#1b4660)}#plHero.k-picnic{background:linear-gradient(150deg,#c9973f,#7a5520)}#plHero.k-view{background:linear-gradient(150deg,#b5733d,#5e3518)}#plHero.k-hide{background:linear-gradient(150deg,#5c7a3a,#2c3f1a)}#plHero.k-gate{background:linear-gradient(150deg,#6b6b6b,#2f2f2f)}#plHero.k-lodge{background:linear-gradient(150deg,#8a5a3c,#43281a)}
+#plHero::before{content:"";position:absolute;inset:0;background:radial-gradient(120% 90% at 85% 10%,rgba(255,255,255,.22),transparent 55%),repeating-linear-gradient(135deg,rgba(255,255,255,.05) 0 2px,transparent 2px 14px)}
+#plHero .plart{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.85);transition:opacity .3s}#plHero .plart svg{filter:drop-shadow(0 4px 10px rgba(0,0,0,.3))}
+#plHero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .4s}#plHero.ok img{opacity:1}#plHero.ok .plart{opacity:0}#plHero.has{cursor:zoom-in}
+#plHero::after{content:"";position:absolute;inset:auto 0 0 0;height:60%;background:linear-gradient(transparent,rgba(0,0,0,.45));pointer-events:none}
+#plHero .plk,#plHero .plc{position:absolute;z-index:2;bottom:11px;display:inline-flex;align-items:center;gap:6px;font:700 12.5px system-ui,-apple-system,sans-serif;color:#fff;background:rgba(0,0,0,.38);padding:5px 11px;border-radius:999px;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);box-shadow:inset 0 0 0 1px rgba(255,255,255,.18)}
+#plHero .plk{left:11px}#plHero .plc{right:11px}#plHero .plc:empty{display:none}
+.plt{margin:0 2px 4px;font-size:25px;line-height:1.15;letter-spacing:-.4px}.pln{margin:0 2px 2px;color:var(--sub);font-size:14.5px;line-height:1.4}
+.plm{margin-top:12px}.plm b.g{color:#2f7a4f}
+.pla{display:flex;gap:9px;margin-top:14px}.pla #goBtn{flex:1;min-height:56px;font-size:17px}
+.plb{flex:none;width:64px;min-height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border:0;border-radius:16px;background:linear-gradient(160deg,#faf6ee,#f2eadc);box-shadow:inset 0 0 0 1px var(--hair);color:#2a5a3f;font:inherit}
+.plb small{font-size:11px;font-weight:700}.plb.on{background:linear-gradient(160deg,#e9c46a,#c99a2e);color:#3a2a08;box-shadow:none}.plb.on svg{fill:currentColor}
+.plcard{margin-top:14px;padding:4px 14px 14px;border-radius:20px;background:rgba(127,127,127,.06);box-shadow:inset 0 0 0 1px var(--hair)}.plcard .msec{margin-top:12px}.plcard .phbtn{margin-top:10px}
 #coolCard{position:fixed;left:12px;right:12px;top:calc(var(--safe-t,0px) + 118px);z-index:40;display:flex;gap:12px;align-items:flex-start;padding:14px;border-radius:18px;background:rgba(18,30,22,.94);border:1px solid rgba(233,196,106,.35);color:#f3efe4;box-shadow:0 10px 30px rgba(0,0,0,.4);transform:translateY(-16px);opacity:0;pointer-events:none;transition:.3s;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
 #coolCard.on{transform:none;opacity:1;pointer-events:auto}#coolCard .cci{width:42px;height:42px;border-radius:13px;flex:none;display:grid;place-items:center;background:linear-gradient(150deg,#ffb38a,#e5533d);color:#fff}
 #coolCard .cct{flex:1;min-width:0}#coolCard .cct b{display:block;font-size:15.5px}#coolCard .cct small{display:block;color:#c9d3c6;font-size:13px;line-height:1.4;margin-top:2px}#coolCard ul{margin:6px 0 0;padding-left:18px;font-size:13px;line-height:1.5;color:#ffe29a}
@@ -3768,12 +3779,11 @@ async function placePhotos(x){const box=$('ppBox');if(!box)return;const key=plac
   // my photos still waiting for signal
   (Cloud.outbox||[]).filter(o=>o.op==='pp'&&o.key===key).forEach(o=>{if(!L.some(q=>q.c===o.cid))L.unshift({c:o.cid,by:'You',cap:o.cap,t:new Date().toISOString(),mine:true,wait:true})});
   if(!$('ppBox'))return;
-  /* the newest uploaded photo goes big at the top, with the place name underneath */
-  {const old=$('ppHero');if(old)old.remove();const H=L.find(q=>!q.wait);const sb=$('sheetBody');if(H&&sb){const d=document.createElement('button');d.id='ppHero';d.innerHTML='<img alt=""><span>'+esc(H.mine?T('You'):(H.by||'Someone').split(' ')[0])+(L.filter(q=>!q.wait).length>1?' · '+L.filter(q=>!q.wait).length+' '+T('photos'):'')+'</span>';sb.insertBefore(d,sb.firstChild);
-    photoURL(H.c).then(u=>{if(u){const im=d.querySelector('img');im.src=u;im.onload=()=>d.classList.add('ok')}});
-    d.onclick=()=>{const i=L.findIndex(q=>q.c===H.c);lightbox(L.map(q=>q.c),Math.max(0,i),'',L.map(q=>({cap:cap(q)})))}}}
   const cap=q=>[q.cap,(q.mine?'You':q.by||'Someone')+' · '+new Date(q.t).toLocaleDateString([],{day:'numeric',month:'short',year:'numeric'})].filter(Boolean).join(' · ');
-  box.innerHTML=`<div class="msec" style="margin-top:16px">Photos${L.length?' · '+L.length:''}</div>
+  /* newest uploaded photo fills the header */
+  {const hd=$('plHero'),H=L.find(q=>!q.wait),n=L.filter(q=>!q.wait).length;if(hd){hd.classList.remove('ok','has');const im=hd.querySelector('img');if(H){hd.classList.add('has');hd.querySelector('.plc').textContent=(H.mine?T('You'):(H.by||'Someone').split(' ')[0])+(n>1?' · '+n+' '+T('photos'):'');
+    photoURL(H.c).then(u=>{if(u){im.onload=()=>hd.classList.add('ok');im.src=u}});hd.onclick=()=>{const i=L.findIndex(q=>q.c===H.c);lightbox(L.map(q=>q.c),Math.max(0,i),'',L.map(q=>({cap:cap(q)})))}}else{im.removeAttribute('src');hd.onclick=null}}}
+  box.innerHTML=`<div class="msec">Photos${L.length?' · '+L.length:''}</div>
    ${L.length?`<div class="ppg">${L.map(q=>`<div class="ppt" data-pp="${esc(q.c)}"><img alt=""><span class="ppb">${esc(q.mine?'You':(q.by||'Someone').split(' ')[0])}</span>${q.mine||isAdm()?`<button class="ppx" data-ppx="${esc(q.c)}" aria-label="Delete photo">×</button>`:''}${q.wait?'<span class="ppw">Waiting for signal</span>':''}</div>`).join('')}</div>`:`<div class="sub">No photos yet.${canPhoto()?' Be the first to add one.':''}</div>`}
    ${canPhoto()?`<label class="phbtn" style="margin-top:10px">${LI('cam',18)}<span>Add a photo</span><input type="file" accept="image/*" id="ppIn" hidden></label><div id="ppNew"></div>`:''}`;
   box.querySelectorAll('[data-pp]').forEach(t=>{const im=t.querySelector('img');photoURL(t.dataset.pp).then(u=>{if(u){im.src=u;t.classList.add('ok')}});
@@ -4015,9 +4025,9 @@ function placeLikely(ll){const now=Date.now(),C={},H={};SLOG.forEach(x=>{if(x[1]
   const tot=Object.values(C).reduce((a,b)=>a+b,0);const per=h=>h<9?'early morning':h<12?'morning':h<15?'midday':h<18?'afternoon':'evening';
   return Object.entries(C).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([w,n])=>{const hs=H[w].map(per),c={};hs.forEach(p=>c[p]=(c[p]||0)+1);return {w,n,pct:Math.round(n/tot*100),when:Object.entries(c).sort((a,b)=>b[1]-a[1])[0][0]}})}
 async function placeInsights(x){const box=$('plIns');if(!box)return;const ll=itemLL(x),L=placeLikely(ll);
-  box.innerHTML=L.length?`<div class="msec" style="margin-top:16px">Most likely to spot here</div><div class="list sgroup">${L.map(q=>`<div class="it"><span style="flex:none;display:flex">${AN(q.w,30)}</span><div style="flex:1;min-width:0"><b>${esc(q.w)}</b><br><small>${q.n} sighting${q.n>1?'s':''} within 1.5 km · mostly ${esc(q.when)}</small></div><small>${q.pct}%</small></div>`).join('')}</div><div id="plPosts"></div>`:'<div id="plPosts"></div>';
+  box.innerHTML=L.length?`<div class="plcard"><div class="msec">Most likely to spot here</div><div class="list sgroup">${L.map(q=>`<div class="it"><span style="flex:none;display:flex">${AN(q.w,30)}</span><div style="flex:1;min-width:0"><b>${esc(q.w)}</b><br><small>${q.n} sighting${q.n>1?'s':''} within 1.5 km · mostly ${esc(q.when)}</small></div><small>${q.pct}%</small></div>`).join('')}</div></div><div id="plPosts"></div>`:'<div id="plPosts"></div>';
   let P=[];if(Cloud.member&&navigator.onLine){try{P=await rpc('feed',{p_lat:ll[1],p_lng:ll[0],p_km:1.5,p_limit:4})||[]}catch(e){}}
-  const pb=$('plPosts');if(!pb)return;pb.innerHTML=P.length?`<div class="msec" style="margin-top:16px">Recent sightings nearby</div>${P.map(postCard).join('')}`:'';bindPosts(pb,P,()=>showPlace(x))}
+  const pb=$('plPosts');if(!pb)return;pb.innerHTML=P.length?`<div class="plcard"><div class="msec">Recent sightings nearby</div>${P.map(postCard).join('')}</div>`:'';bindPosts(pb,P,()=>showPlace(x))}
 function showPlace(x){
   const ll=itemLL(x);
   if(x.kind==='road'){const fs=ROADS.filter(f=>f.properties.name===x.road);let b=new maplibregl.LngLatBounds();fs.forEach(f=>f.geometry.coordinates.forEach(c=>b.extend(c)));map.fitBounds(b,{padding:{top:140,bottom:260,left:50,right:50},maxZoom:16.5,duration:700});map.getSource('cur').setData({type:'FeatureCollection',features:fs})}
@@ -4027,6 +4037,16 @@ function showPlace(x){
   const r=me?route(me.ll,ll):null;
   const isPoi=PKIND[x.kind]&&x.kind!=='home';const cl=x.kind==='road'&&CLOSED[x.road];
   const extra=isAdm()&&isPoi?`<button class="btn" id="plEdit">${LI('gear',18)} Edit place</button>`:isAdm()&&x.kind==='road'?`<button class="btn${cl?'':' red'}" id="rdClose">${cl?'Reopen road':'Close road'}</button>`:(x.kind==='sight'&&(x.mine||isAdm()))?`${Cloud.member&&!x.still?`<button class="btn" id="shS">${LI('msg',17)} ${T('Share to main chat')}</button>`:''}<button class="btn red" id="delS">Delete</button>`:x.kind==='report'?`${x.mine?'':'<button class="btn" id="stillR">Still there</button>'}<button class="btn red" id="resR">Road is clear</button>`:'';
+  if(isPoi){const ic={water:'drop',hide:'binoc',picnic:'picnic',view:'eye',gate:'gate',lodge:'home'}[x.kind]||'pin';const sl=me?dist(me.ll,ll):null;const note=(POIS_BY_NAME[x.name]||{}).note||'';const sub=String(x.sub||'').replace(PKIND[x.kind],'').replace(/^[\s·]+|[\s·]+$/g,'');
+    openSheet(`<div id="plHero" class="plh k-${esc(x.kind)}"><div class="plart">${LI(ic,64)}</div><img alt=""><span class="plk">${LI(ic,15)}${esc(T(PKIND[x.kind]||'Place'))}</span><span class="plc"></span></div>
+     <h2 class="plt">${esc(x.name)}</h2>${note||sub?`<div class="pln">${esc(note||sub)}</div>`:''}
+     ${me?`<div class="rpm plm">${r?`<div><b class="g">${fmtT(r.len/(18/3.6))}</b><small>${T('Drive')}</small></div><div><b>${fmtD(r.len)}</b><small>${T('By road')}</small></div>`:''}<div><b>${fmtD(sl)}</b><small>${T('Straight line')}</small></div></div>`:`<div class="pln">${T('Distances show once GPS finds you.')}</div>`}
+     <div class="pla"><button class="btn pri" id="goBtn"><svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M12 2l8 20-8-5-8 5z"/></svg>${T('Go')}</button><button class="plb${isFav(x)?' on':''}" id="plSave">${LI('star',20)}<small>${isFav(x)?T('Saved'):T('Save')}</small></button>${isAdm()?`<button class="plb" id="plEdit">${LI('gear',20)}<small>${T('Edit')}</small></button>`:''}</div>
+     <div class="plcard" id="ppBox"><div class="msec">Photos</div><div class="sub">Loading...</div></div><div id="plIns"></div>`,()=>{
+      $('goBtn').onclick=()=>{closeSheet();startNav(x)};placePhotos(x);placeInsights(x);
+      $('plSave').onclick=()=>{toggleFav(x);const on=isFav(x);$('plSave').classList.toggle('on',on);$('plSave').querySelector('small').textContent=on?T('Saved'):T('Save')};
+      if($('plEdit'))$('plEdit').onclick=()=>placeSheet({id:x.pid||'',base:x.pid?'':(x.base||x.name),kind:x.kind,name:x.name,note,ll})});
+    return}
   openSheet(`${x.kind==='sight'?sightHead(x,me?dist(me.ll,ll):null,r?r.len:null):`<h2>${esc(x.name)}</h2><div class="sub">${esc(x.sub||'')}${d?' · '+d:''}${r?' · '+fmtD(r.len)+' by road':''}</div>`}<div class="row"><button class="btn pri" id="goBtn"><svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M12 2l8 20-8-5-8 5z"/></svg>Go</button>${extra}</div>${x.kind==='sight'?sightVideoHtml(x)+sightExtrasHtml(x):''}${x.kind==='sight'?profileHtml(x.name):''}${isPoi?'<div id="ppBox"><div class="msec" style="margin-top:16px">Photos</div><div class="sub">Loading...</div></div><div id="plIns"></div>':''}${x.kind==='sight'&&x.mine&&!x.note&&!String(x.cid).startsWith('demo-')?'<button class="btn" id="stW" style="width:100%;margin-top:12px">'+LI('msg',18)+' Add the story of this sighting</button>':''}`,()=>{
     $('goBtn').onclick=()=>{closeSheet();startNav(x)};if(isPoi){placePhotos(x);placeInsights(x)}if($('stW'))$('stW').onclick=()=>storySheet(x.cid,x.name,()=>closeSheet());
     if(x.kind==='sight'){bindSightExtras(x);bindSightVideo($('sheetBody'))}
@@ -4568,7 +4588,7 @@ const slim=x=>({kind:x.kind,name:x.name,sub:x.sub||'',ll:x.ll||null,road:x.road|
 function addRecent(x){if(!x||!x.name||x.kind==='hint'||x.kind==='report')return;const k=placeKey2(x);const i=RECENTS.findIndex(q=>placeKey2(q)===k);if(i>-1)RECENTS.splice(i,1);RECENTS.unshift(slim(x));RECENTS.length=Math.min(RECENTS.length,10);LS.set('recents',RECENTS)}
 const isFav=x=>FAVS.some(q=>placeKey2(q)===placeKey2(x));
 function toggleFav(x){const k=placeKey2(x),i=FAVS.findIndex(q=>placeKey2(q)===k);if(i>-1){FAVS.splice(i,1);toast(T('Removed from saved'))}else{FAVS.unshift(slim(x));toast(T('Saved'))}LS.set('favs',FAVS)}
-{const sp=showPlace;window.showPlace=function(x){addRecent(x);sp(x);try{const g=$('goBtn');if(g&&x.kind!=='report'){const b=document.createElement('button');b.className='btn favb'+(isFav(x)?' on':'');b.innerHTML=LI('star',18)+'<span>'+(isFav(x)?T('Saved'):T('Save'))+'</span>';b.onclick=()=>{toggleFav(x);b.classList.toggle('on',isFav(x));b.querySelector('span').textContent=isFav(x)?T('Saved'):T('Save')};g.parentNode.insertBefore(b,g.nextSibling)}}catch(e){}}}
+{const sp=showPlace;window.showPlace=function(x){addRecent(x);sp(x);try{const g=$('goBtn');if(g&&x.kind!=='report'&&!$('plSave')){const b=document.createElement('button');b.className='btn favb'+(isFav(x)?' on':'');b.innerHTML=LI('star',18)+'<span>'+(isFav(x)?T('Saved'):T('Save'))+'</span>';b.onclick=()=>{toggleFav(x);b.classList.toggle('on',isFav(x));b.querySelector('span').textContent=isFav(x)?T('Saved'):T('Save')};g.parentNode.insertBefore(b,g.nextSibling)}}catch(e){}}}
 
 /* ---- 11. smart search: type an animal and get the freshest sighting ---- */
 function animalOf(q){q=q.toLowerCase().trim();if(q.length<3)return null;const qs=q.replace(/s$/,'');
