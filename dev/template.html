@@ -1007,6 +1007,9 @@ body.tfback #storyQ,body.tfback #homeNag{opacity:0!important;pointer-events:none
 .anph em{position:absolute;right:6px;top:6px;font:800 10px system-ui;font-style:normal;color:#fff;background:#c5221f;border-radius:6px;padding:2px 5px}
 .anlk{display:flex;align-items:center;gap:12px;width:100%;margin-top:14px;padding:12px 14px;border-radius:16px;border:0;background:#174c33;color:#fff;text-align:left}
 .anlk span{flex:1}.anlk b{display:block;font-size:16px}.anlk small{color:#cfe3d4;font-size:12.5px}.anlk i{font-style:normal;color:#ffe29a;font-size:20px}
+#ppHero{display:block;position:relative;width:100%;height:220px;margin:0 0 14px;padding:0;border:0;border-radius:20px;overflow:hidden;background:linear-gradient(160deg,var(--sandA,#e9dfc7),var(--sandB,#cdbb92));box-shadow:0 8px 24px rgba(0,0,0,.25)}
+#ppHero img{width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .35s}#ppHero.ok img{opacity:1}
+#ppHero span{position:absolute;left:10px;bottom:10px;font:700 12.5px system-ui,-apple-system,sans-serif;color:#fff;background:rgba(0,0,0,.45);padding:4px 10px;border-radius:999px;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
 #coolCard{position:fixed;left:12px;right:12px;top:calc(var(--safe-t,0px) + 118px);z-index:40;display:flex;gap:12px;align-items:flex-start;padding:14px;border-radius:18px;background:rgba(18,30,22,.94);border:1px solid rgba(233,196,106,.35);color:#f3efe4;box-shadow:0 10px 30px rgba(0,0,0,.4);transform:translateY(-16px);opacity:0;pointer-events:none;transition:.3s;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
 #coolCard.on{transform:none;opacity:1;pointer-events:auto}#coolCard .cci{width:42px;height:42px;border-radius:13px;flex:none;display:grid;place-items:center;background:linear-gradient(150deg,#ffb38a,#e5533d);color:#fff}
 #coolCard .cct{flex:1;min-width:0}#coolCard .cct b{display:block;font-size:15.5px}#coolCard .cct small{display:block;color:#c9d3c6;font-size:13px;line-height:1.4;margin-top:2px}#coolCard ul{margin:6px 0 0;padding-left:18px;font-size:13px;line-height:1.5;color:#ffe29a}
@@ -3765,6 +3768,10 @@ async function placePhotos(x){const box=$('ppBox');if(!box)return;const key=plac
   // my photos still waiting for signal
   (Cloud.outbox||[]).filter(o=>o.op==='pp'&&o.key===key).forEach(o=>{if(!L.some(q=>q.c===o.cid))L.unshift({c:o.cid,by:'You',cap:o.cap,t:new Date().toISOString(),mine:true,wait:true})});
   if(!$('ppBox'))return;
+  /* the newest uploaded photo goes big at the top, with the place name underneath */
+  {const old=$('ppHero');if(old)old.remove();const H=L.find(q=>!q.wait);const sb=$('sheetBody');if(H&&sb){const d=document.createElement('button');d.id='ppHero';d.innerHTML='<img alt=""><span>'+esc(H.mine?T('You'):(H.by||'Someone').split(' ')[0])+(L.filter(q=>!q.wait).length>1?' · '+L.filter(q=>!q.wait).length+' '+T('photos'):'')+'</span>';sb.insertBefore(d,sb.firstChild);
+    photoURL(H.c).then(u=>{if(u){const im=d.querySelector('img');im.src=u;im.onload=()=>d.classList.add('ok')}});
+    d.onclick=()=>{const i=L.findIndex(q=>q.c===H.c);lightbox(L.map(q=>q.c),Math.max(0,i),'',L.map(q=>({cap:cap(q)})))}}}
   const cap=q=>[q.cap,(q.mine?'You':q.by||'Someone')+' · '+new Date(q.t).toLocaleDateString([],{day:'numeric',month:'short',year:'numeric'})].filter(Boolean).join(' · ');
   box.innerHTML=`<div class="msec" style="margin-top:16px">Photos${L.length?' · '+L.length:''}</div>
    ${L.length?`<div class="ppg">${L.map(q=>`<div class="ppt" data-pp="${esc(q.c)}"><img alt=""><span class="ppb">${esc(q.mine?'You':(q.by||'Someone').split(' ')[0])}</span>${q.mine||isAdm()?`<button class="ppx" data-ppx="${esc(q.c)}" aria-label="Delete photo">×</button>`:''}${q.wait?'<span class="ppw">Waiting for signal</span>':''}</div>`).join('')}</div>`:`<div class="sub">No photos yet.${canPhoto()?' Be the first to add one.':''}</div>`}
