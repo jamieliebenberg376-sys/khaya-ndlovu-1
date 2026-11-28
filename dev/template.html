@@ -4082,9 +4082,16 @@ async function placeInsights(x){const box=$('plIns');if(!box)return;const ll=ite
   box.innerHTML=L.length?`<div class="plcard"><div class="msec">Most likely to spot here</div><div class="list sgroup">${L.map(q=>`<div class="it"><span style="flex:none;display:flex">${AN(q.w,30)}</span><div style="flex:1;min-width:0"><b>${esc(q.w)}</b><br><small>${q.n} sighting${q.n>1?'s':''} within 1.5 km · mostly ${esc(q.when)}</small></div><small>${q.pct}%</small></div>`).join('')}</div></div><div id="plPosts"></div>`:'<div id="plPosts"></div>';
   let P=[];if(Cloud.member&&navigator.onLine){try{P=await rpc('feed',{p_lat:ll[1],p_lng:ll[0],p_km:1.5,p_limit:4})||[]}catch(e){}}
   const pb=$('plPosts');if(!pb)return;pb.innerHTML=P.length?`<div class="plcard"><div class="msec">Recent sightings nearby</div>${P.map(postCard).join('')}</div>`:'';bindPosts(pb,P,()=>showPlace(x))}
+/* a road picked from search stays highlighted in gold while its card is open; the map can still be zoomed and dragged */
+let SELR=false;
+function selRoad(fs){try{if(!map.getSource('selroad')){map.addSource('selroad',{type:'geojson',data:empty});const bf=['road-lbl-1','road-callout','poi'].find(l=>map.getLayer(l));
+    map.addLayer({id:'selroad-glow',type:'line',source:'selroad',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#f2b632','line-opacity':.4,'line-blur':3,'line-width':['interpolate',['linear'],['zoom'],11,10,17,30,19,42]}},bf);
+    map.addLayer({id:'selroad',type:'line',source:'selroad',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#f2b632','line-width':['interpolate',['linear'],['zoom'],11,4,17,10,19,15]}},bf)}
+  map.getSource('selroad').setData(fs?{type:'FeatureCollection',features:fs}:empty);SELR=!!fs}catch(e){}}
+setInterval(()=>{if(SELR&&(!$('sheet').classList.contains('open')||!$('sheetBody').querySelector('[data-selroad]')))selRoad(null)},400);
 function showPlace(x){
   const ll=itemLL(x);
-  if(x.kind==='road'){const fs=ROADS.filter(f=>f.properties.name===x.road);let b=new maplibregl.LngLatBounds();fs.forEach(f=>f.geometry.coordinates.forEach(c=>b.extend(c)));map.fitBounds(b,{padding:{top:140,bottom:260,left:50,right:50},maxZoom:16.5,duration:700});map.getSource('cur').setData({type:'FeatureCollection',features:fs})}
+  if(x.kind==='road'){const fs=ROADS.filter(f=>f.properties.name===x.road);let b=new maplibregl.LngLatBounds();fs.forEach(f=>f.geometry.coordinates.forEach(c=>b.extend(c)));map.fitBounds(b,{padding:{top:140,bottom:260,left:50,right:50},maxZoom:16.5,duration:700});selRoad(fs)}
   else map.easeTo({center:ll,zoom:Math.max(map.getZoom(),15.5),duration:700});
   if(follow)setFollow(0);
   const d=me?fmtD(dist(me.ll,ll))+' straight line':'';if(x.kind==='road'&&CLOSED[x.road]){const c=CLOSED[x.road];x={...x,sub:'Closed'+(c.reason?': '+c.reason:'')+(c.until?' · until '+fmtExp(Date.parse(c.until)):'')+' · '+(x.sub||'')}}
@@ -4102,7 +4109,8 @@ function showPlace(x){
       if($('plEdit'))$('plEdit').onclick=()=>placeSheet({id:x.pid||'',base:x.pid?'':(x.base||x.name),kind:x.kind,name:x.name,note,ll})});
     return}
   openSheet(`${x.kind==='sight'?sightHead(x,me?dist(me.ll,ll):null,r?r.len:null):`<h2>${esc(x.name)}</h2><div class="sub">${esc(x.sub||'')}${d?' · '+d:''}${r?' · '+fmtD(r.len)+' by road':''}</div>`}<div class="row"><button class="btn pri" id="goBtn"><svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M12 2l8 20-8-5-8 5z"/></svg>Go</button>${extra}</div>${x.kind==='sight'?sightVideoHtml(x)+sightExtrasHtml(x):''}${x.kind==='sight'?profileHtml(x.name):''}${isPoi?'<div id="ppBox"><div class="msec" style="margin-top:16px">Photos</div><div class="sub">Loading...</div></div><div id="plIns"></div>':''}${x.kind==='sight'&&x.mine&&!x.note&&!String(x.cid).startsWith('demo-')?'<button class="btn" id="stW" style="width:100%;margin-top:12px">'+LI('msg',18)+' Add the story of this sighting</button>':''}`,()=>{
-    $('goBtn').onclick=()=>{closeSheet();startNav(x)};if(isPoi){placePhotos(x);placeInsights(x)}if($('stW'))$('stW').onclick=()=>storySheet(x.cid,x.name,()=>closeSheet());
+    $('goBtn').onclick=()=>{closeSheet();startNav(x)};if(isPoi){placePhotos(x);placeInsights(x)}
+    if(x.kind==='road'){$('sheetBody').insertAdjacentHTML('beforeend','<i data-selroad hidden></i>');$('scrim').classList.remove('on')}if($('stW'))$('stW').onclick=()=>storySheet(x.cid,x.name,()=>closeSheet());
     if(x.kind==='sight'){bindSightExtras(x);bindSightVideo($('sheetBody'))}
     if($('shS'))$('shS').onclick=()=>{shareSightToChat(x);closeSheet()};
     if($('delS'))$('delS').onclick=async()=>{if(!x.mine){if($('delS').dataset.sure!=='1'){$('delS').dataset.sure='1';$('delS').textContent='Tap again to delete';return}if(await delFeedItem('s',[x.cid]))closeSheet();return}if(navigator.onLine&&!String(x.cid).startsWith('demo-')){if(await delFeedItem('s',[x.cid]))closeSheet();return}delSight(x.cid);closeSheet();toast('Sighting deleted')};
