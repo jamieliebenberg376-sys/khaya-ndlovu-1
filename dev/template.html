@@ -1068,6 +1068,7 @@ body.mappick #rpTop,body.mappick #rpBot,body.mappick #top,body.mappick #fabs,bod
 .lyd{border:0;background:none;padding:0;display:flex;flex-direction:column;align-items:center;gap:7px;color:inherit;font:inherit;text-align:center}
 .lyi{width:64px;height:64px;border-radius:18px;display:flex;align-items:center;justify-content:center;background:rgba(127,127,127,.14);color:#9a9a9a;box-shadow:inset 0 0 0 1px var(--hair);transition:all .2s}
 .lyd b{font-size:12.5px;font-weight:700;line-height:1.25;opacity:.75}.lyd.on .lyi{background:linear-gradient(160deg,#f2c14e,#c9921f);color:#2a1d00;box-shadow:0 4px 12px rgba(242,182,50,.35)}.lyd.on b{opacity:1}
+body.selroadon #fabs{opacity:0;pointer-events:none;transition:opacity .2s}
 #coolCard{position:fixed;left:12px;right:12px;top:calc(var(--safe-t,0px) + 118px);z-index:40;display:flex;gap:12px;align-items:flex-start;padding:14px;border-radius:18px;background:rgba(18,30,22,.94);border:1px solid rgba(233,196,106,.35);color:#f3efe4;box-shadow:0 10px 30px rgba(0,0,0,.4);transform:translateY(-16px);opacity:0;pointer-events:none;transition:.3s;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
 #coolCard.on{transform:none;opacity:1;pointer-events:auto}#coolCard .cci{width:42px;height:42px;border-radius:13px;flex:none;display:grid;place-items:center;background:linear-gradient(150deg,#ffb38a,#e5533d);color:#fff}
 #coolCard .cct{flex:1;min-width:0}#coolCard .cct b{display:block;font-size:15.5px}#coolCard .cct small{display:block;color:#c9d3c6;font-size:13px;line-height:1.4;margin-top:2px}#coolCard ul{margin:6px 0 0;padding-left:18px;font-size:13px;line-height:1.5;color:#ffe29a}
@@ -4087,7 +4088,7 @@ let SELR=false;
 function selRoad(fs){try{if(!map.getSource('selroad')){map.addSource('selroad',{type:'geojson',data:empty});const bf=['road-lbl-1','road-callout','poi'].find(l=>map.getLayer(l));
     map.addLayer({id:'selroad-glow',type:'line',source:'selroad',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#f2b632','line-opacity':.4,'line-blur':3,'line-width':['interpolate',['linear'],['zoom'],11,10,17,30,19,42]}},bf);
     map.addLayer({id:'selroad',type:'line',source:'selroad',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#f2b632','line-width':['interpolate',['linear'],['zoom'],11,4,17,10,19,15]}},bf)}
-  map.getSource('selroad').setData(fs?{type:'FeatureCollection',features:fs}:empty);SELR=!!fs}catch(e){}}
+  map.getSource('selroad').setData(fs?{type:'FeatureCollection',features:fs}:empty);SELR=!!fs}catch(e){}document.body.classList.toggle('selroadon',!!fs)}
 setInterval(()=>{if(SELR&&(!$('sheet').classList.contains('open')||!$('sheetBody').querySelector('[data-selroad]')))selRoad(null)},400);
 function showPlace(x){
   const ll=itemLL(x);
