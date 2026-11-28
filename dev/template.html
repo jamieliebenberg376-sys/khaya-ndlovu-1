@@ -1082,6 +1082,8 @@ body.searchfull #results .res{padding:12px 18px;border-bottom:1px solid rgba(255
 .qsi{flex:none;width:46px;height:46px;border-radius:50%;background:#2f3f3c;color:#cfe7e2;display:flex;align-items:center;justify-content:center}
 .rrec{display:flex!important;align-items:center;gap:16px;width:100%;text-align:left;border:0;background:none;font:inherit}.rrec b{display:block;font-size:16.5px;font-weight:600}.rrec small{display:block;color:#aaa}
 .qci{flex:none;width:44px;height:44px;border-radius:50%;background:#2b2b2b;color:#ddd;display:flex;align-items:center;justify-content:center}
+#shX{display:none}#sheet.full #shX{display:flex;position:sticky;top:0;margin:-2px -6px 0 auto;z-index:5;width:40px;height:40px;border:0;border-radius:50%;background:rgba(127,127,127,.18);color:inherit;align-items:center;justify-content:center;flex:none}
+#sheet.full #sheetBody{margin-top:4px}#sheet.full .lyx{display:none}#sheet.full .grab{opacity:0}
 #coolCard{position:fixed;left:12px;right:12px;top:calc(var(--safe-t,0px) + 118px);z-index:40;display:flex;gap:12px;align-items:flex-start;padding:14px;border-radius:18px;background:rgba(18,30,22,.94);border:1px solid rgba(233,196,106,.35);color:#f3efe4;box-shadow:0 10px 30px rgba(0,0,0,.4);transform:translateY(-16px);opacity:0;pointer-events:none;transition:.3s;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
 #coolCard.on{transform:none;opacity:1;pointer-events:auto}#coolCard .cci{width:42px;height:42px;border-radius:13px;flex:none;display:grid;place-items:center;background:linear-gradient(150deg,#ffb38a,#e5533d);color:#fff}
 #coolCard .cct{flex:1;min-width:0}#coolCard .cct b{display:block;font-size:15.5px}#coolCard .cct small{display:block;color:#c9d3c6;font-size:13px;line-height:1.4;margin-top:2px}#coolCard ul{margin:6px 0 0;padding-left:18px;font-size:13px;line-height:1.5;color:#ffe29a}
@@ -1578,7 +1580,7 @@ body.night .cuo,body.night .cuname{background:rgba(255,255,255,.06)}
 <div id="calBar" class="hide"><p id="calTxt"></p><div class="row" style="margin-top:0"><button class="btn" id="calCancel">Cancel</button><button class="btn pri" id="calSave">Save</button></div></div>
 
 <div id="scrim"></div>
-<div id="sheet"><div class="grab"></div><div id="sheetBody"></div></div>
+<div id="sheet"><div class="grab"></div><button id="shX" aria-label="Close"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button><div id="sheetBody"></div></div>
 <div id="sbFade"></div>
 <script>/* SOS is archived: the code stays, the button is off. Set to true to bring it back. */var SOS_ON=false;</script><button id="sosBtn" class="hide" aria-label="SOS">SOS</button>
 <div id="sosOv" class="hide"><div class="sosIn" id="sosIn"></div></div>
@@ -3724,9 +3726,10 @@ $('compass').onclick=()=>{if(follow===2)setFollow(1);map.easeTo({bearing:0,pitch
 $('layerBtn').onclick=()=>openSheet(layerSheet());
 
 /* ============ sheet ============ */
-function openSheet(html,onOpen){if(document.body.classList.contains('tfFilm')){openSheet.later=[html,onOpen];return}{const sp=document.getElementById('saPop');if(sp)sp.classList.remove('on')}$('sheet').style.transform='';$('sheet').classList.remove('full','obx');SHEET_REFRESH=null;$('sheetBody').innerHTML=html;try{$('sheetBody').scrollTop=0;$('sheet').scrollTop=0}catch(e){}$('sheet').classList.add('open');$('scrim').classList.add('on');if(onOpen)onOpen()}
+let SHEET_COMPACT=0;
+function openSheet(html,onOpen){if(document.body.classList.contains('tfFilm')){openSheet.later=[html,onOpen];return}{const sp=document.getElementById('saPop');if(sp)sp.classList.remove('on')}$('sheet').style.transform='';$('sheet').classList.remove('full','obx');SHEET_REFRESH=null;$('sheetBody').innerHTML=html;try{$('sheetBody').scrollTop=0;$('sheet').scrollTop=0}catch(e){}if(!SHEET_COMPACT&&!nav)$('sheet').classList.add('full');SHEET_COMPACT=0;$('sheet').classList.add('open');$('scrim').classList.add('on');if(onOpen)onOpen()}
 function closeSheet(){$('sheet').classList.remove('obx');if(DSPREV){const m=DSPREV;DSPREV=null;mode=m;try{applyMode()}catch(e){}}$('sheet').classList.remove('open');$('scrim').classList.remove('on');clearPin()}
-$('scrim').onclick=closeSheet;
+$('scrim').onclick=closeSheet;$('shX').onclick=()=>{closeSheet();try{if(rpOn&&!nav)routePreview(rpOn)}catch(e){}};
 /* swipe the sheet down to close it (from the grab line, or anywhere when the sheet is scrolled to the top) */
 /* pull down from the top of a list to refresh it (Feed, Chats): a small round spinner */
 function ptrShow(f,spin){let el=$('ptr');if(!el){el=document.createElement('div');el.id='ptr';el.innerHTML='<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v5h-5"/></svg>';$('sheet').appendChild(el)}
@@ -4135,6 +4138,7 @@ function showPlace(x){
       $('plSave').onclick=()=>{toggleFav(x);const on=isFav(x);$('plSave').classList.toggle('on',on);$('plSave').querySelector('small').textContent=on?T('Saved'):T('Save')};
       if($('plEdit'))$('plEdit').onclick=()=>placeSheet({id:x.pid||'',base:x.pid?'':(x.base||x.name),kind:x.kind,name:x.name,note,ll})});
     return}
+  if(x.kind==='road')SHEET_COMPACT=1;
   openSheet(`${x.kind==='sight'?sightHead(x,me?dist(me.ll,ll):null,r?r.len:null):`<h2>${esc(x.name)}</h2><div class="sub">${esc(x.sub||'')}${d?' · '+d:''}${r?' · '+fmtD(r.len)+' by road':''}</div>`}<div class="row"><button class="btn pri" id="goBtn"><svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M12 2l8 20-8-5-8 5z"/></svg>Go</button>${extra}</div>${x.kind==='sight'?sightVideoHtml(x)+sightExtrasHtml(x):''}${x.kind==='sight'?profileHtml(x.name):''}${isPoi?'<div id="ppBox"><div class="msec" style="margin-top:16px">Photos</div><div class="sub">Loading...</div></div><div id="plIns"></div>':''}${x.kind==='sight'&&x.mine&&!x.note&&!String(x.cid).startsWith('demo-')?'<button class="btn" id="stW" style="width:100%;margin-top:12px">'+LI('msg',18)+' Add the story of this sighting</button>':''}`,()=>{
     $('goBtn').onclick=()=>{closeSheet();startNav(x)};if(isPoi){placePhotos(x);placeInsights(x)}
     if(x.kind==='road'){$('sheetBody').insertAdjacentHTML('beforeend','<i data-selroad hidden></i>');$('scrim').classList.remove('on')}if($('stW'))$('stW').onclick=()=>storySheet(x.cid,x.name,()=>closeSheet());
@@ -4699,14 +4703,14 @@ function quickReport(i){const [,label,kind,note]=QREP[i];const ll=me?me.ll:map.g
   if(DM.on){demoAdd('report',kind,note,ll,road,false);closeSheet();return}
   const r={cid,kind,note,road,ll,t};reports.unshift(r);LS.set('reports',reports);queue({op:'add',t:'reports',row:reportRow(r)});try{updateBlocked()}catch(e){}refreshOverlays();closeSheet();
   toast(T(label)+' '+T('reported')+(road?' · '+road:''),4000);const tt=$('toast');if(tt){const u=document.createElement('button');u.className='tundo';u.textContent=T('Undo');u.onclick=()=>{resolveReport(cid);toast(T('Report removed'))};tt.appendChild(u)}}
-function quickSheet(){openSheet(`<h2>${T('Report')}</h2><div class="sub">${T('One tap. It is pinned where you are now')}${me&&curRoad?' · '+esc(curRoad):''}</div>
+function quickSheet(){SHEET_COMPACT=1;openSheet(`<h2>${T('Report')}</h2><div class="sub">${T('One tap. It is pinned where you are now')}${me&&curRoad?' · '+esc(curRoad):''}</div>
    <div class="qrg">${QREP.map(([ic,l],i)=>`<button data-qr="${i}">${LI(ic,26)}<span>${T(l)}</span></button>`).join('')}</div>
    <button class="btn" id="qrSight" style="width:100%;margin-top:12px">${LI('binoc',18)} ${T('Mark a sighting instead')}</button>`,()=>{
     document.querySelectorAll('[data-qr]').forEach(b=>b.onclick=()=>quickReport(+b.dataset.qr));$('qrSight').onclick=()=>addSheet('sight')})}
 {const b=document.createElement('button');b.className='fab';b.id='qrBtn';b.setAttribute('aria-label','Report');b.innerHTML=LI('alert',22);b.onclick=quickSheet;const f=$('fabs');f.insertBefore(b,$('pinBtn'))}
 
 /* ---- one-tap sighting: big animal buttons, one tap saves it where you are. Undo or add a photo straight after ---- */
-function quickSightSheet(){const ll=me?me.ll:map.getCenter().toArray();
+function quickSightSheet(){SHEET_COMPACT=1;const ll=me?me.ll:map.getCenter().toArray();
   openSheet(`<h2>${T('What did you see?')}</h2><div class="sub">${T('One tap saves it where you are now')}${curRoad?' · '+esc(curRoad):''}</div>
    <div class="qsg">${ANIMALS.filter(a=>a!=='Other').map(a=>`<button data-qs="${esc(a)}">${AN(a,40)}<span>${esc(T(a))}</span></button>`).join('')}</div>
    <button class="btn" id="qsMore" style="width:100%;margin-top:12px">${LI('cam',18)} ${T('Something else, or add a photo or video')}</button>`,()=>{
@@ -5024,7 +5028,7 @@ function addSheet(tab,at){
       refreshOverlays();closeSheet()}
   });
 }
-$('pinBtn').onclick=()=>addSheet('sight');
+$('pinBtn').onclick=()=>{SHEET_COMPACT=1;addSheet('sight')};
 map.on('click','tracks',e=>{const cid=e.features[0].properties.cid;if(!cid)return;const t=tracks.find(x=>x.cid===cid);if(!t)return;e.originalEvent&&(e.originalEvent._est=1);driveSummary(t,true)});
 map.on('click','sights',e=>{const s=allSights().find(x=>x.cid===e.features[0].properties.cid);if(s)showPlace(sightPlace(s))});
 map.on('click','note-dot',e=>{const n=NOTES.find(x=>x.client_id===e.features[0].properties.id);if(n){e.originalEvent&&(e.originalEvent._est=1);noteSheet(n)}});
@@ -5060,7 +5064,7 @@ map.on('click',e=>{if(document.body.classList.contains('mappick'))return;if(rpOn
   if(follow)setFollow(0);
   if(DM.on){demoTapSheet(ll);return}tapSheet(ll);map.easeTo({center:ll,offset:[0,-innerHeight*0.12],duration:500})})});
 /* a tap on the map: just two choices */
-function tapSheet(ll){dropPin(ll);const ne=nearestEdge(ll,300),road=ne&&ne.d<80?ROADS[ne.e.road].properties.name:null;let away=null;try{away=me?route(me.ll,ll):null}catch(e){}
+function tapSheet(ll){dropPin(ll);SHEET_COMPACT=1;const ne=nearestEdge(ll,300),road=ne&&ne.d<80?ROADS[ne.e.road].properties.name:null;let away=null;try{away=me?route(me.ll,ll):null}catch(e){}
   openSheet(`<div class="tsh"><span class="rpi pinr">${LI('pin',22)}</span><div style="min-width:0"><b>${road?esc(road):inReserve(ll)?T('Off road'):T('Outside the reserve')}</b><small>${away?fmtT(rTime(away))+' · '+fmtD(away.len)+' '+T('by road'):me?fmtD(dist(me.ll,ll))+' '+T('away'):''}</small></div></div>
    <div class="tsb"><button class="btn pri" id="tGo"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l8 20-8-5-8 5z"/></svg>${T('Go now')}</button><button class="btn pri" id="tSi">${LI('binoc',18)} ${T('Add sighting')}</button></div>`,()=>{
     $('tGo').onclick=()=>{closeSheet();clearPin();setTimeout(()=>routePreview({kind:'pin',name:road||T('Dropped pin'),ll}),200)};
