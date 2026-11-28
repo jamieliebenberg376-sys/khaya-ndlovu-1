@@ -1,4 +1,4 @@
-const V='kn-v212';
+const V='kn-v213';
 const CORE=['./','./index.html'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(V).then(c=>c.addAll(CORE)).then(()=>self.skipWaiting()))});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==V&&k!=='kn-tiles'&&k!=='kn-app-manual'&&k!=='kn-music').map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
@@ -6,7 +6,11 @@ self.addEventListener('fetch',e=>{
   const u=new URL(e.request.url);
   if(e.request.method!=='GET')return;
   if(u.hostname.includes('arcgisonline.com')||u.hostname.includes('elevation-tiles-prod')){
-    e.respondWith(caches.open('kn-tiles').then(async c=>{const hit=await c.match(e.request);if(hit)return hit;try{const r=await fetch(e.request);if(r.ok)c.put(e.request,r.clone());return r}catch(err){return new Response('',{status:504})}}));
+    // saved tile first; then the network (given up after 8 s on weak signal); then a zoomed-in piece of a saved bigger tile, so it's never blank
+    e.respondWith(caches.open('kn-tiles').then(async c=>{const hit=await c.match(e.request);if(hit)return hit;
+      try{const r=await Promise.race([fetch(e.request),new Promise((_,no)=>setTimeout(()=>no(0),8000))]);if(r&&r.ok){c.put(e.request,r.clone());return r}}catch(err){}
+      if(u.hostname.includes('arcgisonline.com')){const fb=await parentTile(c,u.href);if(fb)return fb}
+      return new Response('',{status:504})}));
     return;
   }
   // film music: saved once, played from the phone after that
@@ -29,4 +33,8 @@ self.addEventListener('fetch',e=>{
     e.respondWith(cached().then(h=>{const net=fetch(e.request).then(save);if(h){e.waitUntil(net.catch(()=>{}));return h}return net.catch(()=>new Response('Offline',{status:503}))}));
   }
 });
+async function parentTile(c,href){try{const m=href.match(/\/tile\/(\d+)\/(\d+)\/(\d+)/);if(!m||typeof OffscreenCanvas==='undefined'||typeof createImageBitmap==='undefined')return null;const z=+m[1],y=+m[2],x=+m[3];
+  for(let k=1;k<=6&&z-k>=0;k++){const pz=z-k,px=x>>k,py=y>>k;const h=await c.match(href.replace(/\/tile\/\d+\/\d+\/\d+/,'/tile/'+pz+'/'+py+'/'+px));if(!h)continue;
+    const bmp=await createImageBitmap(await h.blob());const n=1<<k,sz=bmp.width/n,sx=(x-(px<<k))*sz,sy=(y-(py<<k))*sz;const cv=new OffscreenCanvas(256,256),g=cv.getContext('2d');g.imageSmoothingQuality='high';g.drawImage(bmp,sx,sy,sz,sz,0,0,256,256);
+    const b=await cv.convertToBlob({type:'image/jpeg',quality:.85});return new Response(b,{headers:{'Content-Type':'image/jpeg'}})}}catch(e){}return null}
 self.addEventListener('notificationclick',e=>{e.notification.close();e.waitUntil(clients.matchAll({type:'window',includeUncontrolled:true}).then(l=>l.length?l[0].focus():clients.openWindow('/')))});

@@ -1084,6 +1084,8 @@ body.searchfull #results .res{padding:12px 18px;border-bottom:1px solid rgba(255
 .qci{flex:none;width:44px;height:44px;border-radius:50%;background:#2b2b2b;color:#ddd;display:flex;align-items:center;justify-content:center}
 #shX{display:none}#sheet.full #shX{display:flex;position:sticky;top:0;margin:-2px -6px 0 auto;z-index:5;width:40px;height:40px;border:0;border-radius:50%;background:rgba(127,127,127,.18);color:inherit;align-items:center;justify-content:center;flex:none}
 #sheet.full #sheetBody{margin-top:4px}#sheet.full .lyx{display:none}#sheet.full .grab{opacity:0}
+#dlNew{position:fixed;z-index:25;left:12px;right:12px;bottom:calc(var(--safe-b) + 110px);display:flex;align-items:center;gap:10px;padding:12px 14px;border:0;border-radius:16px;background:linear-gradient(180deg,rgba(30,36,28,.96),rgba(14,17,13,.98));color:#fff;font:600 14px system-ui,-apple-system,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.4);border:1px solid rgba(255,194,61,.3);text-align:left}
+#dlNew span{flex:1}#dlNew b{background:#f2b632;color:#2a1d00;padding:6px 14px;border-radius:999px}
 #coolCard{position:fixed;left:12px;right:12px;top:calc(var(--safe-t,0px) + 118px);z-index:40;display:flex;gap:12px;align-items:flex-start;padding:14px;border-radius:18px;background:rgba(18,30,22,.94);border:1px solid rgba(233,196,106,.35);color:#f3efe4;box-shadow:0 10px 30px rgba(0,0,0,.4);transform:translateY(-16px);opacity:0;pointer-events:none;transition:.3s;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
 #coolCard.on{transform:none;opacity:1;pointer-events:auto}#coolCard .cci{width:42px;height:42px;border-radius:13px;flex:none;display:grid;place-items:center;background:linear-gradient(150deg,#ffb38a,#e5533d);color:#fff}
 #coolCard .cct{flex:1;min-width:0}#coolCard .cct b{display:block;font-size:15.5px}#coolCard .cct small{display:block;color:#c9d3c6;font-size:13px;line-height:1.4;margin-top:2px}#coolCard ul{margin:6px 0 0;padding-left:18px;font-size:13px;line-height:1.5;color:#ffe29a}
@@ -6724,16 +6726,26 @@ function tileList(R0,noDem){const urls=[];const R=R0||B;let minX=1e9,minY=1e9,ma
       if(z>=15){const lng=(x+.5)/n*360-180,lat=Math.atan(Math.sinh(Math.PI*(1-2*(y+.5)/n)))*180/Math.PI;const half=360/n*.75;
         if(!pip(R,[lng,lat])&&!pip(R,[lng+half,lat])&&!pip(R,[lng-half,lat])&&!pip(R,[lng,lat+half*.9])&&!pip(R,[lng,lat-half*.9]))continue}
       urls.push(`https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${z}/${y}/${x}`)}}
+  if(!R0){/* every road on the map (Leadwood, Bloubank and the other farms too): the whole area at low zoom, and close to the roads at high zoom */
+    let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;ROADS.forEach(f=>f.geometry.coordinates.forEach(([x,y])=>{x0=Math.min(x0,x);x1=Math.max(x1,x);y0=Math.min(y0,y);y1=Math.max(y1,y)}));
+    const sat=(z,x,y)=>`https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${z}/${y}/${x}`;
+    for(let z=11;z<=14;z++){const a=tx(x0-.01,y1+.01,z),b=tx(x1+.01,y0-.01,z);for(let x=a[0];x<=b[0];x++)for(let y=a[1];y<=b[1];y++)urls.push(sat(z,x,y))}
+    for(let z=15;z<=17;z++){const S=new Set();ROADS.forEach(f=>f.geometry.coordinates.forEach(([x,y])=>{const t=tx(x,y,z);for(let dx=-1;dx<=1;dx++)for(let dy=-1;dy<=1;dy++)S.add(sat(z,t[0]+dx,t[1]+dy))}));S.forEach(u=>urls.push(u))}
+    minX=Math.min(minX,x0);maxX=Math.max(maxX,x1);minY=Math.min(minY,y0);maxY=Math.max(maxY,y1)}
   if(!noDem)for(let z=10;z<=14;z++){const a=tx(minX-.02,maxY+.02,z),b=tx(maxX+.02,minY-.02,z);for(let x=a[0];x<=b[0];x++)for(let y=a[1];y<=b[1];y++)urls.push(`https://s3.amazonaws.com/elevation-tiles-prod/terrarium/${z}/${x}/${y}.png`)}
-  return urls}
+  return [...new Set(urls)]}
 let dl=null;
+setTimeout(()=>{const o=LS.get('offline',null);if(!o||o.v>=2||!navigator.onLine||LS.get('dlNudge2',false))return;LS.set('dlNudge2',true);
+  const b=document.createElement('button');b.id='dlNew';b.innerHTML=LI('down',16)+'<span>'+T('Download the new map areas for no signal')+'</span><b>'+T('Get')+'</b>';document.body.appendChild(b);
+  b.onclick=()=>{b.remove();offlineSheet(false)};setTimeout(()=>{if(b.isConnected)b.remove()},30000)},9000);
 async function downloadOffline(onp){if(dl)return dl;dl=(async()=>{
   try{if(navigator.storage&&navigator.storage.persist)await navigator.storage.persist()}catch(e){}
   try{const c=await caches.open('kn-app-manual');await c.addAll(['./','./index.html','./sw.js'])}catch(e){}
   const urls=tileList();let done=0,ok=0,bytes=0,i=0;const N=urls.length;
-  const worker=async()=>{while(i<N){const u=urls[i++];try{const r=await fetch(u,{mode:'cors'});if(r.ok){ok++;const b=await r.clone().blob();bytes+=b.size}}catch(e){}done++;if(onp)onp(done,N,bytes)}};
+  let tc=null;try{tc=await caches.open('kn-tiles')}catch(e){}
+  const worker=async()=>{while(i<N){const u=urls[i++];try{const h=tc&&await tc.match(u);if(h){ok++}else{const r=await fetch(u,{mode:'cors'});if(r.ok){ok++;const b=await r.clone().blob();bytes+=b.size}}}catch(e){}done++;if(onp)onp(done,N,bytes)}};
   await Promise.all(Array.from({length:6},worker));
-  const res={t:Date.now(),n:ok,total:N,mb:Math.max(1,Math.round(bytes/1048576))};if(ok>N*.95){LS.set('offline',res);LS.set('demCached',2)}dl=null;return res})();return dl}
+  const res={t:Date.now(),n:ok,total:N,v:2,mb:Math.max(1,Math.round(bytes/1048576))};if(ok>N*.95){LS.set('offline',res);LS.set('demCached',2)}dl=null;return res})();return dl}
 function offlineStatus(){const o=LS.get('offline',null);return o?'Downloaded '+new Date(o.t).toLocaleDateString([], {day:'numeric',month:'short'})+' · '+o.mb+' MB':'Not downloaded yet'}
 function offlineSheet(first){
   const o=LS.get('offline',null);const inst=!isStandalone();const ios=/iPhone|iPad/.test(navigator.userAgent);
