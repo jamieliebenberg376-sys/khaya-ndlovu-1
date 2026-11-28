@@ -6735,9 +6735,12 @@ function tileList(R0,noDem){const urls=[];const R=R0||B;let minX=1e9,minY=1e9,ma
   if(!noDem)for(let z=10;z<=14;z++){const a=tx(minX-.02,maxY+.02,z),b=tx(maxX+.02,minY-.02,z);for(let x=a[0];x<=b[0];x++)for(let y=a[1];y<=b[1];y++)urls.push(`https://s3.amazonaws.com/elevation-tiles-prod/terrarium/${z}/${x}/${y}.png`)}
   return [...new Set(urls)]}
 let dl=null;
-setTimeout(()=>{const o=LS.get('offline',null);if(!o||o.v>=2||!navigator.onLine||LS.get('dlNudge2',false))return;LS.set('dlNudge2',true);
-  const b=document.createElement('button');b.id='dlNew';b.innerHTML=LI('down',16)+'<span>'+T('Download the new map areas for no signal')+'</span><b>'+T('Get')+'</b>';document.body.appendChild(b);
-  b.onclick=()=>{b.remove();offlineSheet(false)};setTimeout(()=>{if(b.isConnected)b.remove()},30000)},9000);
+/* the saved map tops itself up by itself: when roads or areas are added, the missing pieces download quietly
+   the next time there's signal (only what's missing, never while driving) */
+function autoTopUp(){const o=LS.get('offline',null);if(!o||!navigator.onLine||dl)return;if((me&&(me.speed||0)>3)||nav)return;
+  let n=0;try{n=tileList().length}catch(e){return}if(o.v>=2&&o.total===n)return;
+  downloadOffline(null).then(r=>{if(r&&r.n>r.total*.95)toast(T('New map areas saved for no signal'),3000)})}
+setTimeout(autoTopUp,12000);setInterval(autoTopUp,10*6e4);window.addEventListener('online',()=>setTimeout(autoTopUp,5000));
 async function downloadOffline(onp){if(dl)return dl;dl=(async()=>{
   try{if(navigator.storage&&navigator.storage.persist)await navigator.storage.persist()}catch(e){}
   try{const c=await caches.open('kn-app-manual');await c.addAll(['./','./index.html','./sw.js'])}catch(e){}
