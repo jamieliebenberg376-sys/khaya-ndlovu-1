@@ -3619,13 +3619,13 @@ function handlePos(raw,acc,heading,speed,t){if(lastPos&&t&&t<lastPos.t)return;if
   setTarget(ll,heading,t);
   map.getSource('acc')&&map.getSource('acc').setData(circlePoly(ll,Math.min(me.acc,200)));
   $('spd').textContent=Math.round((speedS||0)*3.6);$('speed').classList.toggle('mv',(speedS||0)*3.6>4);speedCheck(ll);
-  { const L=trail[trail.length-1];if(L&&dist(L,ll)>400)trail=[];if(!L||dist(L,ll)>8){trail.push([+ll[0].toFixed(6),+ll[1].toFixed(6)]);if(trail.length>1500)trail.shift();
+  { const L=trail[trail.length-1];if(L&&dist(L,ll)>150&&(me.acc||99)<60){const f=gapFill(L,ll);if(f)f.slice(1,-1).forEach(q=>trail.push(q));else if(dist(L,ll)>400)trail=[]}else if(L&&dist(L,ll)>400)trail=[];if(!L||dist(L,ll)>8){trail.push([+ll[0].toFixed(6),+ll[1].toFixed(6)]);if(trail.length>1500)trail.shift();
      if(trail.length%5===0)try{localStorage.setItem('kn_trail',JSON.stringify({t:Date.now(),p:trail}))}catch(e){}
      if(mapReady&&trail.length>1)map.getSource('trail').setData({type:'Feature',geometry:{type:'MultiLineString',coordinates:roadLine(trail)},properties:{}})}}
   const dn=(speedS||0)*3.6>8;if(dn!==drivingNow){drivingNow=dn;if(mapReady){applyDrive();try{refreshOverlays()}catch(e){}}}
   updateRoad();
   if(recTrack){const k=(speedS||0)*3.6;if(k>(recTrack.top||0)&&k<120)recTrack.top=+k.toFixed(1);if(recTrack.lt&&k>SPEED_LIMIT+3&&inReserve(ll))recTrack.over=(recTrack.over||0)+Math.min(5,(t-recTrack.lt)/1000);recTrack.lt=t}
-  if(recTrack){const L=recTrack.pts[recTrack.pts.length-1];if(!L||dist(L,ll)>6){recTrack.pts.push([+ll[0].toFixed(6),+ll[1].toFixed(6)]);if(recTrack.pts.length>1)recTrack.len+=L?dist(L,ll):0;$('recInfo').textContent=fmtD(recTrack.len);if(recTrack.pts.length%5===0){LS.set('rec',recTrack);refreshOverlays()}}}
+  if(recTrack){const L=recTrack.pts[recTrack.pts.length-1];if(L&&dist(L,ll)>120&&(me.acc||99)<60){const f=gapFill(L,ll);if(f){let p=L;f.slice(1,-1).forEach(q=>{recTrack.pts.push(q);recTrack.len+=dist(p,q);p=q});recTrack.est=(recTrack.est||0)+1;recTrack.len+=dist(p,ll)-dist(L,ll)}}if(!L||dist(L,ll)>6){recTrack.pts.push([+ll[0].toFixed(6),+ll[1].toFixed(6)]);if(recTrack.pts.length>1)recTrack.len+=L?dist(L,ll):0;$('recInfo').textContent=fmtD(recTrack.len);if(recTrack.pts.length%5===0){LS.set('rec',recTrack);refreshOverlays()}}}
   if(nav)navTick();
   if(follow===1&&!nav&&(speedS||0)*3.6>10){fastN++;if(fastN>=3&&!LS.get('noAutoDrive',false)){setFollow(2)}}else fastN=0;
   if(follow)moveCam();
@@ -3712,6 +3712,10 @@ const RDLINE=new Map();
 function roadLine(P,key){if(key&&RDLINE.has(key)&&RDLINE.get(key).n===P.length)return RDLINE.get(key).v;const out=[];let cur=[];
   for(const q of P){const on=!!nearestEdge(q,25);let gap=false;if(cur.length){const L=cur[cur.length-1],d=dist(L,q);if(d>40){const m1=[L[0]+(q[0]-L[0])/3,L[1]+(q[1]-L[1])/3],m2=[L[0]+(q[0]-L[0])*2/3,L[1]+(q[1]-L[1])*2/3];gap=!(d<200&&nearestEdge(m1,15)&&nearestEdge(m2,15))}}if(!on||gap){if(cur.length>1)out.push(cur);cur=[]}if(on)cur.push(q)}
   if(cur.length>1)out.push(cur);if(key){RDLINE.set(key,{n:P.length,v:out});if(RDLINE.size>80)RDLINE.delete(RDLINE.keys().next().value)}return out}
+/* the phone was off or the app closed: instead of a straight line from where it stopped to where it picked up again,
+   fill the gap with the most likely way along the roads (the same fastest-way the navigation uses) */
+function gapFill(a,b){try{const d=dist(a,b);if(d<60||d>20000)return null;if(!inReserve(a)||!inReserve(b))return null;
+  const r=route(a,b);if(!r||!r.pts||r.pts.length<2||r.len>d*4+400)return null;return r.pts.map(p=>[+p[0].toFixed(6),+p[1].toFixed(6)])}catch(e){return null}}
 function gapSplit(P,max){const out=[];let cur=[];for(const q of P){if(cur.length&&dist(cur[cur.length-1],q)>max){if(cur.length>1)out.push(cur);cur=[]}cur.push(q)}if(cur.length>1)out.push(cur);return out.length?out:[P]}
 function cleanOk(){try{const ae=document.activeElement;return !$('sheet').classList.contains('open')&&$('gate').classList.contains('hide')&&!setupOn()&&!document.body.classList.contains('tfFilm')&&!document.getElementById('ntAsk')&&!(ae&&ae.matches&&ae.matches('input,textarea'))&&!(($('coolCard')||{classList:{contains:()=>false}}).classList.contains('on'))}catch(e){return false}}
 let CLEANSAT=LS.get('cleanSat',true);
