@@ -1069,6 +1069,18 @@ body.mappick #rpTop,body.mappick #rpBot,body.mappick #top,body.mappick #fabs,bod
 .lyi{width:64px;height:64px;border-radius:18px;display:flex;align-items:center;justify-content:center;background:rgba(127,127,127,.14);color:#9a9a9a;box-shadow:inset 0 0 0 1px var(--hair);transition:all .2s}
 .lyd b{font-size:12.5px;font-weight:700;line-height:1.25;opacity:.75}.lyd.on .lyi{background:linear-gradient(160deg,#f2c14e,#c9921f);color:#2a1d00;box-shadow:0 4px 12px rgba(242,182,50,.35)}.lyd.on b{opacity:1}
 body.selroadon #fabs{opacity:0;pointer-events:none;transition:opacity .2s}
+#qBack{display:none}body.searchfull #qBack{display:flex}body.searchfull #menuBtn{display:none}
+body.searchfull #top{position:fixed!important;inset:0!important;top:0!important;z-index:60;background:#141414;padding:calc(var(--safe-t) + 10px) 12px 0!important;display:flex;flex-direction:column;transform:none!important;opacity:1!important}
+body.searchfull #chips{display:none!important}body.searchfull #search{background:#2a2a2a!important;border:0!important;box-shadow:none!important;color:#fff}body.searchfull #q{color:#fff}
+body.searchfull #results{flex:1;max-height:none!important;margin:8px -12px 0!important;border-radius:0!important;background:#141414!important;border:0!important;box-shadow:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important;padding-bottom:40vh;color:#fff}
+body.searchfull #results .rhdr{font-size:17px;font-weight:700;color:#eee;margin:18px 18px 4px;text-transform:none;letter-spacing:0}
+body.searchfull #results .res{padding:12px 18px;border-bottom:1px solid rgba(255,255,255,.07);color:#fff}
+.qscs{display:flex;gap:22px;overflow-x:auto;padding:14px 18px 18px;border-bottom:8px solid #222;scrollbar-width:none}.qscs::-webkit-scrollbar{display:none}
+.qsc{flex:none;display:flex;align-items:center;gap:12px;border:0;background:none;color:#fff;font:inherit;text-align:left;max-width:220px}
+.qsc b{display:block;font-size:17px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px}.qsc small{display:block;color:#aaa;font-size:14px;white-space:nowrap}
+.qsi{flex:none;width:46px;height:46px;border-radius:50%;background:#2f3f3c;color:#cfe7e2;display:flex;align-items:center;justify-content:center}
+.rrec{display:flex!important;align-items:center;gap:16px;width:100%;text-align:left;border:0;background:none;font:inherit}.rrec b{display:block;font-size:16.5px;font-weight:600}.rrec small{display:block;color:#aaa}
+.qci{flex:none;width:44px;height:44px;border-radius:50%;background:#2b2b2b;color:#ddd;display:flex;align-items:center;justify-content:center}
 #coolCard{position:fixed;left:12px;right:12px;top:calc(var(--safe-t,0px) + 118px);z-index:40;display:flex;gap:12px;align-items:flex-start;padding:14px;border-radius:18px;background:rgba(18,30,22,.94);border:1px solid rgba(233,196,106,.35);color:#f3efe4;box-shadow:0 10px 30px rgba(0,0,0,.4);transform:translateY(-16px);opacity:0;pointer-events:none;transition:.3s;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
 #coolCard.on{transform:none;opacity:1;pointer-events:auto}#coolCard .cci{width:42px;height:42px;border-radius:13px;flex:none;display:grid;place-items:center;background:linear-gradient(150deg,#ffb38a,#e5533d);color:#fff}
 #coolCard .cct{flex:1;min-width:0}#coolCard .cct b{display:block;font-size:15.5px}#coolCard .cct small{display:block;color:#c9d3c6;font-size:13px;line-height:1.4;margin-top:2px}#coolCard ul{margin:6px 0 0;padding-left:18px;font-size:13px;line-height:1.5;color:#ffe29a}
@@ -1519,7 +1531,7 @@ body.night .cuo,body.night .cuname{background:rgba(255,255,255,.06)}
 <script type="text/plain" id="jsqrSrc">__JSQR__</script>
 <div id="top">
   <div id="search">
-    <button class="ib" id="menuBtn" aria-label="Menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+    <button class="ib" id="qBack" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button><button class="ib" id="menuBtn" aria-label="Menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
     <input id="q" placeholder="Search roads, gates, picnic spots" autocomplete="off" enterkeyhint="search">
     <button class="ib hide" id="clearQ" aria-label="Clear"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     
@@ -3770,14 +3782,27 @@ function renderResults(){
   if(!q&&document.activeElement!==$('q')){$('results').classList.add('hide');return}
   let it=searchItems();
   if(q){const sm=smartResults(q),seen=new Set(sm.map(x=>x.cid).filter(Boolean));it=sm.concat(it.filter(x=>!(x.cid&&seen.has(x.cid))&&(x.name.toLowerCase().includes(q)||x.sub.toLowerCase().includes(q))).sort((a,b)=>(a.name.toLowerCase().startsWith(q)?0:1)-(b.name.toLowerCase().startsWith(q)?0:1)))}
+  else if(document.body.classList.contains('searchfull')){const rc=RECENTS.slice(0,8);it=[{kind:'qsc'}].concat(rc.length?[{kind:'hdr',name:T('Recent')}].concat(rc.map(r=>({...r,recent:true}))):[]).concat([{kind:'hdr',name:T('Nearby')}],it.filter(x=>x.kind==='home'||x.kind==='gate'||x.kind==='sight'||x.kind==='report').slice(0,12))}
   else{const fv=FAVS.slice(0,8),rc=RECENTS.filter(r=>!isFav(r)).slice(0,6);it=(fv.length?[{kind:'hdr',name:T('Saved')}].concat(fv):[]).concat(rc.length?[{kind:'hdr',name:T('Recent')}].concat(rc):[]).concat([{kind:'hdr',name:T('Nearby')}],it.filter(x=>x.kind==='home'||x.kind==='gate'||x.kind==='sight'||x.kind==='report'),[{kind:'hint',name:'Tip',sub:'Type a road, dam, picnic spot or an animal like lion'}])}
   it=it.slice(0,30);
-  $('results').innerHTML=it.length?it.map((x,i)=>{if(x.kind==='hdr')return `<div class="rhdr">${esc(x.name)}</div>`;if(x.kind==='hint')return `<div class="res"><small>${esc(x.sub)}</small></div>`;const [c,g]=x.smart?['#c48a1a','★']:ICON_DOT[x.kind]||['#555','•'];const d=me?' · '+fmtD(dist(me.ll,itemLL(x)))+' away':'';return `<button class="res" style="width:100%;text-align:left" data-i="${i}"><span class="dot" style="background:${c}">${g}</span><span><b>${esc(x.name)}</b><small>${esc(x.sub)}${d}</small></span></button>`}).join(''):'<div class="res"><small>Nothing found</small></div>';
+  $('results').innerHTML=it.length?it.map((x,i)=>{if(x.kind==='qsc')return qShortcuts();if(x.kind==='hdr')return `<div class="rhdr">${esc(x.name)}</div>`;
+    if(x.recent)return `<button class="res rrec" data-i="${i}"><span class="qci">${LI('clock',20)}</span><span><b>${esc(x.name)}</b><small>${esc(x.sub||PKIND[x.kind]||'')}${me&&x.ll?' · '+fmtD(dist(me.ll,itemLL(x))):''}</small></span></button>`;if(x.kind==='hint')return `<div class="res"><small>${esc(x.sub)}</small></div>`;const [c,g]=x.smart?['#c48a1a','★']:ICON_DOT[x.kind]||['#555','•'];const d=me?' · '+fmtD(dist(me.ll,itemLL(x)))+' away':'';return `<button class="res" style="width:100%;text-align:left" data-i="${i}"><span class="dot" style="background:${c}">${g}</span><span><b>${esc(x.name)}</b><small>${esc(x.sub)}${d}</small></span></button>`}).join(''):'<div class="res"><small>Nothing found</small></div>';
   $('results').classList.remove('hide');
-  $('results').querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>{const x=it[+b.dataset.i];$('q').blur();$('results').classList.add('hide');showPlace(x)});
+  $('results').querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>{const x=it[+b.dataset.i];searchClose(true);showPlace(x)});
+  bindShortcuts();
 }
+/* Google-style search page: full screen while you search, back arrow to leave */
+function qShortcuts(){const h=home?`<button class="qsc" data-qs="home"><span class="qsi">${LI('home',22)}</span><span><b>${T('Home')}</b><small>${me?fmtD(dist(me.ll,home.ll)):T('Your home point')}</small></span></button>`:`<button class="qsc" data-qs="sethome"><span class="qsi">${LI('home',22)}</span><span><b>${T('Home')}</b><small>${T('Set location')}</small></span></button>`;
+  return `<div class="qscs">${h}${FAVS.map((f,k)=>`<button class="qsc" data-qf="${k}"><span class="qsi">${LI('star',21)}</span><span><b>${esc(f.name)}</b><small>${esc(PKIND[f.kind]||(f.kind==='road'?T('Road'):T('Saved')))}</small></span></button>`).join('')}<button class="qsc" data-qs="add"><span class="qsi">${LI('plus',22)}</span><span><b>${T('Add')}</b></span></button></div>`}
+function bindShortcuts(){const R=$('results');R.querySelectorAll('[data-qs]').forEach(b=>b.onclick=()=>{const k=b.dataset.qs;searchClose(true);
+    if(k==='home'&&home)showPlace({kind:'home',name:'Home',sub:T('Your home point'),ll:home.ll});else if(k==='sethome')homeSheet();
+    else if(k==='add')mapPick(it=>{FAVS.unshift(slim(it));LS.set('favs',FAVS);toast(T('Saved'))},null,T('Save this place'))});
+  R.querySelectorAll('[data-qf]').forEach(b=>b.onclick=()=>{const f=FAVS[+b.dataset.qf];searchClose(true);if(f)showPlace(f)})}
+function searchClose(keep){document.body.classList.remove('searchfull');const q=$('q');if(!keep){q.value='';$('clearQ').classList.add('hide')}q.blur();$('results').classList.add('hide')}
+$('q').addEventListener('focus',()=>{document.body.classList.add('searchfull');renderResults()});
+$('qBack').onclick=e=>{e.preventDefault();searchClose(false)};
 $('q').addEventListener('input',renderResults);$('q').addEventListener('focus',renderResults);
-$('q').addEventListener('blur',()=>setTimeout(()=>{if(document.activeElement!==$('q'))$('results').classList.add('hide')},200));
+$('q').addEventListener('blur',()=>setTimeout(()=>{if(document.activeElement!==$('q')&&!document.body.classList.contains('searchfull'))$('results').classList.add('hide')},200));
 $('q').addEventListener('keydown',e=>{if(e.key==='Enter'){const b=$('results').querySelector('[data-i]');if(b)b.click()}});
 $('clearQ').onclick=()=>{$('q').value='';renderResults();$('q').focus()};
 $('homeBtn').onclick=()=>homeSheet();
@@ -4483,9 +4508,9 @@ function navMore(){if(!nav)return;const along=nav.along||0;
 
 /* ---- pick a stop ---- */
 /* pick a spot by moving the map under a fixed pin */
-function mapPick(done,back){closeSheet();if(follow)setFollow(0);document.body.classList.add('mappick');
+function mapPick(done,back,okLbl){closeSheet();if(follow)setFollow(0);document.body.classList.add('mappick');
   const pin=document.createElement('div');pin.id='mpPin';pin.innerHTML='<svg viewBox="0 0 30 40" width="38" height="50"><path d="M15 39C15 39 2 23 2 14a13 13 0 0 1 26 0c0 9-13 25-13 25z" fill="#f2b632" stroke="#fff" stroke-width="2"/><circle cx="15" cy="14" r="5" fill="#fff"/></svg><i></i>';document.body.appendChild(pin);
-  const bar=document.createElement('div');bar.id='mpBar';bar.innerHTML=`<small>${T('Move the map to put the pin on your stop')}</small><b id="mpRd">…</b><div class="mpb"><button class="rpsec" id="mpNo">${T('Cancel')}</button><button class="rpstart" id="mpOk">${LI('check',18)} ${T('Add this stop')}</button></div>`;document.body.appendChild(bar);
+  const bar=document.createElement('div');bar.id='mpBar';bar.innerHTML=`<small>${okLbl?T('Move the map to put the pin on the place'):T('Move the map to put the pin on your stop')}</small><b id="mpRd">…</b><div class="mpb"><button class="rpsec" id="mpNo">${T('Cancel')}</button><button class="rpstart" id="mpOk">${LI('check',18)} ${okLbl||T('Add this stop')}</button></div>`;document.body.appendChild(bar);
   const where=()=>{const ll=map.getCenter().toArray(),ne=nearestEdge(ll,300),rd=ne&&ne.d<80?ROADS[ne.e.road].properties.name:null;return {ll,rd}};
   const upd=()=>{const w=where();const e=$('mpRd');if(e)e.textContent=w.rd||(inReserve(w.ll)?T('Off road'):T('Outside the reserve'))};upd();map.on('move',upd);
   const end=()=>{map.off('move',upd);document.body.classList.remove('mappick');pin.remove();bar.remove()};
