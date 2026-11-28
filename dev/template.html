@@ -2523,7 +2523,7 @@ function rainFrame(t){if(!RAIN.on)return;RAIN.raf=requestAnimationFrame(rainFram
   if(RAIN.drops.length>k.n)RAIN.drops.length=k.n;
   g.lineCap='round';g.lineWidth=k.fine?1:1.4;
   for(const d of RAIN.drops){const vy=d.v*k.sp*dt,vx=vy*lean;d.y+=vy;d.x+=vx;if(d.y>H+20||d.x<-120||d.x>W+120){d.y=-20-Math.random()*60;d.x=Math.random()*(W+200)-100}
-    g.strokeStyle=`rgba(205,225,255,${d.o})`;g.beginPath();g.moveTo(d.x,d.y);g.lineTo(d.x-lean*d.l,d.y-d.l);g.stroke()}
+    g.strokeStyle=`rgba(90,170,255,${Math.min(.95,d.o+.25)})`;g.beginPath();g.moveTo(d.x,d.y);g.lineTo(d.x-lean*d.l,d.y-d.l);g.stroke()}
   if(k.thunder){if(!RAIN.flash&&Math.random()<.004)RAIN.flash=1;if(RAIN.flash>0){g.fillStyle=`rgba(255,255,255,${RAIN.flash*.35})`;g.fillRect(0,0,W,H);RAIN.flash=Math.max(0,RAIN.flash-.12*dt)}}}
 setInterval(rainTick,3000);document.addEventListener('visibilitychange',rainTick);
 
