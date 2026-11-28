@@ -1086,6 +1086,24 @@ body.searchfull #results .res{padding:12px 18px;border-bottom:1px solid rgba(255
 #sheet.full #sheetBody{margin-top:4px}#sheet.full .lyx{display:none}#sheet.full .grab{opacity:0}
 #dlNew{position:fixed;z-index:25;left:12px;right:12px;bottom:calc(var(--safe-b) + 110px);display:flex;align-items:center;gap:10px;padding:12px 14px;border:0;border-radius:16px;background:linear-gradient(180deg,rgba(30,36,28,.96),rgba(14,17,13,.98));color:#fff;font:600 14px system-ui,-apple-system,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.4);border:1px solid rgba(255,194,61,.3);text-align:left}
 #dlNew span{flex:1}#dlNew b{background:#f2b632;color:#2a1d00;padding:6px 14px;border-radius:999px}
+/* weather detail pages */
+.wx2 .wtb{border:0;font:inherit;color:inherit;text-align:left;cursor:pointer}.wx2 .wtb:active{transform:scale(.97)}
+.wxd .wxdays2{display:flex;gap:6px;overflow-x:auto;margin:0 -16px 10px;padding:0 16px 4px;scrollbar-width:none;touch-action:pan-x}.wxd .wxdays2::-webkit-scrollbar{display:none}
+.wxd .wxdays2 button{flex:none;width:52px;border:0;background:none;color:inherit;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 0;border-radius:14px;font:inherit}
+.wxd .wxdays2 small{font-size:11.5px;opacity:.65}.wxd .wxdays2 b{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px}.wxd .wxdays2 .on b{background:#2f8f86;color:#fff}
+.wxdt{text-align:center;margin-bottom:8px}.wxdt span{display:inline-flex;align-items:center;gap:7px;font-size:19px;font-weight:800}.wxdt small{display:block;opacity:.6;font-size:13px;margin-top:2px}
+.wxdh{display:flex;align-items:flex-start;justify-content:space-between;border-top:1px solid var(--hair);padding-top:12px}.wxdv{font:800 44px/1 system-ui,-apple-system,sans-serif;letter-spacing:-1px;display:flex;align-items:center;gap:8px}.wxdv small{font-size:22px;letter-spacing:0}
+.wxdd{font-size:34px;opacity:.55}.wxds{opacity:.65;font-size:15px;margin-top:4px}.wxdi{display:inline-flex}
+.wxdm{display:flex;align-items:center;gap:6px;border:0;border-radius:999px;padding:9px 14px;background:rgba(127,127,127,.16);color:inherit}
+.wxmenu{display:flex;flex-direction:column;gap:2px;margin:8px 0;padding:6px;border-radius:16px;background:rgba(127,127,127,.12)}.wxmenu button{display:flex;align-items:center;gap:10px;border:0;background:none;color:inherit;font:600 15px system-ui,-apple-system,sans-serif;padding:10px 12px;border-radius:12px;text-align:left}.wxmenu button.on{background:rgba(47,143,134,.25)}
+.wxdc{margin-top:12px;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:8px 0 4px}.wxc2{display:block;width:100%;height:auto;color:inherit;overflow:visible}
+.wxrow{display:grid;grid-template-columns:repeat(12,1fr);margin:0 44px 4px 0;text-align:center;font-size:15px;font-weight:700;opacity:.85}.wxrow span{display:flex;align-items:center;justify-content:center;min-height:24px}
+.wxrow:has(> span:nth-child(4):last-child){grid-template-columns:repeat(4,1fr)}
+.wxseg{margin-top:10px}.wxkey{display:flex;gap:8px;align-items:center;font-size:12.5px;opacity:.7;margin-top:4px}.wxkey i{width:14px;height:4px;border-radius:2px;display:inline-block;margin-left:6px}
+.wxcard{padding:14px 16px;border-radius:18px;background:rgba(127,127,127,.1);font-size:15.5px;line-height:1.45}
+.wxcmp{margin-top:12px;display:flex;flex-direction:column;gap:8px}.wxcmp>div{display:grid;grid-template-columns:72px 1fr 64px;align-items:center;gap:10px}.wxcmp span{font-size:13px;opacity:.7}.wxcmp em{display:block;height:20px;border-radius:7px;background:rgba(127,127,127,.12);overflow:hidden}.wxcmp i{display:block;height:100%;border-radius:7px;background:#e9c46a}.wxcmp .y i{background:rgba(127,127,127,.45)}.wxcmp b{font-size:15px;text-align:right}
+.wxd .wxsec{margin-top:18px}
+#rainCv{position:fixed;left:0;top:0;z-index:6;pointer-events:none;display:none}
 #coolCard{position:fixed;left:12px;right:12px;top:calc(var(--safe-t,0px) + 118px);z-index:40;display:flex;gap:12px;align-items:flex-start;padding:14px;border-radius:18px;background:rgba(18,30,22,.94);border:1px solid rgba(233,196,106,.35);color:#f3efe4;box-shadow:0 10px 30px rgba(0,0,0,.4);transform:translateY(-16px);opacity:0;pointer-events:none;transition:.3s;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
 #coolCard.on{transform:none;opacity:1;pointer-events:auto}#coolCard .cci{width:42px;height:42px;border-radius:13px;flex:none;display:grid;place-items:center;background:linear-gradient(150deg,#ffb38a,#e5533d);color:#fff}
 #coolCard .cct{flex:1;min-width:0}#coolCard .cct b{display:block;font-size:15.5px}#coolCard .cct small{display:block;color:#c9d3c6;font-size:13px;line-height:1.4;margin-top:2px}#coolCard ul{margin:6px 0 0;padding-left:18px;font-size:13px;line-height:1.5;color:#ffe29a}
@@ -2334,11 +2352,12 @@ const DIRS=['N','NE','E','SE','S','SW','W','NW'],wdir=d=>DIRS[Math.round(d/45)%8
 let WX=LS.get('wx',null),wxMk=[];
 async function loadWx(force){
   if(!navigator.onLine)return renderWx();
-  if(!force&&WX&&Date.now()-WX.t<12*6e4)return renderWx();
+  if(!force&&WX&&WX.v===2&&Date.now()-WX.t<12*6e4)return renderWx();
   const la=WX_AREAS.map(a=>a[1]).join(','),lo=WX_AREAS.map(a=>a[2]).join(',');
-  const u='https://api.open-meteo.com/v1/forecast?latitude='+la+'&longitude='+lo+'&current=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,is_day,wind_speed_10m,wind_direction_10m,wind_gusts_10m,precipitation,cloud_cover&hourly=temperature_2m,weather_code,precipitation_probability,is_day&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset,uv_index_max,precipitation_probability_max,precipitation_sum&timezone=Africa%2FJohannesburg&forecast_days=5&wind_speed_unit=kmh';
+  const u='https://api.open-meteo.com/v1/forecast?latitude='+la+'&longitude='+lo+'&current=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,is_day,wind_speed_10m,wind_direction_10m,wind_gusts_10m,precipitation,cloud_cover,pressure_msl,dew_point_2m,uv_index,visibility&hourly=temperature_2m,apparent_temperature,weather_code,precipitation_probability,precipitation,is_day,relative_humidity_2m,dew_point_2m,pressure_msl,wind_speed_10m,wind_gusts_10m,wind_direction_10m,uv_index,visibility,cloud_cover&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset,uv_index_max,precipitation_probability_max,precipitation_sum&timezone=Africa%2FJohannesburg&past_days=1&forecast_days=7&wind_speed_unit=kmh';
   try{const r=await fetch(u);if(!r.ok)throw 0;let j=await r.json();if(!Array.isArray(j))j=[j];
-    WX={t:Date.now(),a:j.map((x,i)=>({n:WX_AREAS[i][0],ll:[WX_AREAS[i][2],WX_AREAS[i][1]],c:x.current,h:x.hourly,d:x.daily}))};LS.set('wx',WX)}catch(e){}
+    const today=new Date().toLocaleDateString('en-CA',{timeZone:'Africa/Johannesburg'});
+    WX={t:Date.now(),v:2,a:j.map((x,i)=>{const d=x.daily;let yd=null;if(d&&d.time&&d.time[0]<today){yd={};for(const k in d){yd[k]=d[k][0];d[k]=d[k].slice(1)}}return {n:WX_AREAS[i][0],ll:[WX_AREAS[i][2],WX_AREAS[i][1]],c:x.current,h:x.hourly,d,yd}})};LS.set('wx',WX)}catch(e){}
   renderWx()}
 function wxNear(){if(!WX)return null;const p=me?me.ll:map.getCenter().toArray();return WX.a.reduce((b,a)=>dist(a.ll,p)<dist(b.ll,p)?a:b)}
 function wxStorm(a){if(!a||!a.h)return false;const now=Date.now();return a.h.time.some((t,i)=>{const d=Date.parse(t)-now;return d>-36e5&&d<3*36e5&&a.h.weather_code[i]>=95})}
@@ -2356,7 +2375,7 @@ function wxSheet(name){if(!WX){toast(navigator.onLine?'Getting the weather...':'
   const uv=Math.round(d.uv_index_max[0]||0),rainP=d.precipitation_probability_max[0]??0,set=Date.parse(d.sunset[0]),rise=Date.parse(d.sunrise[0]);
   const ND=(d.time||[]).length,lo=Math.min(...d.temperature_2m_min.slice(0,ND)),hi=Math.max(...d.temperature_2m_max.slice(0,ND)),span=Math.max(1,hi-lo);
   const hmax=Math.max(1,...hrs.map(({i})=>a.h.precipitation_probability[i]||0));
-  const tile=(ic,lab,val,sub)=>`<div class="wt"><span class="wti">${ic}</span><small>${lab}</small><b>${val}</b><i>${sub||'&nbsp;'}</i></div>`;
+  const tile=(ic,lab,val,sub,m)=>`<${m?`button data-wxd="${m}"`:'div'} class="wt${m?' wtb':''}"><span class="wti">${ic}</span><small>${lab}</small><b>${val}</b><i>${sub||'&nbsp;'}</i></${m?'button':'div'}>`;
   const I={wind:`<svg viewBox="0 0 24 24" width="18" height="18" style="transform:rotate(${(c.wind_direction_10m+180)%360}deg)"><path d="M12 3l5 16-5-3-5 3z" fill="currentColor"/></svg>`,
     drop:'<svg viewBox="0 0 24 24" width="18" height="18"><path d="M12 3s6 7 6 11a6 6 0 0 1-12 0c0-4 6-11 6-11z" fill="currentColor"/></svg>',
     hum:'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 3s6 7 6 11a6 6 0 0 1-12 0c0-4 6-11 6-11z"/><path d="M9 14h6"/></svg>',
@@ -2370,13 +2389,139 @@ function wxSheet(name){if(!WX){toast(navigator.onLine?'Getting the weather...':'
      <div class="wxt">${Math.round(c.temperature_2m)}°</div><div class="wxc">${txt}</div><div class="wxf">${T('Feels')} ${Math.round(c.apparent_temperature)}° · ${T('High')} ${Math.round(d.temperature_2m_max[0])}° · ${T('Low')} ${Math.round(d.temperature_2m_min[0])}°</div></div>
     <span class="wxbig">${wxIcon(c.weather_code,c.is_day,96)}</span></div>
   ${storm.length?`<div class="wxwarn">${WXI(95,1,20)} ${T('Thunderstorms possible in the next 3 hours')}: ${esc(storm.join(', '))}. ${T('Watch the drifts and low crossings.')}</div>`:''}
-  <div class="wxtiles">${tile(I.wind,T('Wind'),Math.round(c.wind_speed_10m)+' km/h',wdir(c.wind_direction_10m)+' · '+T('gusts')+' '+Math.round(c.wind_gusts_10m))}${tile(I.drop,T('Rain today'),rainP+'%',(d.precipitation_sum[0]||0).toFixed(1)+' mm')}${tile(I.hum,T('Humidity'),c.relative_humidity_2m+'%',T('cloud')+' '+c.cloud_cover+'%')}
-    ${tile(I.up,T('Sunrise'),hm(rise),rise>now?fmtLeft(rise-now)+' '+T('to go'):'')}${tile(I.down,T('Sunset'),hm(set),set>now?fmtLeft(set-now)+' '+T('left'):'')}${tile(I.uv,T('UV max'),uv,uv>=8?T('very high'):uv>=6?T('high'):uv>=3?T('moderate'):T('low'))}</div>
+  <div class="wxtiles">${tile(I.wind,T('Wind'),Math.round(c.wind_speed_10m)+' km/h',wdir(c.wind_direction_10m)+' · '+T('gusts')+' '+Math.round(c.wind_gusts_10m),'wind')}${tile(I.drop,T('Rain today'),rainP+'%',(d.precipitation_sum[0]||0).toFixed(1)+' mm','rain')}${tile(I.hum,T('Humidity'),c.relative_humidity_2m+'%',c.dew_point_2m!=null?T('dew point')+' '+Math.round(c.dew_point_2m)+'°':T('cloud')+' '+c.cloud_cover+'%','hum')}
+    ${tile(WXP.press,T('Pressure'),c.pressure_msl!=null?Math.round(c.pressure_msl):'–',c.pressure_msl!=null?'hPa · '+wxTrend(a):'hPa','press')}${tile(I.uv,T('UV'),c.uv_index!=null?Math.round(c.uv_index):uv,T('max')+' '+uv+' · '+uvWord(uv),'uv')}${tile(WXP.eye,T('Visibility'),c.visibility!=null?visTxt(c.visibility):'–',T('cloud')+' '+c.cloud_cover+'%','vis')}
+    ${tile(I.up,T('Sunrise'),hm(rise),rise>now?fmtLeft(rise-now)+' '+T('to go'):'')}${tile(I.down,T('Sunset'),hm(set),set>now?fmtLeft(set-now)+' '+T('left'):'')}${tile(WXP.therm,T('Feels like'),Math.round(c.apparent_temperature)+'°',T('actual')+' '+Math.round(c.temperature_2m)+'°','cond')}</div>
   <div class="wxsec">${T('Next hours')}</div>
   <div class="wxhours">${hrs.map(({t,i},k)=>{const pr=a.h.precipitation_probability[i]||0;return `<div class="${k?'':'now'}"><small>${k?String(new Date(t).getHours()).padStart(2,'0')+':00':T('Now')}</small><span>${wxIcon(a.h.weather_code[i],a.h.is_day[i],30)}</span><b>${Math.round(a.h.temperature_2m[i])}°</b><em><i style="height:${Math.round(pr/hmax*100)}%"></i></em><u>${pr?pr+'%':''}</u></div>`}).join('')}</div>
   ${ND>1?`<div class="wxsec">${T('Next days')}</div><div class="wxdays">${d.time.map((t,k)=>{const mn=d.temperature_2m_min[k],mx=d.temperature_2m_max[k];return `<div><b>${dayN(k)}</b><span>${d.weather_code?wxIcon(d.weather_code[k],1,26):''}</span><u>${d.precipitation_probability_max[k]?d.precipitation_probability_max[k]+'%':''}</u><small>${Math.round(mn)}°</small><em><i style="left:${(mn-lo)/span*100}%;right:${(hi-mx)/span*100}%"></i></em><small class="mx">${Math.round(mx)}°</small></div>`}).join('')}</div>`:''}
   <div class="wxfoot">${T('Forecast from Open-Meteo. Updates every 15 minutes with signal.')}</div></div>`,()=>{
-    document.querySelectorAll('[data-wx]').forEach(e=>e.onclick=()=>wxSheet(e.dataset.wx))})}
+    document.querySelectorAll('[data-wx]').forEach(e=>e.onclick=()=>wxSheet(e.dataset.wx));
+    document.querySelectorAll('[data-wxd]').forEach(e=>e.onclick=()=>wxDetail(a.n,e.dataset.wxd,0));
+    const h=document.querySelector('.wx2 .wxhero');if(h){h.style.cursor='pointer';h.onclick=()=>wxDetail(a.n,'cond',0)}})}
+/* ============ weather detail pages (like the iPhone Weather app): a chart for the day, a summary, compared with yesterday ============ */
+const WXP={press:'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="13" r="8"/><path d="M12 13l3-4M8 9.5l.5.5M12 7.5v.5M16 9.5l-.5.5"/></svg>',
+  eye:'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>',
+  therm:'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M14 14.8V5a2 2 0 0 0-4 0v9.8a4 4 0 1 0 4 0z"/></svg>'};
+const uvWord=u=>u>=11?T('extreme'):u>=8?T('very high'):u>=6?T('high'):u>=3?T('moderate'):T('low');
+const visTxt=m=>m>=10000?Math.round(m/1000)+' km':(m/1000).toFixed(1)+' km';
+const WXM=[['cond',T('Conditions')],['rain',T('Precipitation')],['wind',T('Wind')],['hum',T('Humidity')],['press',T('Pressure')],['uv',T('UV index')],['vis',T('Visibility')]];
+const WXMI={cond:WXP.therm,rain:'<svg viewBox="0 0 24 24" width="18" height="18"><path d="M12 3s6 7 6 11a6 6 0 0 1-12 0c0-4 6-11 6-11z" fill="currentColor"/></svg>',wind:'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M3 8h11a3 3 0 1 0-3-3M3 12h16a3 3 0 1 1-3 3M3 16h8"/></svg>',
+  hum:'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 3s6 7 6 11a6 6 0 0 1-12 0c0-4 6-11 6-11z"/></svg>',press:WXP.press,uv:'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>',vis:WXP.eye};
+/* the hours of one day, by date */
+function wxDay(a,date){const out=[];if(!a.h||!a.h.time)return out;a.h.time.forEach((t,i)=>{if(t.slice(0,10)===date)out.push(i)});return out}
+const wxVals=(a,key,idx)=>idx.map(i=>a.h[key]?a.h[key][i]:null);
+const avg=v=>{const n=v.filter(x=>x!=null);return n.length?n.reduce((p,q)=>p+q,0)/n.length:null};
+function wxTrend(a){const idx=wxDay(a,a.d.time[0]),h=new Date().getHours(),p=a.h.pressure_msl;if(!p||!idx.length)return '';const i=idx[Math.min(h,idx.length-1)],j=idx[Math.min(h+3,idx.length-1)];const dd=p[j]-p[i];return dd>0.6?T('rising'):dd<-0.6?T('falling'):T('steady')}
+/* draw a day chart: 24 values, earlier hours dashed, a dot at now, scale on the right */
+function wxChart(o){const W=340,H=o.h||200,L=4,R=W-44,TOP=8,B=H-24,n=o.vals.length||24;
+  const X=i=>L+(R-L)*i/Math.max(1,n-1),Y=v=>B-(B-TOP)*(v-o.min)/Math.max(1e-6,o.max-o.min);
+  const path=(vals,from,to)=>{let d='',pen=false;for(let i=from;i<=to&&i<vals.length;i++){const v=vals[i];if(v==null){pen=false;continue}d+=(pen?'L':'M')+X(i).toFixed(1)+' '+Y(v).toFixed(1);pen=true}return d};
+  const past=o.past==null?-1:Math.max(0,Math.min(n-1,o.past));const id='g'+Math.random().toString(36).slice(2,7);
+  let g=`<svg class="wxc2" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none"><defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1">${(o.grad||[[0,o.color,.45],[1,o.color,.05]]).map(([of,c,op])=>`<stop offset="${of}" stop-color="${c}" stop-opacity="${op}"/>`).join('')}</linearGradient></defs>`;
+  (o.bands||[]).forEach(([a,b,c])=>{g+=`<rect x="${L}" y="${Y(Math.min(b,o.max))}" width="${R-L}" height="${Math.max(0,Y(a)-Y(Math.min(b,o.max)))}" fill="${c}" opacity=".13"/>`});
+  o.ticks.forEach(t=>{const y=Y(t);g+=`<line x1="${L}" x2="${R}" y1="${y}" y2="${y}" stroke="currentColor" stroke-opacity=".12"/><text x="${R+6}" y="${y+4}" font-size="11" fill="currentColor" fill-opacity=".6">${o.fmt?o.fmt(t):t}</text>`});
+  [0,6,12,18].forEach(hh=>{const x=X(hh*(n-1)/23);g+=`<line x1="${x}" x2="${x}" y1="${TOP}" y2="${B}" stroke="currentColor" stroke-opacity=".12" stroke-dasharray="2 3"/><text x="${x+3}" y="${H-6}" font-size="11" fill="currentColor" fill-opacity=".6">${String(hh).padStart(2,'0')}:00</text>`});
+  if(o.bars){const bw=(R-L)/n*.7;o.vals.forEach((v,i)=>{if(!v)return;const y=Y(Math.min(v,o.max));g+=`<rect x="${X(i)-bw/2}" y="${y}" width="${bw}" height="${B-y}" rx="2" fill="${o.color}" opacity="${i<past?.45:1}"/>`})}
+  else{const last=o.vals.length-1,area=path(o.vals,0,last);if(area)g+=`<path d="${area} L${X(last)} ${B} L${X(0)} ${B}Z" fill="url(#${id})"/>`;
+    (o.extra||[]).forEach(e=>{g+=`<path d="${path(e.vals,0,last)}" fill="none" stroke="${e.color}" stroke-width="2.5" stroke-opacity="${e.op||.6}" stroke-linecap="round"/>`});
+    if(past>0)g+=`<path d="${path(o.vals,0,past)}" fill="none" stroke="${o.color}" stroke-width="3.2" stroke-dasharray="5 5" stroke-linecap="round" stroke-opacity=".7"/>`;
+    g+=`<path d="${path(o.vals,Math.max(0,past),last)}" fill="none" stroke="${o.color}" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>`}
+  (o.marks||[]).forEach(([i,lab])=>{const v=o.vals[i];if(v==null)return;g+=`<circle cx="${X(i)}" cy="${Y(v)}" r="5" fill="#fff" stroke="#111" stroke-width="2"/><text x="${X(i)}" y="${Y(v)-10}" text-anchor="middle" font-size="12" font-weight="700" fill="currentColor" fill-opacity=".75">${lab}</text>`});
+  if(o.now!=null&&o.vals[Math.round(o.now)]!=null){const i=o.now,v=o.vals[Math.round(i)];g+=`<line x1="${X(i)}" x2="${X(i)}" y1="${TOP}" y2="${B}" stroke="currentColor" stroke-opacity=".35"/><circle cx="${X(i)}" cy="${Y(v)}" r="5.5" fill="#fff" stroke="#111" stroke-width="2.5"/>`}
+  return g+'</svg>'}
+/* a row of small symbols above the chart, every 2 hours */
+const wxRow=items=>`<div class="wxrow">${items.map(x=>`<span>${x}</span>`).join('')}</div>`;
+const arrowSvg=deg=>`<svg viewBox="0 0 24 24" width="18" height="18" style="transform:rotate(${deg}deg)"><path d="M12 3v18M6 9l6-6 6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+let WXD={n:null,m:'cond',k:0,feels:false};
+function wxDetail(name,m,k){WXD.n=name;WXD.m=m||WXD.m;WXD.k=k||0;if(!WX)return;
+  const a=WX.a.find(x=>x.n===name)||wxNear(),d=a.d,date=d.time[WXD.k],idx=wxDay(a,date),isToday=WXD.k===0,hr=new Date().getHours()+new Date().getMinutes()/60;
+  const now=isToday?Math.min(23,hr):null,past=isToday?Math.floor(hr):null;const nowI=isToday?idx[Math.min(idx.length-1,Math.floor(hr))]:null;
+  const ydIdx=a.yd?wxDay(a,a.yd.time):[];const two=[0,2,4,6,8,10,12,14,16,18,20,22];
+  const cmp=(key,unit,word)=>{const t=avg(wxVals(a,key,idx)),y=avg(wxVals(a,key,ydIdx));if(t==null||y==null||!isToday)return '';const dlt=t-y,same=Math.abs(dlt)<(unit==='%'?3:unit==='hPa'?1:1);
+    return `<div class="wxsec">${T('Compared to yesterday')}</div><div class="wxcard">${same?T('About the same as yesterday.'):(T('Today is')+' '+(dlt>0?T('higher'):T('lower'))+' '+T('than yesterday')+'.')}
+      <div class="wxcmp"><div><span>${T('Today')}</span><em><i style="width:${Math.max(8,Math.min(100,t/Math.max(t,y)*100))}%"></i></em><b>${Math.round(t)}${unit}</b></div><div class="y"><span>${T('Yesterday')}</span><em><i style="width:${Math.max(8,Math.min(100,y/Math.max(t,y)*100))}%"></i></em><b>${Math.round(y)}${unit}</b></div></div></div>`};
+  let head='',chart='',summary='',more='',about='';const M=WXD.m;
+  if(M==='cond'){const key=WXD.feels?'apparent_temperature':'temperature_2m',v=wxVals(a,key,idx);const mn=Math.min(...v.filter(x=>x!=null)),mx=Math.max(...v.filter(x=>x!=null));
+    const lo=Math.floor((mn-4)/5)*5,hi=Math.ceil((mx+4)/5)*5;const iL=v.indexOf(mn),iH=v.indexOf(mx);const code=isToday?a.c.weather_code:d.weather_code[WXD.k];
+    head=`<div class="wxdv">${isToday?Math.round(a.c.temperature_2m):Math.round(d.temperature_2m_max[WXD.k])}°<span class="wxdi">${wxIcon(code,1,42)}</span></div><div class="wxds">H:${Math.round(d.temperature_2m_max[WXD.k])}° L:${Math.round(d.temperature_2m_min[WXD.k])}°</div>`;
+    chart=wxRow(two.map(h=>idx[h]!=null?wxIcon(a.h.weather_code[idx[h]],a.h.is_day[idx[h]],22):''))+wxChart({vals:v,min:lo,max:hi,ticks:Array.from({length:(hi-lo)/5+1},(_,i)=>lo+i*5),fmt:t=>t+'°',color:'#f2a33a',grad:[[0,'#f2a33a',.55],[.6,'#9a8a3a',.3],[1,'#4f8fb0',.25]],past,now,marks:[[iL,'L'],[iH,'H']]})
+      +`<div class="seg wxseg"><button class="${WXD.feels?'':'sel'}" data-feels="0">${T('Actual')}</button><button class="${WXD.feels?'sel':''}" data-feels="1">${T('Feels like')}</button></div>`;
+    summary=`${isToday?T('It is')+' '+Math.round(a.c.temperature_2m)+'° '+T('now, feels like')+' '+Math.round(a.c.apparent_temperature)+'°. ':''}${T('High of')} ${Math.round(d.temperature_2m_max[WXD.k])}° ${T('around')} ${String(iH).padStart(2,'0')}:00, ${T('low of')} ${Math.round(d.temperature_2m_min[WXD.k])}°.`;
+    more=cmp('temperature_2m','°')}
+  else if(M==='rain'){const v=wxVals(a,'precipitation',idx),pr=wxVals(a,'precipitation_probability',idx),tot=d.precipitation_sum[WXD.k]||0;const mx=Math.max(4,...v.filter(x=>x!=null));
+    head=`<div class="wxdv">${tot<1&&tot>0?tot.toFixed(1):Math.round(tot)}<small> mm</small></div><div class="wxds">${T('Total for the day')}</div>`;
+    chart=wxChart({vals:v,min:0,max:Math.max(8,mx),ticks:[1,4,8],fmt:t=>t===1?T('Light'):t===4?T('Moderate'):T('Heavy'),color:'#3fb3ff',bars:true,past,bands:[[0,1,'#7fd0ff'],[1,4,'#3fb3ff'],[4,8,'#2f6fd0']]})
+      +`<div class="wxsec">${T('Chance of rain')}</div><div class="wxds" style="margin:-4px 2px 6px">${T('Chance for the day')}: ${d.precipitation_probability_max[WXD.k]??0}%</div>`
+      +wxChart({vals:pr,min:0,max:100,ticks:[0,20,40,60,80,100],fmt:t=>t+'%',color:'#3fd0ff',past,now,h:170});
+    const first=isToday?pr.findIndex((p,i)=>i>=past&&p>=40):pr.findIndex(p=>p>=40);
+    summary=tot>0.2?`${T('About')} ${tot.toFixed(1)} mm ${T('of rain expected')}.${first>=0?' '+T('Most likely from')+' '+String(first).padStart(2,'0')+':00.':''}`:T('Little or no rain expected.')+(first>=0?' '+T('A chance of a shower from')+' '+String(first).padStart(2,'0')+':00.':'');
+    about=T('Low drifts and riverbed crossings can flood fast after heavy rain. Check the road reports before you drive.')}
+  else if(M==='wind'){const v=wxVals(a,'wind_speed_10m',idx),gu=wxVals(a,'wind_gusts_10m',idx),dir=wxVals(a,'wind_direction_10m',idx);const mx=Math.ceil((Math.max(20,...gu.filter(x=>x!=null))+5)/10)*10;
+    const cs=isToday?Math.round(a.c.wind_speed_10m):Math.round(Math.max(...v.filter(x=>x!=null)));
+    head=`<div class="wxdv">${cs}<small> km/h</small> <span class="wxdd">${isToday?wdir(a.c.wind_direction_10m):''}</span></div><div class="wxds">${T('Gusts')}: ${isToday?Math.round(a.c.wind_gusts_10m):Math.round(Math.max(...gu.filter(x=>x!=null)))} km/h</div>`;
+    chart=wxRow(two.map(h=>idx[h]!=null&&dir[h]!=null?arrowSvg((dir[h]+180)%360):''))+wxChart({vals:v,min:0,max:mx,ticks:Array.from({length:mx/10+1},(_,i)=>i*10),color:'#4fd1c5',past,now,extra:[{vals:gu,color:'#2f8f86',op:.8}]})+`<div class="wxkey"><i style="background:#4fd1c5"></i>${T('Wind')} <i style="background:#2f8f86"></i>${T('Gusts')}</div>`;
+    const vv=v.filter(x=>x!=null);summary=`${isToday?T('Wind is')+' '+Math.round(a.c.wind_speed_10m)+' km/h '+T('from the')+' '+wdir(a.c.wind_direction_10m)+'. ':''}${T('Wind speeds')} ${Math.round(Math.min(...vv))} ${T('to')} ${Math.round(Math.max(...vv))} km/h, ${T('gusts up to')} ${Math.round(Math.max(...gu.filter(x=>x!=null)))} km/h.`;
+    about=T('Animals smell you from downwind, so approach a sighting with the wind blowing towards you. Strong wind makes antelope nervous.');more=cmp('wind_speed_10m',' km/h')}
+  else if(M==='hum'){const v=wxVals(a,'relative_humidity_2m',idx),dp=wxVals(a,'dew_point_2m',idx);
+    head=`<div class="wxdv">${isToday?a.c.relative_humidity_2m:Math.round(avg(v))}<small>%</small></div><div class="wxds">${T('Dew point')}: ${Math.round(isToday&&a.c.dew_point_2m!=null?a.c.dew_point_2m:avg(dp))}°</div>`;
+    chart=wxRow([0,6,12,18].map(h=>Math.round(avg(v.slice(h,h+6))||0)+'%'))+wxChart({vals:v,min:0,max:100,ticks:[0,20,40,60,80,100],fmt:t=>t+'%',color:'#3a9bff',grad:[[0,'#3a9bff',.55],[1,'#2f9a5a',.45]],past,now});
+    summary=`${T('Average humidity')} ${Math.round(avg(v))}%. ${T('The dew point is')} ${Math.round(Math.min(...dp.filter(x=>x!=null)))}° ${T('to')} ${Math.round(Math.max(...dp.filter(x=>x!=null)))}°.`;more=cmp('relative_humidity_2m','%')}
+  else if(M==='press'){const v=wxVals(a,'pressure_msl',idx);const vv=v.filter(x=>x!=null);const lo=Math.floor((Math.min(...vv)-6)/5)*5,hi=Math.ceil((Math.max(...vv)+6)/5)*5;
+    head=`<div class="wxdv">${Math.round(isToday&&a.c.pressure_msl!=null?a.c.pressure_msl:avg(v))}<small> hPa</small></div><div class="wxds">${isToday?wxTrend(a).replace(/^./,c=>c.toUpperCase()):''}</div>`;
+    chart=wxRow(two.map(h=>{const i=h,j=Math.min(23,h+2);if(v[i]==null||v[j]==null)return '';const dd=v[j]-v[i];return dd>0.3?'↑':dd<-0.3?'↓':'='}))+wxChart({vals:v,min:lo,max:hi,ticks:Array.from({length:(hi-lo)/5+1},(_,i)=>lo+i*5),color:'#d84af0',past,now});
+    summary=`${isToday&&a.c.pressure_msl!=null?T('Pressure is')+' '+Math.round(a.c.pressure_msl)+' hPa '+T('and')+' '+wxTrend(a)+'. ':''}${T('Average')} ${Math.round(avg(v))} hPa, ${T('lowest')} ${Math.round(Math.min(...vv))} hPa.`;
+    about=T('A quick drop in pressure often means rain or a storm is on its way. Rising pressure usually means clearing weather.')}
+  else if(M==='uv'){const v=wxVals(a,'uv_index',idx);const mx=Math.max(12,...v.filter(x=>x!=null));
+    head=`<div class="wxdv">${isToday&&a.c.uv_index!=null?Math.round(a.c.uv_index):Math.round(d.uv_index_max[WXD.k]||0)}</div><div class="wxds">${uvWord(isToday&&a.c.uv_index!=null?a.c.uv_index:d.uv_index_max[WXD.k]||0)}</div>`;
+    chart=wxChart({vals:v,min:0,max:mx,ticks:[0,3,6,8,11],color:'#f2b632',grad:[[0,'#b04bd6',.5],[.3,'#e04b3a',.45],[.55,'#f2b632',.35],[1,'#3fae5a',.25]],past,now,bands:[[0,3,'#3fae5a'],[3,6,'#f2d33a'],[6,8,'#f2903a'],[8,11,'#e04b3a'],[11,mx,'#b04bd6']]});
+    const hi=v.map((x,i)=>[x,i]).filter(([x])=>x>=6);summary=`${T('UV peaks at')} ${Math.round(d.uv_index_max[WXD.k]||0)} (${uvWord(d.uv_index_max[WXD.k]||0)}).${hi.length?' '+T('Use sun protection from')+' '+String(hi[0][1]).padStart(2,'0')+':00 '+T('to')+' '+String(hi[hi.length-1][1]+1).padStart(2,'0')+':00.':''}`}
+  else if(M==='vis'){const v=wxVals(a,'visibility',idx).map(x=>x==null?null:Math.min(30,x/1000)),cc=wxVals(a,'cloud_cover',idx);
+    head=`<div class="wxdv">${isToday&&a.c.visibility!=null?visTxt(a.c.visibility).replace(' km','<small> km</small>'):Math.round(avg(v))+'<small> km</small>'}</div><div class="wxds">${T('Cloud cover')}: ${isToday?a.c.cloud_cover:Math.round(avg(cc))}%</div>`;
+    chart=wxChart({vals:v,min:0,max:30,ticks:[0,10,20,30],fmt:t=>t+' km',color:'#9fd3ff',past,now})+`<div class="wxsec">${T('Cloud cover')}</div>`+wxChart({vals:cc,min:0,max:100,ticks:[0,50,100],fmt:t=>t+'%',color:'#c8c8c8',past,now,h:150});
+    const low=v.findIndex((x,i)=>x!=null&&x<5&&(!isToday||i>=past));summary=low>=0?T('Visibility drops below 5 km around')+' '+String(low).padStart(2,'0')+':00 '+T('(mist or rain). Drive slower.'):T('Clear visibility most of the day.')}
+  const days=d.time.map((t,k)=>{const dt=new Date(t);return `<button class="${k===WXD.k?'on':''}" data-wk="${k}"><small>${k===0?T('Today'):dt.toLocaleDateString([],{weekday:'short'})}</small><b>${dt.getDate()}</b></button>`}).join('');
+  const ttl=(WXM.find(x=>x[0]===M)||[,''])[1];
+  openSheet(`<div class="wxd">
+    <div class="wxdays2">${days}</div>
+    <div class="wxdt"><span>${WXMI[M]||''} ${ttl}</span><small>${esc(a.n)} · ${new Date(date).toLocaleDateString([],{weekday:'long',day:'numeric',month:'long'})}</small></div>
+    <div class="wxdh"><div>${head}</div><button class="wxdm" id="wxdm">${WXMI[M]||''}<svg viewBox="0 0 24 24" width="16" height="16"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg></button></div>
+    <div class="wxmenu hide" id="wxmenu">${WXM.map(([k,l])=>`<button data-wm="${k}" class="${k===M?'on':''}">${WXMI[k]} ${l}</button>`).join('')}</div>
+    <div class="wxdc">${chart}</div>
+    <div class="wxsec">${T('Daily summary')}</div><div class="wxcard">${summary}</div>
+    ${more}
+    ${about?`<div class="wxsec">${T('Good to know')}</div><div class="wxcard">${about}</div>`:''}
+    <button class="btn" id="wxdBack" style="width:100%;margin-top:14px">‹ ${T('Back to the weather')}</button></div>`,()=>{
+    document.querySelectorAll('[data-wk]').forEach(b=>b.onclick=()=>wxDetail(a.n,M,+b.dataset.wk));
+    $('wxdm').onclick=()=>$('wxmenu').classList.toggle('hide');
+    document.querySelectorAll('[data-wm]').forEach(b=>b.onclick=()=>wxDetail(a.n,b.dataset.wm,WXD.k));
+    document.querySelectorAll('[data-feels]').forEach(b=>b.onclick=()=>{WXD.feels=b.dataset.feels==='1';wxDetail(a.n,'cond',WXD.k)});
+    $('wxdBack').onclick=()=>wxSheet(a.n);
+    const on=document.querySelector('.wxdays2 .on');if(on)on.scrollIntoView({inline:'center',block:'nearest'})})}
+
+/* ============ rain on the map, like Snapchat: drops fall over the map while it's raining where you are ============ */
+let RAINFX=LS.get('rainFx',true),RAIN={on:false,cv:null,drops:[],raf:0,last:0,kind:null,flash:0,preview:0};
+function rainKind(){if(RAIN.preview>Date.now())return {n:110,sp:1,thunder:false};const a=wxNear();if(!a||!a.c)return null;const c=a.c.weather_code,mm=a.c.precipitation||0;
+  if(c>=95)return {n:170,sp:1.25,thunder:true};if(c>=80&&c<=82)return {n:c===82?190:c===81?130:80,sp:1.1};if(c>=61&&c<=67)return {n:c>=65?190:c>=63?120:70,sp:1};if(c>=51&&c<=57)return {n:45,sp:.55,fine:true};
+  if(mm>0.2)return {n:Math.min(190,50+mm*30),sp:1};return null}
+function rainWanted(){return RAINFX&&!document.hidden&&!nav&&!(me&&(me.speed||0)>3)&&!(typeof HEAT!=='undefined'&&HEAT&&HEAT.hot)&&!document.body.classList.contains('navon')}
+function rainTick(){const k=rainWanted()?rainKind():null;if(k&&!RAIN.on)rainStart(k);else if(!k&&RAIN.on)rainStop();else if(k)RAIN.kind=k}
+function rainStart(k){RAIN.on=true;RAIN.kind=k;let cv=RAIN.cv;if(!cv){cv=RAIN.cv=document.createElement('canvas');cv.id='rainCv';document.body.appendChild(cv)}cv.style.display='block';rainSize();RAIN.drops=[];RAIN.raf=requestAnimationFrame(rainFrame)}
+function rainStop(){RAIN.on=false;cancelAnimationFrame(RAIN.raf);if(RAIN.cv){const g=RAIN.cv.getContext('2d');g.clearRect(0,0,RAIN.cv.width,RAIN.cv.height);RAIN.cv.style.display='none'}}
+function rainSize(){const cv=RAIN.cv;if(!cv)return;const dpr=Math.min(1.5,devicePixelRatio||1);cv.width=innerWidth*dpr;cv.height=innerHeight*dpr;cv.style.width=innerWidth+'px';cv.style.height=innerHeight+'px';cv.getContext('2d').setTransform(dpr,0,0,dpr,0,0)}
+window.addEventListener('resize',rainSize);
+function rainFrame(t){if(!RAIN.on)return;RAIN.raf=requestAnimationFrame(rainFrame);if(t-RAIN.last<33)return;const dt=Math.min(60,t-RAIN.last||33)/16.7;RAIN.last=t;
+  const k=RAIN.kind,cv=RAIN.cv,g=cv.getContext('2d'),W=innerWidth,H=innerHeight;g.clearRect(0,0,W,H);
+  /* the drops lean with the wind, turned with the map */
+  let lean=0;try{const a=wxNear();if(a&&a.c){const to=((a.c.wind_direction_10m+180)-map.getBearing())*Math.PI/180;lean=Math.sin(to)*Math.min(.5,(a.c.wind_speed_10m||0)/45)}}catch(e){}
+  while(RAIN.drops.length<k.n)RAIN.drops.push({x:Math.random()*(W+200)-100,y:Math.random()*-H,l:(k.fine?6:12)+Math.random()*(k.fine?5:14),v:(k.fine?6:13)+Math.random()*7,o:.25+Math.random()*.35});
+  if(RAIN.drops.length>k.n)RAIN.drops.length=k.n;
+  g.lineCap='round';g.lineWidth=k.fine?1:1.4;
+  for(const d of RAIN.drops){const vy=d.v*k.sp*dt,vx=vy*lean;d.y+=vy;d.x+=vx;if(d.y>H+20||d.x<-120||d.x>W+120){d.y=-20-Math.random()*60;d.x=Math.random()*(W+200)-100}
+    g.strokeStyle=`rgba(205,225,255,${d.o})`;g.beginPath();g.moveTo(d.x,d.y);g.lineTo(d.x-lean*d.l,d.y-d.l);g.stroke()}
+  if(k.thunder){if(!RAIN.flash&&Math.random()<.004)RAIN.flash=1;if(RAIN.flash>0){g.fillStyle=`rgba(255,255,255,${RAIN.flash*.35})`;g.fillRect(0,0,W,H);RAIN.flash=Math.max(0,RAIN.flash-.12*dt)}}}
+setInterval(rainTick,3000);document.addEventListener('visibilitychange',rainTick);
+
 const fmtLeft=ms=>{const m=Math.round(ms/6e4);return m<60?m+' min':Math.floor(m/60)+' h '+(m%60)+' min'};
 $('wxBtn').onclick=()=>wxSheet();
 setInterval(()=>loadWx(),15*6e4);window.addEventListener('online',()=>loadWx());document.addEventListener('visibilitychange',()=>{if(!document.hidden)loadWx()});
@@ -3755,6 +3900,7 @@ function layerSheet(){setTimeout(()=>{if($('lyFocus'))$('lyFocus').onclick=focus
   if($('tiltTog'))$('tiltTog').onclick=()=>{tilt=!tilt;LS.set('tilt',tilt);if(!tilt)map.easeTo({pitch:0,duration:400});else if(follow)moveCam();openSheet(layerSheet())};
   if($('driveTog'))$('driveTog').onclick=()=>{driveMode=driveMode==='auto'?'on':driveMode==='on'?'off':'auto';LS.set('drive',driveMode);applyDrive();openSheet(layerSheet())};
   if($('lyX'))$('lyX').onclick=closeSheet;
+  if($('rainTog'))$('rainTog').onclick=()=>{RAINFX=!RAINFX;LS.set('rainFx',RAINFX);if(RAINFX){RAIN.preview=Date.now()+6000;toast(T('Rain shows on the map whenever it rains where you are'),3000)}rainTick();openSheet(layerSheet())};
   if($('csTog'))$('csTog').onclick=()=>{CLEANSAT=!CLEANSAT;LS.set('cleanSat',CLEANSAT);if(!CLEANSAT){try{if(HEAT.satOff&&!HEAT.hot)coolSat(false);if(CLEAN.satOff){CLEAN.satOff=false;mode='sat';applyMode()}}catch(e){}}openSheet(layerSheet())};
   $('trailClr').onclick=()=>{trail=[];try{localStorage.removeItem('kn_trail')}catch(e){}map.getSource('trail').setData(empty);toast('Trail cleared')}},0);
  const PV={map:`<svg viewBox="0 0 80 80"><rect width="80" height="80" fill="#ece4d2"/><path d="M0 58c18-6 30 4 48-4s22-10 32-8V80H0z" fill="#cfe0b5"/><path d="M-4 30c14-8 26 2 40-4s26-12 48-6M-4 44c14-8 26 2 40-4s26-12 48-6" fill="none" stroke="#c9b48a" stroke-width="1.2"/><path d="M10 82C22 56 40 46 52 28S70 4 74-4" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round"/><path d="M10 82C22 56 40 46 52 28S70 4 74-4" fill="none" stroke="#b9a27a" stroke-width="1"/><circle cx="24" cy="20" r="6" fill="#7fb6e6"/></svg>`,
@@ -3766,7 +3912,7 @@ function layerSheet(){setTimeout(()=>{if($('lyFocus'))$('lyFocus').onclick=focus
  <div class="lyts">${tile('map','Map')}${tile('sat','Satellite')}${tile('roads','Roads only')}</div>
  ${mode==='sat'&&!navigator.onLine?`<div class="lyn">${LI('signal',15)} ${T("No signal: new areas won't load")}</div>`:''}
  <div class="lysep"></div><h3 class="lyh3">${T('Map details')}</h3>
- <div class="lyds">${det('contTog','waves','Contour lines',SHOWCONT)}${det('farmTog','map','Farm borders',showFarms)}${det('notesTog','pin','My notes',showNotes)}${det('hillTog','tree','Terrain shading',showHill)}${det('csTog','car','Drawn map while driving',CLEANSAT)}</div>
+ <div class="lyds">${det('contTog','waves','Contour lines',SHOWCONT)}${det('farmTog','map','Farm borders',showFarms)}${det('notesTog','pin','My notes',showNotes)}${det('hillTog','tree','Terrain shading',showHill)}${det('csTog','car','Drawn map while driving',CLEANSAT)}${det('rainTog','drop','Rain on the map',RAINFX)}</div>
  <div class="lysep"></div>
  <div class="list"><button class="it lk" id="lyFocus"><div style="flex:1"><b>${T('Focus mode')}</b><br><small>${T('Only what you need while you drive')}</small></div><small>${({drive:'When driving',on:'Always',off:'Off'})[FOCUSM]}</small><span class="ar">›</span></button>
  <div class="it"><div style="flex:1"><b>${T("Today's trail")}</b><br><small>${T("Fading line of where you've driven")}</small></div><button class="sm red" id="trailClr">${T('Clear')}</button></div></div>`}
