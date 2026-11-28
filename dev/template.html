@@ -2501,9 +2501,14 @@ function wxDetail(name,m,k){WXD.n=name;WXD.m=m||WXD.m;WXD.k=k||0;if(!WX)return;
 
 /* ============ rain on the map, like Snapchat: drops fall over the map while it's raining where you are ============ */
 let RAINFX=LS.get('rainFx',true),RAIN={on:false,cv:null,drops:[],raf:0,last:0,kind:null,flash:0,preview:0};
-function rainKind(){if(RAIN.preview>Date.now())return {n:110,sp:1,thunder:false};const a=wxNear();if(!a||!a.c)return null;const c=a.c.weather_code,mm=a.c.precipitation||0;
-  if(c>=95)return {n:170,sp:1.25,thunder:true};if(c>=80&&c<=82)return {n:c===82?190:c===81?130:80,sp:1.1};if(c>=61&&c<=67)return {n:c>=65?190:c>=63?120:70,sp:1};if(c>=51&&c<=57)return {n:45,sp:.55,fine:true};
-  if(mm>0.2)return {n:Math.min(190,50+mm*30),sp:1};return null}
+function rainKind(){if(RAIN.preview>Date.now())return {n:220,sp:1,thunder:false};const a=wxNear();if(!a||!a.c)return null;
+  /* this hour's forecast: its chance of rain sets how many drops fall */
+  let hc=null,pr=null,hm=0;try{const t=new Date(),key=t.toLocaleDateString('en-CA',{timeZone:'Africa/Johannesburg'})+'T'+String(t.getHours()).padStart(2,'0')+':00',i=a.h.time.indexOf(key);if(i>=0){hc=a.h.weather_code[i];pr=a.h.precipitation_probability[i];hm=(a.h.precipitation||[])[i]||0}}catch(e){}
+  const wet=x=>x!=null&&((x>=51&&x<=67)||(x>=80&&x<=82)||x>=95);
+  const c=wet(a.c.weather_code)?a.c.weather_code:(wet(hc)&&(pr||0)>=50?hc:null),mm=Math.max(a.c.precipitation||0,hm);if(c==null&&mm<=0.2)return null;
+  const p=pr==null?60:pr,f=.35+p/100*1.4;/* 10% chance: a light sprinkle, 100%: a downpour */
+  const base=c==null?90:c>=95?260:c>=80?(c===82?300:c===81?220:150):c>=61?(c>=65?300:c>=63?210:130):70;
+  return {n:Math.round(Math.min(420,(base+mm*25)*f)),sp:c!=null&&c>=95?1.25:c!=null&&c<=57?.55:1+Math.min(.4,mm/10),fine:c!=null&&c<=57,thunder:c!=null&&c>=95}}
 function rainWanted(){return RAINFX&&!document.hidden&&!nav&&!(me&&(me.speed||0)>3)&&!(typeof HEAT!=='undefined'&&HEAT&&HEAT.hot)&&!document.body.classList.contains('navon')}
 function rainTick(){const k=rainWanted()?rainKind():null;if(k&&!RAIN.on)rainStart(k);else if(!k&&RAIN.on)rainStop();else if(k)RAIN.kind=k}
 function rainStart(k){RAIN.on=true;RAIN.kind=k;let cv=RAIN.cv;if(!cv){cv=RAIN.cv=document.createElement('canvas');cv.id='rainCv';document.body.appendChild(cv)}cv.style.display='block';rainSize();RAIN.drops=[];RAIN.raf=requestAnimationFrame(rainFrame)}
